@@ -22,14 +22,101 @@
   var nextBtn = document.getElementById("next-btn");
   var visualRemote = document.getElementById("visual-remote");
 
-  function renderDots(count) {
+  // ─── Dot rendering: rows of 5, separator after 10 ───
+  function renderDots(count, animated) {
     if (!count || visualHidden) { visualContainer.innerHTML = ""; return; }
     var html = '<div class="math-dots">';
-    for (var i = 0; i < count; i++) {
-      html += '<span class="math-dot"></span>';
+    var placed = 0;
+    // If count > 10, show a tens block (two rows of 5) then a separator
+    var tens = Math.floor(count / 10);
+    var remainder = count % 10;
+
+    for (var t = 0; t < tens; t++) {
+      // Two rows of 5 for each ten
+      html += '<div class="math-dots__row">';
+      for (var i = 0; i < 5; i++) { html += dotSpan(placed++, animated); }
+      html += '</div>';
+      html += '<div class="math-dots__row">';
+      for (var i = 0; i < 5; i++) { html += dotSpan(placed++, animated); }
+      html += '</div>';
+      if (remainder > 0 || t < tens - 1) html += '<div class="math-dots__separator"></div>';
+    }
+    // Remaining dots in rows of 5
+    while (placed < count) {
+      var rowSize = Math.min(5, count - placed);
+      html += '<div class="math-dots__row">';
+      for (var i = 0; i < rowSize; i++) { html += dotSpan(placed++, animated); }
+      html += '</div>';
     }
     html += '</div>';
     visualContainer.innerHTML = html;
+  }
+
+  function dotSpan(index, animated) {
+    if (animated) {
+      return '<span class="math-dot math-dot--animated" style="animation-delay:' + (index * 150) + 'ms"></span>';
+    }
+    return '<span class="math-dot"></span>';
+  }
+
+  // ─── Tally rendering: groups of 5 (four marks + diagonal slash) ───
+  function renderTally(count) {
+    if (!count || visualHidden) { visualContainer.innerHTML = ""; return; }
+    var fullGroups = Math.floor(count / 5);
+    var leftover = count % 5;
+    var html = '<div class="math-tally">';
+    for (var g = 0; g < fullGroups; g++) {
+      html += '<div class="math-tally__group">';
+      for (var m = 0; m < 4; m++) html += '<div class="math-tally__mark"></div>';
+      html += '<div class="math-tally__slash"></div>';
+      html += '</div>';
+    }
+    if (leftover > 0) {
+      html += '<div class="math-tally__group">';
+      for (var m = 0; m < leftover; m++) html += '<div class="math-tally__mark"></div>';
+      html += '</div>';
+    }
+    html += '</div>';
+    visualContainer.innerHTML = html;
+  }
+
+  // ─── Interactive comparison buttons ───
+  function renderCompare(step) {
+    if (visualHidden) { visualContainer.innerHTML = ""; return; }
+    var answer = step.compareAnswer; // ">", "<", or "="
+    var html = '<div class="math-compare">';
+    ["<", "=", ">"].forEach(function (sym) {
+      html += '<button class="math-compare__btn" data-answer="' + sym + '" type="button" aria-label="' + sym + '">' + sym + '</button>';
+    });
+    html += '</div>';
+    visualContainer.innerHTML = html;
+
+    // Attach click handlers
+    var btns = visualContainer.querySelectorAll(".math-compare__btn");
+    btns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (btn.disabled) return;
+        var picked = btn.getAttribute("data-answer");
+        btns.forEach(function (b) { b.disabled = true; });
+        if (picked === answer) {
+          btn.classList.add("is-correct");
+          // Show praise, hide correct
+          praiseBox.classList.add("is-visible");
+          correctBox.classList.remove("is-visible");
+        } else {
+          btn.classList.add("is-wrong");
+          // Highlight the right answer after a short delay
+          setTimeout(function () {
+            btns.forEach(function (b) {
+              if (b.getAttribute("data-answer") === answer) b.classList.add("is-correct");
+            });
+          }, 600);
+          // Show correct, hide praise
+          correctBox.classList.add("is-visible");
+          praiseBox.classList.remove("is-visible");
+        }
+      });
+    });
   }
 
   function renderVisual(step) {
@@ -39,20 +126,23 @@
       if (visualRemote) visualRemote.style.display = "none";
       return;
     }
-    if (visualRemote) visualRemote.style.display = "";
+    if (visualRemote) visualRemote.style.display = step.visual === "compare" ? "none" : "";
 
     switch (step.visual) {
       case "dots":
-        renderDots(step.dotCount || 0);
+        renderDots(step.dotCount || 0, false);
+        break;
+      case "tally":
+        renderTally(step.dotCount || step.tallyCount || 0);
+        break;
+      case "compare":
+        renderCompare(step);
         break;
       case "equation":
         visualContainer.innerHTML = "";
         break;
       case "numberline":
         visualContainer.innerHTML = '<div class="math-numberline"><div class="math-numberline__track"></div></div>';
-        break;
-      case "tally":
-        visualContainer.innerHTML = "";
         break;
       case "placevalue":
         visualContainer.innerHTML = "";
@@ -111,24 +201,12 @@
   function goPrev() { if (currentStep > 0) showStep(currentStep - 1); }
 
   function playPause() {
-    // Animate dots appearing one by one
     var step = steps[currentStep];
-    if (step.visual === "dots" && step.dotCount && !visualHidden) {
-      visualContainer.innerHTML = '<div class="math-dots"></div>';
-      var dotsContainer = visualContainer.querySelector(".math-dots");
-      var count = step.dotCount;
-      var speed = parseInt(document.getElementById("speed-slider").value, 10);
-      var delay = 200 + (100 - speed) * 5;
-      for (var i = 0; i < count; i++) {
-        (function (idx) {
-          setTimeout(function () {
-            var dot = document.createElement("span");
-            dot.className = "math-dot math-dot--animated";
-            dot.style.animationDelay = "0ms";
-            dotsContainer.appendChild(dot);
-          }, idx * delay);
-        })(i);
-      }
+    if (visualHidden) return;
+    if (step.visual === "dots" && step.dotCount) {
+      renderDots(step.dotCount, true);
+    } else if (step.visual === "tally" && (step.dotCount || step.tallyCount)) {
+      renderTally(step.dotCount || step.tallyCount);
     }
   }
 

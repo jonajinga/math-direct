@@ -17,14 +17,28 @@
   line-height: 1.1;
 }
 
-/* Dot patterns for quantity visualization */
+/* Dot patterns for quantity visualization — rows of 5 (tens-frame style) */
 .math-dots {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: 0.375rem;
   padding: var(--space-md);
+}
+
+.math-dots__row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+}
+
+/* Separator between tens block and extras */
+.math-dots__separator {
+  width: 100%;
+  height: 2px;
+  background: var(--border-color);
+  margin: 0.25rem 0;
+  max-width: 8rem;
 }
 
 .math-dot {
@@ -34,6 +48,7 @@
   background: var(--dot-color);
   border: 2px solid var(--dot-border);
   display: inline-block;
+  flex-shrink: 0;
 }
 
 .math-dot--animated {
@@ -110,34 +125,127 @@
   transition: color 0.3s;
 }
 
-/* Tally marks */
+/* Tally marks — groups of 5 (four vertical + one diagonal slash) */
 .math-tally {
-  display: inline-flex;
-  gap: 0.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  justify-content: center;
   align-items: flex-end;
-  padding: var(--space-sm);
-}
-
-.math-tally__mark {
-  width: 4px;
-  height: 2rem;
-  background: var(--child-text-color);
-  border-radius: 2px;
-}
-
-.math-tally__mark--cross {
-  position: absolute;
-  width: 2rem;
-  height: 4px;
-  transform: rotate(-20deg);
-  top: 50%;
+  padding: var(--space-md);
 }
 
 .math-tally__group {
   position: relative;
+  display: flex;
+  gap: 0.35rem;
+  align-items: flex-end;
+  height: 2.5rem;
+}
+
+.math-tally__mark {
+  width: 4px;
+  height: 2.25rem;
+  background: var(--child-text-color);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Diagonal slash through a group of 4 to make 5 */
+.math-tally__slash {
+  position: absolute;
+  left: -0.2rem;
+  right: -0.2rem;
+  top: 50%;
+  height: 4px;
+  background: var(--child-text-color);
+  border-radius: 2px;
+  transform: rotate(-25deg);
+  transform-origin: center;
+}
+
+/* Label below tally group showing the count */
+.math-tally__label {
+  display: block;
+  text-align: center;
+  font-family: var(--font-child);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
+}
+
+/* Interactive comparison buttons */
+.math-compare {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  padding: var(--space-md);
+}
+
+.math-compare__btn {
+  font-family: var(--font-child);
+  font-size: 2rem;
+  font-weight: 700;
+  width: 3.5rem;
+  height: 3.5rem;
   display: inline-flex;
-  gap: 0.2rem;
-  margin-right: var(--space-sm);
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--child-text-color);
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s, transform 0.1s;
+  min-width: 44px;
+  min-height: 44px;
+}
+.math-compare__btn:hover {
+  border-color: var(--blue-500);
+  background: var(--blue-50);
+}
+[data-theme="dark"] .math-compare__btn:hover {
+  border-color: var(--blue-400);
+  background: var(--stone-700);
+}
+.math-compare__btn:active {
+  transform: scale(0.95);
+}
+.math-compare__btn.is-correct {
+  border-color: var(--green-600);
+  background: var(--green-50);
+  color: var(--green-800);
+  animation: correctPop 0.4s ease;
+}
+[data-theme="dark"] .math-compare__btn.is-correct {
+  background: rgba(20, 83, 45, 0.3);
+  color: var(--green-200);
+}
+.math-compare__btn.is-wrong {
+  border-color: var(--rose-500);
+  background: var(--rose-50);
+  color: var(--rose-800);
+  animation: wrongShake 0.4s ease;
+}
+[data-theme="dark"] .math-compare__btn.is-wrong {
+  background: rgba(127, 29, 29, 0.3);
+  color: var(--rose-200);
+}
+.math-compare__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+@keyframes correctPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+@keyframes wrongShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
 }
 
 /* Place value chart (Phase 5+) */
