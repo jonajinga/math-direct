@@ -1,0 +1,77 @@
+---
+pagination:
+  data: phases
+  size: 1
+  alias: phase
+  addAllPagesToCollections: true
+permalink: /phases/{{ phase.slug }}/
+layout: layouts/base.njk
+eleventyComputed:
+  title: "{{ phase.title }}"
+  description: "{{ phase.description }}"
+---
+<div class="content-page">
+  <div class="content-page__inner">
+    <a href="/lessons/" style="display:inline-flex;align-items:center;gap:0.25rem;color:var(--text-secondary);font-size:0.875rem;margin-bottom:var(--space-md)">{% include "partials/icons/arrow-left.njk" %} Back to Lessons</a>
+
+    <h1>{{ phase.title }}</h1>
+    <p style="color:var(--text-secondary);margin-bottom:var(--space-xl)">{{ phase.subtitle }} &middot; {{ phase.description }}</p>
+
+    <section style="margin-bottom:var(--space-2xl)">
+      <h2>Concepts Introduced</h2>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;margin-top:var(--space-md)">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border-color);text-align:left">
+              <th style="padding:var(--space-sm) var(--space-md);font-weight:700">Symbol</th>
+              <th style="padding:var(--space-sm) var(--space-md);font-weight:700">Lesson</th>
+              <th style="padding:var(--space-sm) var(--space-md);font-weight:700">Type</th>
+              <th style="padding:var(--space-sm) var(--space-md);font-weight:700">Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for concept in phase.conceptsIntroduced %}
+            <tr style="border-bottom:1px solid var(--border-color)">
+              <td style="padding:var(--space-sm) var(--space-md);font-family:var(--font-child);font-weight:700;font-size:1.25rem">{{ concept.symbol }}</td>
+              <td style="padding:var(--space-sm) var(--space-md)"><a href="/lessons/lesson-{{ concept.lesson | pad }}/">{{ concept.lesson }}</a></td>
+              <td style="padding:var(--space-sm) var(--space-md);color:var(--text-secondary);font-size:0.875rem">{{ concept.type }}</td>
+              <td style="padding:var(--space-sm) var(--space-md);color:var(--text-secondary)">{{ concept.example }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section style="margin-bottom:var(--space-2xl)">
+      <h2>Skills</h2>
+      <ul style="list-style:disc;padding-left:var(--space-lg);margin-top:var(--space-md)">
+        {% for skill in phase.skills %}
+        <li style="margin-bottom:var(--space-xs);color:var(--text-secondary)">{{ skill }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section style="margin-bottom:var(--space-2xl)">
+      <h2>Tips for Teachers</h2>
+      <p style="color:var(--text-secondary);margin-top:var(--space-md)">{{ phase.tips }}</p>
+    </section>
+
+    <section style="margin-bottom:var(--space-2xl)">
+      <h2>What to Expect</h2>
+      <p style="color:var(--text-secondary);margin-top:var(--space-md)">{{ phase.whatToExpect }}</p>
+    </section>
+
+    <section>
+      <h2>Lessons in This Phase</h2>
+      <div class="lesson-grid" style="margin-top:var(--space-md)">
+        {% for lesson in lessons | where("phase", phase.id) %}
+        <a href="/lessons/lesson-{{ lesson.id | pad }}/" class="lesson-card" data-lesson-id="{{ lesson.id }}">
+          <span class="lesson-card__number">{{ lesson.id }}</span>
+          <span class="lesson-card__target">{{ lesson.target }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</div>

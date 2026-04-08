@@ -1,0 +1,26 @@
+{
+  "name": "math-direct",
+  "version": "1.0.0",
+  "description": "Free, open-source math app that teaches children numbers, addition, and subtraction using Direct Instruction methodology.",
+  "scripts": {
+    "start": "npx @11ty/eleventy --serve --port=8080",
+    "dev": "npx @11ty/eleventy --serve --port=8080",
+    "build": "npx @11ty/eleventy",
+    "clean": "npx rimraf _site"
+  },
+  "keywords": [
+    "math",
+    "education",
+    "addition",
+    "subtraction",
+    "direct-instruction",
+    "open-source"
+  ],
+  "author": "Pikes Peak Web Designs",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.5",
+    "@sardine/eleventy-plugin-tinyhtml": "^0.2.0"
+  }
+}

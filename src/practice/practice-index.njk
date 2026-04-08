@@ -1,0 +1,33 @@
+---
+layout: layouts/base.njk
+title: Practice
+description: Practice problem sets organized by phase to reinforce math skills.
+permalink: /practice/
+---
+<div class="content-page">
+  <div class="content-page__inner">
+    <h1>Practice Problem Sets</h1>
+    <p style="color:var(--text-secondary);margin-bottom:var(--space-xl)">Reinforce what you've learned with these practice sets. Each set focuses on skills from a specific phase.</p>
+
+    {% for phase in phases %}
+    {% set phaseProblems = collections.practice | where("data.phase", phase.id) %}
+    {% if phaseProblems.length > 0 %}
+    <section style="margin-bottom:var(--space-2xl)">
+      <h2>{{ phase.title }}</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(16rem, 1fr));gap:var(--space-md);margin-top:var(--space-md)">
+        {% for item in phaseProblems %}
+        <a href="{{ item.url }}" style="display:block;padding:var(--space-lg);background:var(--bg-surface);border:1px solid var(--border-color);box-shadow:var(--shadow-sm);transition:box-shadow 0.2s">
+          <h3 style="font-size:1rem;font-weight:700;margin-bottom:var(--space-xs)">{{ item.data.title }}</h3>
+          <p style="font-size:0.875rem;color:var(--text-secondary)">{{ item.data.description }}</p>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+    {% endfor %}
+
+    {% if collections.practice.length == 0 %}
+    <p style="color:var(--text-secondary);font-style:italic">Practice sets are coming soon! Complete some lessons first.</p>
+    {% endif %}
+  </div>
+</div>

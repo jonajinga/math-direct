@@ -1,0 +1,48 @@
+---
+layout: layouts/base.njk
+title: Number Chart
+description: Visual number chart showing numbers 0 through 20 with their names. A reference tool for young learners.
+permalink: /number-chart/
+---
+<div class="content-page">
+  <div class="content-page__inner">
+    <h1 class="content-page__title">Number Chart</h1>
+    <p class="content-page__intro">Numbers 0 through 20 with their names. Use this as a reference during lessons or as a practice tool for numeral recognition.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(7rem,1fr));gap:var(--space-md);margin-top:var(--space-xl)">
+      {% set numbers = [
+        { num: "0", name: "zero" },
+        { num: "1", name: "one" },
+        { num: "2", name: "two" },
+        { num: "3", name: "three" },
+        { num: "4", name: "four" },
+        { num: "5", name: "five" },
+        { num: "6", name: "six" },
+        { num: "7", name: "seven" },
+        { num: "8", name: "eight" },
+        { num: "9", name: "nine" },
+        { num: "10", name: "ten" },
+        { num: "11", name: "eleven" },
+        { num: "12", name: "twelve" },
+        { num: "13", name: "thirteen" },
+        { num: "14", name: "fourteen" },
+        { num: "15", name: "fifteen" },
+        { num: "16", name: "sixteen" },
+        { num: "17", name: "seventeen" },
+        { num: "18", name: "eighteen" },
+        { num: "19", name: "nineteen" },
+        { num: "20", name: "twenty" }
+      ] %}
+      {% for item in numbers %}
+      <div style="display:flex;flex-direction:column;align-items:center;padding:var(--space-lg) var(--space-md);border:1px solid var(--border-color);background:var(--bg-surface);font-family:var(--font-child)">
+        <span style="font-size:2.5rem;font-weight:800;color:var(--blue-600);line-height:1">{{ item.num }}</span>
+        <span style="font-size:1rem;font-weight:600;color:var(--text-secondary);margin-top:var(--space-xs)">{{ item.name }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="content-page__cta">
+      <a href="/lessons/" class="btn btn--cta">Back to Lessons</a>
+    </div>
+  </div>
+</div>

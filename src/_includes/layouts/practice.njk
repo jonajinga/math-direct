@@ -1,0 +1,15 @@
+---
+layout: layouts/base.njk
+---
+<div class="content-page">
+  <div class="content-page__inner">
+    <a href="/practice/" style="display:inline-flex;align-items:center;gap:0.25rem;color:var(--text-secondary);font-size:0.875rem;margin-bottom:var(--space-md)">{% include "partials/icons/arrow-left.njk" %} Back to Practice</a>
+
+    <h1>{{ title }}</h1>
+    {% if description %}<p style="color:var(--text-secondary);margin-bottom:var(--space-lg)">{{ description }}</p>{% endif %}
+
+    <div class="practice-content" style="font-family:var(--font-child);font-size:1.5rem;line-height:2">
+      {{ content | safe }}
+    </div>
+  </div>
+</div>

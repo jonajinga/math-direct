@@ -1,0 +1,112 @@
+---
+layout: layouts/base.njk
+bodyClass: page-lesson
+---
+<div class="lesson-shell" aria-label="Lesson: {{ lesson.title }}">
+  {# === Child View (always on top) === #}
+  <div class="lesson-child">
+    <div class="lesson-child__display-area">
+      <div class="child-text" id="child-text" aria-live="polite"></div>
+      <div class="visual-container" id="visual-container">
+        {# Math visual aids rendered by lesson-engine.js #}
+      </div>
+    </div>
+  </div>
+
+  {# === Teacher Panel === #}
+  <div class="lesson-teacher">
+    {# Lesson/Phase indicator bar #}
+    <div class="lesson-info-bar">
+      <div class="lesson-info-bar__top">
+        <span class="lesson-info-bar__phase">Phase {{ lesson.phase }}</span>
+        <span class="lesson-info-bar__sep">&middot;</span>
+        <span class="lesson-info-bar__lesson">Lesson {{ lesson.id }}</span>
+        <span class="lesson-info-bar__sep">&middot;</span>
+        <span class="lesson-info-bar__target">{{ lesson.target }}</span>
+      </div>
+      <div class="lesson-info-bar__steps">
+        <div class="step-dots" id="step-dots" role="group" aria-label="Lesson progress: {{ lesson.steps | length }} steps">
+          {% for step in lesson.steps %}
+          <div class="step-dot{% if loop.first %} is-active{% endif %}" data-step="{{ loop.index0 }}" role="img" aria-label="Step {{ loop.index }}"></div>
+          {% endfor %}
+        </div>
+        <span class="step-number" id="step-number">Step 1</span>
+      </div>
+    </div>
+    <div class="lesson-teacher__body">
+
+      {# Say script #}
+      <p class="step-say" id="step-say"></p>
+
+      {# Do instruction (under script) #}
+      <div class="step-do">
+        <span class="step-do__icon">{% include "partials/icons/info.njk" %}</span>
+        <p class="step-do__text" id="step-do"></p>
+      </div>
+
+      {# Feedback: praise first, then correct underneath #}
+      <div class="feedback-container" id="feedback-container" aria-live="polite">
+        <div class="feedback-box feedback-box--praise" id="praise-box">
+          {% include "partials/icons/check-circle.njk" %}
+          <span class="feedback-box__text" id="praise-text"></span>
+        </div>
+        <div class="feedback-box feedback-box--correct" id="correct-box">
+          {% include "partials/icons/refresh-cw.njk" %}
+          <span class="feedback-box__text" id="correct-text"></span>
+        </div>
+      </div>
+
+      {# Visual aid controls #}
+      <div class="visual-remote" id="visual-remote">
+        <button class="visual-remote__btn" id="btn-play-pause" title="Animate" aria-label="Animate visual" onclick="window.playPause && window.playPause()">
+          <span id="icon-play">{% include "partials/icons/play.njk" %}</span>
+          <span id="icon-pause" class="hidden">{% include "partials/icons/pause.njk" %}</span>
+        </button>
+        <button class="visual-remote__btn" id="btn-reset" title="Reset" aria-label="Reset visual" onclick="window.resetVisual && window.resetVisual()">
+          {% include "partials/icons/rotate-ccw.njk" %}
+        </button>
+        <input type="range" id="speed-slider" min="0" max="100" value="50" class="visual-remote__slider" aria-label="Animation speed">
+        <button class="visual-remote__btn" id="btn-toggle-visual" title="Hide/Show Visual" aria-label="Hide/Show Visual" onclick="window.toggleVisual && window.toggleVisual()">
+          <span id="icon-eye-open">{% include "partials/icons/eye.njk" %}</span>
+          <span id="icon-eye-closed" class="hidden">{% include "partials/icons/eye-off.njk" %}</span>
+        </button>
+      </div>
+
+      {# Nav row: exit + back + next + theme toggle #}
+      <div class="step-nav">
+        <a href="/lessons/" class="lesson-exit-btn" title="Exit Lesson" aria-label="Exit Lesson">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </a>
+        <button class="btn--nav-prev" id="prev-btn" title="Back" aria-label="Previous step" onclick="window.prevStep && window.prevStep()">
+          {% include "partials/icons/arrow-left.njk" %}
+        </button>
+        <button class="btn--nav-next" id="next-btn" title="Next" aria-label="Next step" onclick="window.nextStep && window.nextStep()">
+          {% include "partials/icons/arrow-right.njk" %}
+        </button>
+        <button class="theme-toggle lesson-theme-toggle" aria-label="Switch to dark mode">
+          <span class="theme-toggle__light">{% include "partials/icons/moon.njk" %}</span>
+          <span class="theme-toggle__dark">{% include "partials/icons/sun.njk" %}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Practice Round (hidden, shown by JS after last step) #}
+<div class="practice-round hidden" id="practice-round">
+  <div class="practice-round__inner">
+    <h2 class="practice-round__title">Practice Round</h2>
+    <p class="practice-round__instruction">Try these on your own!</p>
+    <div id="practice-problems"></div>
+    <div class="practice-round__actions">
+      <button class="btn btn--cta" id="btn-complete-lesson" onclick="window.completeLesson && window.completeLesson()">Complete Lesson</button>
+    </div>
+  </div>
+</div>
+
+<script id="lesson-data" type="application/json">{{ lesson | dump | safe }}</script>
+
+{% block scripts %}
+<script src="/assets/js/lesson-engine.js" defer></script>
+<script src="/assets/js/progress.js" defer></script>
+{% endblock %}

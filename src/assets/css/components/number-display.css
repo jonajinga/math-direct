@@ -1,0 +1,235 @@
+/* ===== Number Display — Math Visual Aids ===== */
+
+/* Large number display */
+.math-num {
+  font-family: var(--font-child);
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 700;
+  color: var(--child-text-color);
+  line-height: 1.1;
+}
+
+.math-symbol {
+  font-family: var(--font-child);
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 700;
+  color: var(--blue-600);
+  line-height: 1.1;
+}
+
+/* Dot patterns for quantity visualization */
+.math-dots {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-md);
+}
+
+.math-dot {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: var(--radius-full);
+  background: var(--dot-color);
+  border: 2px solid var(--dot-border);
+  display: inline-block;
+}
+
+.math-dot--animated {
+  opacity: 0;
+  animation: dotAppear 0.3s ease-out forwards;
+}
+
+@keyframes dotAppear {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Number line */
+.math-numberline {
+  position: relative;
+  width: 100%;
+  max-width: 36rem;
+  margin: var(--space-lg) auto;
+  padding: var(--space-xl) var(--space-md) var(--space-md);
+}
+
+.math-numberline__track {
+  position: relative;
+  height: 4px;
+  background: var(--track-color);
+  border-radius: 2px;
+}
+
+.math-numberline__tick {
+  position: absolute;
+  top: -8px;
+  width: 2px;
+  height: 20px;
+  background: var(--track-color);
+}
+
+.math-numberline__label {
+  position: absolute;
+  top: 16px;
+  transform: translateX(-50%);
+  font-family: var(--font-child);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.math-numberline__hop {
+  position: absolute;
+  top: -28px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  background: var(--dot-color);
+  border: 2px solid var(--dot-border);
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* Equation display */
+.math-equation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  font-family: var(--font-child);
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 700;
+  color: var(--child-text-color);
+  padding: var(--space-lg);
+}
+
+.math-equation__highlight {
+  color: var(--highlight-color);
+  transition: color 0.3s;
+}
+
+/* Tally marks */
+.math-tally {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: flex-end;
+  padding: var(--space-sm);
+}
+
+.math-tally__mark {
+  width: 4px;
+  height: 2rem;
+  background: var(--child-text-color);
+  border-radius: 2px;
+}
+
+.math-tally__mark--cross {
+  position: absolute;
+  width: 2rem;
+  height: 4px;
+  transform: rotate(-20deg);
+  top: 50%;
+}
+
+.math-tally__group {
+  position: relative;
+  display: inline-flex;
+  gap: 0.2rem;
+  margin-right: var(--space-sm);
+}
+
+/* Place value chart (Phase 5+) */
+.math-placevalue {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  max-width: 20rem;
+  margin: var(--space-md) auto;
+  border: 2px solid var(--border-color);
+}
+
+.math-placevalue__header {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--blue-600);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.math-placevalue__cell {
+  padding: var(--space-md);
+  background: var(--bg-child-view);
+  text-align: center;
+  font-family: var(--font-child);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--child-text-color);
+}
+
+/* Child text container (matches Open Phonics pattern) */
+.child-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  min-height: 6rem;
+  padding: var(--space-lg);
+  font-family: var(--font-child);
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 700;
+  color: var(--child-text-color);
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Visual aid container below child text */
+.visual-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 4rem;
+  padding: var(--space-md);
+  position: relative;
+}
+
+/* Remote control bar for visual aids */
+.visual-remote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-surface-alt);
+  border-top: 1px solid var(--border-color);
+}
+
+.visual-remote__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  transition: var(--transition-colors);
+}
+.visual-remote__btn:hover {
+  background: var(--blue-100);
+  color: var(--blue-700);
+}
+[data-theme="dark"] .visual-remote__btn:hover {
+  background: var(--stone-700);
+  color: var(--blue-400);
+}
+
+.visual-remote__slider {
+  width: 5rem;
+  accent-color: var(--blue-600);
+}
