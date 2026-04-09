@@ -266,7 +266,7 @@
   justify-content: center;
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-md);
-  border-top: 1px solid var(--border-color);
+  border: 1px solid var(--border-color);
   background: var(--bg-surface-alt);
   flex-shrink: 0;
 }
