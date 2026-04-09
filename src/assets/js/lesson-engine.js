@@ -258,6 +258,39 @@
     if (stored === "false") showAutoDots = false;
   } catch (e) {}
 
+  // ─── Convert inline bullet spans to proper dot grids (rows of 5) ───
+  function convertInlineDots() {
+    if (!childText) return;
+    var spans = childText.querySelectorAll(".math-dots");
+    spans.forEach(function (span) {
+      // Count bullet characters (•) in text
+      var text = span.textContent;
+      var count = 0;
+      for (var i = 0; i < text.length; i++) {
+        if (text[i] === "\u2022") count++;
+      }
+      if (count === 0) return;
+      // Build dot grid with rows of 5
+      var grid = document.createElement("span");
+      grid.className = "math-dots-inline";
+      var placed = 0;
+      while (placed < count) {
+        var rowSize = Math.min(5, count - placed);
+        var row = document.createElement("span");
+        row.className = "math-dots-inline__row";
+        for (var j = 0; j < rowSize; j++) {
+          var dot = document.createElement("span");
+          dot.className = "math-dot";
+          row.appendChild(dot);
+          placed++;
+        }
+        grid.appendChild(row);
+      }
+      span.textContent = "";
+      span.appendChild(grid);
+    });
+  }
+
   function injectAutoDots() {
     if (!childText) return;
     childText.setAttribute("data-show-dots", showAutoDots ? "true" : "false");
@@ -459,6 +492,7 @@
       childText.style.display = "";
       childText.innerHTML = wrapQuestionMarksInDisplay(step.display);
       childText.style.fontSize = "";
+      convertInlineDots();
       injectAutoDots();
       fitChildText();
     }
