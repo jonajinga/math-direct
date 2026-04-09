@@ -1,35 +1,43 @@
 // Math Direct Service Worker — Offline Support
-var CACHE_NAME = "math-direct-v1";
-var URLS_TO_CACHE = [
+var STATIC_CACHE = "math-direct-static-v2";
+var LESSON_CACHE = "math-direct-lessons-v1";
+
+// Core assets cached on install
+var CORE_ASSETS = [
   "/",
   "/lessons/",
-  "/guide/",
   "/practice/",
+  "/guide/",
+  "/curriculum/",
   "/about/",
-  "/contact/",
+  "/offline/",
   "/assets/css/global.css",
   "/assets/js/theme.js",
   "/assets/js/nav.js",
   "/assets/js/lesson-engine.js",
   "/assets/js/progress.js",
-  "/manifest.json"
+  "/assets/js/practice-engine.js",
+  "/manifest.json",
 ];
 
+// Install: cache core assets
 self.addEventListener("install", function (event) {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
-      return cache.addAll(URLS_TO_CACHE);
+    caches.open(STATIC_CACHE).then(function (cache) {
+      return cache.addAll(CORE_ASSETS);
     })
   );
   self.skipWaiting();
 });
 
+// Activate: clean old caches
 self.addEventListener("activate", function (event) {
+  var keep = [STATIC_CACHE, LESSON_CACHE];
   event.waitUntil(
     caches.keys().then(function (names) {
       return Promise.all(
         names
-          .filter(function (name) { return name !== CACHE_NAME; })
+          .filter(function (name) { return keep.indexOf(name) === -1; })
           .map(function (name) { return caches.delete(name); })
       );
     })
@@ -37,21 +45,61 @@ self.addEventListener("activate", function (event) {
   self.clients.claim();
 });
 
+// Fetch strategy
 self.addEventListener("fetch", function (event) {
-  // Network first, cache fallback
-  event.respondWith(
-    fetch(event.request)
-      .then(function (response) {
-        if (event.request.method === "GET" && response.status === 200) {
-          var responseClone = response.clone();
-          caches.open(CACHE_NAME).then(function (cache) {
-            cache.put(event.request, responseClone);
+  var url = new URL(event.request.url);
+
+  // Only handle same-origin GET requests
+  if (event.request.method !== "GET" || url.origin !== self.location.origin) return;
+
+  // Lesson pages: cache-first after first visit (they rarely change)
+  if (url.pathname.match(/^\/lessons\/lesson-/)) {
+    event.respondWith(
+      caches.open(LESSON_CACHE).then(function (cache) {
+        return cache.match(event.request).then(function (cached) {
+          if (cached) return cached;
+          return fetch(event.request).then(function (response) {
+            if (response.status === 200) cache.put(event.request, response.clone());
+            return response;
           });
-        }
-        return response;
+        });
+      }).catch(function () {
+        return caches.match("/offline/");
       })
-      .catch(function () {
-        return caches.match(event.request);
+    );
+    return;
+  }
+
+  // Static assets (CSS, JS, images): stale-while-revalidate
+  if (url.pathname.match(/^\/assets\//)) {
+    event.respondWith(
+      caches.open(STATIC_CACHE).then(function (cache) {
+        return cache.match(event.request).then(function (cached) {
+          var fetched = fetch(event.request).then(function (response) {
+            if (response.status === 200) cache.put(event.request, response.clone());
+            return response;
+          }).catch(function () { return cached; });
+          return cached || fetched;
+        });
       })
+    );
+    return;
+  }
+
+  // Pages: network-first, cache fallback, offline fallback
+  event.respondWith(
+    fetch(event.request).then(function (response) {
+      if (response.status === 200) {
+        var clone = response.clone();
+        caches.open(STATIC_CACHE).then(function (cache) {
+          cache.put(event.request, clone);
+        });
+      }
+      return response;
+    }).catch(function () {
+      return caches.match(event.request).then(function (cached) {
+        return cached || caches.match("/offline/");
+      });
+    })
   );
 });

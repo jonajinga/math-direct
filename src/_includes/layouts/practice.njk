@@ -2,14 +2,26 @@
 layout: layouts/base.njk
 ---
 <div class="content-page">
-  <div class="content-page__inner">
+  <div class="content-page__inner" style="max-width:36rem">
     <a href="/practice/" style="display:inline-flex;align-items:center;gap:0.25rem;color:var(--text-secondary);font-size:0.875rem;margin-bottom:var(--space-md)">{% include "partials/icons/arrow-left.njk" %} Back to Practice</a>
 
     <h1>{{ title }}</h1>
     {% if description %}<p style="color:var(--text-secondary);margin-bottom:var(--space-lg)">{{ description }}</p>{% endif %}
 
-    <div class="practice-content" style="font-family:var(--font-child);font-size:1.5rem;line-height:2">
-      {{ content | safe }}
-    </div>
+    {# Interactive practice engine #}
+    <div id="practice-engine"></div>
+
+    {# Inject problem data for this phase #}
+    <script id="practice-data" type="application/json">{{ problemSets | where("phase", phase) | dump | safe }}</script>
+
+    <script src="/assets/js/practice-engine.js" defer></script>
+
+    {# Static fallback (printable version) #}
+    <details style="margin-top:var(--space-2xl);border-top:1px solid var(--border-color);padding-top:var(--space-lg)">
+      <summary style="cursor:pointer;font-size:0.875rem;font-weight:600;color:var(--text-secondary)">Printable version</summary>
+      <div class="practice-content" style="font-family:var(--font-child);font-size:1.5rem;line-height:2;margin-top:var(--space-md)">
+        {{ content | safe }}
+      </div>
+    </details>
   </div>
 </div>

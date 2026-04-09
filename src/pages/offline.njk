@@ -1,0 +1,18 @@
+---
+layout: layouts/base.njk
+title: Offline
+description: You are currently offline.
+permalink: /offline/
+excludeFromSitemap: true
+---
+<div class="content-page">
+  <div class="content-page__inner" style="text-align:center;padding-top:var(--space-2xl)">
+    <h1 class="content-page__title">You're Offline</h1>
+    <p class="content-page__intro">This page hasn't been cached yet. Connect to the internet and try again.</p>
+    <p style="color:var(--text-secondary);margin-bottom:var(--space-xl)">Lessons you've visited before are available offline. Try going to a lesson you've already opened.</p>
+    <div style="display:flex;gap:var(--space-md);justify-content:center;flex-wrap:wrap">
+      <a href="/lessons/" class="btn btn--cta">Go to Lessons</a>
+      <button class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)" onclick="location.reload()">Try Again</button>
+    </div>
+  </div>
+</div>

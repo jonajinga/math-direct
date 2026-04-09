@@ -2,7 +2,7 @@
 layout: layouts/base.njk
 bodyClass: page-lesson
 ---
-<div class="lesson-shell" aria-label="Lesson: {{ lesson.title }}">
+<div class="lesson-shell" aria-label="Lesson: {{ lesson.title }}" data-lesson-id="{{ lesson.id }}">
   {# === Child View (always on top) === #}
   <div class="lesson-child">
     <div class="lesson-child__display-area">
@@ -94,6 +94,9 @@ bodyClass: page-lesson
           </button>
           <button class="btn--dots-toggle" id="btn-toggle-dots" title="Show/Hide dots under numbers" aria-label="Toggle dots under numbers" onclick="window.toggleAutoDots && window.toggleAutoDots()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="3"/><circle cx="12" cy="12" r="3"/><circle cx="19" cy="12" r="3"/></svg>
+          </button>
+          <button class="btn--print" title="Print lesson" aria-label="Print lesson" onclick="window.print()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           </button>
         </div>
       </div>

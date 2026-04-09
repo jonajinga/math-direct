@@ -1,22 +1,40 @@
 {
   "name": "Math Direct",
   "short_name": "Math Direct",
-  "description": "Free, open-source math app that teaches children numbers, addition, and subtraction.",
-  "start_url": "/",
+  "description": "Free, open-source math app that teaches children numbers, addition, and subtraction using Direct Instruction.",
+  "start_url": "/lessons/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#f5f5f4",
   "theme_color": "#1e3a5f",
   "orientation": "any",
+  "categories": ["education", "kids"],
   "icons": [
     {
       "src": "/assets/img/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/assets/img/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Lessons",
+      "short_name": "Lessons",
+      "url": "/lessons/",
+      "description": "Go to lesson dashboard"
+    },
+    {
+      "name": "Practice",
+      "short_name": "Practice",
+      "url": "/practice/",
+      "description": "Practice problem sets"
     }
   ]
 }
