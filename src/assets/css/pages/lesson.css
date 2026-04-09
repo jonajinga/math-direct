@@ -340,6 +340,37 @@
   cursor: default;
 }
 
+/* Dots toggle in nav row — always visible */
+.btn--dots-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+  background: var(--bg-surface);
+  transition: var(--transition-colors);
+}
+.btn--dots-toggle:hover {
+  border-color: var(--blue-500);
+  background: var(--blue-50);
+  color: var(--blue-700);
+}
+.btn--dots-toggle.is-active {
+  border-color: var(--blue-500);
+  background: var(--blue-50);
+  color: var(--blue-700);
+}
+[data-theme="dark"] .btn--dots-toggle:hover,
+[data-theme="dark"] .btn--dots-toggle.is-active {
+  border-color: var(--blue-400);
+  background: var(--stone-700);
+  color: var(--blue-400);
+}
+
 /* Theme toggle in lesson nav row */
 .lesson-theme-toggle {
   width: 2.75rem;

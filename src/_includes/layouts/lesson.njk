@@ -70,12 +70,9 @@ bodyClass: page-lesson
           <span id="icon-eye-open">{% include "partials/icons/eye.njk" %}</span>
           <span id="icon-eye-closed" class="hidden">{% include "partials/icons/eye-off.njk" %}</span>
         </button>
-        <button class="visual-remote__btn is-active" id="btn-toggle-dots" title="Show/Hide dots under numbers" aria-label="Toggle dots under numbers" onclick="window.toggleAutoDots && window.toggleAutoDots()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="3"/><circle cx="12" cy="12" r="3"/><circle cx="19" cy="12" r="3"/></svg>
-        </button>
       </div>
 
-      {# Nav row: exit + back + next + theme toggle #}
+      {# Nav row: exit + back + dots toggle + next #}
       <div class="step-nav">
         <a href="/lessons/" class="lesson-exit-btn" title="Exit Lesson" aria-label="Exit Lesson">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -85,6 +82,9 @@ bodyClass: page-lesson
         </button>
         <button class="btn--nav-next" id="next-btn" title="Next" aria-label="Next step" onclick="window.nextStep && window.nextStep()">
           {% include "partials/icons/arrow-right.njk" %}
+        </button>
+        <button class="btn--dots-toggle" id="btn-toggle-dots" title="Show/Hide dots under numbers" aria-label="Toggle dots under numbers" onclick="window.toggleAutoDots && window.toggleAutoDots()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="3"/><circle cx="12" cy="12" r="3"/><circle cx="19" cy="12" r="3"/></svg>
         </button>
       </div>
     </div>
