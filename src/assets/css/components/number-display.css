@@ -436,9 +436,13 @@
 
 /* Active state for visual remote buttons (dots toggle) */
 .visual-remote__btn.is-active {
-  color: var(--blue-600);
+  border-color: var(--blue-500);
+  background: var(--blue-50);
+  color: var(--blue-700);
 }
 [data-theme="dark"] .visual-remote__btn.is-active {
+  border-color: var(--blue-400);
+  background: var(--stone-700);
   color: var(--blue-400);
 }
 
@@ -467,17 +471,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--radius-full);
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 44px;
+  min-height: 44px;
+  border: 2px solid var(--border-color);
+  background: var(--bg-surface);
   color: var(--text-secondary);
   transition: var(--transition-colors);
 }
 .visual-remote__btn:hover {
-  background: var(--blue-100);
+  border-color: var(--blue-500);
+  background: var(--blue-50);
   color: var(--blue-700);
 }
 [data-theme="dark"] .visual-remote__btn:hover {
+  border-color: var(--blue-400);
   background: var(--stone-700);
   color: var(--blue-400);
 }
