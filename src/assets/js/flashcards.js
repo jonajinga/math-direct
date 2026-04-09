@@ -128,6 +128,18 @@
         }
       }
     } catch (e) { /* ignore */ }
+
+    // URL param override: /flashcards/?phase=3 auto-selects that phase
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var phaseParam = params.get("phase");
+      if (phaseParam) {
+        var allPhaseBoxes = document.querySelectorAll('input[name="fc-phase"]');
+        for (var i = 0; i < allPhaseBoxes.length; i++) allPhaseBoxes[i].checked = false;
+        var target = document.querySelector('input[name="fc-phase"][value="' + phaseParam + '"]');
+        if (target) target.checked = true;
+      }
+    } catch (e) { /* ignore */ }
   }
 
   // Filter problems

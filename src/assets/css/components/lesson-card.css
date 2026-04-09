@@ -98,26 +98,6 @@
 .lesson-card:hover .lesson-card__reset { opacity: 1; }
 .lesson-card__reset:hover { color: var(--rose-500); }
 
-/* Print button */
-.lesson-card__print {
-  position: absolute;
-  top: 0.25rem;
-  left: 0.25rem;
-  width: 1.5rem;
-  height: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--stone-400);
-  background: none;
-  border: none;
-  opacity: 0;
-  transition: opacity 0.15s, color 0.15s;
-  cursor: pointer;
-}
-.lesson-card:hover .lesson-card__print { opacity: 1; }
-.lesson-card__print:hover { color: var(--blue-600); }
-[data-theme="dark"] .lesson-card__print:hover { color: var(--blue-400); }
 
 /* Parent Guide Card */
 .parent-guide {

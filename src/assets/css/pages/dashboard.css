@@ -52,6 +52,52 @@
   margin-bottom: var(--space-md);
 }
 
+/* Practice + Flashcard links below each phase grid */
+.phase-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px dashed var(--border-color);
+  font-size: 0.75rem;
+}
+
+.phase-links__label {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.phase-links__link {
+  color: var(--blue-600);
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--blue-200);
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.phase-links__link:hover {
+  background: var(--blue-50);
+  border-color: var(--blue-400);
+}
+[data-theme="dark"] .phase-links__link {
+  color: var(--blue-400);
+  border-color: var(--blue-800);
+}
+[data-theme="dark"] .phase-links__link:hover {
+  background: var(--stone-700);
+  border-color: var(--blue-600);
+}
+
+.phase-links__link--fc {
+  background: var(--blue-50);
+  border-color: var(--blue-300);
+}
+[data-theme="dark"] .phase-links__link--fc {
+  background: var(--blue-950, rgba(30, 58, 138, 0.2));
+  border-color: var(--blue-700);
+}
+
 /* Lesson grid */
 .lesson-grid {
   display: grid;

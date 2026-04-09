@@ -53,7 +53,7 @@ export default [
   { problem: "Which is less: 10 or 5?", answer: 5, phase: 1, lesson: 19, type: "comparing", difficulty: 1 },
   { problem: "Which is more: 1 or 7?", answer: 7, phase: 1, lesson: 19, type: "comparing", difficulty: 1 },
   { problem: "Which is less: 9 or 2?", answer: 2, phase: 1, lesson: 19, type: "comparing", difficulty: 1 },
-  { problem: "Which is more: 4 or 4?", answer: 4, phase: 1, lesson: 20, type: "comparing", difficulty: 2 },
+  { problem: "Which is more: 6 or 4?", answer: 6, phase: 1, lesson: 20, type: "comparing", difficulty: 2 },
   { problem: "Which is more: 10 or 3?", answer: 10, phase: 1, lesson: 20, type: "comparing", difficulty: 1 },
   { problem: "Which is less: 8 or 1?", answer: 1, phase: 1, lesson: 20, type: "comparing", difficulty: 1 },
   { problem: "Which is more: 5 or 7?", answer: 7, phase: 1, lesson: 20, type: "comparing", difficulty: 1 },

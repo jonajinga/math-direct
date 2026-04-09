@@ -230,29 +230,6 @@
   flex-shrink: 0;
 }
 
-/* ===== Print Practice Button ===== */
-.btn--print-practice {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  background: var(--bg-surface);
-  cursor: pointer;
-  transition: var(--transition-colors);
-}
-.btn--print-practice:hover {
-  color: var(--blue-700);
-  border-color: var(--blue-500);
-}
-[data-theme="dark"] .btn--print-practice:hover {
-  color: var(--blue-400);
-  border-color: var(--blue-400);
-}
-
 /* ===== Practice Engine ===== */
 .pe-header {
   display: flex;
@@ -513,10 +490,3 @@
   flex-wrap: wrap;
 }
 
-/* Print: show static content, hide engine */
-@media print {
-  #practice-engine { display: none; }
-  details { display: block !important; }
-  details > summary { display: none; }
-  details > .practice-content { display: block !important; }
-}

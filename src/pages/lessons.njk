@@ -11,124 +11,31 @@ bodyClass: page-lessons
     {# Student Profile Selector #}
     <div id="profile-selector"></div>
 
-    {# Phase 1 #}
-    <section class="phase-section" id="phase-1">
-      <h2 class="phase-section__title"><a href="/phases/phase-1/">Phase 1: Foundation</a></h2>
-      <p class="phase-section__subtitle">Lessons 1&ndash;20 &middot; Numbers 0&ndash;10, counting, comparing</p>
+    {% for phase in phases %}
+    <section class="phase-section" id="phase-{{ phase.id }}">
+      <h2 class="phase-section__title"><a href="/phases/{{ phase.slug }}/">Phase {{ phase.id }}: {{ phase.title | replace("Phase " + phase.id + ": ", "") }}</a></h2>
+      <p class="phase-section__subtitle">Lessons {{ phase.lessonRange }} &middot; {{ phase.conceptsIntroduced.length }} concepts</p>
       <div class="lesson-grid">
-        {% for lesson in lessons | where("phase", 1) %}
+        {% for lesson in lessons | where("phase", phase.id) %}
         <a href="/lessons/lesson-{{ lesson.id | pad }}/" class="lesson-card" data-lesson-id="{{ lesson.id }}">
           <span class="lesson-card__number">{{ lesson.id }}</span>
           <span class="lesson-card__target">{{ lesson.target }}</span>
-          <button class="lesson-card__print" title="Print lesson {{ lesson.id }}" aria-label="Print lesson {{ lesson.id }}" onclick="printLesson({{ lesson.id }}, event)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          </button>
         </a>
         {% endfor %}
       </div>
-    </section>
-
-    {# Phase 2 #}
-    <section class="phase-section" id="phase-2">
-      <h2 class="phase-section__title"><a href="/phases/phase-2/">Phase 2: Counting &amp; Comparing</a></h2>
-      <p class="phase-section__subtitle">Lessons 21&ndash;40 &middot; Numbers to 20, patterns, intro to +</p>
-      <div class="lesson-grid">
-        {% for lesson in lessons | where("phase", 2) %}
-        <a href="/lessons/lesson-{{ lesson.id | pad }}/" class="lesson-card" data-lesson-id="{{ lesson.id }}">
-          <span class="lesson-card__number">{{ lesson.id }}</span>
-          <span class="lesson-card__target">{{ lesson.target }}</span>
-          <button class="lesson-card__print" title="Print lesson {{ lesson.id }}" aria-label="Print lesson {{ lesson.id }}" onclick="printLesson({{ lesson.id }}, event)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          </button>
-        </a>
+      {# Practice + Flashcard links for this phase #}
+      {% set phasePractice = collections.practice | where("data.phase", phase.id) %}
+      {% if phasePractice.length > 0 %}
+      <div class="phase-links">
+        <span class="phase-links__label">Practice:</span>
+        {% for item in phasePractice %}
+        <a href="{{ item.url }}" class="phase-links__link">{{ item.data.title }}</a>
         {% endfor %}
+        <a href="/flashcards/?phase={{ phase.id }}" class="phase-links__link phase-links__link--fc">Flashcards</a>
       </div>
+      {% endif %}
     </section>
-
-    {# Phase 3 #}
-    <section class="phase-section" id="phase-3">
-      <h2 class="phase-section__title"><a href="/phases/phase-3/">Phase 3: Addition</a></h2>
-      <p class="phase-section__subtitle">Lessons 41&ndash;65 &middot; Addition facts to 10, doubles, number bonds</p>
-      <div class="lesson-grid">
-        {% for lesson in lessons | where("phase", 3) %}
-        <a href="/lessons/lesson-{{ lesson.id | pad }}/" class="lesson-card" data-lesson-id="{{ lesson.id }}">
-          <span class="lesson-card__number">{{ lesson.id }}</span>
-          <span class="lesson-card__target">{{ lesson.target }}</span>
-          <button class="lesson-card__print" title="Print lesson {{ lesson.id }}" aria-label="Print lesson {{ lesson.id }}" onclick="printLesson({{ lesson.id }}, event)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          </button>
-        </a>
-        {% endfor %}
-      </div>
-    </section>
-
-    {# Phase 4 #}
-    <section class="phase-section" id="phase-4">
-      <h2 class="phase-section__title"><a href="/phases/phase-4/">Phase 4: Subtraction</a></h2>
-      <p class="phase-section__subtitle">Lessons 66&ndash;85 &middot; Subtraction facts to 10, fact families</p>
-      <div class="lesson-grid">
-        {% for lesson in lessons | where("phase", 4) %}
-        <a href="/lessons/lesson-{{ lesson.id | pad }}/" class="lesson-card" data-lesson-id="{{ lesson.id }}">
-          <span class="lesson-card__number">{{ lesson.id }}</span>
-          <span class="lesson-card__target">{{ lesson.target }}</span>
-          <button class="lesson-card__print" title="Print lesson {{ lesson.id }}" aria-label="Print lesson {{ lesson.id }}" onclick="printLesson({{ lesson.id }}, event)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          </button>
-        </a>
-        {% endfor %}
-      </div>
-    </section>
-
-    {# Phase 5 #}
-    <section class="phase-section" id="phase-5">
-      <h2 class="phase-section__title"><a href="/phases/phase-5/">Phase 5: Place Value</a></h2>
-      <p class="phase-section__subtitle">Lessons 86&ndash;105 &middot; Tens/ones, counting to 100, +/&minus; within 20</p>
-      <div class="lesson-grid">
-        {% for lesson in lessons | where("phase", 5) %}
-        <a href="/lessons/lesson-{{ lesson.id | pad }}/" class="lesson-card" data-lesson-id="{{ lesson.id }}">
-          <span class="lesson-card__number">{{ lesson.id }}</span>
-          <span class="lesson-card__target">{{ lesson.target }}</span>
-          <button class="lesson-card__print" title="Print lesson {{ lesson.id }}" aria-label="Print lesson {{ lesson.id }}" onclick="printLesson({{ lesson.id }}, event)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          </button>
-        </a>
-        {% endfor %}
-      </div>
-    </section>
-
-    {# Phase 6 #}
-    <section class="phase-section" id="phase-6">
-      <h2 class="phase-section__title"><a href="/phases/phase-6/">Phase 6: Fluency</a></h2>
-      <p class="phase-section__subtitle">Lessons 106&ndash;125 &middot; Mental math strategies, two-digit + one-digit</p>
-      <div class="lesson-grid">
-        {% for lesson in lessons | where("phase", 6) %}
-        <a href="/lessons/lesson-{{ lesson.id | pad }}/" class="lesson-card" data-lesson-id="{{ lesson.id }}">
-          <span class="lesson-card__number">{{ lesson.id }}</span>
-          <span class="lesson-card__target">{{ lesson.target }}</span>
-          <button class="lesson-card__print" title="Print lesson {{ lesson.id }}" aria-label="Print lesson {{ lesson.id }}" onclick="printLesson({{ lesson.id }}, event)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          </button>
-        </a>
-        {% endfor %}
-      </div>
-    </section>
-
-    {# Phase 7 #}
-    <section class="phase-section" id="phase-7">
-      <h2 class="phase-section__title"><a href="/phases/phase-7/">Phase 7: Mastery</a></h2>
-      <p class="phase-section__subtitle">Lessons 126&ndash;150 &middot; Two-digit +/&minus; with regrouping, word problems</p>
-      <div class="lesson-grid">
-        {% for lesson in lessons | where("phase", 7) %}
-        <a href="/lessons/lesson-{{ lesson.id | pad }}/" class="lesson-card" data-lesson-id="{{ lesson.id }}">
-          <span class="lesson-card__number">{{ lesson.id }}</span>
-          <span class="lesson-card__target">{{ lesson.target }}</span>
-          <button class="lesson-card__print" title="Print lesson {{ lesson.id }}" aria-label="Print lesson {{ lesson.id }}" onclick="printLesson({{ lesson.id }}, event)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          </button>
-        </a>
-        {% endfor %}
-      </div>
-    </section>
+    {% endfor %}
 
     {# Progress Actions #}
     <div class="progress-actions">
@@ -148,7 +55,4 @@ bodyClass: page-lessons
   </div>
 </div>
 
-<script id="all-lessons-data" type="application/json">{{ lessons | dump | safe }}</script>
-<script src="/assets/js/print-lesson.js" defer></script>
 <script src="/assets/js/progress.js" defer></script>
-</script>

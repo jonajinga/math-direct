@@ -106,24 +106,3 @@ body { font-size: 1rem; line-height: 1.65; }
 }
 .pwa-banner__close:hover { color: #fff; }
 
-/* ===== Global Print ===== */
-@media print {
-  .site-header,
-  .site-footer,
-  .hamburger-panel,
-  .hamburger-overlay { display: none !important; }
-
-  body {
-    font-size: 12pt;
-    line-height: 1.5;
-    color: #000;
-    background: #fff;
-  }
-
-  a { color: #000; text-decoration: none; }
-  a[href]::after { content: none; }
-
-  .content-page { padding: 0; }
-  .content-page__inner { max-width: 100%; }
-  .content-page__cta { display: none; }
-}
