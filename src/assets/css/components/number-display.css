@@ -493,6 +493,7 @@
   padding: var(--space-sm) var(--space-md);
   background: var(--bg-surface-alt);
   border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .visual-remote__btn {
