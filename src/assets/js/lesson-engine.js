@@ -350,21 +350,24 @@
     return dotsDiv;
   }
 
-  // Event delegation: single click listener on childText
+  // Event delegation: single click listener on childText — toggle reveal
   if (childText) {
     childText.addEventListener("click", function (e) {
       var el = e.target.closest(".math-symbol-question");
-      if (!el || el.classList.contains("is-revealed") || currentAnswer === undefined) return;
-      // Wrap in math-num-with-dots so it gets auto-dots
-      el.textContent = currentAnswer;
-      el.classList.add("is-revealed");
-      el.classList.add("math-num-with-dots");
-      // Add inline dots under the revealed answer
-      if (currentAnswer > 0 && currentAnswer <= 20) {
-        var dots = buildInlineDots(currentAnswer);
-        el.appendChild(dots);
+      if (!el || currentAnswer === undefined) return;
+      if (el.classList.contains("is-revealed")) {
+        // Hide answer — restore ?
+        el.textContent = "?";
+        el.classList.remove("is-revealed", "math-num-with-dots");
+        if (praiseBox) praiseBox.classList.remove("is-visible");
+        return;
       }
-      // Respect the dots toggle
+      // Reveal answer
+      el.textContent = currentAnswer;
+      el.classList.add("is-revealed", "math-num-with-dots");
+      if (currentAnswer > 0 && currentAnswer <= 20) {
+        el.appendChild(buildInlineDots(currentAnswer));
+      }
       if (childText) childText.setAttribute("data-show-dots", showAutoDots ? "true" : "false");
       if (praiseBox) praiseBox.classList.add("is-visible");
     });
