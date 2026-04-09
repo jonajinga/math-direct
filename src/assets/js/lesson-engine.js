@@ -22,6 +22,25 @@
   var nextBtn = document.getElementById("next-btn");
   var visualRemote = document.getElementById("visual-remote");
 
+  // ─── Auto-fit: shrink child text to fit on one line ───
+  function fitChildText() {
+    if (!childText) return;
+    // Reset to CSS default
+    childText.style.fontSize = "";
+    // Allow a frame for layout
+    requestAnimationFrame(function () {
+      var parent = childText.parentElement;
+      if (!parent) return;
+      var maxW = parent.clientWidth - 16; // small padding
+      var tries = 0;
+      while (childText.scrollWidth > maxW && tries < 20) {
+        var current = parseFloat(window.getComputedStyle(childText).fontSize);
+        childText.style.fontSize = (current * 0.9) + "px";
+        tries++;
+      }
+    });
+  }
+
   // ─── Dot rendering: rows of 5, separator after 10 ───
   function renderDots(count, animated) {
     if (!count || visualHidden) { visualContainer.innerHTML = ""; return; }
@@ -379,7 +398,9 @@
     var step = steps[currentStep];
 
     childText.innerHTML = wrapQuestionMarksInDisplay(step.display);
+    childText.style.fontSize = "";
     injectAutoDots();
+    fitChildText();
     prepareReveal(step);
     // If step has a ? to reveal, don't show dots in the visual area (they'd show the wrong count)
     if (currentStepHasReveal) {

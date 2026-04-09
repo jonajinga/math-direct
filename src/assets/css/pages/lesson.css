@@ -40,9 +40,10 @@
   user-select: none;
   padding-bottom: var(--space-sm);
   text-align: center;
-  white-space: pre-wrap;
+  white-space: nowrap;
   padding-left: var(--space-sm);
   padding-right: var(--space-sm);
+  max-width: 100%;
 }
 
 .child-text--story {
