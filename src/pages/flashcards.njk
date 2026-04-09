@@ -1,0 +1,95 @@
+---
+layout: layouts/base.njk
+title: Flashcards
+description: Practice math facts with interactive flashcards. Filter by phase, type, and difficulty, then flip through cards to build fluency.
+permalink: /flashcards/
+---
+<div class="content-page">
+  <div class="content-page__inner" style="max-width:40rem">
+    <h1 class="content-page__title">Flashcards</h1>
+    <p class="content-page__intro">Pick your filters and flip through cards to practice math facts. Tap a card or press Space to reveal the answer.</p>
+
+    {# Filter panel #}
+    <div class="fc-filters" id="fc-filters">
+      <div class="fc-filter-group">
+        <label class="fc-filter-label">Phase</label>
+        <div class="fc-checkbox-row">
+          <label class="fc-chip"><input type="checkbox" value="1" name="fc-phase" checked onclick="void(0)"> 1</label>
+          <label class="fc-chip"><input type="checkbox" value="3" name="fc-phase" checked onclick="void(0)"> 3</label>
+          <label class="fc-chip"><input type="checkbox" value="4" name="fc-phase" checked onclick="void(0)"> 4</label>
+          <label class="fc-chip"><input type="checkbox" value="5" name="fc-phase" checked onclick="void(0)"> 5</label>
+          <label class="fc-chip"><input type="checkbox" value="6" name="fc-phase" checked onclick="void(0)"> 6</label>
+          <label class="fc-chip"><input type="checkbox" value="7" name="fc-phase" checked onclick="void(0)"> 7</label>
+        </div>
+      </div>
+
+      <div class="fc-filter-group">
+        <label class="fc-filter-label">Type</label>
+        <div class="fc-checkbox-row">
+          <label class="fc-chip"><input type="checkbox" value="counting" name="fc-type" checked onclick="void(0)"> Counting</label>
+          <label class="fc-chip"><input type="checkbox" value="comparing" name="fc-type" checked onclick="void(0)"> Comparing</label>
+          <label class="fc-chip"><input type="checkbox" value="addition" name="fc-type" checked onclick="void(0)"> Addition</label>
+          <label class="fc-chip"><input type="checkbox" value="subtraction" name="fc-type" checked onclick="void(0)"> Subtraction</label>
+          <label class="fc-chip"><input type="checkbox" value="addition-regrouping" name="fc-type" checked onclick="void(0)"> Add (regroup)</label>
+          <label class="fc-chip"><input type="checkbox" value="subtraction-regrouping" name="fc-type" checked onclick="void(0)"> Sub (regroup)</label>
+        </div>
+      </div>
+
+      <div class="fc-filter-group">
+        <label class="fc-filter-label">Difficulty</label>
+        <div class="fc-checkbox-row">
+          <label class="fc-chip"><input type="checkbox" value="1" name="fc-diff" checked onclick="void(0)"> 1</label>
+          <label class="fc-chip"><input type="checkbox" value="2" name="fc-diff" checked onclick="void(0)"> 2</label>
+          <label class="fc-chip"><input type="checkbox" value="3" name="fc-diff" checked onclick="void(0)"> 3</label>
+        </div>
+      </div>
+
+      <button class="btn btn--cta fc-start-btn" id="fc-start" onclick="window.fcStart && window.fcStart()">Start Flashcards</button>
+    </div>
+
+    {# Flashcard area (hidden until start) #}
+    <div class="fc-area" id="fc-area" style="display:none">
+      <div class="fc-header">
+        <span class="fc-counter" id="fc-counter">1 / 10</span>
+        <span class="fc-score" id="fc-score">0 correct</span>
+      </div>
+      <div class="fc-progress-bar">
+        <div class="fc-progress-fill" id="fc-progress-fill" style="width:0%"></div>
+      </div>
+
+      <div class="fc-card-container" id="fc-card-container" tabindex="0" onclick="window.fcFlip && window.fcFlip()" onkeydown="if(event.code==='Space'){event.preventDefault();window.fcFlip&&window.fcFlip()}">
+        <div class="fc-card" id="fc-card">
+          <div class="fc-card__front" id="fc-front">
+            <span class="fc-card__text" id="fc-front-text"></span>
+          </div>
+          <div class="fc-card__back" id="fc-back">
+            <span class="fc-card__answer" id="fc-back-text"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-hint" id="fc-hint">Tap card or press Space to flip</div>
+
+      <div class="fc-actions" id="fc-actions" style="display:none">
+        <button class="fc-btn fc-btn--wrong" id="fc-tryagain" onclick="window.fcTryAgain && window.fcTryAgain()">Try Again</button>
+        <button class="fc-btn fc-btn--correct" id="fc-gotit" onclick="window.fcGotIt && window.fcGotIt()">Got It</button>
+      </div>
+    </div>
+
+    {# Summary screen (hidden until end) #}
+    <div class="fc-summary" id="fc-summary" style="display:none">
+      <h2 class="fc-summary__title" id="fc-summary-title">Nice work!</h2>
+      <div class="fc-summary__stats" id="fc-summary-stats"></div>
+      <div class="fc-summary__actions">
+        <button class="btn btn--cta" onclick="window.fcPlayAgain && window.fcPlayAgain()">Play Again</button>
+        <a href="/practice/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">Practice Mode</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="flashcard-data" type="application/json">{{ problemSets | dump | safe }}</script>
+
+{% block scripts %}
+<script src="/assets/js/flashcards.js" defer></script>
+{% endblock %}

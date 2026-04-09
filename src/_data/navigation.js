@@ -7,6 +7,7 @@ export default {
     { label: "Curriculum", url: "/curriculum/" },
     { label: "Roadmap", url: "/roadmap/" },
     { label: "Features", url: "/features/" },
+    { label: "Flashcards", url: "/flashcards/" },
   ],
   footer: {
     quickLinks: [

@@ -38,6 +38,117 @@ function word(n) { return numberWords[n] || String(n); }
 function cap(s) { if (!s) return s; return s.charAt(0).toUpperCase() + s.slice(1); }
 function Word(n) { return cap(word(n)); }
 
+// ─── Language variety pools ───
+// Deterministic picker based on seed to avoid monotony while staying reproducible
+let _langSeed = 1;
+function langPick(arr) {
+  _langSeed = (_langSeed * 1103515245 + 12345) & 0x7fffffff;
+  return arr[_langSeed % arr.length];
+}
+function resetLangSeed(seed) { _langSeed = seed; }
+
+const ASK_DOTS = [
+  "How many dots do you see?",
+  "Count the dots. How many?",
+  "Look at the dots. How many are there?",
+  "Tell me how many dots.",
+  "How many dots?",
+  "Can you count these dots?",
+  "How many dots are on the screen?",
+];
+
+const ASK_NUMBER = [
+  "What number is this?",
+  "Tell me this number.",
+  "What number do you see?",
+  "Can you read this number?",
+  "What number is on the screen?",
+  "Say this number.",
+];
+
+const ASK_ADD = (a, b) => [
+  `${Word(a)} plus ${word(b)}?`,
+  `What is ${word(a)} plus ${word(b)}?`,
+  `${Word(a)} and ${word(b)} more. How many altogether?`,
+  `If you have ${word(a)} and add ${word(b)}, what do you get?`,
+  `${Word(a)} plus ${word(b)} — what's the answer?`,
+];
+
+const ASK_SUB = (a, b) => [
+  `${Word(a)} minus ${word(b)}?`,
+  `What is ${word(a)} take away ${word(b)}?`,
+  `${Word(a)} minus ${word(b)} — what's left?`,
+  `If you start with ${word(a)} and take away ${word(b)}, how many are left?`,
+  `${Word(a)} subtract ${word(b)}?`,
+];
+
+const ASK_COMPARE = (a, b) => [
+  `Which is bigger: ${word(a)} or ${word(b)}?`,
+  `Compare ${a} and ${b}. Which is more?`,
+  `Is ${a} greater than, less than, or equal to ${b}?`,
+  `Look at ${a} and ${b}. Which one is larger?`,
+];
+
+const DO_WAIT = [
+  "Wait for the child to answer.",
+  "Give the child time to think.",
+  "Pause and let the child respond.",
+  "Wait.",
+  "Wait for a response.",
+];
+
+const DO_POINT = [
+  "Point to the number on screen.",
+  "Point to each number as you say it.",
+  "Tap the screen to show the child.",
+  "Point to the dots as you count.",
+];
+
+const PRAISE_CORRECT = (ans) => [
+  `${Word(ans)}! That's right!`,
+  `Yes! ${Word(ans)}!`,
+  `${Word(ans)}! Good job!`,
+  `${Word(ans)}! You got it!`,
+  `Exactly! ${Word(ans)}!`,
+  `${Word(ans)}! Well done!`,
+  `Right! ${Word(ans)}!`,
+  `${Word(ans)}! Nice work!`,
+];
+
+const PRAISE_GREAT = [
+  "Excellent work!",
+  "Fantastic!",
+  "You're doing great!",
+  "Keep it up!",
+  "Wonderful!",
+  "Super job!",
+  "That's the way!",
+  "You're getting so good at this!",
+  "Brilliant!",
+  "Way to go!",
+];
+
+const CORRECT_ADD = (a, b, ans) => [
+  `${Word(a)} plus ${word(b)} is ${word(ans)}.`,
+  `${Word(a)} plus ${word(b)} equals ${word(ans)}.`,
+  `${Word(a)} and ${word(b)} make ${word(ans)}.`,
+  `The answer is ${word(ans)}. ${Word(a)} plus ${word(b)} is ${word(ans)}.`,
+];
+
+const CORRECT_SUB = (a, b, ans) => [
+  `${Word(a)} minus ${word(b)} is ${word(ans)}.`,
+  `${Word(a)} take away ${word(b)} is ${word(ans)}.`,
+  `${Word(a)} minus ${word(b)} leaves ${word(ans)}.`,
+  `The answer is ${word(ans)}. ${Word(a)} minus ${word(b)} is ${word(ans)}.`,
+];
+
+const CORRECT_NUM = (n) => [
+  `That's ${word(n)}.`,
+  `This number is ${word(n)}.`,
+  `${Word(n)}. That's right.`,
+  `The number is ${word(n)}.`,
+];
+
 // ─── Step builders ───
 
 function showStep(display, visual, say, doText, praise, correct, extra) {
@@ -57,20 +168,31 @@ function countStep(display, dotCount, say, doText, praise, correct) {
 }
 
 function dotsStep(n, say, doText, praise, correct) {
-  return showStep(num(n), "dots", say, doText, praise, correct, { dotCount: n });
+  return showStep(num(n), "dots",
+    say || langPick(ASK_DOTS),
+    doText || langPick(DO_WAIT),
+    praise || langPick(PRAISE_CORRECT(n)),
+    correct || langPick(CORRECT_NUM(n)),
+    { dotCount: n });
 }
 
 function identifyStep(n, say, praise, correct) {
-  return showStep(num(n), "dots", say || "What number is this?", "Wait.", praise || `${Word(n)}!`, correct || `That's ${word(n)}.`, { dotCount: n > 0 ? n : undefined });
+  return showStep(num(n), "dots",
+    say || langPick(ASK_NUMBER),
+    langPick(DO_WAIT),
+    praise || langPick(PRAISE_CORRECT(n)),
+    correct || langPick(CORRECT_NUM(n)),
+    { dotCount: n > 0 ? n : undefined });
 }
 
 function addStep(a, b, visual, say, praise, correct) {
   const ans = a + b;
   const display = `${num(a)} ${sym('+')} ${num(b)} ${sym('=')} ${q()}`;
   return showStep(display, visual || "dots",
-    say || `${Word(a)} plus ${word(b)}?`, "Wait.",
-    praise || `${Word(ans)}!`,
-    correct || `${Word(a)} plus ${word(b)} is ${word(ans)}.`,
+    say || langPick(ASK_ADD(a, b)),
+    langPick(DO_WAIT),
+    praise || langPick(PRAISE_CORRECT(ans)),
+    correct || langPick(CORRECT_ADD(a, b, ans)),
     { dotCount: ans, answer: ans });
 }
 
@@ -78,20 +200,22 @@ function subStep(a, b, visual, say, praise, correct) {
   const ans = a - b;
   const display = `${num(a)} ${sym('−')} ${num(b)} ${sym('=')} ${q()}`;
   return showStep(display, visual || "dots",
-    say || `${Word(a)} minus ${word(b)}?`, "Wait.",
-    praise || `${Word(ans)}!`,
-    correct || `${Word(a)} minus ${word(b)} is ${word(ans)}.`,
+    say || langPick(ASK_SUB(a, b)),
+    langPick(DO_WAIT),
+    praise || langPick(PRAISE_CORRECT(ans)),
+    correct || langPick(CORRECT_SUB(a, b, ans)),
     { dotCount: a, answer: ans });
 }
 
 function compareStep(a, b) {
   const answer = a > b ? ">" : a < b ? "<" : "=";
   const display = `${num(a)} ${q()} ${num(b)}`;
+  const relation = answer === ">" ? "is greater than" : answer === "<" ? "is less than" : "equals";
   return showStep(display, "compare",
-    `Which is bigger: ${word(a)} or ${word(b)}? Is ${a} greater than, less than, or equal to ${b}?`,
+    langPick(ASK_COMPARE(a, b)),
     "Wait for the child to choose.",
-    `Yes! ${a} ${answer === ">" ? "is greater than" : answer === "<" ? "is less than" : "equals"} ${b}.`,
-    `${a} ${answer === ">" ? "is greater than" : answer === "<" ? "is less than" : "equals"} ${b}. The answer is ${answer}.`,
+    `Yes! ${a} ${relation} ${b}. ${langPick(PRAISE_GREAT)}`,
+    `${a} ${relation} ${b}. The symbol is '${answer}'.`,
     { compareAnswer: answer });
 }
 
@@ -110,281 +234,291 @@ function generatePhase1() {
   const lessons = [];
 
   // Lesson 1: Introduce 0 and 1
+  resetLangSeed(1);
   lessons.push({
     id: 1, title: "Lesson 1", target: "0, 1", phase: 1,
     steps: [
       // New: Introduce 0
       showStep(num(0), "none", "This is the number zero. Zero means nothing — no objects, no dots, nothing at all. Say 'zero'.", "Point to the number on screen.", "Good! Zero means nothing!", "This is zero. It means nothing. Say 'zero'."),
-      showStep(num(0), "none", "How many dots do you see? Zero. There are no dots. Zero means none.", "Gesture at the empty space.", "That's right — zero dots!", "There are no dots. That's zero."),
-      showStep(num(0), "none", "What number is this?", "Wait.", "Zero!", "This is zero. Zero means nothing."),
+      showStep(num(0), "none", "Look at the screen. Do you see any dots? No! There are zero dots. Zero means none.", "Gesture at the empty space below the number.", "That's right — zero dots! Nothing there!", "There are no dots. That's zero."),
+      identifyStep(0, "Now you try. What number is this?", "Zero! You remembered!", "This is zero. Zero means nothing."),
       // New: Introduce 1
-      countStep(num(1), 1, "This is the number one. One means this many. Count the dot: one.", "Point to the dot, then the number.", "Yes! One dot. One!", "This is one. Count the dot: one. Say 'one'."),
-      dotsStep(1, "Your turn. How many dots?", "Wait.", "One! Great job!", "One dot. Say 'one'."),
-      identifyStep(1, "What number is this?", "One!", "This is one."),
+      countStep(num(1), 1, "Here's a new number. This is one. See the dot? Just one dot. Say 'one'.", "Point to the dot, then the number.", "Yes! One dot. One!", "This is one. One dot. Say 'one'."),
+      dotsStep(1, "Your turn. Look at the dot. How many do you see?"),
+      identifyStep(1, "Good. Now tell me — what number is this?"),
       // Guided practice
-      showStep(num(0), "none", "What number is this?", "Wait.", "Zero!", "This is zero."),
-      dotsStep(1, "What number is this?", "Wait.", "One!", "This is one. One dot."),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      dotsStep(1, "How many dots?", "Wait.", "One!", "One dot."),
+      showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), "Zero! You remembered!", "This is zero."),
+      dotsStep(1, "And this one — how many dots are there?"),
+      showStep(num(0), "none", "Let's try again. What number do you see here?", langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero. Zero means nothing."),
+      dotsStep(1),
       // Mixed practice
-      showStep(`${num(0)} &nbsp;&nbsp; ${num(1)}`, "none", "Point to zero.", "Wait for the child to point.", "Good! That's zero!", "This is zero."),
-      showStep(`${num(0)} &nbsp;&nbsp; ${num(1)}`, "none", "Point to one.", "Wait for the child to point.", "Good! That's one!", "This is one."),
-      showStep(`${num(1)} &nbsp;&nbsp; ${num(0)}`, "none", "Point to zero.", "Wait.", "Right! Zero!", "This is zero. It means nothing."),
-      showStep(`${num(1)} &nbsp;&nbsp; ${num(0)}`, "none", "Point to one.", "Wait.", "Right! One!", "This is one."),
+      showStep(`${num(0)} &nbsp;&nbsp; ${num(1)}`, "none", "I see two numbers. Can you point to zero?", "Wait for the child to point.", "Good! That's zero!", "This one is zero. It means nothing."),
+      showStep(`${num(0)} &nbsp;&nbsp; ${num(1)}`, "none", "Now point to one.", "Wait for the child to point.", "That's one! Nice job!", "This is one."),
+      showStep(`${num(1)} &nbsp;&nbsp; ${num(0)}`, "none", "I mixed them up! Can you find zero?", langPick(DO_WAIT), "You found it! That's zero!", "This is zero. It means nothing."),
+      showStep(`${num(1)} &nbsp;&nbsp; ${num(0)}`, "none", "Where is one?", langPick(DO_WAIT), "Right there! That's one!", "This is one."),
       // Firm-up
-      dotsStep(1, "Last one. How many dots?", "Wait.", "One! You know your numbers!", "One dot. One."),
-      showStep(num(0), "none", "And this number?", "Wait.", "Zero! Great lesson!", "Zero. Zero means nothing."),
+      dotsStep(1, "Almost done! How many dots do you see here?", langPick(DO_WAIT), "One! You know your numbers!", "One dot. That's one."),
+      showStep(num(0), "none", "Last one. What number is this?", langPick(DO_WAIT), "Zero! Great first lesson!", "Zero. Zero means nothing."),
     ]
   });
 
   // Lesson 2: Introduce 2
+  resetLangSeed(2);
   lessons.push({
     id: 2, title: "Lesson 2", target: "2", phase: 1,
     steps: [
       // Warm-up review (0, 1)
-      showStep(num(0), "none", "What number is this?", "Wait.", "Zero!", "Zero."),
-      dotsStep(1, "How many dots?", "Wait.", "One!", "One dot."),
-      showStep(num(1), "none", "What number?", "Wait.", "One!", "One."),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero means nothing."),
+      showStep(num(0), "none", "Let's start with what we know. What number is this?", langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "This is zero."),
+      dotsStep(1),
+      identifyStep(1, "And this number?"),
+      showStep(num(0), "none", "One more time — what number?", langPick(DO_WAIT), "Zero! You remember!", "Zero means nothing."),
       // New: Introduce 2
-      countStep(num(2), 2, "New number! This is two. Count with me: one, two.", "Point to each dot.", "Two!", "Count: one, two. Two."),
-      countStep(num(2), 2, "Your turn. Count the dots.", "Wait for the child to count.", "One, two. Two!", "One, two. There are two dots."),
-      dotsStep(2, "How many dots?", "Wait.", "Two!", "Two dots. Two."),
+      countStep(num(2), 2, "Here's a new number! This is two. Let's count the dots together: one, two. Two dots!", "Point to each dot as you count.", "Two! That's right!", "Count with me: one, two. Two."),
+      countStep(num(2), 2, "Now you count the dots by yourself.", "Wait for the child to count aloud.", "One, two — two dots! Great counting!", "One, two. There are two dots."),
+      dotsStep(2, "Without counting this time — just look. How many dots?"),
       // Guided practice
-      identifyStep(2, "What number is this?", "Two!", "This is two."),
-      dotsStep(2, "How many dots? Don't count — just look and say the number.", "Wait.", "Two! Quick!", "Two."),
+      identifyStep(2, "Good! Now what number do you see here?"),
+      dotsStep(2, "Try to answer quickly — how many dots?", langPick(DO_WAIT), "Two! You're getting fast!", "Two dots."),
       // Mixed practice (0, 1, 2)
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      dotsStep(1, "How many dots?", "Wait.", "One!", "One."),
-      dotsStep(2, "How many dots?", "Wait.", "Two!", "Two."),
-      showStep(num(1), "none", "What number?", "Wait.", "One!", "One."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      showStep(`${num(0)} &nbsp; ${num(1)} &nbsp; ${num(2)}`, "none", "Say the numbers in order.", "Point to each.", "Zero, one, two!", "Zero, one, two."),
+      showStep(num(0), "none", "Okay, let's mix it up. What's this number?", langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
+      dotsStep(1),
+      dotsStep(2),
+      identifyStep(1, "What about this number?"),
+      dotsStep(2, "And how many dots here?"),
+      showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
+      showStep(`${num(0)} &nbsp; ${num(1)} &nbsp; ${num(2)}`, "none", "Let's say all three numbers in order. Ready?", "Point to each number.", "Zero, one, two! Perfect!", "Zero, one, two."),
       // Firm-up
-      dotsStep(2, "Last one. How many dots?", "Wait.", "Two! Great work!", "Two."),
+      dotsStep(2, "Last question! How many dots?", langPick(DO_WAIT), "Two! Wonderful job today!", "Two."),
     ]
   });
 
   // Lesson 3: Introduce 3
+  resetLangSeed(3);
   lessons.push({
     id: 3, title: "Lesson 3", target: "3", phase: 1,
     steps: [
       // Warm-up review
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      dotsStep(1, "How many dots?", "Wait.", "One!", "One."),
-      dotsStep(2, "How many dots?", "Wait.", "Two!", "Two."),
-      showStep(num(2), "none", "What number?", "Wait.", "Two!", "Two."),
+      showStep(num(0), "none", "Let's warm up. What number is this?", langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
+      dotsStep(1),
+      dotsStep(2),
+      identifyStep(2, "Tell me this number."),
       // New: Introduce 3
-      countStep(num(3), 3, "New number! This is three. Count: one, two, three.", "Point to each dot.", "Three!", "One, two, three. Three."),
-      countStep(num(3), 3, "Count the dots.", "Wait for the child.", "One, two, three. Three!", "One, two, three. Three."),
-      dotsStep(3, "How many dots?", "Wait.", "Three!", "Three dots."),
+      countStep(num(3), 3, "Time for a new number! This is three. Let's count: one, two, three. Three dots!", "Point to each dot.", "Three! Awesome!", "One, two, three. Three."),
+      countStep(num(3), 3, "Your turn to count. Touch each dot as you count.", "Wait for the child to count aloud.", "One, two, three! That's three!", "One, two, three. Three dots."),
+      dotsStep(3, "Now without counting — just look and tell me. How many?"),
       // Guided practice
-      identifyStep(3, "What number is this?", "Three!", "Three."),
-      dotsStep(3, "How many? Quick!", "Wait.", "Three!", "Three."),
+      identifyStep(3),
+      dotsStep(3, "Quick — how many?", langPick(DO_WAIT), "Three! Nice and fast!", "Three."),
       // Mixed practice (0, 1, 2, 3)
-      dotsStep(1, "How many?", "Wait.", "One!", "One."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      dotsStep(1, "How many?", "Wait.", "One!", "One."),
-      showStep(`${num(0)} &nbsp; ${num(1)} &nbsp; ${num(2)} &nbsp; ${num(3)}`, "none", "Count in order: zero, one, two, three.", "Point to each.", "Zero, one, two, three!", "Zero, one, two, three."),
+      dotsStep(1),
+      dotsStep(3),
+      showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
+      dotsStep(2),
+      dotsStep(3),
+      dotsStep(1),
+      showStep(`${num(0)} &nbsp; ${num(1)} &nbsp; ${num(2)} &nbsp; ${num(3)}`, "none", "Say all four numbers in order. Go!", "Point to each.", "Zero, one, two, three! You know them all!", "Zero, one, two, three."),
       // Firm-up
-      dotsStep(3, "How many dots?", "Wait.", "Three! Excellent!", "Three."),
-      dotsStep(2, "And this one?", "Wait.", "Two!", "Two."),
+      dotsStep(3, "Last one for today. How many dots?", langPick(DO_WAIT), `Three! ${langPick(PRAISE_GREAT)}`, "Three."),
+      dotsStep(2, "And this?"),
     ]
   });
 
   // Lesson 4: Introduce equals (=)
+  resetLangSeed(4);
   lessons.push({
     id: 4, title: "Lesson 4", target: "equals (=)", phase: 1,
     steps: [
       // Warm-up
-      dotsStep(1, "How many dots?", "Wait.", "One!", "One."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
+      dotsStep(1),
+      dotsStep(3),
+      dotsStep(2),
+      showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
       // New: Introduce =
-      showStep(`${num(2)} ${sym('=')} ${dots('• •')}`, "equation", "This is a new symbol. It's called 'equals'. It means 'is the same as'. Two equals two dots. They are the same amount.", "Point to the = sign, then from the number to the dots.", "That's right — two and two dots are the same!", "This means 'equals' — is the same as."),
-      showStep(`${num(3)} ${sym('=')} ${dots('• • •')}`, "equation", "Three equals three dots. They are the same.", "Point to number, equals, dots.", "Three equals three dots!", "Three equals three dots."),
-      showStep(sym('='), "none", "What does this symbol mean?", "Point to the = sign. Wait.", "Equals! Is the same as!", "This is the equals sign. It means 'is the same as'."),
+      showStep(`${num(2)} ${sym('=')} ${dots('• •')}`, "equation", "Here's a new symbol. It's called 'equals'. It means 'is the same as'. Two equals two dots — they're the same amount!", "Point to the equals sign, then from the number to the dots.", "That's right — two and two dots are the same!", "This means 'equals' — is the same as."),
+      showStep(`${num(3)} ${sym('=')} ${dots('• • •')}`, "equation", "Three equals three dots. The number and the dots are the same.", "Point to the number, the equals sign, then the dots.", "Three equals three dots!", "Three equals three dots. They match."),
+      showStep(sym('='), "none", "What does this symbol mean? What is it called?", "Point to the equals sign and wait.", "Equals! Is the same as!", "This is the equals sign. It means 'is the same as'."),
       // Guided practice
-      showStep(`${num(1)} ${sym('=')} ${dots('•')}`, "equation", "What does this say?", "Wait.", "One equals one dot!", "One equals one dot."),
-      showStep(`${num(3)} ${sym('=')} ${dots('• • •')}`, "equation", "Read this.", "Wait.", "Three equals three dots!", "Three equals three dots."),
-      showStep(`${num(2)} ${sym('=')} ${dots('• •')}`, "equation", "Read this.", "Wait.", "Two equals two dots!", "Two equals two dots."),
+      showStep(`${num(1)} ${sym('=')} ${dots('•')}`, "equation", "Can you read this equation?", langPick(DO_WAIT), "One equals one dot! Perfect!", "One equals one dot."),
+      showStep(`${num(3)} ${sym('=')} ${dots('• • •')}`, "equation", "Now read this one.", langPick(DO_WAIT), "Three equals three dots! You've got it!", "Three equals three dots."),
+      showStep(`${num(2)} ${sym('=')} ${dots('• •')}`, "equation", "And this one?", langPick(DO_WAIT), "Two equals two dots!", "Two equals two dots."),
       // Mixed practice
-      dotsStep(3, "How many dots?", "Wait.", "Three!", "Three."),
-      showStep(num(1), "none", "What number?", "Wait.", "One!", "One."),
-      showStep(`${num(1)} ${sym('=')} ${dots('•')}`, "equation", "Read this.", "Wait.", "One equals one dot!", "One equals one dot."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      showStep(sym('='), "none", "What does this mean?", "Wait.", "Equals!", "Equals. Is the same as."),
+      dotsStep(3),
+      identifyStep(1),
+      showStep(`${num(1)} ${sym('=')} ${dots('•')}`, "equation", "Read this equation.", langPick(DO_WAIT), "One equals one dot!", "One equals one dot."),
+      dotsStep(2),
+      showStep(sym('='), "none", "Remind me — what does this symbol mean?", langPick(DO_WAIT), "Equals! Good memory!", "Equals. It means 'is the same as'."),
       // Firm-up
-      showStep(`${num(3)} ${sym('=')} ${dots('• • •')}`, "equation", "Last one. Read this.", "Wait.", "Three equals three dots! Great job!", "Three equals three dots."),
-      dotsStep(1, "How many dots?", "Wait.", "One!", "One."),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero! Perfect!", "Zero."),
+      showStep(`${num(3)} ${sym('=')} ${dots('• • •')}`, "equation", "Last one. Read this for me.", langPick(DO_WAIT), `Three equals three dots! ${langPick(PRAISE_GREAT)}`, "Three equals three dots."),
+      dotsStep(1),
+      showStep(num(0), "none", "And what number is this?", langPick(DO_WAIT), "Zero! Great lesson!", "Zero."),
     ]
   });
 
   // Lesson 5: Introduce 4
+  resetLangSeed(5);
   lessons.push({
     id: 5, title: "Lesson 5", target: "4", phase: 1,
     steps: [
       // Warm-up (0-3, =)
-      dotsStep(2, "How many dots?", "Wait.", "Two!", "Two."),
-      showStep(num(3), "dots", "What number?", "Wait.", "Three!", "Three.", { dotCount: 3 }),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      showStep(sym('='), "none", "What does this symbol mean?", "Wait.", "Equals!", "Equals. Is the same as."),
+      dotsStep(2),
+      dotsStep(3),
+      showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
+      showStep(sym('='), "none", "Do you remember this symbol? What does it mean?", langPick(DO_WAIT), "Equals! Great memory!", "Equals. It means 'is the same as'."),
       // New: 4
-      countStep(num(4), 4, "New number! This is four. Count: one, two, three, four.", "Point to each dot.", "Four!", "One, two, three, four. Four."),
-      countStep(num(4), 4, "Count the dots.", "Wait.", "One, two, three, four!", "Four dots."),
-      dotsStep(4, "How many dots?", "Wait.", "Four!", "Four."),
+      countStep(num(4), 4, "Time for a new number! This is four. Let's count together: one, two, three, four.", "Point to each dot as you count.", "Four! That's right!", "One, two, three, four. Four."),
+      countStep(num(4), 4, "Now you count them.", "Wait for the child to count aloud.", "One, two, three, four! You counted four!", "Four dots."),
+      dotsStep(4, "Without counting — just look. How many dots do you see?"),
       // Guided
-      identifyStep(4, "What number?", "Four!", "Four."),
-      showStep(`${num(4)} ${sym('=')} ${dots('•• ••')}`, "equation", "Four equals four dots.", "Point.", "Four equals four dots!", "Four equals four dots."),
+      identifyStep(4),
+      showStep(`${num(4)} ${sym('=')} ${dots('•• ••')}`, "equation", "Four equals four dots. Read it!", "Point to each part.", "Four equals four dots!", "Four equals four dots."),
       // Mixed (0-4)
-      dotsStep(1, "How many?", "Wait.", "One!", "One."),
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      showStep(num(2), "dots", "What number?", "Wait.", "Two!", "Two.", { dotCount: 2 }),
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      showStep(`${num(0)} &nbsp; ${num(1)} &nbsp; ${num(2)} &nbsp; ${num(3)} &nbsp; ${num(4)}`, "none", "Count in order.", "Point to each.", "Zero, one, two, three, four!", "Zero, one, two, three, four."),
+      dotsStep(1),
+      dotsStep(4),
+      dotsStep(3),
+      identifyStep(2),
+      dotsStep(4),
+      showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
+      dotsStep(3),
+      showStep(`${num(0)} &nbsp; ${num(1)} &nbsp; ${num(2)} &nbsp; ${num(3)} &nbsp; ${num(4)}`, "none", "Can you say all five numbers in order?", "Point to each.", "Zero, one, two, three, four! Perfect!", "Zero, one, two, three, four."),
       // Firm-up
-      dotsStep(4, "How many dots?", "Wait.", "Four! Excellent!", "Four."),
+      dotsStep(4, "Last one! How many dots?", langPick(DO_WAIT), `Four! ${langPick(PRAISE_GREAT)}`, "Four."),
     ]
   });
 
   // Lesson 6: Review 0-4
+  resetLangSeed(6);
   lessons.push({
     id: 6, title: "Lesson 6", target: "Review 0-4", phase: 1,
     steps: [
-      dotsStep(3, "How many dots?", "Wait.", "Three!", "Three."),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      dotsStep(1, "How many?", "Wait.", "One!", "One."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      showStep(`${num(2)} ${sym('=')} ${dots('• •')}`, "equation", "Read this.", "Wait.", "Two equals two dots!", "Two equals two dots."),
-      showStep(`${num(4)} ${sym('=')} ${dots('•• ••')}`, "equation", "Read this.", "Wait.", "Four equals four dots!", "Four equals four dots."),
-      dotsStep(4, "How many dots? Quick!", "Wait.", "Four!", "Four."),
-      dotsStep(1, "How many?", "Wait.", "One!", "One."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      showStep(num(2), "dots", "What number?", "Wait.", "Two!", "Two.", { dotCount: 2 }),
-      showStep(num(4), "dots", "What number?", "Wait.", "Four!", "Four.", { dotCount: 4 }),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      dotsStep(1, "How many?", "Wait.", "One!", "One."),
-      showStep(`${num(0)} &nbsp; ${num(1)} &nbsp; ${num(2)} &nbsp; ${num(3)} &nbsp; ${num(4)}`, "none", "Count forward: zero to four.", "Point to each.", "Zero, one, two, three, four!", "Zero, one, two, three, four."),
-      showStep(`${num(4)} &nbsp; ${num(3)} &nbsp; ${num(2)} &nbsp; ${num(1)} &nbsp; ${num(0)}`, "none", "Now count backward: four to zero.", "Point to each.", "Four, three, two, one, zero!", "Four, three, two, one, zero."),
+      dotsStep(3),
+      showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
+      dotsStep(4),
+      dotsStep(1),
+      dotsStep(2),
+      showStep(`${num(2)} ${sym('=')} ${dots('• •')}`, "equation", "Read this equation.", langPick(DO_WAIT), "Two equals two dots!", "Two equals two dots."),
+      showStep(`${num(4)} ${sym('=')} ${dots('•• ••')}`, "equation", "And this one?", langPick(DO_WAIT), "Four equals four dots!", "Four equals four dots."),
+      dotsStep(4, "Quick! How many?"),
+      dotsStep(1),
+      dotsStep(3),
+      identifyStep(2),
+      identifyStep(4),
+      showStep(num(0), "none", "What about this one?", langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
+      dotsStep(3),
+      dotsStep(2),
+      dotsStep(1),
+      showStep(`${num(0)} &nbsp; ${num(1)} &nbsp; ${num(2)} &nbsp; ${num(3)} &nbsp; ${num(4)}`, "none", "Count forward: zero to four. Go!", "Point to each.", "Zero, one, two, three, four!", "Zero, one, two, three, four."),
+      showStep(`${num(4)} &nbsp; ${num(3)} &nbsp; ${num(2)} &nbsp; ${num(1)} &nbsp; ${num(0)}`, "none", "Now backward! Four to zero.", "Point to each.", "Four, three, two, one, zero! Amazing!", "Four, three, two, one, zero."),
     ]
   });
 
   // Lesson 7: Introduce 5
+  resetLangSeed(7);
   lessons.push({
     id: 7, title: "Lesson 7", target: "5", phase: 1,
     steps: [
       // Warm-up
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      showStep(num(1), "dots", "What number?", "Wait.", "One!", "One.", { dotCount: 1 }),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
+      dotsStep(3),
+      dotsStep(4),
+      identifyStep(1),
+      dotsStep(2),
       // New: 5
-      countStep(num(5), 5, "New number! This is five. Count: one, two, three, four, five. Five fills a whole row of dots!", "Point to each dot.", "Five!", "One, two, three, four, five. Five."),
-      countStep(num(5), 5, "Count the dots.", "Wait.", "One, two, three, four, five!", "Five dots."),
-      dotsStep(5, "How many dots?", "Wait.", "Five!", "Five! A full row."),
+      countStep(num(5), 5, "New number! This is five. Count with me: one, two, three, four, five. Five fills up a whole row of dots!", "Point to each dot.", "Five! A full row!", "One, two, three, four, five. Five."),
+      countStep(num(5), 5, "Your turn — count them yourself.", langPick(DO_WAIT), "One, two, three, four, five! Great counting!", "Five dots."),
+      dotsStep(5, "Now just look — how many dots without counting?"),
       // Guided
-      identifyStep(5, "What number?", "Five!", "Five."),
-      dotsStep(5, "How many dots? Quick!", "Wait.", "Five!", "Five."),
+      identifyStep(5),
+      dotsStep(5, "Quick — how many?", langPick(DO_WAIT), "Five! Nice and fast!", "Five."),
       // Mixed (0-5)
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      dotsStep(5, "How many?", "Wait.", "Five!", "Five."),
-      dotsStep(1, "How many?", "Wait.", "One!", "One."),
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      dotsStep(5, "How many?", "Wait.", "Five!", "Five."),
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      showStep(`${num(0)} &nbsp; ${num(1)} &nbsp; ${num(2)} &nbsp; ${num(3)} &nbsp; ${num(4)} &nbsp; ${num(5)}`, "none", "Count: zero to five.", "Point to each.", "Zero, one, two, three, four, five!", "Zero, one, two, three, four, five."),
+      dotsStep(3),
+      dotsStep(5),
+      dotsStep(1),
+      dotsStep(4),
+      showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
+      dotsStep(2),
+      dotsStep(5),
+      dotsStep(4),
+      showStep(`${num(0)} &nbsp; ${num(1)} &nbsp; ${num(2)} &nbsp; ${num(3)} &nbsp; ${num(4)} &nbsp; ${num(5)}`, "none", "Count all the way from zero to five!", "Point to each.", "Zero, one, two, three, four, five!", "Zero, one, two, three, four, five."),
       // Firm-up
-      dotsStep(5, "How many dots?", "Wait.", "Five! Wonderful!", "Five."),
+      dotsStep(5, "Last question! How many dots?", langPick(DO_WAIT), `Five! ${langPick(PRAISE_GREAT)}`, "Five."),
     ]
   });
 
   // Lesson 8: Review 0-5
+  resetLangSeed(8);
   lessons.push({
     id: 8, title: "Lesson 8", target: "Review 0-5", phase: 1,
     steps: [
-      dotsStep(5, "How many dots?", "Wait.", "Five!", "Five."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      dotsStep(1, "How many?", "Wait.", "One!", "One."),
-      showStep(`${num(3)} ${sym('=')} ${dots('• • •')}`, "equation", "Read this.", "Wait.", "Three equals three dots!", "Three equals three dots."),
-      showStep(`${num(5)} ${sym('=')} ${dots('••• ••')}`, "equation", "Read this.", "Wait.", "Five equals five dots!", "Five equals five dots."),
-      dotsStep(5, "How many dots? Quick!", "Wait.", "Five!", "Five."),
-      dotsStep(1, "How many?", "Wait.", "One!", "One."),
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      showStep(num(5), "dots", "What number?", "Wait.", "Five!", "Five.", { dotCount: 5 }),
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      dotsStep(5, "How many?", "Wait.", "Five!", "Five."),
-      showStep(`${num(5)} &nbsp; ${num(4)} &nbsp; ${num(3)} &nbsp; ${num(2)} &nbsp; ${num(1)} &nbsp; ${num(0)}`, "none", "Count backward: five to zero.", "Point to each.", "Five, four, three, two, one, zero!", "Five, four, three, two, one, zero."),
-      dotsStep(3, "How many?", "Wait.", "Three! Nice work!", "Three."),
+      dotsStep(5),
+      dotsStep(2),
+      dotsStep(4),
+      showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
+      dotsStep(3),
+      dotsStep(1),
+      showStep(`${num(3)} ${sym('=')} ${dots('• • •')}`, "equation", "Read this equation for me.", langPick(DO_WAIT), "Three equals three dots!", "Three equals three dots."),
+      showStep(`${num(5)} ${sym('=')} ${dots('••• ••')}`, "equation", "And this one?", langPick(DO_WAIT), "Five equals five dots!", "Five equals five dots."),
+      dotsStep(5, "Quick! How many?"),
+      dotsStep(1),
+      dotsStep(4),
+      dotsStep(3),
+      dotsStep(2),
+      identifyStep(5),
+      dotsStep(4),
+      dotsStep(5),
+      showStep(`${num(5)} &nbsp; ${num(4)} &nbsp; ${num(3)} &nbsp; ${num(2)} &nbsp; ${num(1)} &nbsp; ${num(0)}`, "none", "Can you count backward? Start at five and go to zero.", "Point to each.", "Five, four, three, two, one, zero! Amazing!", "Five, four, three, two, one, zero."),
+      dotsStep(3, "Last one! How many dots?", langPick(DO_WAIT), `Three! ${langPick(PRAISE_GREAT)}`, "Three."),
     ]
   });
 
   // Lesson 9: Introduce 6
+  resetLangSeed(9);
   lessons.push({
     id: 9, title: "Lesson 9", target: "6", phase: 1,
     steps: [
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      dotsStep(5, "How many?", "Wait.", "Five!", "Five."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      countStep(num(6), 6, "New number! This is six. Count: one, two, three, four, five, six. That's five in one row and one more!", "Point to each dot.", "Six!", "One, two, three, four, five, six."),
-      countStep(num(6), 6, "Count the dots.", "Wait.", "Six!", "Six dots."),
-      dotsStep(6, "How many dots?", "Wait.", "Six!", "Six."),
-      identifyStep(6, "What number?", "Six!", "Six."),
-      dotsStep(6, "How many? Quick!", "Wait.", "Six!", "Six."),
-      dotsStep(5, "How many?", "Wait.", "Five!", "Five."),
-      dotsStep(6, "How many?", "Wait.", "Six!", "Six."),
-      dotsStep(1, "How many?", "Wait.", "One!", "One."),
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      dotsStep(6, "How many?", "Wait.", "Six!", "Six."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      dotsStep(5, "How many?", "Wait.", "Five!", "Five."),
-      dotsStep(6, "How many dots?", "Wait.", "Six! Great!", "Six."),
+      dotsStep(4),
+      dotsStep(5),
+      dotsStep(2),
+      dotsStep(3),
+      countStep(num(6), 6, "Here comes a new number! This is six. Let's count: one, two, three, four, five, six. See how there are five in one row and then one more?", "Point to each dot.", "Six! That's right!", "One, two, three, four, five, six. Six."),
+      countStep(num(6), 6, "Now you count them.", langPick(DO_WAIT), "Six! Great counting!", "Six dots."),
+      dotsStep(6, "How many dots do you see — without counting?"),
+      identifyStep(6),
+      dotsStep(6, "Quick — how many?", langPick(DO_WAIT), "Six! You're fast!", "Six."),
+      dotsStep(5),
+      dotsStep(6),
+      dotsStep(1),
+      dotsStep(4),
+      showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
+      dotsStep(3),
+      dotsStep(6),
+      dotsStep(2),
+      dotsStep(5),
+      dotsStep(6, "Last one! How many dots?", langPick(DO_WAIT), `Six! ${langPick(PRAISE_GREAT)}`, "Six."),
     ]
   });
 
   // Lesson 10: Review 0-6
+  resetLangSeed(10);
   lessons.push({
     id: 10, title: "Lesson 10", target: "Review 0-6", phase: 1,
     steps: [
-      dotsStep(6, "How many?", "Wait.", "Six!", "Six."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      dotsStep(5, "How many?", "Wait.", "Five!", "Five."),
-      showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."),
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      dotsStep(1, "How many?", "Wait.", "One!", "One."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      dotsStep(6, "How many?", "Wait.", "Six!", "Six."),
-      showStep(`${num(6)} ${sym('=')} ${dots('••• •••')}`, "equation", "Read this.", "Wait.", "Six equals six dots!", "Six equals six dots."),
-      dotsStep(5, "How many?", "Wait.", "Five!", "Five."),
-      dotsStep(4, "How many?", "Wait.", "Four!", "Four."),
-      dotsStep(6, "How many?", "Wait.", "Six!", "Six."),
-      dotsStep(3, "How many?", "Wait.", "Three!", "Three."),
-      dotsStep(1, "How many?", "Wait.", "One!", "One."),
-      dotsStep(2, "How many?", "Wait.", "Two!", "Two."),
-      dotsStep(5, "How many?", "Wait.", "Five!", "Five."),
-      dotsStep(6, "How many dots?", "Wait.", "Six!", "Six."),
-      dotsStep(4, "How many?", "Wait.", "Four! Great work!", "Four."),
+      dotsStep(6),
+      dotsStep(3),
+      dotsStep(5),
+      showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."),
+      dotsStep(4),
+      dotsStep(1),
+      dotsStep(2),
+      dotsStep(6),
+      showStep(`${num(6)} ${sym('=')} ${dots('••• •••')}`, "equation", "Read this equation.", langPick(DO_WAIT), "Six equals six dots!", "Six equals six dots."),
+      dotsStep(5),
+      dotsStep(4),
+      dotsStep(6),
+      dotsStep(3),
+      dotsStep(1),
+      dotsStep(2),
+      dotsStep(5),
+      dotsStep(6),
+      dotsStep(4, "Last one! How many?", langPick(DO_WAIT), `Four! ${langPick(PRAISE_GREAT)}`, "Four."),
     ]
   });
 
@@ -397,6 +531,7 @@ function generatePhase1() {
   ];
 
   for (const item of laterNumbers) {
+    resetLangSeed(item.id * 100);
     if (item.n !== null) {
       // New number lesson
       const n = item.n;
@@ -406,27 +541,27 @@ function generatePhase1() {
       const steps = [];
       // Warm-up: 4 review steps
       for (const r of reviewNums) {
-        steps.push(dotsStep(r, "How many dots?", "Wait.", `${Word(r)}!`, `${Word(r)}.`));
+        steps.push(dotsStep(r));
       }
       // New number
-      steps.push(countStep(num(n), n, `New number! This is ${word(n)}. Count: ${Array.from({length: n}, (_, i) => word(i + 1)).join(', ')}.`, "Point to each dot.", `${Word(n)}!`, `${cap(Array.from({length: n}, (_, i) => word(i + 1)).join(', '))}. ${Word(n)}.`));
-      steps.push(countStep(num(n), n, "Count the dots.", "Wait.", `${Word(n)}!`, `${Word(n)} dots.`));
-      steps.push(dotsStep(n, "How many dots?", "Wait.", `${Word(n)}!`, `${Word(n)}.`));
+      steps.push(countStep(num(n), n, `Here's a new number! This is ${word(n)}. Let's count together: ${Array.from({length: n}, (_, i) => word(i + 1)).join(', ')}.`, "Point to each dot as you count.", `${Word(n)}! ${langPick(PRAISE_GREAT)}`, `${cap(Array.from({length: n}, (_, i) => word(i + 1)).join(', '))}. ${Word(n)}.`));
+      steps.push(countStep(num(n), n, "Now you count them by yourself.", langPick(DO_WAIT), `${Word(n)}! Great counting!`, `${Word(n)} dots.`));
+      steps.push(dotsStep(n, "Without counting — just look. How many dots?"));
       // Guided
       steps.push(identifyStep(n));
-      steps.push(dotsStep(n, "How many dots? Quick!", "Wait.", `${Word(n)}!`, `${Word(n)}.`));
+      steps.push(dotsStep(n, "Quick — how many?", langPick(DO_WAIT), `${Word(n)}! Nice and fast!`, `${Word(n)}.`));
       // Mixed practice: 8 items from 0 to n, shuffled
       const mixNums = pick(Array.from({length: n + 1}, (_, i) => i), 8, item.id * 7);
       for (const m of mixNums) {
         if (m === 0) {
-          steps.push(showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."));
+          steps.push(showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."));
         } else {
-          steps.push(dotsStep(m, "How many?", "Wait.", `${Word(m)}!`, `${Word(m)}.`));
+          steps.push(dotsStep(m));
         }
       }
       // Firm-up
-      steps.push(dotsStep(n, "How many dots?", "Wait.", `${Word(n)}! Great!`, `${Word(n)}.`));
-      steps.push(dotsStep(n > 2 ? n - 2 : 1, "And this?", "Wait.", `${Word(n > 2 ? n - 2 : 1)}!`, `${Word(n > 2 ? n - 2 : 1)}.`));
+      steps.push(dotsStep(n, "Almost done! How many dots?", langPick(DO_WAIT), `${Word(n)}! ${langPick(PRAISE_GREAT)}`, `${Word(n)}.`));
+      steps.push(dotsStep(n > 2 ? n - 2 : 1, "And this one?"));
 
       lessons.push({ id: item.id, title: `Lesson ${item.id}`, target: String(n), phase: 1, steps });
     } else {
@@ -440,9 +575,9 @@ function generatePhase1() {
         const m = reviewOrder[i];
         const isLast = i === reviewOrder.length - 1;
         if (m === 0) {
-          steps.push(showStep(num(0), "none", isLast ? "What number? Last one!" : "What number?", "Wait.", isLast ? "Zero! Great work!" : "Zero!", "Zero."));
+          steps.push(showStep(num(0), "none", isLast ? "Last one! What number is this?" : langPick(ASK_NUMBER), langPick(DO_WAIT), isLast ? "Zero! Great work!" : langPick(PRAISE_CORRECT(0)), "Zero."));
         } else {
-          steps.push(dotsStep(m, isLast ? "How many dots? Last one!" : "How many dots?", "Wait.", isLast ? `${Word(m)}! Excellent!` : `${Word(m)}!`, `${Word(m)}.`));
+          steps.push(isLast ? dotsStep(m, "Last one! How many dots?", langPick(DO_WAIT), `${Word(m)}! ${langPick(PRAISE_GREAT)}`, `${Word(m)}.`) : dotsStep(m));
         }
       }
       lessons.push({ id: item.id, title: `Lesson ${item.id}`, target: item.title, phase: 1, steps });
@@ -453,52 +588,52 @@ function generatePhase1() {
   {
     const steps = [];
     // Warm-up
-    steps.push(dotsStep(7, "How many?", "Wait.", "Seven!", "Seven."));
-    steps.push(dotsStep(10, "How many?", "Wait.", "Ten!", "Ten."));
-    steps.push(dotsStep(5, "How many?", "Wait.", "Five!", "Five."));
-    steps.push(dotsStep(3, "How many?", "Wait.", "Three!", "Three."));
+    steps.push(dotsStep(7));
+    steps.push(dotsStep(10));
+    steps.push(dotsStep(5));
+    steps.push(dotsStep(3));
     // New: > and <
     steps.push(showStep(`${num(5)} &nbsp; ${sym('>')} &nbsp; ${num(3)}`, "none", "This symbol means 'greater than'. Five is greater than three. Five is more than three.", "Point to the > sign.", "Greater than! Five is more than three.", "This is greater than. Five is greater than three."));
     steps.push(showStep(`${num(2)} &nbsp; ${sym('<')} &nbsp; ${num(7)}`, "none", "This symbol means 'less than'. Two is less than seven. Two is fewer than seven.", "Point to the < sign.", "Less than! Two is fewer than seven.", "This is less than. Two is less than seven."));
-    steps.push(showStep(sym('>'), "none", "What does this symbol mean?", "Wait.", "Greater than!", "Greater than. More than."));
-    steps.push(showStep(sym('<'), "none", "What does this symbol mean?", "Wait.", "Less than!", "Less than. Fewer than."));
+    steps.push(showStep(sym('>'), "none", "What does this symbol mean?", langPick(DO_WAIT), "Greater than!", "Greater than. More than."));
+    steps.push(showStep(sym('<'), "none", "What does this symbol mean?", langPick(DO_WAIT), "Less than!", "Less than. Fewer than."));
     // Guided compare
     steps.push(compareStep(6, 2));
     steps.push(compareStep(1, 8));
     steps.push(compareStep(5, 5));
     // Mixed
-    steps.push(dotsStep(8, "How many?", "Wait.", "Eight!", "Eight."));
+    steps.push(dotsStep(8));
     steps.push(compareStep(9, 4));
-    steps.push(dotsStep(6, "How many?", "Wait.", "Six!", "Six."));
+    steps.push(dotsStep(6));
     steps.push(compareStep(3, 7));
-    steps.push(dotsStep(10, "How many?", "Wait.", "Ten!", "Ten."));
+    steps.push(dotsStep(10));
     steps.push(compareStep(8, 8));
     // Firm-up
     steps.push(compareStep(4, 9));
-    steps.push(dotsStep(7, "How many?", "Wait.", "Seven! Great job!", "Seven."));
+    steps.push(dotsStep(7));
     lessons.push({ id: 18, title: "Lesson 18", target: ">, <", phase: 1, steps });
   }
 
   // Lesson 19: Review comparing
   {
     const steps = [];
-    steps.push(dotsStep(9, "How many?", "Wait.", "Nine!", "Nine."));
-    steps.push(dotsStep(4, "How many?", "Wait.", "Four!", "Four."));
-    steps.push(showStep(sym('>'), "none", "What does this mean?", "Wait.", "Greater than!", "Greater than."));
-    steps.push(showStep(sym('<'), "none", "What does this mean?", "Wait.", "Less than!", "Less than."));
+    steps.push(dotsStep(9));
+    steps.push(dotsStep(4));
+    steps.push(showStep(sym('>'), "none", "What does this mean?", langPick(DO_WAIT), "Greater than!", "Greater than."));
+    steps.push(showStep(sym('<'), "none", "What does this mean?", langPick(DO_WAIT), "Less than!", "Less than."));
     steps.push(compareStep(7, 3));
     steps.push(compareStep(2, 9));
     steps.push(compareStep(6, 6));
-    steps.push(dotsStep(5, "How many?", "Wait.", "Five!", "Five."));
+    steps.push(dotsStep(5));
     steps.push(compareStep(1, 4));
     steps.push(compareStep(10, 5));
-    steps.push(dotsStep(8, "How many?", "Wait.", "Eight!", "Eight."));
+    steps.push(dotsStep(8));
     steps.push(compareStep(3, 8));
     steps.push(compareStep(5, 2));
-    steps.push(dotsStep(10, "How many?", "Wait.", "Ten!", "Ten."));
+    steps.push(dotsStep(10));
     steps.push(compareStep(9, 9));
     steps.push(compareStep(4, 7));
-    steps.push(dotsStep(6, "How many?", "Wait.", "Six!", "Six."));
+    steps.push(dotsStep(6));
     steps.push(compareStep(8, 1));
     lessons.push({ id: 19, title: "Lesson 19", target: "Review comparing", phase: 1, steps });
   }
@@ -510,20 +645,20 @@ function generatePhase1() {
     const nums = shuffle([0,1,2,3,4,5,6,7,8,9,10], 20);
     for (let i = 0; i < 8; i++) {
       const m = nums[i];
-      if (m === 0) steps.push(showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."));
-      else steps.push(dotsStep(m, "How many dots?", "Wait.", `${Word(m)}!`, `${Word(m)}.`));
+      if (m === 0) steps.push(showStep(num(0), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), langPick(PRAISE_CORRECT(0)), "Zero."));
+      else steps.push(dotsStep(m));
     }
-    steps.push(showStep(sym('='), "none", "What does this mean?", "Wait.", "Equals!", "Equals. Is the same as."));
-    steps.push(showStep(sym('>'), "none", "What does this mean?", "Wait.", "Greater than!", "Greater than."));
-    steps.push(showStep(sym('<'), "none", "What does this mean?", "Wait.", "Less than!", "Less than."));
+    steps.push(showStep(sym('='), "none", "What does this mean?", langPick(DO_WAIT), "Equals!", "Equals. Is the same as."));
+    steps.push(showStep(sym('>'), "none", "What does this mean?", langPick(DO_WAIT), "Greater than!", "Greater than."));
+    steps.push(showStep(sym('<'), "none", "What does this mean?", langPick(DO_WAIT), "Less than!", "Less than."));
     steps.push(compareStep(8, 3));
     steps.push(compareStep(5, 10));
     steps.push(compareStep(7, 7));
     // Final rapid fire
-    steps.push(dotsStep(10, "How many?", "Wait.", "Ten!", "Ten."));
-    steps.push(dotsStep(6, "How many?", "Wait.", "Six!", "Six."));
-    steps.push(dotsStep(9, "How many?", "Wait.", "Nine!", "Nine."));
-    steps.push(dotsStep(4, "How many? Last one!", "Wait.", "Four! Phase 1 complete!", "Four. Excellent work!"));
+    steps.push(dotsStep(10));
+    steps.push(dotsStep(6));
+    steps.push(dotsStep(9));
+    steps.push(dotsStep(4, "How many? Last one!", langPick(DO_WAIT), "Four! Phase 1 complete!", "Four. Excellent work!"));
     lessons.push({ id: 20, title: "Lesson 20", target: "Phase 1 Review", phase: 1, steps });
   }
 
@@ -551,15 +686,15 @@ function generatePhase2() {
     for (let i = Math.max(1, n - 6); i < n; i++) reviewPool.push(i);
     const reviewNums = pick(reviewPool, 4, item.id);
     for (const r of reviewNums) {
-      steps.push(dotsStep(r, "How many dots?", "Wait.", `${Word(r)}!`, `${Word(r)}.`));
+      steps.push(dotsStep(r));
     }
     // New number
     steps.push(countStep(num(n), n, `New number! This is ${word(n)}. ${n >= 13 && n <= 19 ? `It's ${word(n - 10)}-teen — that means ten and ${word(n - 10)}.` : n === 11 ? "Eleven — ten and one more." : n === 12 ? "Twelve — ten and two more." : n === 20 ? "Twenty — two tens!" : ""} Count the dots.`, "Point to dots.", `${Word(n)}!`, `${Word(n)}.`));
-    steps.push(countStep(num(n), n, "Count the dots again.", "Wait.", `${Word(n)}!`, `${Word(n)} dots.`));
-    steps.push(dotsStep(n, "How many dots?", "Wait.", `${Word(n)}!`, `${Word(n)}.`));
+    steps.push(countStep(num(n), n, "Count the dots again.", langPick(DO_WAIT), `${Word(n)}!`, `${Word(n)} dots.`));
+    steps.push(dotsStep(n));
     // Guided
     steps.push(identifyStep(n));
-    steps.push(dotsStep(n, "How many? Quick!", "Wait.", `${Word(n)}!`, `${Word(n)}.`));
+    steps.push(dotsStep(n, "How many? Quick!", langPick(DO_WAIT), `${Word(n)}!`, `${Word(n)}.`));
     // Mixed: 7 items
     const mixPool = [];
     for (let i = Math.max(1, n - 4); i <= n; i++) mixPool.push(i);
@@ -567,11 +702,11 @@ function generatePhase2() {
     mixPool.push(...pick([1,2,3,4,5,6,7,8,9,10], 2, item.id * 3));
     const mixed = pick(mixPool, 7, item.id * 5);
     for (const m of mixed) {
-      steps.push(dotsStep(m, "How many dots?", "Wait.", `${Word(m)}!`, `${Word(m)}.`));
+      steps.push(dotsStep(m));
     }
     // Firm-up
-    steps.push(dotsStep(n, "How many dots?", "Wait.", `${Word(n)}! Great!`, `${Word(n)}.`));
-    steps.push(dotsStep(pick(reviewNums, 1, item.id * 9)[0], "And this one?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(n));
+    steps.push(dotsStep(pick(reviewNums, 1, item.id * 9)[0], "And this one?", langPick(DO_WAIT), "Correct!", "Good."));
 
     lessons.push({ id: item.id, title: `Lesson ${item.id}`, target: String(n), phase: 2, steps });
   }
@@ -579,26 +714,26 @@ function generatePhase2() {
   // Lesson 31: Introduce + symbol
   {
     const steps = [];
-    steps.push(dotsStep(15, "How many?", "Wait.", "Fifteen!", "Fifteen."));
-    steps.push(dotsStep(10, "How many?", "Wait.", "Ten!", "Ten."));
-    steps.push(dotsStep(20, "How many?", "Wait.", "Twenty!", "Twenty."));
-    steps.push(dotsStep(8, "How many?", "Wait.", "Eight!", "Eight."));
+    steps.push(dotsStep(15));
+    steps.push(dotsStep(10));
+    steps.push(dotsStep(20));
+    steps.push(dotsStep(8));
     // New: + symbol
     steps.push(showStep(`${num(2)} ${sym('+')} ${num(1)}`, "none", "This symbol is called 'plus'. It means 'add' or 'put together'. Two plus one.", "Point to the + sign.", "Plus! It means add.", "This is plus. It means add or put together."));
     steps.push(showStep(`${num(2)} ${sym('+')} ${num(1)} ${sym('=')} ${num(3)}`, "dots", "Two plus one equals three. When we put two and one together, we get three.", "Point to each part.", "Two plus one is three!", "Two plus one equals three.", { dotCount: 3 }));
     steps.push(showStep(`${num(1)} ${sym('+')} ${num(1)} ${sym('=')} ${num(2)}`, "dots", "One plus one equals two.", "Point.", "One plus one is two!", "One plus one equals two.", { dotCount: 2 }));
-    steps.push(showStep(sym('+'), "none", "What does this symbol mean?", "Wait.", "Plus! Add!", "Plus. It means add."));
+    steps.push(showStep(sym('+'), "none", "What does this symbol mean?", langPick(DO_WAIT), "Plus! Add!", "Plus. It means add."));
     // Guided
     steps.push(addStep(1, 2, "dots"));
     steps.push(addStep(2, 2, "dots"));
     steps.push(addStep(3, 1, "dots"));
     // Mixed
-    steps.push(dotsStep(12, "How many?", "Wait.", "Twelve!", "Twelve."));
+    steps.push(dotsStep(12));
     steps.push(addStep(1, 1, "dots"));
-    steps.push(dotsStep(18, "How many?", "Wait.", "Eighteen!", "Eighteen."));
+    steps.push(dotsStep(18));
     steps.push(addStep(2, 1, "dots"));
-    steps.push(dotsStep(7, "How many?", "Wait.", "Seven!", "Seven."));
-    steps.push(showStep(sym('+'), "none", "What does this mean?", "Wait.", "Plus!", "Plus."));
+    steps.push(dotsStep(7));
+    steps.push(showStep(sym('+'), "none", "What does this mean?", langPick(DO_WAIT), "Plus!", "Plus."));
     // Firm-up
     steps.push(addStep(3, 2, "dots"));
     steps.push(addStep(1, 3, "dots"));
@@ -610,8 +745,8 @@ function generatePhase2() {
     const steps = [];
     // Warm-up
     const warmup = pick([5,8,12,15,18,20], 3, lid);
-    for (const w of warmup) steps.push(dotsStep(w, "How many?", "Wait.", `${Word(w)}!`, `${Word(w)}.`));
-    steps.push(showStep(sym('+'), "none", "What does this mean?", "Wait.", "Plus!", "Plus. Add."));
+    for (const w of warmup) steps.push(dotsStep(w));
+    steps.push(showStep(sym('+'), "none", "What does this mean?", langPick(DO_WAIT), "Plus!", "Plus. Add."));
     // +1 practice
     const bases = pick([1,2,3,4,5,6,7,8,9], 6, lid * 7);
     for (const b of bases) {
@@ -622,7 +757,7 @@ function generatePhase2() {
     steps.push(numberLineStep(bases[2] + 1, 0, 10));
     // Mixed review
     const review = pick([10,13,16,19], 3, lid * 11);
-    for (const r of review) steps.push(dotsStep(r, "How many?", "Wait.", `${Word(r)}!`, `${Word(r)}.`));
+    for (const r of review) steps.push(dotsStep(r));
     // More +1
     steps.push(addStep(pick([3,6,8], 1, lid * 13)[0], 1, "numberline", undefined, undefined, undefined));
     // Firm-up
@@ -634,16 +769,16 @@ function generatePhase2() {
   for (let lid = 35; lid <= 38; lid++) {
     const steps = [];
     const warmup = pick([3,7,11,14,17,20], 4, lid);
-    for (const w of warmup) steps.push(dotsStep(w, "How many?", "Wait.", `${Word(w)}!`, `${Word(w)}.`));
+    for (const w of warmup) steps.push(dotsStep(w));
 
     // One more / one less
     const oneMoreBases = pick([4,6,8,10,12,15], 3, lid * 3);
     for (const b of oneMoreBases) {
-      steps.push(showStep(num(b), "dots", `What is one more than ${word(b)}?`, "Wait.", `${Word(b + 1)}!`, `One more than ${word(b)} is ${word(b + 1)}.`, { dotCount: b }));
+      steps.push(showStep(num(b), "dots", `What is one more than ${word(b)}?`, langPick(DO_WAIT), `${Word(b + 1)}!`, `One more than ${word(b)} is ${word(b + 1)}.`, { dotCount: b }));
     }
     const oneLessBases = pick([5,7,9,11,13,16], 3, lid * 5);
     for (const b of oneLessBases) {
-      steps.push(showStep(num(b), "dots", `What is one less than ${word(b)}?`, "Wait.", `${Word(b - 1)}!`, `One less than ${word(b)} is ${word(b - 1)}.`, { dotCount: b }));
+      steps.push(showStep(num(b), "dots", `What is one less than ${word(b)}?`, langPick(DO_WAIT), `${Word(b - 1)}!`, `One less than ${word(b)} is ${word(b - 1)}.`, { dotCount: b }));
     }
     // +1 review
     steps.push(addStep(pick([2,5,7,9], 1, lid * 7)[0], 1, "dots"));
@@ -653,9 +788,9 @@ function generatePhase2() {
     steps.push(compareStep(ca, cb));
     // More dots
     const dotReview = pick([4,9,13,17,20], 3, lid * 13);
-    for (const d of dotReview) steps.push(dotsStep(d, "How many?", "Wait.", `${Word(d)}!`, `${Word(d)}.`));
+    for (const d of dotReview) steps.push(dotsStep(d));
     // Firm-up
-    steps.push(dotsStep(pick([6,10,15,19], 1, lid * 15)[0], "How many? Last one!", "Wait.", "Correct! Great job!", "Good work."));
+    steps.push(dotsStep(pick([6,10,15,19], 1, lid * 15)[0], "How many? Last one!", langPick(DO_WAIT), "Correct! Great job!", "Good work."));
     lessons.push({ id: lid, title: `Lesson ${lid}`, target: "one more, one less", phase: 2, steps });
   }
 
@@ -664,7 +799,7 @@ function generatePhase2() {
     const steps = [];
     const allNums = shuffle([1,3,5,7,9,11,13,15,17,19,2,4,6,8,10,12,14,16,18,20], lid);
     for (let i = 0; i < 10; i++) {
-      steps.push(dotsStep(allNums[i], "How many dots?", "Wait.", `${Word(allNums[i])}!`, `${Word(allNums[i])}.`));
+      steps.push(dotsStep(allNums[i]));
     }
     // Add some +1 and compare
     steps.push(addStep(pick([3,6,8], 1, lid * 3)[0], 1, "dots"));
@@ -673,10 +808,10 @@ function generatePhase2() {
     steps.push(compareStep(...pick([[18,3],[8,14],[20,20]], 1, lid * 9)[0]));
     // More dots
     for (let i = 10; i < 14; i++) {
-      steps.push(dotsStep(allNums[i], "How many?", "Wait.", `${Word(allNums[i])}!`, `${Word(allNums[i])}.`));
+      steps.push(dotsStep(allNums[i]));
     }
     steps.push(addStep(pick([4,6,9], 1, lid * 11)[0], 1, "dots"));
-    steps.push(dotsStep(20, lid === 40 ? "Last problem! How many dots?" : "How many?", "Wait.", lid === 40 ? "Twenty! Phase 2 complete!" : "Twenty!", "Twenty."));
+    steps.push(dotsStep(20, lid === 40 ? "Last problem! How many dots?" : "How many?", langPick(DO_WAIT), lid === 40 ? "Twenty! Phase 2 complete!" : "Twenty!", "Twenty."));
     lessons.push({ id: lid, title: `Lesson ${lid}`, target: lid === 40 ? "Phase 2 Review" : "Review 11-20", phase: 2, steps });
   }
 
@@ -702,11 +837,11 @@ function generatePhase3() {
           const prevAddend = addend > 1 ? addend - 1 : 1;
           steps.push(addStep(w, Math.min(prevAddend, 10 - w), "dots"));
         } else {
-          steps.push(dotsStep(w, "How many dots?", "Wait.", `${Word(w)}!`, `${Word(w)}.`));
+          steps.push(dotsStep(w));
         }
       }
       // Review a number from phase 1-2
-      steps.push(dotsStep(pick([11,13,15,17,19], 1, lid * 3)[0], "How many dots?", "Wait.", "Correct!", "Good."));
+      steps.push(dotsStep(pick([11,13,15,17,19], 1, lid * 3)[0], "How many dots?", langPick(DO_WAIT), "Correct!", "Good."));
 
       // New/practice: +addend problems
       const bases = pick([0,1,2,3,4,5,6,7,8,9,10].filter(x => x + addend <= 20 && x + addend >= 0), i === 0 ? 3 : 5, lid * 7);
@@ -740,13 +875,13 @@ function generatePhase3() {
         steps.push(addStep(a, b, "dots"));
       }
       for (const d of dotNums) {
-        steps.push(dotsStep(d, "How many dots?", "Wait.", `${Word(d)}!`, `${Word(d)}.`));
+        steps.push(dotsStep(d));
       }
 
       // Firm-up
       const firmBase = pick([2,3,5,7], 1, lid * 19)[0];
       if (firmBase + addend <= 10) steps.push(addStep(firmBase, addend, "dots"));
-      steps.push(dotsStep(pick([4,6,8,10], 1, lid * 21)[0], "How many?", "Wait.", "Correct! Well done!", "Good."));
+      steps.push(dotsStep(pick([4,6,8,10], 1, lid * 21)[0], "How many?", langPick(DO_WAIT), "Correct! Well done!", "Good."));
 
       lessons.push({ id: lid, title: `Lesson ${lid}`, target: `+${addend}${i > 0 ? " practice" : ""}`, phase: 3, steps });
     }
@@ -763,7 +898,7 @@ function generatePhase3() {
     // Warm-up
     steps.push(addStep(pick([3,5,7], 1, lid)[0], 2, "dots"));
     steps.push(addStep(pick([2,4,6], 1, lid * 3)[0], 3, "dots"));
-    steps.push(dotsStep(pick([9,14,18], 1, lid * 5)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([9,14,18], 1, lid * 5)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
     steps.push(addStep(pick([1,4,8], 1, lid * 7)[0], 1, "dots"));
 
     // Doubles
@@ -786,7 +921,7 @@ function generatePhase3() {
     for (const [a, b] of pick(targetDoubles, 2, lid * 13)) {
       steps.push(addStep(a, b, "dots"));
     }
-    steps.push(dotsStep(pick([7,11,16], 1, lid * 15)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([7,11,16], 1, lid * 15)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
     steps.push(addStep(pick([1,3,5], 1, lid * 17)[0], 3, "dots"));
 
     // Firm-up
@@ -803,7 +938,7 @@ function generatePhase3() {
     steps.push(addStep(pick([3,5], 1, lid)[0], 2, "dots"));
     steps.push(addStep(pick([2,4], 1, lid * 3)[0], 3, "dots"));
     steps.push(addStep(pick([1,1,2,2,3,3], 1, lid * 5)[0], pick([1,1,2,2,3,3], 1, lid * 5)[0], "dots"));
-    steps.push(dotsStep(pick([8,13,17], 1, lid * 7)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([8,13,17], 1, lid * 7)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     if (i === 0) {
       steps.push(showStep(`${num(5)} ${sym('+')} ${num(0)} ${sym('=')} ${num(5)}`, "dots",
@@ -820,7 +955,7 @@ function generatePhase3() {
     steps.push(addStep(pick([3,5,7], 1, lid * 11)[0], 2, "dots"));
     steps.push(addStep(pick([2,4], 1, lid * 13)[0], 1, "dots"));
     steps.push(addStep(pick([1,2,3,4,5], 1, lid * 15)[0], pick([1,2,3,4,5], 1, lid * 15)[0], "dots"));
-    steps.push(dotsStep(pick([6,10,15], 1, lid * 17)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([6,10,15], 1, lid * 17)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     steps.push(addStep(pick([7,8,9], 1, lid * 19)[0], 0, "dots"));
     steps.push(addStep(pick([4,6], 1, lid * 21)[0], 3, "dots"));
@@ -835,7 +970,7 @@ function generatePhase3() {
     steps.push(addStep(pick([4,6,8], 1, lid)[0], 2, "dots"));
     steps.push(addStep(pick([3,5], 1, lid * 3)[0], 0, "dots"));
     steps.push(addStep(pick([2,3,4,5], 1, lid * 5)[0], pick([2,3,4,5], 1, lid * 5)[0], "dots"));
-    steps.push(dotsStep(pick([7,12,16], 1, lid * 7)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([7,12,16], 1, lid * 7)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     if (i === 0) {
       steps.push(showStep(`${num(2)} ${sym('+')} ${num(3)} ${sym('=')} ${num(5)}`, "dots",
@@ -855,7 +990,7 @@ function generatePhase3() {
     // Mixed
     steps.push(addStep(pick([5,7,9], 1, lid * 11)[0], 1, "dots"));
     steps.push(addStep(pick([3,4,5], 1, lid * 13)[0], pick([3,4,5], 1, lid * 13)[0], "dots"));
-    steps.push(dotsStep(pick([8,14,19], 1, lid * 15)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([8,14,19], 1, lid * 15)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     steps.push(addStep(pick([2,3], 1, lid * 17)[0], pick([1,2,3], 1, lid * 17)[0], "dots"));
 
@@ -870,7 +1005,7 @@ function generatePhase3() {
     steps.push(addStep(pick([3,5,7], 1, lid)[0], 2, "dots"));
     steps.push(addStep(pick([2,4], 1, lid * 3)[0], 3, "dots"));
     steps.push(addStep(pick([1,2,3,4], 1, lid * 5)[0], 1, "dots"));
-    steps.push(dotsStep(pick([6,9,13], 1, lid * 7)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([6,9,13], 1, lid * 7)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     if (i === 0) {
       steps.push(showStep(`${num(5)} ${sym('=')} ${num(2)} ${sym('+')} ${num(3)}`, "dots",
@@ -893,7 +1028,7 @@ function generatePhase3() {
     for (const [a, b] of pick(targetBonds, 2, lid * 11)) {
       const display = `${num(a)} ${sym('+')} ${q()} ${sym('=')} ${num(targetSum)}`;
       steps.push(showStep(display, "dots",
-        `${Word(a)} plus what equals ${word(targetSum)}?`, "Wait.",
+        `${Word(a)} plus what equals ${word(targetSum)}?`, langPick(DO_WAIT),
         `${Word(b)}!`,
         `${Word(a)} plus ${word(b)} equals ${word(targetSum)}.`,
         { dotCount: targetSum, answer: b }));
@@ -901,7 +1036,7 @@ function generatePhase3() {
 
     // Mixed
     steps.push(addStep(pick([2,4,6], 1, lid * 13)[0], pick([1,2,3], 1, lid * 13)[0], "dots"));
-    steps.push(dotsStep(pick([8,11,17], 1, lid * 15)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([8,11,17], 1, lid * 15)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
     steps.push(addStep(pick(targetBonds, 1, lid * 17)[0][0], pick(targetBonds, 1, lid * 17)[0][1], "dots"));
 
     // Firm-up
@@ -934,8 +1069,8 @@ function generatePhase3() {
       steps.push(addStep(a, b, "dots"));
     }
     // Sprinkle in number identification
-    steps.push(dotsStep(pick([7,12,16,20], 1, lid * 15)[0], "How many dots?", "Wait.", "Correct!", "Good."));
-    steps.push(dotsStep(pick([5,9,14,18], 1, lid * 17)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([7,12,16,20], 1, lid * 15)[0], "How many dots?", langPick(DO_WAIT), "Correct!", "Good."));
+    steps.push(dotsStep(pick([5,9,14,18], 1, lid * 17)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
     // Compare
     steps.push(compareStep(...pick([[8,3],[5,9],[7,7]], 1, lid * 19)[0]));
     steps.push(addStep(pick([2,3,4], 1, lid * 21)[0], pick([2,3], 1, lid * 21)[0], "dots"));
@@ -965,9 +1100,9 @@ function generatePhase4() {
         const prevSub = subtrahend > 1 ? subtrahend - 1 : 1;
         steps.push(subStep(pick([5,6,7,8,9], 1, lid * 3)[0], prevSub, "dots"));
       } else {
-        steps.push(dotsStep(pick([10,14,18], 1, lid * 3)[0], "How many?", "Wait.", "Correct!", "Good."));
+        steps.push(dotsStep(pick([10,14,18], 1, lid * 3)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
       }
-      steps.push(dotsStep(pick([6,9,12,16], 1, lid * 5)[0], "How many?", "Wait.", "Correct!", "Good."));
+      steps.push(dotsStep(pick([6,9,12,16], 1, lid * 5)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
       // New/practice: -subtrahend
       if (i === 0) {
@@ -989,7 +1124,7 @@ function generatePhase4() {
       for (const b of pick(bases, 2, lid * 11)) {
         steps.push(subStep(b, subtrahend, "dots"));
       }
-      steps.push(dotsStep(pick([5,8,13,17], 1, lid * 13)[0], "How many?", "Wait.", "Correct!", "Good."));
+      steps.push(dotsStep(pick([5,8,13,17], 1, lid * 13)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
       steps.push(addStep(pick([3,5,7], 1, lid * 15)[0], pick([1,2], 1, lid * 15)[0], "dots"));
 
       // Firm-up
@@ -1034,7 +1169,7 @@ function generatePhase4() {
     }
 
     // Mixed
-    steps.push(dotsStep(pick([9,14,18], 1, lid * 11)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([9,14,18], 1, lid * 11)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
     steps.push(addStep(pick([4,6], 1, lid * 13)[0], pick([1,2], 1, lid * 13)[0], "dots"));
 
     lessons.push({ id: lid, title: `Lesson ${lid}`, target: "fact families", phase: 4, steps });
@@ -1046,7 +1181,7 @@ function generatePhase4() {
     steps.push(subStep(pick([7,8,9], 1, 80)[0], 2, "dots"));
     steps.push(addStep(pick([3,5], 1, 240)[0], 3, "dots"));
     steps.push(subStep(pick([6,8], 1, 400)[0], 1, "dots"));
-    steps.push(dotsStep(pick([10,15,20], 1, 560)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([10,15,20], 1, 560)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     steps.push(showStep(`${num(5)} ${sym('−')} ${num(0)} ${sym('=')} ${num(5)}`, "dots",
       "Five minus zero equals five. Subtracting zero changes nothing!",
@@ -1108,8 +1243,8 @@ function generatePhase4() {
     }
 
     // Dots review
-    steps.push(dotsStep(pick([8,12,16,20], 1, lid * 11)[0], "How many?", "Wait.", "Correct!", "Good."));
-    steps.push(dotsStep(pick([5,9,14,18], 1, lid * 13)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([8,12,16,20], 1, lid * 11)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
+    steps.push(dotsStep(pick([5,9,14,18], 1, lid * 13)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     // More mixed
     steps.push(subStep(pick([7,8,9,10], 1, lid * 15)[0], pick([1,2,3], 1, lid * 15)[0], "dots"));
@@ -1143,7 +1278,7 @@ function generatePhase5() {
     // Warm-up
     steps.push(addStep(pick([3,5,7], 1, lid)[0], pick([2,3], 1, lid)[0], "dots"));
     steps.push(subStep(pick([8,9,10], 1, lid * 3)[0], pick([1,2,3], 1, lid * 3)[0], "dots"));
-    steps.push(dotsStep(pick([6,9,14], 1, lid * 5)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([6,9,14], 1, lid * 5)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
     steps.push(addStep(pick([4,6], 1, lid * 7)[0], pick([1,2], 1, lid * 7)[0], "dots"));
 
     const targetNums = i === 0 ? [10,13,15] : i === 1 ? [11,14,17] : i === 2 ? [12,16,19] : [18,20,13];
@@ -1158,7 +1293,7 @@ function generatePhase5() {
       const tens = Math.floor(n / 10);
       const ones = n % 10;
       steps.push(showStep(num(n), "placevalue",
-        `${Word(n)}. How many tens? How many ones?`, "Wait.",
+        `${Word(n)}. How many tens? How many ones?`, langPick(DO_WAIT),
         `${tens} ten${tens !== 1 ? 's' : ''} and ${ones} one${ones !== 1 ? 's' : ''}!`,
         `${Word(n)} is ${tens} ten${tens !== 1 ? 's' : ''} and ${ones} one${ones !== 1 ? 's' : ''}.`));
     }
@@ -1167,9 +1302,9 @@ function generatePhase5() {
     steps.push(subStep(pick([7,8,9], 1, lid * 9)[0], pick([1,2], 1, lid * 9)[0], "dots"));
     steps.push(addStep(pick([3,5], 1, lid * 11)[0], pick([2,3], 1, lid * 11)[0], "dots"));
     for (const n of pick(targetNums, 2, lid * 13)) {
-      steps.push(dotsStep(n, "How many dots?", "Wait.", `${Word(n)}!`, `${Word(n)}.`));
+      steps.push(dotsStep(n));
     }
-    steps.push(dotsStep(pick([4,7,11,15], 1, lid * 15)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([4,7,11,15], 1, lid * 15)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     // More place value
     const moreNums = pick([10,11,12,13,14,15,16,17,18,19,20], 3, lid * 17);
@@ -1177,7 +1312,7 @@ function generatePhase5() {
       const tens = Math.floor(n / 10);
       const ones = n % 10;
       steps.push(showStep(num(n), "none",
-        `${Word(n)}. How many tens and ones?`, "Wait.",
+        `${Word(n)}. How many tens and ones?`, langPick(DO_WAIT),
         `${tens} ten${tens !== 1 ? 's' : ''}, ${ones} one${ones !== 1 ? 's' : ''}!`,
         `${tens} ten${tens !== 1 ? 's' : ''} and ${ones} one${ones !== 1 ? 's' : ''}.`));
     }
@@ -1200,8 +1335,8 @@ function generatePhase5() {
     steps.push(subStep(pick([8,9,10], 1, lid * 3)[0], pick([2,3], 1, lid * 3)[0], "dots"));
     // Place value review
     const pvNum = pick([12,15,18,20], 1, lid * 5)[0];
-    steps.push(showStep(num(pvNum), "none", `${Word(pvNum)}. Tens and ones?`, "Wait.", `${Math.floor(pvNum/10)} ten${Math.floor(pvNum/10)>1?'s':''}, ${pvNum%10} one${pvNum%10!==1?'s':''}!`, "Correct."));
-    steps.push(dotsStep(pick([6,10,14], 1, lid * 7)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(showStep(num(pvNum), "none", `${Word(pvNum)}. Tens and ones?`, langPick(DO_WAIT), `${Math.floor(pvNum/10)} ten${Math.floor(pvNum/10)>1?'s':''}, ${pvNum%10} one${pvNum%10!==1?'s':''}!`, "Correct."));
+    steps.push(dotsStep(pick([6,10,14], 1, lid * 7)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     // New range
     for (let n = rangeStart; n <= rangeEnd; n++) {
@@ -1209,7 +1344,7 @@ function generatePhase5() {
       const ones = n % 10;
       steps.push(showStep(num(n), "none",
         n === rangeStart ? `New number: ${n}. That's ${tens} tens and ${ones} ones. Say '${n}'.` : `What is this number?`,
-        n === rangeStart ? "Point to the number." : "Wait.",
+        n === rangeStart ? "Point to the number." : langPick(DO_WAIT),
         `${n}!`, `${n}. ${tens} tens and ${ones} ones.`));
     }
 
@@ -1222,11 +1357,11 @@ function generatePhase5() {
     // Mixed
     steps.push(addStep(pick([3,5,7], 1, lid * 9)[0], pick([2,3], 1, lid * 9)[0], "dots"));
     steps.push(subStep(pick([6,8,10], 1, lid * 11)[0], pick([1,2], 1, lid * 11)[0], "dots"));
-    steps.push(dotsStep(pick([7,11,16,19], 1, lid * 13)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([7,11,16,19], 1, lid * 13)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     // Firm-up
     const firmNum = pick(Array.from({length: rangeEnd - rangeStart + 1}, (_, j) => rangeStart + j), 1, lid * 15)[0];
-    steps.push(showStep(num(firmNum), "none", `What number?`, "Wait.", `${firmNum}! Great!`, `${firmNum}.`));
+    steps.push(showStep(num(firmNum), "none", `What number?`, langPick(DO_WAIT), `${firmNum}! Great!`, `${firmNum}.`));
 
     lessons.push({ id: lid, title: `Lesson ${lid}`, target: `${rangeStart}-${rangeEnd}`, phase: 5, steps });
   }
@@ -1240,8 +1375,8 @@ function generatePhase5() {
 
     steps.push(addStep(pick([4,6,8], 1, lid)[0], pick([1,2,3], 1, lid)[0], "dots"));
     steps.push(subStep(pick([7,9,10], 1, lid * 3)[0], pick([1,2], 1, lid * 3)[0], "dots"));
-    steps.push(showStep(num(pick([25,33,41,48], 1, lid * 5)[0]), "none", "What number?", "Wait.", "Correct!", "Good."));
-    steps.push(dotsStep(pick([8,12,17], 1, lid * 7)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(showStep(num(pick([25,33,41,48], 1, lid * 5)[0]), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), "Correct!", "Good."));
+    steps.push(dotsStep(pick([8,12,17], 1, lid * 7)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     // Show numbers in the range
     const rangeNums = [];
@@ -1249,7 +1384,7 @@ function generatePhase5() {
     for (const n of rangeNums.slice(0, 6)) {
       steps.push(showStep(num(n), "none",
         n === rangeStart ? `New number: ${n}. Say '${n}'.` : `What number?`,
-        "Wait.", `${n}!`, `${n}.`));
+        langPick(DO_WAIT), `${n}!`, `${n}.`));
     }
 
     // Skip count by 10s
@@ -1264,11 +1399,11 @@ function generatePhase5() {
 
     // More from range
     for (const n of pick(rangeNums, 3, lid * 13)) {
-      steps.push(showStep(num(n), "none", "What number?", "Wait.", `${n}!`, `${n}.`));
+      steps.push(showStep(num(n), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), `${n}!`, `${n}.`));
     }
 
-    steps.push(dotsStep(pick([5,10,15,20], 1, lid * 15)[0], "How many?", "Wait.", "Correct!", "Good."));
-    steps.push(showStep(num(pick(rangeNums, 1, lid * 17)[0]), "none", "What number? Last one!", "Wait.", "Correct! Great work!", "Good."));
+    steps.push(dotsStep(pick([5,10,15,20], 1, lid * 15)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
+    steps.push(showStep(num(pick(rangeNums, 1, lid * 17)[0]), "none", "What number? Last one!", langPick(DO_WAIT), "Correct! Great work!", "Good."));
 
     lessons.push({ id: lid, title: `Lesson ${lid}`, target: `${rangeStart}-${rangeEnd}`, phase: 5, steps });
   }
@@ -1281,8 +1416,8 @@ function generatePhase5() {
     // Warm-up
     steps.push(addStep(pick([5,7,9], 1, lid)[0], pick([1,2,3], 1, lid)[0], "dots"));
     steps.push(subStep(pick([8,9,10], 1, lid * 3)[0], pick([2,3], 1, lid * 3)[0], "dots"));
-    steps.push(showStep(num(pick([35,52,71,88], 1, lid * 5)[0]), "none", "What number?", "Wait.", "Correct!", "Good."));
-    steps.push(dotsStep(pick([6,10,14,18], 1, lid * 7)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(showStep(num(pick([35,52,71,88], 1, lid * 5)[0]), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), "Correct!", "Good."));
+    steps.push(dotsStep(pick([6,10,14,18], 1, lid * 7)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     // Within-20 problems
     const addProblems = [];
@@ -1318,7 +1453,7 @@ function generatePhase5() {
     }
 
     // Number identification
-    steps.push(dotsStep(pick([7,12,16,20], 1, lid * 17)[0], "How many?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([7,12,16,20], 1, lid * 17)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     // Firm-up
     const [fa, fb] = isAdd ? pick(addProblems, 1, lid * 19)[0] : pick(subProblems, 1, lid * 19)[0];
@@ -1349,7 +1484,7 @@ function generatePhase6() {
     // Warm-up (4 steps)
     steps.push(addStep(pick([6,7,8,9], 1, lid)[0], pick([3,4,5], 1, lid)[0], "dots"));
     steps.push(subStep(pick([13,14,15,16], 1, lid * 3)[0], pick([4,5,6], 1, lid * 3)[0], "dots"));
-    steps.push(showStep(num(pick([42,57,73,86,91], 1, lid * 5)[0]), "none", "What number?", "Wait.", "Correct!", "Good."));
+    steps.push(showStep(num(pick([42,57,73,86,91], 1, lid * 5)[0]), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), "Correct!", "Good."));
     steps.push(addStep(pick([4,5,6,7], 1, lid * 7)[0], pick([1,2,3], 1, lid * 7)[0], "dots"));
 
     if (i < 4) {
@@ -1402,7 +1537,7 @@ function generatePhase6() {
         const ans = a + b;
         const display = `${num(a)} ${sym('+')} ${num(b)} ${sym('=')} ${q()}`;
         steps.push(showStep(display, "none",
-          `${a} plus ${b}?`, "Wait.", `${ans}!`, `${a} plus ${b} is ${ans}.`, { answer: ans }));
+          `${a} plus ${b}?`, langPick(DO_WAIT), `${ans}!`, `${a} plus ${b} is ${ans}.`, { answer: ans }));
       }
     } else {
       // Two-digit + tens (120-125)
@@ -1423,14 +1558,14 @@ function generatePhase6() {
         const ans = a + b;
         const display = `${num(a)} ${sym('+')} ${num(b)} ${sym('=')} ${q()}`;
         steps.push(showStep(display, "none",
-          `${a} plus ${b}?`, "Wait.", `${ans}!`, `${a} plus ${b} is ${ans}.`, { answer: ans }));
+          `${a} plus ${b}?`, langPick(DO_WAIT), `${ans}!`, `${a} plus ${b} is ${ans}.`, { answer: ans }));
       }
     }
 
     // Mixed review (4 steps)
     steps.push(addStep(pick([5,6,7,8], 1, lid * 11)[0], pick([2,3,4], 1, lid * 11)[0], "dots"));
     steps.push(subStep(pick([12,14,16,18], 1, lid * 13)[0], pick([3,5,7], 1, lid * 13)[0], "dots"));
-    steps.push(dotsStep(pick([7,10,15,20], 1, lid * 15)[0], "How many dots?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([7,10,15,20], 1, lid * 15)[0], "How many dots?", langPick(DO_WAIT), "Correct!", "Good."));
     steps.push(addStep(pick([3,4,5], 1, lid * 17)[0], pick([3,4,5], 1, lid * 17)[0], "dots"));
 
     // Firm-up
@@ -1443,7 +1578,7 @@ function generatePhase6() {
     } else {
       const [a, b] = i < 14 ? [pick([23,34,45], 1, lid * 19)[0], pick([3,4,5], 1, lid * 19)[0]] : [pick([25,38,44], 1, lid * 19)[0], pick([10,20], 1, lid * 19)[0]];
       const display = `${num(a)} ${sym('+')} ${num(b)} ${sym('=')} ${q()}`;
-      steps.push(showStep(display, "none", `${a} plus ${b}?`, "Wait.", `${a + b}! Great!`, `${a + b}.`, { answer: a + b }));
+      steps.push(showStep(display, "none", `${a} plus ${b}?`, langPick(DO_WAIT), `${a + b}! Great!`, `${a + b}.`, { answer: a + b }));
     }
 
     let target;
@@ -1485,19 +1620,19 @@ function generatePhase7() {
       const prevB = pick([12,21,15,23], 1, lid * 5)[0];
       if (i < 9) {
         const display = `${num(prevA)} ${sym('+')} ${num(prevB)} ${sym('=')} ${q()}`;
-        steps.push(showStep(display, "none", `${prevA} plus ${prevB}?`, "Wait.", `${prevA + prevB}!`, `${prevA + prevB}.`, { answer: prevA + prevB }));
+        steps.push(showStep(display, "none", `${prevA} plus ${prevB}?`, langPick(DO_WAIT), `${prevA + prevB}!`, `${prevA + prevB}.`, { answer: prevA + prevB }));
       } else if (i < 14) {
         const sa = pick([56,67,78], 1, lid * 5)[0];
         const sb = pick([12,23,34], 1, lid * 5)[0];
         const display = `${num(sa)} ${sym('−')} ${num(sb)} ${sym('=')} ${q()}`;
-        steps.push(showStep(display, "none", `${sa} minus ${sb}?`, "Wait.", `${sa - sb}!`, `${sa - sb}.`, { answer: sa - sb }));
+        steps.push(showStep(display, "none", `${sa} minus ${sb}?`, langPick(DO_WAIT), `${sa - sb}!`, `${sa - sb}.`, { answer: sa - sb }));
       } else {
         steps.push(addStep(pick([5,6,7], 1, lid * 5)[0], pick([3,4,5], 1, lid * 5)[0], "dots"));
       }
     } else {
       steps.push(addStep(pick([5,6], 1, lid * 5)[0], pick([3,4], 1, lid * 5)[0], "dots"));
     }
-    steps.push(showStep(num(pick([43,58,72,86,95], 1, lid * 7)[0]), "none", "What number?", "Wait.", "Correct!", "Good."));
+    steps.push(showStep(num(pick([43,58,72,86,95], 1, lid * 7)[0]), "none", langPick(ASK_NUMBER), langPick(DO_WAIT), "Correct!", "Good."));
 
     if (i < 4) {
       // Two-digit + two-digit, no regrouping (126-129)
@@ -1516,7 +1651,7 @@ function generatePhase7() {
       const selected = pick(problems, 7, lid * 9);
       for (const [a, b] of selected) {
         const display = `${num(a)} ${sym('+')} ${num(b)} ${sym('=')} ${q()}`;
-        steps.push(showStep(display, "none", `${a} plus ${b}?`, "Wait.", `${a + b}!`, `${a + b}.`, { answer: a + b }));
+        steps.push(showStep(display, "none", `${a} plus ${b}?`, langPick(DO_WAIT), `${a + b}!`, `${a + b}.`, { answer: a + b }));
       }
     } else if (i < 9) {
       // Two-digit + two-digit, with regrouping (130-134)
@@ -1535,7 +1670,7 @@ function generatePhase7() {
       const selected = pick(problems, 7, lid * 9);
       for (const [a, b] of selected) {
         const display = `${num(a)} ${sym('+')} ${num(b)} ${sym('=')} ${q()}`;
-        steps.push(showStep(display, "none", `${a} plus ${b}? Remember to regroup if the ones add up to ten or more.`, "Wait.", `${a + b}!`, `${a + b}.`, { answer: a + b }));
+        steps.push(showStep(display, "none", `${a} plus ${b}? Remember to regroup if the ones add up to ten or more.`, langPick(DO_WAIT), `${a + b}!`, `${a + b}.`, { answer: a + b }));
       }
     } else if (i < 14) {
       // Two-digit - two-digit, no regrouping (135-139)
@@ -1554,7 +1689,7 @@ function generatePhase7() {
       const selected = pick(problems, 7, lid * 9);
       for (const [a, b] of selected) {
         const display = `${num(a)} ${sym('−')} ${num(b)} ${sym('=')} ${q()}`;
-        steps.push(showStep(display, "none", `${a} minus ${b}?`, "Wait.", `${a - b}!`, `${a - b}.`, { answer: a - b }));
+        steps.push(showStep(display, "none", `${a} minus ${b}?`, langPick(DO_WAIT), `${a - b}!`, `${a - b}.`, { answer: a - b }));
       }
     } else if (i < 19) {
       // Two-digit - two-digit, with regrouping (140-144)
@@ -1573,7 +1708,7 @@ function generatePhase7() {
       const selected = pick(problems, 7, lid * 9);
       for (const [a, b] of selected) {
         const display = `${num(a)} ${sym('−')} ${num(b)} ${sym('=')} ${q()}`;
-        steps.push(showStep(display, "none", `${a} minus ${b}? You may need to borrow.`, "Wait.", `${a - b}!`, `${a - b}.`, { answer: a - b }));
+        steps.push(showStep(display, "none", `${a} minus ${b}? You may need to borrow.`, langPick(DO_WAIT), `${a - b}!`, `${a - b}.`, { answer: a - b }));
       }
     } else if (i < 24) {
       // Word problems (145-149)
@@ -1609,20 +1744,20 @@ function generatePhase7() {
       steps.push(addStep(7, 8, "dots"));
       steps.push(subStep(16, 9, "dots"));
       const display1 = `${num(45)} ${sym('+')} ${num(23)} ${sym('=')} ${q()}`;
-      steps.push(showStep(display1, "none", "45 plus 23?", "Wait.", "68!", "68.", { answer: 68 }));
+      steps.push(showStep(display1, "none", "45 plus 23?", langPick(DO_WAIT), "68!", "68.", { answer: 68 }));
       const display2 = `${num(37)} ${sym('+')} ${num(28)} ${sym('=')} ${q()}`;
-      steps.push(showStep(display2, "none", "37 plus 28? Regroup!", "Wait.", "65!", "65.", { answer: 65 }));
+      steps.push(showStep(display2, "none", "37 plus 28? Regroup!", langPick(DO_WAIT), "65!", "65.", { answer: 65 }));
       const display3 = `${num(76)} ${sym('−')} ${num(34)} ${sym('=')} ${q()}`;
-      steps.push(showStep(display3, "none", "76 minus 34?", "Wait.", "42!", "42.", { answer: 42 }));
+      steps.push(showStep(display3, "none", "76 minus 34?", langPick(DO_WAIT), "42!", "42.", { answer: 42 }));
       const display4 = `${num(52)} ${sym('−')} ${num(27)} ${sym('=')} ${q()}`;
-      steps.push(showStep(display4, "none", "52 minus 27? Borrow!", "Wait.", "25!", "25.", { answer: 25 }));
-      steps.push(showStep("", "none", "A store has 36 apples. 19 are sold. How many are left?", "Wait.", "17! You're a math master!", "36 minus 19 is 17.", { answer: 17 }));
+      steps.push(showStep(display4, "none", "52 minus 27? Borrow!", langPick(DO_WAIT), "25!", "25.", { answer: 25 }));
+      steps.push(showStep("", "none", "A store has 36 apples. 19 are sold. How many are left?", langPick(DO_WAIT), "17! You're a math master!", "36 minus 19 is 17.", { answer: 17 }));
     }
 
     // Mixed review (3 steps)
     steps.push(addStep(pick([5,6,7,8], 1, lid * 11)[0], pick([3,4,5], 1, lid * 11)[0], "dots"));
     steps.push(subStep(pick([12,15,18], 1, lid * 13)[0], pick([4,6,8], 1, lid * 13)[0], "dots"));
-    steps.push(dotsStep(pick([8,13,17,20], 1, lid * 15)[0], "How many dots?", "Wait.", "Correct!", "Good."));
+    steps.push(dotsStep(pick([8,13,17,20], 1, lid * 15)[0], "How many dots?", langPick(DO_WAIT), "Correct!", "Good."));
 
     // Firm-up
     if (i < 4) {
@@ -1630,7 +1765,7 @@ function generatePhase7() {
       const b = pick([15,23,31], 1, lid * 17)[0];
       if ((a%10)+(b%10) < 10 && a+b < 100) {
         const d = `${num(a)} ${sym('+')} ${num(b)} ${sym('=')} ${q()}`;
-        steps.push(showStep(d, "none", `${a} plus ${b}?`, "Wait.", `${a+b}! Great!`, `${a+b}.`, { answer: a+b }));
+        steps.push(showStep(d, "none", `${a} plus ${b}?`, langPick(DO_WAIT), `${a+b}! Great!`, `${a+b}.`, { answer: a+b }));
       } else {
         steps.push(addStep(pick([4,5,6], 1, lid * 17)[0], pick([3,4], 1, lid * 17)[0], "dots"));
       }

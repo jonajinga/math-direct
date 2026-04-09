@@ -89,6 +89,7 @@ export default function (eleventyConfig) {
           "pages/contact.css",
           "pages/lesson.css",
           "pages/practice.css",
+          "pages/flashcards.css",
         ];
         let combined = "";
         for (const file of importOrder) {
