@@ -3,7 +3,13 @@ layout: layouts/base.njk
 ---
 <div class="content-page">
   <div class="content-page__inner" style="max-width:36rem">
-    <a href="/practice/" style="display:inline-flex;align-items:center;gap:0.25rem;color:var(--text-secondary);font-size:0.875rem;margin-bottom:var(--space-md)">{% include "partials/icons/arrow-left.njk" %} Back to Practice</a>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md)">
+      <a href="/practice/" style="display:inline-flex;align-items:center;gap:0.25rem;color:var(--text-secondary);font-size:0.875rem">{% include "partials/icons/arrow-left.njk" %} Back to Practice</a>
+      <button class="btn--print-practice" title="Print worksheet" aria-label="Print worksheet" onclick="printPractice && printPractice()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <span>Print</span>
+      </button>
+    </div>
 
     <h1>{{ title }}</h1>
     {% if description %}<p style="color:var(--text-secondary);margin-bottom:var(--space-lg)">{{ description }}</p>{% endif %}
@@ -15,13 +21,5 @@ layout: layouts/base.njk
     <script id="practice-data" type="application/json">{{ problemSets | where("phase", phase) | dump | safe }}</script>
 
     <script src="/assets/js/practice-engine.js" defer></script>
-
-    {# Static fallback (printable version) #}
-    <details style="margin-top:var(--space-2xl);border-top:1px solid var(--border-color);padding-top:var(--space-lg)">
-      <summary style="cursor:pointer;font-size:0.875rem;font-weight:600;color:var(--text-secondary)">Printable version</summary>
-      <div class="practice-content" style="font-family:var(--font-child);font-size:1.5rem;line-height:2;margin-top:var(--space-md)">
-        {{ content | safe }}
-      </div>
-    </details>
   </div>
 </div>

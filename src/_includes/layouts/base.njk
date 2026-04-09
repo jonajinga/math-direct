@@ -11,6 +11,7 @@
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="{{ meta.themeColor }}">
+  <link rel="alternate" type="application/rss+xml" title="{{ meta.title }}" href="/feed.xml">
   {% block head %}{% endblock %}
 </head>
 <body class="{{ bodyClass or '' }}" style="background:var(--bg-page);min-height:100vh;display:flex;flex-direction:column;font-family:var(--font-ui);color:var(--text-primary);overflow-x:hidden;transition:background-color 0.2s,color 0.2s">
@@ -21,10 +22,25 @@
     {{ content | safe }}
   </main>
   {% include "partials/footer.njk" %}
+
+  {# Search overlay #}
+  <div class="search-overlay" id="search-overlay">
+    <div class="search-panel">
+      <div class="search-panel__header">
+        <input type="search" id="search-input" class="search-panel__input" placeholder="Search lessons, concepts, pages..." autocomplete="off">
+        <button class="search-panel__close" onclick="closeSearch && closeSearch()" aria-label="Close search">&times;</button>
+      </div>
+      <span class="search-panel__count" id="search-count"></span>
+      <div class="search-panel__results" id="search-results"></div>
+      <div class="search-panel__hint">Press <kbd>Ctrl+K</kbd> to search, <kbd>Esc</kbd> to close</div>
+    </div>
+  </div>
+
   <script src="/assets/js/theme.js" defer></script>
   <script src="/assets/js/nav.js" defer></script>
   <script>if("serviceWorker"in navigator){navigator.serviceWorker.register("/sw.js")}</script>
   <script src="/assets/js/pwa-install.js" defer></script>
+  <script src="/assets/js/search.js" defer></script>
   {% block scripts %}{% endblock %}
   {# Umami Analytics — uncomment and replace with your actual values:
   <script defer src="https://YOUR-UMAMI-DOMAIN/script.js" data-website-id="YOUR-WEBSITE-ID"></script>

@@ -5,6 +5,9 @@
     </a>
     {% include "partials/nav.njk" %}
     <div class="site-header__actions">
+      <button class="search-btn" aria-label="Search" onclick="openSearch && openSearch()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
       <button class="theme-toggle" aria-label="Switch to dark mode">
         <span class="theme-toggle__light">{% include "partials/icons/moon.njk" %}</span>
         <span class="theme-toggle__dark">{% include "partials/icons/sun.njk" %}</span>

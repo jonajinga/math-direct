@@ -1,0 +1,23 @@
+---
+permalink: /feed.xml
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{{ meta.title }}</title>
+    <link>{{ meta.url }}</link>
+    <description>{{ meta.description }}</description>
+    <language>{{ meta.language }}</language>
+    <atom:link href="{{ meta.url }}/feed.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>{{ "" | year }}-01-01T00:00:00Z</lastBuildDate>
+    {%- for phase in phases %}
+    <item>
+      <title>Phase {{ phase.id }}: {{ phase.title | replace("Phase " + phase.id + ": ", "") }}</title>
+      <link>{{ meta.url }}/phases/{{ phase.slug }}/</link>
+      <guid>{{ meta.url }}/phases/{{ phase.slug }}/</guid>
+      <description>{{ phase.description }} Lessons {{ phase.lessonRange }}, {{ phase.conceptsIntroduced.length }} concepts.</description>
+    </item>
+    {%- endfor %}
+  </channel>
+</rss>

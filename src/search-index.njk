@@ -1,0 +1,17 @@
+---
+permalink: /search-index.json
+eleventyExcludeFromCollections: true
+---
+{% set items = [] %}
+{%- for page in collections.all %}
+{%- if not page.url | startsWith("/assets/") and page.data.excludeFromSitemap != true and page.url != false and page.url != "/search-index.json" and page.url != "/sitemap.xml" and page.url != "/feed.xml" %}
+{%- set items = (items.push({
+  title: page.data.title or "Math Direct",
+  url: page.url,
+  description: page.data.description or "",
+  type: "lesson" if page.url | startsWith("/lessons/lesson-") else ("phase" if page.url | startsWith("/phases/") else ("practice" if page.url | startsWith("/practice/") else "page")),
+  content: page.templateContent | striptags
+}), items) %}
+{%- endif %}
+{%- endfor %}
+{{ items | dump | safe }}

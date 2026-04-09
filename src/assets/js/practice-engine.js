@@ -30,6 +30,42 @@
     return a;
   }
 
+  // Parse problem text into structured parts
+  // "How many dots? •••  ••" → { text: "How many dots?", dots: 5 }
+  // "3 + 2" → { text: "3 + 2", dots: 0 }
+  function parseProblem(str) {
+    var dotCount = 0;
+    var text = str;
+    // Count and remove bullet characters
+    for (var i = 0; i < str.length; i++) {
+      if (str.charCodeAt(i) === 0x2022) dotCount++;
+    }
+    if (dotCount > 0) {
+      text = str.replace(/[\u2022\s]+$/g, "").replace(/\u2022/g, "").trim();
+      // Remove trailing ? if text ends with "dots?"
+      // Keep text clean: "How many dots?"
+    }
+    return { text: text, dots: dotCount };
+  }
+
+  // Build dot grid HTML (rows of 5)
+  function buildDotGrid(count) {
+    if (count <= 0) return "";
+    var html = '<div class="pe-dots">';
+    var placed = 0;
+    while (placed < count) {
+      var rowSize = Math.min(5, count - placed);
+      html += '<div class="pe-dots__row">';
+      for (var i = 0; i < rowSize; i++) {
+        html += '<span class="pe-dots__dot"></span>';
+        placed++;
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
   function startRound() {
     queue = shuffle(problems);
     current = 0;
@@ -44,7 +80,24 @@
   function showProblem() {
     if (current >= queue.length) { showResults(); return; }
     var p = queue[current];
+    var parsed = parseProblem(p.problem);
     var progress = (current + 1) + " / " + queue.length;
+
+    var displayHtml;
+    if (parsed.dots > 0) {
+      // Dot counting problem: question on top, dots below
+      displayHtml =
+        '<div class="pe-problem">' +
+          '<span class="pe-problem__label">' + parsed.text + '</span>' +
+          buildDotGrid(parsed.dots) +
+        '</div>';
+    } else {
+      // Math equation or text question
+      displayHtml =
+        '<div class="pe-problem">' +
+          '<span class="pe-problem__text">' + parsed.text + '</span>' +
+        '</div>';
+    }
 
     container.innerHTML =
       '<div class="pe-header">' +
@@ -54,9 +107,7 @@
           '<span class="pe-streak' + (streak >= 3 ? ' pe-streak--hot' : '') + '">' + streak + ' streak</span>' +
         '</div>' +
       '</div>' +
-      '<div class="pe-problem">' +
-        '<span class="pe-problem__text">' + p.problem + '</span>' +
-      '</div>' +
+      displayHtml +
       '<div class="pe-input-row">' +
         '<input type="number" id="pe-answer" class="pe-input" inputmode="numeric" autocomplete="off" placeholder="?">' +
         '<button class="pe-submit" id="pe-submit">Check</button>' +
@@ -146,6 +197,76 @@
 
     document.getElementById("pe-retry").addEventListener("click", startRound);
   }
+
+  // Print worksheet with all problems
+  window.printPractice = function () {
+    var title = document.querySelector("h1");
+    var titleText = title ? title.textContent : "Practice";
+
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
+    html += '<title>' + titleText + ' — Math Direct</title>';
+    html += '<style>';
+    html += 'body{font-family:Georgia,"Times New Roman",serif;max-width:7in;margin:0.5in auto;color:#000;font-size:11pt;line-height:1.5}';
+    html += 'h1{font-family:sans-serif;font-size:16pt;border-bottom:2px solid #000;padding-bottom:4pt;margin-bottom:16pt}';
+    html += 'h1 span{font-size:10pt;font-weight:400;color:#555;float:right;margin-top:4pt}';
+    html += '.problems{display:grid;grid-template-columns:1fr 1fr;gap:16pt 24pt}';
+    html += '.prob{page-break-inside:avoid;padding:8pt;border:1px solid #ddd}';
+    html += '.prob-num{font-family:sans-serif;font-size:8pt;font-weight:700;color:#999;margin-bottom:4pt}';
+    html += '.prob-text{font-family:"Comic Sans MS",cursive,sans-serif;font-size:14pt;font-weight:700;margin-bottom:4pt}';
+    html += '.prob-dots{display:flex;flex-direction:column;gap:3pt;margin:6pt 0}';
+    html += '.prob-dots-row{display:flex;gap:4pt}';
+    html += '.prob-dot{width:12pt;height:12pt;border-radius:50%;background:#000;display:inline-block}';
+    html += '.prob-answer{display:inline-block;min-width:2em;border-bottom:2px solid #000;height:1.5em;margin-left:4pt}';
+    html += '.answers{margin-top:24pt;padding-top:12pt;border-top:1px solid #ccc;font-size:9pt;color:#666}';
+    html += '@media print{body{margin:0.3in}.prob{border-color:#ccc}}';
+    html += '</style></head><body>';
+
+    html += '<h1>' + titleText + '<span>Math Direct \u00B7 ' + problems.length + ' problems</span></h1>';
+    html += '<div class="problems">';
+
+    for (var i = 0; i < problems.length; i++) {
+      var p = problems[i];
+      var parsed = parseProblem(p.problem);
+      html += '<div class="prob">';
+      html += '<div class="prob-num">' + (i + 1) + '.</div>';
+      html += '<div class="prob-text">' + parsed.text + '</div>';
+      if (parsed.dots > 0) {
+        html += '<div class="prob-dots">';
+        var placed = 0;
+        while (placed < parsed.dots) {
+          var rowSize = Math.min(5, parsed.dots - placed);
+          html += '<div class="prob-dots-row">';
+          for (var j = 0; j < rowSize; j++) {
+            html += '<span class="prob-dot"></span>';
+            placed++;
+          }
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+      html += '<div>Answer: <span class="prob-answer"></span></div>';
+      html += '</div>';
+    }
+
+    html += '</div>';
+
+    // Answer key
+    html += '<div class="answers"><strong>Answer Key:</strong> ';
+    for (var k = 0; k < problems.length; k++) {
+      html += (k + 1) + ') ' + problems[k].answer;
+      if (k < problems.length - 1) html += ' &nbsp; ';
+    }
+    html += '</div>';
+
+    html += '</body></html>';
+
+    var win = window.open("", "_blank");
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+      setTimeout(function () { win.print(); }, 300);
+    }
+  };
 
   startRound();
 })();
