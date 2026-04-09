@@ -396,8 +396,10 @@
     currentStep = index;
     var step = steps[currentStep];
 
-    // Hide child text when number line is the display (avoid duplication)
-    if (step.visual === "numberline") {
+    // Hide child text only when number line IS the display (e.g. "Count: 0 to 10")
+    // Keep it visible when there's a real equation alongside the number line
+    var isNumberLineOnly = step.visual === "numberline" && /^(Count|Find|Number Line)/.test(step.display);
+    if (isNumberLineOnly) {
       childText.innerHTML = "";
       childText.style.display = "none";
     } else {
@@ -408,11 +410,12 @@
       fitChildText();
     }
     prepareReveal(step);
-    // If step has a ? to reveal, don't show dots in the visual area (they'd show the wrong count)
-    if (currentStepHasReveal) {
+    // If step has a ? AND uses dots visual, hide the visual (wrong count).
+    // But keep number lines, compare buttons, etc.
+    var suppressVisual = currentStepHasReveal && (step.visual === "dots" || step.visual === "tally");
+    if (suppressVisual) {
       if (visualContainer) visualContainer.innerHTML = "";
       if (visualRemote) visualRemote.style.display = "";
-      // Hide play controls but keep dots toggle visible
       var playBtn = document.getElementById("btn-play-pause");
       var resetBtn = document.getElementById("btn-reset");
       var speedSlider = document.getElementById("speed-slider");
