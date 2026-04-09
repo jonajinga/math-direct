@@ -10,6 +10,22 @@ bodyClass: page-guide
     <h1 class="content-page__title">Learning Roadmap</h1>
     <p class="content-page__intro">Follow the path from first numbers to two-digit arithmetic. Each dot is a lesson. Milestones mark new concepts introduced.</p>
 
+    {# Legend #}
+    <div class="roadmap-legend">
+      <div class="roadmap-legend__item">
+        <span class="roadmap-dot roadmap-dot--sample" style="width:1.25rem;height:1.25rem"></span>
+        <span>Lesson</span>
+      </div>
+      <div class="roadmap-legend__item">
+        <span class="roadmap-dot roadmap-dot--milestone roadmap-dot--sample" style="width:1.25rem;height:1.25rem"></span>
+        <span>New concept introduced</span>
+      </div>
+      <div class="roadmap-legend__item">
+        <span class="roadmap-stories__link" style="font-size:0.75rem;padding:0.15rem 0.5rem;pointer-events:none">Practice</span>
+        <span>Practice set available</span>
+      </div>
+    </div>
+
     {% for phase in phases %}
     <section class="roadmap-phase">
       <div class="roadmap-phase__header">

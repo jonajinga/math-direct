@@ -6,6 +6,7 @@ export default {
     { label: "Guide", url: "/guide/" },
     { label: "Curriculum", url: "/curriculum/" },
     { label: "Roadmap", url: "/roadmap/" },
+    { label: "Features", url: "/features/" },
   ],
   footer: {
     quickLinks: [
@@ -18,6 +19,8 @@ export default {
       { label: "Guide", url: "/guide/" },
       { label: "Curriculum", url: "/curriculum/" },
       { label: "Roadmap", url: "/roadmap/" },
+      { label: "Features", url: "/features/" },
+      { label: "Changelog", url: "/changelog/" },
     ],
   },
 };

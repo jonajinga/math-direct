@@ -1,0 +1,199 @@
+---
+layout: layouts/base.njk
+title: Style Guide
+description: Design tokens, typography, color palette, and component reference for the Math Direct interface.
+permalink: /style-guide/
+excludeFromSitemap: true
+---
+<div class="content-page">
+  <div class="content-page__inner" style="max-width:72rem">
+    <h1 class="content-page__title">Style Guide</h1>
+    <p class="content-page__intro">Design reference for the Math Direct interface. Colors, typography, spacing, and component patterns.</p>
+
+    {# ── Colors ── #}
+    <div class="guide-section">
+      <h2 class="guide-section__title">Color Palette</h2>
+
+      <h3 style="font-size:0.875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-secondary);margin-bottom:var(--space-sm)">Brand</h3>
+      <div class="sg-swatches">
+        <div class="sg-swatch" style="--swatch:#1e3a5f"><span class="sg-swatch__color"></span><span class="sg-swatch__label">Navy<br>#1e3a5f</span></div>
+        <div class="sg-swatch" style="--swatch:#3b82f6"><span class="sg-swatch__color"></span><span class="sg-swatch__label">Blue 500<br>#3b82f6</span></div>
+        <div class="sg-swatch" style="--swatch:#2563eb"><span class="sg-swatch__color"></span><span class="sg-swatch__label">Blue 600<br>#2563eb</span></div>
+        <div class="sg-swatch" style="--swatch:#1d4ed8"><span class="sg-swatch__color"></span><span class="sg-swatch__label">Blue 700<br>#1d4ed8</span></div>
+      </div>
+
+      <h3 style="font-size:0.875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-secondary);margin:var(--space-lg) 0 var(--space-sm)">Feedback</h3>
+      <div class="sg-swatches">
+        <div class="sg-swatch" style="--swatch:#16a34a"><span class="sg-swatch__color"></span><span class="sg-swatch__label">Green 600<br>#16a34a</span></div>
+        <div class="sg-swatch" style="--swatch:#f59e0b"><span class="sg-swatch__color"></span><span class="sg-swatch__label">Amber 500<br>#f59e0b</span></div>
+        <div class="sg-swatch" style="--swatch:#ef4444"><span class="sg-swatch__color"></span><span class="sg-swatch__label">Rose 500<br>#ef4444</span></div>
+      </div>
+
+      <h3 style="font-size:0.875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-secondary);margin:var(--space-lg) 0 var(--space-sm)">Neutral</h3>
+      <div class="sg-swatches">
+        <div class="sg-swatch" style="--swatch:#fafaf9"><span class="sg-swatch__color"></span><span class="sg-swatch__label">Stone 50<br>#fafaf9</span></div>
+        <div class="sg-swatch" style="--swatch:#e7e5e4"><span class="sg-swatch__color"></span><span class="sg-swatch__label">Stone 200<br>#e7e5e4</span></div>
+        <div class="sg-swatch" style="--swatch:#78716c"><span class="sg-swatch__color"></span><span class="sg-swatch__label">Stone 500<br>#78716c</span></div>
+        <div class="sg-swatch" style="--swatch:#1c1917"><span class="sg-swatch__color"></span><span class="sg-swatch__label">Stone 900<br>#1c1917</span></div>
+      </div>
+    </div>
+
+    {# ── Typography ── #}
+    <div class="guide-section">
+      <h2 class="guide-section__title">Typography</h2>
+      <div class="sg-type-samples">
+        <div class="sg-type-sample">
+          <span class="sg-type-sample__label">Child Display</span>
+          <span class="sg-type-sample__preview" style="font-family:var(--font-child);font-size:3rem;font-weight:700">3 + 4 = 7</span>
+          <span class="sg-type-sample__meta">Comic Neue, 700 &mdash; used for numbers, equations, child-facing text</span>
+        </div>
+        <div class="sg-type-sample">
+          <span class="sg-type-sample__label">UI / Navigation</span>
+          <span class="sg-type-sample__preview" style="font-family:var(--font-ui);font-size:1.25rem;font-weight:600">Phase 3: Addition</span>
+          <span class="sg-type-sample__meta">Source Sans 3, 400/600/700 &mdash; headers, nav, labels, buttons</span>
+        </div>
+        <div class="sg-type-sample">
+          <span class="sg-type-sample__label">Teacher Script</span>
+          <span class="sg-type-sample__preview" style="font-family:Georgia,'Times New Roman',serif;font-size:1rem">Read the script aloud exactly as written.</span>
+          <span class="sg-type-sample__meta">Georgia, serif &mdash; teacher "say" scripts for readability</span>
+        </div>
+        <div class="sg-type-sample">
+          <span class="sg-type-sample__label">Body Text</span>
+          <span class="sg-type-sample__preview" style="font-family:var(--font-body);font-size:1rem">Math Direct covers foundational math skills through 150 scripted lessons.</span>
+          <span class="sg-type-sample__meta">Lora, serif &mdash; long-form content, guides, descriptions</span>
+        </div>
+      </div>
+    </div>
+
+    {# ── Spacing ── #}
+    <div class="guide-section">
+      <h2 class="guide-section__title">Spacing Scale</h2>
+      <div class="sg-spacing">
+        <div class="sg-spacing__item"><span class="sg-spacing__bar" style="width:0.25rem"></span><span>--space-xs: 0.25rem</span></div>
+        <div class="sg-spacing__item"><span class="sg-spacing__bar" style="width:0.5rem"></span><span>--space-sm: 0.5rem</span></div>
+        <div class="sg-spacing__item"><span class="sg-spacing__bar" style="width:1rem"></span><span>--space-md: 1rem</span></div>
+        <div class="sg-spacing__item"><span class="sg-spacing__bar" style="width:1.5rem"></span><span>--space-lg: 1.5rem</span></div>
+        <div class="sg-spacing__item"><span class="sg-spacing__bar" style="width:2rem"></span><span>--space-xl: 2rem</span></div>
+        <div class="sg-spacing__item"><span class="sg-spacing__bar" style="width:3rem"></span><span>--space-2xl: 3rem</span></div>
+      </div>
+    </div>
+
+    {# ── Buttons ── #}
+    <div class="guide-section">
+      <h2 class="guide-section__title">Buttons</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-md);align-items:center">
+        <a href="#" class="btn btn--cta" onclick="return false">Primary CTA</a>
+        <a href="#" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)" onclick="return false">Outline</a>
+        <button class="btn--nav-prev" style="position:static" disabled>Disabled</button>
+        <button class="btn--nav-next" style="position:static" onclick="return false">Next</button>
+      </div>
+    </div>
+
+    {# ── Lesson Components ── #}
+    <div class="guide-section">
+      <h2 class="guide-section__title">Lesson Components</h2>
+
+      <h3 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin-bottom:var(--space-sm)">Say Script</h3>
+      <p class="step-say">This is six. Count the dots: one, two, three, four, five, six.</p>
+
+      <h3 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin:var(--space-lg) 0 var(--space-sm)">Do Instruction</h3>
+      <div class="step-do" style="width:100%">
+        <span class="step-do__icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
+        <p class="step-do__text">Point to each dot as you count.</p>
+      </div>
+
+      <h3 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin:var(--space-lg) 0 var(--space-sm)">Feedback</h3>
+      <div style="display:flex;flex-direction:column;gap:var(--space-sm);width:100%">
+        <div class="feedback-box" style="display:flex" >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <span class="feedback-box__text">Six! Good job.</span>
+        </div>
+        <div class="feedback-box feedback-box--correct" style="display:flex">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M1 20a10 10 0 0 1 17.3-6.9L23 10"/></svg>
+          <span class="feedback-box__text">Count again: one, two, three, four, five, six. Six.</span>
+        </div>
+      </div>
+    </div>
+
+    {# ── Visual Aids ── #}
+    <div class="guide-section">
+      <h2 class="guide-section__title">Visual Aids</h2>
+
+      <h3 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin-bottom:var(--space-sm)">Dot Patterns (rows of 5)</h3>
+      <div style="display:flex;gap:var(--space-xl);flex-wrap:wrap;align-items:flex-start">
+        <div>
+          <div class="math-dots" style="padding:var(--space-sm)">
+            <div class="math-dots__row"><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span></div>
+          </div>
+          <p style="text-align:center;font-size:0.75rem;color:var(--text-secondary)">3</p>
+        </div>
+        <div>
+          <div class="math-dots" style="padding:var(--space-sm)">
+            <div class="math-dots__row"><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span></div>
+            <div class="math-dots__row"><span class="math-dot"></span><span class="math-dot"></span></div>
+          </div>
+          <p style="text-align:center;font-size:0.75rem;color:var(--text-secondary)">7</p>
+        </div>
+        <div>
+          <div class="math-dots" style="padding:var(--space-sm)">
+            <div class="math-dots__row"><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span></div>
+            <div class="math-dots__row"><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span></div>
+            <div class="math-dots__separator"></div>
+            <div class="math-dots__row"><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span></div>
+          </div>
+          <p style="text-align:center;font-size:0.75rem;color:var(--text-secondary)">14</p>
+        </div>
+      </div>
+
+      <h3 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin:var(--space-lg) 0 var(--space-sm)">Step Progress Dots</h3>
+      <div style="display:flex;gap:0.3rem;align-items:center">
+        <div class="step-dot is-done"></div>
+        <div class="step-dot is-done"></div>
+        <div class="step-dot is-done"></div>
+        <div class="step-dot is-active"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+      </div>
+    </div>
+
+    {# ── Cards ── #}
+    <div class="guide-section">
+      <h2 class="guide-section__title">Cards</h2>
+      <div class="guide-cards">
+        <div class="guide-card">
+          <h3 class="guide-card__title">Guide Card</h3>
+          <p>Used on the guide and features pages for grouped information blocks.</p>
+        </div>
+        <div class="guide-card">
+          <h3 class="guide-card__title">Another Card</h3>
+          <p>Cards stack on mobile and form a 2-column grid on wider screens.</p>
+        </div>
+      </div>
+    </div>
+
+    {# ── Curriculum Stats ── #}
+    <div class="guide-section">
+      <h2 class="guide-section__title">Stats Bar</h2>
+      <div class="curriculum-stats">
+        <div class="curriculum-stat">
+          <span class="curriculum-stat__number">150</span>
+          <span class="curriculum-stat__label">Lessons</span>
+        </div>
+        <div class="curriculum-stat">
+          <span class="curriculum-stat__number">7</span>
+          <span class="curriculum-stat__label">Phases</span>
+        </div>
+        <div class="curriculum-stat">
+          <span class="curriculum-stat__number">68</span>
+          <span class="curriculum-stat__label">Concepts</span>
+        </div>
+        <div class="curriculum-stat">
+          <span class="curriculum-stat__number">63</span>
+          <span class="curriculum-stat__label">Practice Sets</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

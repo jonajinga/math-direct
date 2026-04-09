@@ -109,6 +109,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("src/assets/img");
   eleventyConfig.addPassthroughCopy({ "src/manifest.json": "manifest.json" });
   eleventyConfig.addPassthroughCopy({ "src/sw.js": "sw.js" });
+  eleventyConfig.addPassthroughCopy({ "src/robots.txt": "robots.txt" });
 
   // Collections
   eleventyConfig.addCollection("practice", function (collectionApi) {

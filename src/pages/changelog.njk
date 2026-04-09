@@ -1,0 +1,47 @@
+---
+layout: layouts/base.njk
+title: Changelog
+description: Version history and updates for Math Direct — new lessons, features, and fixes.
+permalink: /changelog/
+excludeFromSitemap: true
+---
+<div class="content-page">
+  <div class="content-page__inner">
+    <h1 class="content-page__title">Changelog</h1>
+    <p class="content-page__intro">A record of major updates, new features, and fixes.</p>
+
+    <div class="changelog">
+
+      <div class="changelog__entry">
+        <div class="changelog__header">
+          <h2 class="changelog__version">v1.0.0</h2>
+          <time class="changelog__date">April 2026</time>
+        </div>
+        <span class="changelog__tag changelog__tag--major">Initial Release</span>
+        <ul class="changelog__list">
+          <li>150 fully scripted lessons across 7 phases</li>
+          <li>68 math concepts from counting to two-digit arithmetic</li>
+          <li>63 standalone practice problem sets</li>
+          <li>Interactive visual aids: dot patterns, number lines, tally marks, place value charts</li>
+          <li>Teacher/child split-screen lesson view</li>
+          <li>Dark mode with toggle in header and lessons</li>
+          <li>LocalStorage progress tracking with export/import</li>
+          <li>Multiple learner profile support</li>
+          <li>Keyboard shortcuts for lesson navigation</li>
+          <li>Offline support via service worker</li>
+          <li>Responsive design for mobile, tablet, and desktop</li>
+          <li>Landscape mode with side-by-side layout</li>
+          <li>Pages: Home, Lessons, Practice, Guide, Curriculum, Roadmap, Features, About, Contact, Support, Privacy, Terms</li>
+          <li>XML sitemap, PWA manifest, SEO meta tags</li>
+          <li>Open source under MIT license</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="guide-section" style="margin-top:var(--space-2xl)">
+      <h2 class="guide-section__title">Reporting Issues</h2>
+      <p>Found a bug or have a suggestion? Open an issue on <a href="https://github.com/jonajinga/math-direct/issues">GitHub</a> or email <a href="mailto:{{ meta.email }}">{{ meta.email }}</a>.</p>
+    </div>
+  </div>
+</div>

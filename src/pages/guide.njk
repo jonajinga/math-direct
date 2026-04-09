@@ -1,7 +1,7 @@
 ---
 layout: layouts/base.njk
 title: Teacher & Parent Guide
-description: How to use Math Direct lessons. Learn the DI methodology, session tips, error correction, and when to advance or repeat.
+description: How to use Math Direct lessons. Learn the DI methodology, session tips, error correction, visual aids, keyboard shortcuts, and when to advance or repeat.
 permalink: /guide/
 ---
 <div class="content-page">
@@ -35,6 +35,40 @@ permalink: /guide/
           <p>When the child makes an error, correct immediately, model the right answer, and have the child repeat it.</p>
         </div>
       </div>
+    </div>
+
+    <div class="guide-section">
+      <h2 class="guide-section__title">The Lesson Screen</h2>
+      <p>Every lesson is split into two panels:</p>
+      <ul class="guide-tips">
+        <li><strong>Child display (top)</strong> &mdash; Shows large numbers, equations, and visual aids. This is what the child sees and responds to.</li>
+        <li><strong>Teacher panel (bottom)</strong> &mdash; Contains the script to read aloud, instructions for what the child should do, and feedback prompts for correct and incorrect responses.</li>
+      </ul>
+      <p>On phones in landscape mode, the layout switches to side-by-side with the child display on the left and teacher panel on the right.</p>
+    </div>
+
+    <div class="guide-section">
+      <h2 class="guide-section__title">Visual Aids</h2>
+      <p>Lessons include built-in visual tools that appear in the child display area. These make abstract number concepts concrete and visible:</p>
+      <div class="guide-cards">
+        <div class="guide-card">
+          <h3 class="guide-card__title">Dot Patterns</h3>
+          <p>Circles arranged in rows of 5 (tens-frame style). Dots appear under numbers and in the visual panel. Toggle them on/off with the dots button.</p>
+        </div>
+        <div class="guide-card">
+          <h3 class="guide-card__title">Number Lines</h3>
+          <p>A horizontal line with tick marks and labels. A hop dot highlights the target number. Used for counting, addition, and subtraction.</p>
+        </div>
+        <div class="guide-card">
+          <h3 class="guide-card__title">Tally Marks</h3>
+          <p>Groups of 5 vertical marks with a diagonal slash. Connects counting to grouping. Appears in counting and early addition lessons.</p>
+        </div>
+        <div class="guide-card">
+          <h3 class="guide-card__title">Place Value Charts</h3>
+          <p>A two-column grid showing tens and ones. Used in Phase 5+ to decompose two-digit numbers and build place value understanding.</p>
+        </div>
+      </div>
+      <p style="margin-top:var(--space-md)">Visual animations can be controlled with the play, pause, reset, and speed controls below the child display.</p>
     </div>
 
     <div class="guide-section">
@@ -72,8 +106,32 @@ permalink: /guide/
       <p>There is no penalty for repeating. Mastery-based progression means the child moves forward only when ready.</p>
     </div>
 
+    <div class="guide-section">
+      <h2 class="guide-section__title">Keyboard Shortcuts</h2>
+      <p>When inside a lesson, these keyboard shortcuts are available:</p>
+      <div class="sg-shortcuts">
+        <div class="sg-shortcut"><kbd>&#8594;</kbd> or <kbd>N</kbd><span>Next step</span></div>
+        <div class="sg-shortcut"><kbd>&#8592;</kbd> or <kbd>P</kbd><span>Previous step</span></div>
+        <div class="sg-shortcut"><kbd>Space</kbd><span>Reveal answer</span></div>
+        <div class="sg-shortcut"><kbd>D</kbd><span>Toggle dots</span></div>
+        <div class="sg-shortcut"><kbd>?</kbd><span>Show shortcut help</span></div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h2 class="guide-section__title">Progress Tracking</h2>
+      <p>Math Direct tracks lesson completion locally in your browser. No accounts or sign-ups required.</p>
+      <ul class="guide-tips">
+        <li>Completed lessons are marked with a green check on the <a href="/lessons/">Lessons</a> dashboard.</li>
+        <li>You can create multiple learner profiles to track different children separately.</li>
+        <li>Use the <strong>Export</strong> button to save progress to a file. Use <strong>Import</strong> to restore it on another device.</li>
+        <li>Progress is never sent to a server. It stays on your device.</li>
+      </ul>
+    </div>
+
     <div class="content-page__cta">
       <a href="/lessons/" class="btn btn--cta">Start Teaching</a>
+      <a href="/curriculum/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">View Curriculum</a>
     </div>
   </div>
 </div>
