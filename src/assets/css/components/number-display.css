@@ -238,12 +238,15 @@
 /* Question mark placeholder — clickable to reveal answer */
 .math-symbol-question {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 2em;
-  height: 1.2em;
+  gap: 0.15rem;
+  min-width: 1.6em;
+  padding: 0.15em 0.3em;
   border: 3px dashed var(--blue-400);
   font-family: var(--font-child);
+  font-size: inherit;
   font-weight: 700;
   color: var(--blue-500);
   vertical-align: middle;
@@ -262,16 +265,8 @@
   border-color: var(--green-600);
   background: var(--green-50);
   color: var(--green-800);
-  cursor: default;
+  cursor: pointer;
   animation: correctPop 0.4s ease;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-  width: auto;
-  height: auto;
-  padding: 0.1em 0.3em;
-  font-size: inherit;
-  overflow: visible;
 }
 [data-theme="dark"] .math-symbol-question.is-revealed {
   background: rgba(20, 83, 45, 0.3);
