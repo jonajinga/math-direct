@@ -6,8 +6,6 @@ export default {
     { label: "Flashcards", url: "/flashcards/" },
     { label: "Guide", url: "/guide/" },
     { label: "Curriculum", url: "/curriculum/" },
-    { label: "Roadmap", url: "/roadmap/" },
-    { label: "Features", url: "/features/" },
   ],
   footer: {
     quickLinks: [
@@ -15,7 +13,8 @@ export default {
       { label: "Lessons", url: "/lessons/" },
       { label: "Practice", url: "/practice/" },
       { label: "Flashcards", url: "/flashcards/" },
-      { label: "Support", url: "/support/" },
+      { label: "Teacher Dashboard", url: "/teacher/" },
+      { label: "Student Dashboard", url: "/student/" },
     ],
     resources: [
       { label: "Guide", url: "/guide/" },

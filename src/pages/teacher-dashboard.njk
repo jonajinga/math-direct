@@ -1,0 +1,44 @@
+---
+layout: layouts/base.njk
+title: Teacher Dashboard
+description: Track student progress across all 150 lessons. View completion rates, phase progress, and manage student profiles.
+permalink: /teacher/
+bodyClass: page-lessons
+---
+<div class="dashboard">
+  <div class="dashboard__inner">
+    <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:var(--space-xs)">Teacher Dashboard</h1>
+    <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:var(--space-lg)">Manage students, track progress, and view completion across all phases.</p>
+
+    {# Student Profile Selector #}
+    <div id="profile-selector"></div>
+
+    {# Progress Overview — populated by JS #}
+    <div id="teacher-overview"></div>
+
+    {# Phase-by-phase breakdown — populated by JS #}
+    <div id="teacher-phases"></div>
+
+    {# Progress Actions #}
+    <div class="progress-actions">
+      <span class="progress-actions__title">Data</span>
+      <button class="btn--progress" id="btn-export-progress" title="Export all profiles" aria-label="Export all profiles">
+        {% include "partials/icons/download.njk" %}
+      </button>
+      <button class="btn--progress" id="btn-import-progress" title="Import profiles" aria-label="Import profiles">
+        {% include "partials/icons/upload.njk" %}
+      </button>
+      <button class="btn--progress" id="btn-reset-progress" title="Reset progress" aria-label="Reset progress">
+        {% include "partials/icons/rotate-ccw.njk" %}
+      </button>
+      <input type="file" id="import-progress-input" class="progress-import-input" accept=".json">
+    </div>
+
+    <div style="text-align:center;margin-top:var(--space-xl)">
+      <a href="/lessons/" style="color:var(--blue-600);font-size:0.875rem;font-weight:600">View lesson grid &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/progress.js" defer></script>
+<script src="/assets/js/teacher-dashboard.js" defer></script>

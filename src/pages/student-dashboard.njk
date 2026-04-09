@@ -1,0 +1,31 @@
+---
+layout: layouts/base.njk
+title: My Progress
+description: See your lesson progress, practice streaks, and what to work on next.
+permalink: /student/
+bodyClass: page-lessons
+---
+<div class="dashboard">
+  <div class="dashboard__inner">
+    <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:var(--space-xs)">My Progress</h1>
+    <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:var(--space-lg)">See how far you've come and what's next.</p>
+
+    {# Student overview — populated by JS #}
+    <div id="student-overview"></div>
+
+    {# Next lesson + quick actions — populated by JS #}
+    <div id="student-next"></div>
+
+    {# Phase progress bars — populated by JS #}
+    <div id="student-phases"></div>
+
+    <div style="text-align:center;margin-top:var(--space-xl);display:flex;gap:var(--space-md);justify-content:center;flex-wrap:wrap">
+      <a href="/lessons/" class="btn btn--cta">All Lessons</a>
+      <a href="/practice/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">Practice</a>
+      <a href="/flashcards/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">Flashcards</a>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/progress.js" defer></script>
+<script src="/assets/js/student-dashboard.js" defer></script>
