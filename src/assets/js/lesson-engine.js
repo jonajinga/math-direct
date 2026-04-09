@@ -277,25 +277,75 @@
   }
 
   // ─── Clickable ? to reveal answer ───
+  function wrapBareQuestionMarks() {
+    // Find bare ? text nodes and wrap them in .math-symbol-question spans
+    if (!childText) return;
+    var walker = document.createTreeWalker(childText, NodeFilter.SHOW_TEXT, null, false);
+    var nodes = [];
+    var node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue.indexOf("?") !== -1) nodes.push(node);
+    }
+    nodes.forEach(function (textNode) {
+      var parts = textNode.nodeValue.split("?");
+      if (parts.length < 2) return;
+      var frag = document.createDocumentFragment();
+      for (var i = 0; i < parts.length; i++) {
+        if (parts[i]) frag.appendChild(document.createTextNode(parts[i]));
+        if (i < parts.length - 1) {
+          var span = document.createElement("span");
+          span.className = "math-symbol-question";
+          span.textContent = "?";
+          frag.appendChild(span);
+        }
+      }
+      textNode.parentNode.replaceChild(frag, textNode);
+    });
+  }
+
+  function computeAnswer(step) {
+    if (step.answer !== undefined) return step.answer;
+    var text = (step.display || "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+    var m;
+    // a + b = ?
+    m = text.match(/(\d+)\s*\+\s*(\d+)\s*=\s*\?/);
+    if (m) return parseInt(m[1], 10) + parseInt(m[2], 10);
+    // a − b = ?
+    m = text.match(/(\d+)\s*[−\u2212\-]\s*(\d+)\s*=\s*\?/);
+    if (m) return parseInt(m[1], 10) - parseInt(m[2], 10);
+    // N = a + ? (missing addend: answer = N - a)
+    m = text.match(/(\d+)\s*=\s*(\d+)\s*\+\s*\?/);
+    if (m) return parseInt(m[1], 10) - parseInt(m[2], 10);
+    // N = ? + b (missing addend: answer = N - b)
+    m = text.match(/(\d+)\s*=\s*\?\s*\+\s*(\d+)/);
+    if (m) return parseInt(m[1], 10) - parseInt(m[2], 10);
+    // a + ? = N (missing addend: answer = N - a)
+    m = text.match(/(\d+)\s*\+\s*\?\s*=\s*(\d+)/);
+    if (m) return parseInt(m[2], 10) - parseInt(m[1], 10);
+    // ? + b = N (missing addend: answer = N - b)
+    m = text.match(/\?\s*\+\s*(\d+)\s*=\s*(\d+)/);
+    if (m) return parseInt(m[2], 10) - parseInt(m[1], 10);
+    // a − ? = N (answer = a - N)
+    m = text.match(/(\d+)\s*[−\u2212\-]\s*\?\s*=\s*(\d+)/);
+    if (m) return parseInt(m[1], 10) - parseInt(m[2], 10);
+    // ? − b = N (answer = N + b)
+    m = text.match(/\?\s*[−\u2212\-]\s*(\d+)\s*=\s*(\d+)/);
+    if (m) return parseInt(m[2], 10) + parseInt(m[1], 10);
+    // N − a = ?
+    m = text.match(/(\d+)\s*[−\u2212\-]\s*(\d+)\s*=\s*\?/);
+    if (m) return parseInt(m[1], 10) - parseInt(m[2], 10);
+    return undefined;
+  }
+
   function injectRevealButtons(step) {
     if (!childText) return;
+    // First wrap any bare ? characters
+    wrapBareQuestionMarks();
     var qMarks = childText.querySelectorAll(".math-symbol-question");
     if (!qMarks.length) return;
-    var answer = step.answer;
-    // If no explicit answer, try to compute from display text
-    if (answer === undefined) {
-      // Try to parse "X + Y = ?" or "X − Y = ?" or "N = X + ?"
-      var text = (step.display || "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
-      var m;
-      // Pattern: a + b = ?
-      m = text.match(/(\d+)\s*\+\s*(\d+)\s*=\s*\?/);
-      if (m) { answer = parseInt(m[1], 10) + parseInt(m[2], 10); }
-      // Pattern: a − b = ?
-      if (answer === undefined) {
-        m = text.match(/(\d+)\s*[−\-]\s*(\d+)\s*=\s*\?/);
-        if (m) { answer = parseInt(m[1], 10) - parseInt(m[2], 10); }
-      }
-    }
+    // Don't make clickable if this is a compare step (those have their own buttons)
+    if (step.visual === "compare") return;
+    var answer = computeAnswer(step);
     if (answer === undefined) return;
     qMarks.forEach(function (el) {
       el.setAttribute("role", "button");
@@ -305,7 +355,6 @@
         if (el.classList.contains("is-revealed")) return;
         el.textContent = answer;
         el.classList.add("is-revealed");
-        // Show praise
         praiseBox.classList.add("is-visible");
       }
       el.addEventListener("click", reveal);
