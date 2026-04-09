@@ -142,14 +142,28 @@
     } catch (e) { /* ignore */ }
   }
 
+  // Type grouping: subtypes that should match when a parent type is selected
+  var typeGroups = {
+    "addition": ["addition", "doubles", "commutative", "missing-addend", "number-bonds", "make-ten", "doubles-plus-one", "mixed"],
+    "subtraction": ["subtraction", "fact-family", "mixed"],
+    "counting": ["counting", "skip-counting"],
+  };
+
+  function typeMatches(problemType, selectedTypes) {
+    if (selectedTypes.indexOf(problemType) !== -1) return true;
+    for (var i = 0; i < selectedTypes.length; i++) {
+      var group = typeGroups[selectedTypes[i]];
+      if (group && group.indexOf(problemType) !== -1) return true;
+    }
+    return false;
+  }
+
   // Filter problems
   function filterProblems() {
     var f = getFilters();
     return allProblems.filter(function (p) {
       var phaseMatch = f.phases.length === 0 || f.phases.indexOf(p.phase) !== -1;
-      // Match type: also match subtypes like "addition-regrouping" if "addition" is selected,
-      // but only if the specific subtype isn't in the type list
-      var typeMatch = f.types.length === 0 || f.types.indexOf(p.type) !== -1;
+      var typeMatch = f.types.length === 0 || typeMatches(p.type, f.types);
       var diffMatch = f.diffs.length === 0 || f.diffs.indexOf(p.difficulty) !== -1;
       return phaseMatch && typeMatch && diffMatch;
     });
