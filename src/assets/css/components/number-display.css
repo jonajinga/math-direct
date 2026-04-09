@@ -453,8 +453,9 @@
 }
 
 .math-num-autodots .math-dot {
-  width: 0.5rem;
-  height: 0.5rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  background: var(--dot-color);
 }
 
 /* Hide autodots when toggled off */

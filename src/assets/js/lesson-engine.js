@@ -259,6 +259,7 @@
     if (!childText) return;
     childText.setAttribute("data-show-dots", showAutoDots ? "true" : "false");
     var nums = childText.querySelectorAll(".math-num");
+    console.log("[MathDirect] injectAutoDots: found", nums.length, "math-num elements, showAutoDots:", showAutoDots);
     nums.forEach(function (el) {
       if (el.parentNode.classList && el.parentNode.classList.contains("math-num-with-dots")) return;
       var val = parseInt(el.textContent, 10);
