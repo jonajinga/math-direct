@@ -264,10 +264,20 @@
   color: var(--green-800);
   cursor: default;
   animation: correctPop 0.4s ease;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: auto;
+  height: auto;
+  padding: 0.1em 0.3em;
 }
 [data-theme="dark"] .math-symbol-question.is-revealed {
   background: rgba(20, 83, 45, 0.3);
   color: var(--green-200);
+}
+/* Auto-dots inside revealed answer respect the toggle */
+.child-text[data-show-dots="false"] .math-symbol-question .math-num-autodots {
+  display: none;
 }
 
 /* Interactive comparison buttons */

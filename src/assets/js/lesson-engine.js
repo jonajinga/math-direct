@@ -323,10 +323,31 @@
 
   // Store current answer for the active step
   var currentAnswer = undefined;
+  var currentStepHasReveal = false;
 
   function prepareReveal(step) {
-    if (step.visual === "compare") { currentAnswer = undefined; return; }
+    if (step.visual === "compare") { currentAnswer = undefined; currentStepHasReveal = false; return; }
     currentAnswer = computeAnswer(step);
+    currentStepHasReveal = currentAnswer !== undefined;
+  }
+
+  function buildInlineDots(count) {
+    var dotsDiv = document.createElement("span");
+    dotsDiv.className = "math-num-autodots";
+    var placed = 0;
+    while (placed < count) {
+      var rowSize = Math.min(5, count - placed);
+      var row = document.createElement("span");
+      row.className = "math-num-autodots__row";
+      for (var i = 0; i < rowSize; i++) {
+        var dot = document.createElement("span");
+        dot.className = "math-dot";
+        row.appendChild(dot);
+        placed++;
+      }
+      dotsDiv.appendChild(row);
+    }
+    return dotsDiv;
   }
 
   // Event delegation: single click listener on childText
@@ -334,8 +355,17 @@
     childText.addEventListener("click", function (e) {
       var el = e.target.closest(".math-symbol-question");
       if (!el || el.classList.contains("is-revealed") || currentAnswer === undefined) return;
+      // Wrap in math-num-with-dots so it gets auto-dots
       el.textContent = currentAnswer;
       el.classList.add("is-revealed");
+      el.classList.add("math-num-with-dots");
+      // Add inline dots under the revealed answer
+      if (currentAnswer > 0 && currentAnswer <= 20) {
+        var dots = buildInlineDots(currentAnswer);
+        el.appendChild(dots);
+      }
+      // Respect the dots toggle
+      if (childText) childText.setAttribute("data-show-dots", showAutoDots ? "true" : "false");
       if (praiseBox) praiseBox.classList.add("is-visible");
     });
   }
@@ -348,7 +378,21 @@
     childText.innerHTML = wrapQuestionMarksInDisplay(step.display);
     injectAutoDots();
     prepareReveal(step);
-    renderVisual(step);
+    // If step has a ? to reveal, don't show dots in the visual area (they'd show the wrong count)
+    if (currentStepHasReveal) {
+      if (visualContainer) visualContainer.innerHTML = "";
+      if (visualRemote) visualRemote.style.display = "";
+      // Hide play controls but keep dots toggle visible
+      var playBtn = document.getElementById("btn-play-pause");
+      var resetBtn = document.getElementById("btn-reset");
+      var speedSlider = document.getElementById("speed-slider");
+      var toggleVisBtn = document.getElementById("btn-toggle-visual");
+      [playBtn, resetBtn, speedSlider, toggleVisBtn].forEach(function (el) {
+        if (el) el.style.display = "none";
+      });
+    } else {
+      renderVisual(step);
+    }
 
     stepNumber.textContent = "Step " + (currentStep + 1);
     stepSay.innerHTML = step.say || "";
