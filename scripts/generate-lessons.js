@@ -1339,13 +1339,14 @@ function generatePhase5() {
     steps.push(dotsStep(pick([6,10,14], 1, lid * 7)[0], "How many?", langPick(DO_WAIT), "Correct!", "Good."));
 
     // New range
+    const ASK_BIG = ["What number is this?", "Tell me this number.", "Can you read this number?", "What number do you see?", "Say this number.", "What number is on the screen?"];
     for (let n = rangeStart; n <= rangeEnd; n++) {
       const tens = Math.floor(n / 10);
       const ones = n % 10;
       steps.push(showStep(num(n), "none",
-        n === rangeStart ? `New number: ${n}. That's ${tens} tens and ${ones} ones. Say '${n}'.` : `What is this number?`,
+        n === rangeStart ? `New number: ${n}. That's ${tens} tens and ${ones} ones. Say '${n}'.` : langPick(ASK_BIG),
         n === rangeStart ? "Point to the number." : langPick(DO_WAIT),
-        `${n}!`, `${n}. ${tens} tens and ${ones} ones.`));
+        `${n}! ${langPick(PRAISE_GREAT)}`, `${n}. ${tens} tens and ${ones} ones.`));
     }
 
     // Skip counting by 10s
@@ -1381,10 +1382,11 @@ function generatePhase5() {
     // Show numbers in the range
     const rangeNums = [];
     for (let n = rangeStart; n <= rangeEnd; n += 2) rangeNums.push(n);
+    const ASK_BIG2 = ["What number is this?", "Tell me this number.", "Can you read this?", "What number do you see?", "Say this number.", "What number?"];
     for (const n of rangeNums.slice(0, 6)) {
       steps.push(showStep(num(n), "none",
-        n === rangeStart ? `New number: ${n}. Say '${n}'.` : `What number?`,
-        langPick(DO_WAIT), `${n}!`, `${n}.`));
+        n === rangeStart ? `New number: ${n}. Say '${n}'.` : langPick(ASK_BIG2),
+        langPick(DO_WAIT), `${n}! ${langPick(PRAISE_GREAT)}`, `${n}.`));
     }
 
     // Skip count by 10s
