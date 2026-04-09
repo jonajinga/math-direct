@@ -52,9 +52,17 @@
     visualContainer.innerHTML = html;
   }
 
+  function getAnimDelay() {
+    var slider = document.getElementById("speed-slider");
+    var val = slider ? parseInt(slider.value, 10) : 50;
+    // At 0: 800ms per dot (very slow). At 50: 400ms. At 100: 150ms (fast).
+    return 800 - (val / 100) * 650;
+  }
+
   function dotSpan(index, animated) {
     if (animated) {
-      return '<span class="math-dot math-dot--animated" style="animation-delay:' + (index * 150) + 'ms"></span>';
+      var delay = index * getAnimDelay();
+      return '<span class="math-dot math-dot--animated" style="animation-delay:' + delay + 'ms"></span>';
     }
     return '<span class="math-dot"></span>';
   }
@@ -126,7 +134,9 @@
       if (visualRemote) visualRemote.style.display = "none";
       return;
     }
-    if (visualRemote) visualRemote.style.display = step.visual === "compare" ? "none" : "";
+    // Only show play controls for visuals that have animations (dots, tally)
+    var hasAnimation = step.visual === "dots" || step.visual === "tally";
+    if (visualRemote) visualRemote.style.display = hasAnimation ? "" : "none";
 
     switch (step.visual) {
       case "dots":

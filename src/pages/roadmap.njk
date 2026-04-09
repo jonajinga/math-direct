@@ -1,63 +1,58 @@
 ---
 layout: layouts/base.njk
-title: Roadmap
-description: Math Direct development roadmap. Phase 1 lessons complete. Remaining phases, practice sets, and visual aids in progress.
+title: Learning Roadmap
+description: Visual roadmap of the Math Direct program showing every lesson milestone from first numbers to two-digit arithmetic.
 permalink: /roadmap/
+bodyClass: page-guide
 ---
 <div class="content-page">
-  <div class="content-page__inner">
-    <h1 class="content-page__title">Roadmap</h1>
-    <p class="content-page__intro">Math Direct is under active development. Here is what has been completed and what is coming next.</p>
+  <div class="content-page__inner" style="max-width:72rem">
+    <h1 class="content-page__title">Learning Roadmap</h1>
+    <p class="content-page__intro">Follow the path from first numbers to two-digit arithmetic. Each dot is a lesson. Milestones mark new concepts introduced.</p>
 
-    <div class="guide-section">
-      <h2 class="guide-section__title">Completed</h2>
-      <div class="guide-cards">
-        <div class="guide-card">
-          <h3 class="guide-card__title">Phase 1 Lessons (1&ndash;20)</h3>
-          <p>Foundation lessons covering numbers 0&ndash;10, counting, numeral identification, and comparing. Fully scripted with visual aids.</p>
-        </div>
-        <div class="guide-card">
-          <h3 class="guide-card__title">Lesson Player</h3>
-          <p>Interactive lesson interface with step-by-step script display, visual number representations, and navigation controls.</p>
-        </div>
-        <div class="guide-card">
-          <h3 class="guide-card__title">Progress Tracking</h3>
-          <p>localStorage-based progress system with export, import, and reset. Multiple student profiles supported.</p>
-        </div>
-        <div class="guide-card">
-          <h3 class="guide-card__title">Core Site</h3>
-          <p>Responsive design, dark mode, accessibility features, offline support via service worker, and full documentation pages.</p>
-        </div>
+    {% for phase in phases %}
+    <section class="roadmap-phase">
+      <div class="roadmap-phase__header">
+        <h2 class="roadmap-phase__title"><a href="/phases/{{ phase.slug }}/">Phase {{ phase.id }}: {{ phase.title | replace("Phase " + phase.id + ": ", "") }}</a></h2>
+        <span class="roadmap-phase__meta">Lessons {{ phase.lessonRange }} &middot; {{ phase.conceptsIntroduced.length }} concepts</span>
       </div>
-    </div>
+      <p class="roadmap-phase__desc">{{ phase.description }}</p>
 
-    <div class="guide-section">
-      <h2 class="guide-section__title">In Progress</h2>
-      <ul class="guide-tips">
-        <li><strong>Phase 2 Lessons (21&ndash;40)</strong> &mdash; Counting and comparing with numbers to 20, number patterns, and introduction to addition.</li>
-        <li><strong>Phase 3 Lessons (41&ndash;65)</strong> &mdash; Addition facts to 10, doubles, number bonds, and equation writing.</li>
-        <li><strong>Phase 4 Lessons (66&ndash;85)</strong> &mdash; Subtraction facts to 10, fact families, and inverse relationships.</li>
-      </ul>
-    </div>
+      <div class="roadmap-track">
+        {% for lesson in lessons | where("phase", phase.id) %}
+        {% set isMilestone = false %}
+        {% for c in phase.conceptsIntroduced %}
+          {% if c.lesson == lesson.id %}
+            {% set isMilestone = true %}
+          {% endif %}
+        {% endfor %}
+        <a href="/lessons/lesson-{{ lesson.id | pad }}/" class="roadmap-dot{% if isMilestone %} roadmap-dot--milestone{% endif %}" title="Lesson {{ lesson.id }}: {{ lesson.target }}">
+          <span class="roadmap-dot__number">{{ lesson.id }}</span>
+          {% if isMilestone %}
+          <span class="roadmap-dot__sound">
+            {% for c in phase.conceptsIntroduced %}{% if c.lesson == lesson.id %}{{ c.symbol }}{% endif %}{% endfor %}
+          </span>
+          {% endif %}
+        </a>
+        {% endfor %}
+      </div>
 
-    <div class="guide-section">
-      <h2 class="guide-section__title">Planned</h2>
-      <ul class="guide-tips">
-        <li><strong>Phases 5&ndash;7 Lessons (86&ndash;150)</strong> &mdash; Place value, mental math fluency, two-digit arithmetic, and word problems.</li>
-        <li><strong>Practice Sets</strong> &mdash; Additional drill exercises for each phase to reinforce skills between lessons.</li>
-        <li><strong>Interactive Visual Aids</strong> &mdash; Animated number lines, base-ten block manipulatives, and counting tools that children can interact with directly.</li>
-        <li><strong>Printable Worksheets</strong> &mdash; PDF worksheets for each phase that parents and teachers can print for offline practice.</li>
-        <li><strong>Audio Support</strong> &mdash; Optional audio playback of lesson scripts for accessibility and independent learning.</li>
-      </ul>
-    </div>
-
-    <div class="guide-section">
-      <h2 class="guide-section__title">How to Contribute</h2>
-      <p>Math Direct is open source. If you want to help write lessons, fix bugs, or build new features, visit our <a href="https://github.com/jonajinga/math-direct">GitHub repository</a>. We welcome pull requests and feedback from educators and developers.</p>
-    </div>
+      {# Practice sets for this phase #}
+      {% set phasePractice = collections.practice | where("data.phase", phase.id) %}
+      {% if phasePractice.length > 0 %}
+      <div class="roadmap-stories">
+        <span class="roadmap-stories__label">Practice:</span>
+        {% for item in phasePractice %}
+        <a href="{{ item.url }}" class="roadmap-stories__link">{{ item.data.title }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </section>
+    {% endfor %}
 
     <div class="content-page__cta">
       <a href="/lessons/" class="btn btn--cta">Start Lessons</a>
+      <a href="/curriculum/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">Curriculum Reference</a>
     </div>
   </div>
 </div>

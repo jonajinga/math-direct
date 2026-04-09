@@ -175,6 +175,20 @@
   margin-top: var(--space-xs);
 }
 
+/* Question mark placeholder (for comparison and missing-number steps) */
+.math-symbol-question {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5em;
+  height: 1.2em;
+  border: 3px dashed var(--blue-400);
+  font-family: var(--font-child);
+  font-weight: 700;
+  color: var(--blue-500);
+  vertical-align: middle;
+}
+
 /* Interactive comparison buttons */
 .math-compare {
   display: flex;

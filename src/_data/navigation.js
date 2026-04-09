@@ -4,7 +4,6 @@ export default {
     { label: "Lessons", url: "/lessons/" },
     { label: "Practice", url: "/practice/" },
     { label: "Guide", url: "/guide/" },
-    { label: "Numbers", url: "/number-chart/" },
     { label: "Curriculum", url: "/curriculum/" },
     { label: "Roadmap", url: "/roadmap/" },
   ],
@@ -17,7 +16,6 @@ export default {
     ],
     resources: [
       { label: "Guide", url: "/guide/" },
-      { label: "Numbers", url: "/number-chart/" },
       { label: "Curriculum", url: "/curriculum/" },
       { label: "Roadmap", url: "/roadmap/" },
     ],
