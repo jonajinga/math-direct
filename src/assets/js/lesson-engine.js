@@ -322,10 +322,12 @@
   function injectRevealButtons(step) {
     if (!childText) return;
     var qMarks = childText.querySelectorAll(".math-symbol-question");
+    console.log("[MathDirect] injectRevealButtons: found", qMarks.length, "question marks, visual:", step.visual);
     if (!qMarks.length) return;
     // Don't make clickable if this is a compare step (those have their own buttons)
     if (step.visual === "compare") return;
     var answer = computeAnswer(step);
+    console.log("[MathDirect] computed answer:", answer);
     if (answer === undefined) return;
     qMarks.forEach(function (el) {
       el.setAttribute("role", "button");
