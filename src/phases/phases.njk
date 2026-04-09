@@ -73,5 +73,20 @@ eleventyComputed:
         {% endfor %}
       </div>
     </section>
+
+    {# Practice & Flashcard links #}
+    {% set phasePractice = collections.practice | where("data.phase", phase.id) %}
+    <section style="margin-top:var(--space-2xl);padding-top:var(--space-lg);border-top:1px solid var(--border-color)">
+      <h2>Practice &amp; Review</h2>
+      <div class="phase-links" style="margin-top:var(--space-md);border-top:none;padding-top:0">
+        {% if phasePractice.length > 0 %}
+        <span class="phase-links__label">Practice Sets:</span>
+        {% for item in phasePractice %}
+        <a href="{{ item.url }}" class="phase-links__link">{{ item.data.title }}</a>
+        {% endfor %}
+        {% endif %}
+        <a href="/flashcards/?phase={{ phase.id }}" class="phase-links__link phase-links__link--fc">Flashcards for Phase {{ phase.id }}</a>
+      </div>
+    </section>
   </div>
 </div>

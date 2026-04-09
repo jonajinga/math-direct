@@ -15,8 +15,12 @@ permalink: /curriculum/
         <span class="curriculum-stat__label">Lessons</span>
       </div>
       <div class="curriculum-stat">
-        <span class="curriculum-stat__number">68</span>
-        <span class="curriculum-stat__label">Concepts</span>
+        <span class="curriculum-stat__number">2,400+</span>
+        <span class="curriculum-stat__label">Teaching Steps</span>
+      </div>
+      <div class="curriculum-stat">
+        <span class="curriculum-stat__number">341</span>
+        <span class="curriculum-stat__label">Practice Problems</span>
       </div>
       <div class="curriculum-stat">
         <span class="curriculum-stat__number">7</span>
@@ -67,6 +71,18 @@ permalink: /curriculum/
         <li>{{ skill }}</li>
         {% endfor %}
       </ul>
+
+      {# Practice + Flashcard links #}
+      {% set phasePractice = collections.practice | where("data.phase", phase.id) %}
+      {% if phasePractice.length > 0 %}
+      <div class="phase-links" style="margin-top:var(--space-md);border-top:none;padding-top:0">
+        <span class="phase-links__label">Practice:</span>
+        {% for item in phasePractice %}
+        <a href="{{ item.url }}" class="phase-links__link">{{ item.data.title }}</a>
+        {% endfor %}
+        <a href="/flashcards/?phase={{ phase.id }}" class="phase-links__link phase-links__link--fc">Flashcards</a>
+      </div>
+      {% endif %}
     </div>
     {% endfor %}
 

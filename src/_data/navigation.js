@@ -14,6 +14,7 @@ export default {
       { label: "Home", url: "/" },
       { label: "Lessons", url: "/lessons/" },
       { label: "Practice", url: "/practice/" },
+      { label: "Flashcards", url: "/flashcards/" },
       { label: "Support", url: "/support/" },
     ],
     resources: [

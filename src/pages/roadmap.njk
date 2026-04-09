@@ -53,7 +53,7 @@ bodyClass: page-guide
         {% endfor %}
       </div>
 
-      {# Practice sets for this phase #}
+      {# Practice sets and flashcards for this phase #}
       {% set phasePractice = collections.practice | where("data.phase", phase.id) %}
       {% if phasePractice.length > 0 %}
       <div class="roadmap-stories">
@@ -61,6 +61,7 @@ bodyClass: page-guide
         {% for item in phasePractice %}
         <a href="{{ item.url }}" class="roadmap-stories__link">{{ item.data.title }}</a>
         {% endfor %}
+        <a href="/flashcards/?phase={{ phase.id }}" class="roadmap-stories__link">Flashcards</a>
       </div>
       {% endif %}
     </section>
