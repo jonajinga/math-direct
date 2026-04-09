@@ -191,8 +191,8 @@
       if (visualRemote) visualRemote.style.display = "none";
       return;
     }
-    // Always show remote (for dots toggle); hide play/reset/speed/eye when no animation
-    if (visualRemote) visualRemote.style.display = "";
+    // Show/hide visual remote: play/reset/speed/eye only for animated visuals
+    // Dots toggle is always visible (it's in the remote bar but never hidden)
     var hasAnimation = step.visual === "dots" || step.visual === "tally";
     var playBtn = document.getElementById("btn-play-pause");
     var resetBtn = document.getElementById("btn-reset");
@@ -201,6 +201,8 @@
     [playBtn, resetBtn, speedSlider, toggleVisBtn].forEach(function (el) {
       if (el) el.style.display = hasAnimation ? "" : "none";
     });
+    // Always show the remote bar (dots toggle is there)
+    if (visualRemote) visualRemote.style.display = "";
 
     switch (step.visual) {
       case "dots":
@@ -319,30 +321,22 @@
     return undefined;
   }
 
-  function injectRevealButtons(step) {
-    if (!childText) return;
-    var qMarks = childText.querySelectorAll(".math-symbol-question");
-    console.log("[MathDirect] injectRevealButtons: found", qMarks.length, "question marks, visual:", step.visual);
-    if (!qMarks.length) return;
-    // Don't make clickable if this is a compare step (those have their own buttons)
-    if (step.visual === "compare") return;
-    var answer = computeAnswer(step);
-    console.log("[MathDirect] computed answer:", answer);
-    if (answer === undefined) return;
-    qMarks.forEach(function (el) {
-      el.setAttribute("role", "button");
-      el.setAttribute("tabindex", "0");
-      el.title = "Tap to reveal answer";
-      function reveal() {
-        if (el.classList.contains("is-revealed")) return;
-        el.textContent = answer;
-        el.classList.add("is-revealed");
-        praiseBox.classList.add("is-visible");
-      }
-      el.addEventListener("click", reveal);
-      el.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); reveal(); }
-      });
+  // Store current answer for the active step
+  var currentAnswer = undefined;
+
+  function prepareReveal(step) {
+    if (step.visual === "compare") { currentAnswer = undefined; return; }
+    currentAnswer = computeAnswer(step);
+  }
+
+  // Event delegation: single click listener on childText
+  if (childText) {
+    childText.addEventListener("click", function (e) {
+      var el = e.target.closest(".math-symbol-question");
+      if (!el || el.classList.contains("is-revealed") || currentAnswer === undefined) return;
+      el.textContent = currentAnswer;
+      el.classList.add("is-revealed");
+      if (praiseBox) praiseBox.classList.add("is-visible");
     });
   }
 
@@ -353,7 +347,7 @@
 
     childText.innerHTML = wrapQuestionMarksInDisplay(step.display);
     injectAutoDots();
-    injectRevealButtons(step);
+    prepareReveal(step);
     renderVisual(step);
 
     stepNumber.textContent = "Step " + (currentStep + 1);

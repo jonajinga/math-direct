@@ -70,6 +70,9 @@ bodyClass: page-lesson
           <span id="icon-eye-open">{% include "partials/icons/eye.njk" %}</span>
           <span id="icon-eye-closed" class="hidden">{% include "partials/icons/eye-off.njk" %}</span>
         </button>
+        <button class="visual-remote__btn is-active" id="btn-toggle-dots" title="Show/Hide dots under numbers" aria-label="Toggle dots under numbers" onclick="window.toggleAutoDots && window.toggleAutoDots()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="3"/><circle cx="12" cy="12" r="3"/><circle cx="19" cy="12" r="3"/></svg>
+        </button>
       </div>
 
       {# Nav row: exit + back + next + theme toggle #}
@@ -82,9 +85,6 @@ bodyClass: page-lesson
         </button>
         <button class="btn--nav-next" id="next-btn" title="Next" aria-label="Next step" onclick="window.nextStep && window.nextStep()">
           {% include "partials/icons/arrow-right.njk" %}
-        </button>
-        <button class="visual-remote__btn is-active" id="btn-toggle-dots" title="Show/Hide dots under numbers" aria-label="Toggle dots under numbers" onclick="window.toggleAutoDots && window.toggleAutoDots()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="3"/><circle cx="12" cy="12" r="3"/><circle cx="19" cy="12" r="3"/></svg>
         </button>
         <button class="theme-toggle lesson-theme-toggle" aria-label="Switch to dark mode">
           <span class="theme-toggle__light">{% include "partials/icons/moon.njk" %}</span>
