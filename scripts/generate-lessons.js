@@ -35,6 +35,8 @@ const numberWords = ['zero','one','two','three','four','five','six','seven','eig
   'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
 
 function word(n) { return numberWords[n] || String(n); }
+function cap(s) { if (!s) return s; return s.charAt(0).toUpperCase() + s.slice(1); }
+function Word(n) { return cap(word(n)); }
 
 // ─── Step builders ───
 
@@ -59,16 +61,16 @@ function dotsStep(n, say, doText, praise, correct) {
 }
 
 function identifyStep(n, say, praise, correct) {
-  return showStep(num(n), "dots", say || `What number is this?`, "Wait.", praise || `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}!`, correct || `That's ${word(n)}.`, { dotCount: n > 0 ? n : undefined });
+  return showStep(num(n), "dots", say || "What number is this?", "Wait.", praise || `${Word(n)}!`, correct || `That's ${word(n)}.`, { dotCount: n > 0 ? n : undefined });
 }
 
 function addStep(a, b, visual, say, praise, correct) {
   const ans = a + b;
   const display = `${num(a)} ${sym('+')} ${num(b)} ${sym('=')} ${q()}`;
   return showStep(display, visual || "dots",
-    say || `${word(a)} plus ${word(b)}?`, "Wait.",
-    praise || `${word(ans).charAt(0).toUpperCase() + word(ans).slice(1)}!`,
-    correct || `${word(a)} plus ${word(b)} is ${word(ans)}.`,
+    say || `${Word(a)} plus ${word(b)}?`, "Wait.",
+    praise || `${Word(ans)}!`,
+    correct || `${Word(a)} plus ${word(b)} is ${word(ans)}.`,
     { dotCount: ans, answer: ans });
 }
 
@@ -76,9 +78,9 @@ function subStep(a, b, visual, say, praise, correct) {
   const ans = a - b;
   const display = `${num(a)} ${sym('−')} ${num(b)} ${sym('=')} ${q()}`;
   return showStep(display, visual || "dots",
-    say || `${word(a)} minus ${word(b)}?`, "Wait.",
-    praise || `${word(ans).charAt(0).toUpperCase() + word(ans).slice(1)}!`,
-    correct || `${word(a)} minus ${word(b)} is ${word(ans)}.`,
+    say || `${Word(a)} minus ${word(b)}?`, "Wait.",
+    praise || `${Word(ans)}!`,
+    correct || `${Word(a)} minus ${word(b)} is ${word(ans)}.`,
     { dotCount: a, answer: ans });
 }
 
@@ -96,8 +98,8 @@ function compareStep(a, b) {
 function numberLineStep(target, start, end) {
   return showStep(num(target), "numberline",
     `Find ${word(target)} on the number line.`, "Point to the number.",
-    `${word(target).charAt(0).toUpperCase() + word(target).slice(1)}!`,
-    `${word(target)} is right here.`,
+    `${Word(target)}!`,
+    `${Word(target)} is right here.`,
     { nlStart: start || 0, nlEnd: end || 10, nlHighlight: target });
 }
 
@@ -404,27 +406,27 @@ function generatePhase1() {
       const steps = [];
       // Warm-up: 4 review steps
       for (const r of reviewNums) {
-        steps.push(dotsStep(r, "How many dots?", "Wait.", `${word(r).charAt(0).toUpperCase() + word(r).slice(1)}!`, `${word(r)}.`));
+        steps.push(dotsStep(r, "How many dots?", "Wait.", `${Word(r)}!`, `${Word(r)}.`));
       }
       // New number
-      steps.push(countStep(num(n), n, `New number! This is ${word(n)}. Count: ${Array.from({length: n}, (_, i) => word(i + 1)).join(', ')}.`, "Point to each dot.", `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}!`, `${Array.from({length: n}, (_, i) => word(i + 1)).join(', ')}. ${word(n).charAt(0).toUpperCase() + word(n).slice(1)}.`));
-      steps.push(countStep(num(n), n, "Count the dots.", "Wait.", `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}!`, `${word(n)} dots.`));
-      steps.push(dotsStep(n, "How many dots?", "Wait.", `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}!`, `${word(n)}.`));
+      steps.push(countStep(num(n), n, `New number! This is ${word(n)}. Count: ${Array.from({length: n}, (_, i) => word(i + 1)).join(', ')}.`, "Point to each dot.", `${Word(n)}!`, `${cap(Array.from({length: n}, (_, i) => word(i + 1)).join(', '))}. ${Word(n)}.`));
+      steps.push(countStep(num(n), n, "Count the dots.", "Wait.", `${Word(n)}!`, `${Word(n)} dots.`));
+      steps.push(dotsStep(n, "How many dots?", "Wait.", `${Word(n)}!`, `${Word(n)}.`));
       // Guided
       steps.push(identifyStep(n));
-      steps.push(dotsStep(n, "How many dots? Quick!", "Wait.", `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}!`, `${word(n)}.`));
+      steps.push(dotsStep(n, "How many dots? Quick!", "Wait.", `${Word(n)}!`, `${Word(n)}.`));
       // Mixed practice: 8 items from 0 to n, shuffled
       const mixNums = pick(Array.from({length: n + 1}, (_, i) => i), 8, item.id * 7);
       for (const m of mixNums) {
         if (m === 0) {
           steps.push(showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."));
         } else {
-          steps.push(dotsStep(m, "How many?", "Wait.", `${word(m).charAt(0).toUpperCase() + word(m).slice(1)}!`, `${word(m)}.`));
+          steps.push(dotsStep(m, "How many?", "Wait.", `${Word(m)}!`, `${Word(m)}.`));
         }
       }
       // Firm-up
-      steps.push(dotsStep(n, "How many dots?", "Wait.", `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}! Great!`, `${word(n)}.`));
-      steps.push(dotsStep(n > 2 ? n - 2 : 1, "And this?", "Wait.", `${word(n > 2 ? n - 2 : 1).charAt(0).toUpperCase() + word(n > 2 ? n - 2 : 1).slice(1)}!`, `${word(n > 2 ? n - 2 : 1)}.`));
+      steps.push(dotsStep(n, "How many dots?", "Wait.", `${Word(n)}! Great!`, `${Word(n)}.`));
+      steps.push(dotsStep(n > 2 ? n - 2 : 1, "And this?", "Wait.", `${Word(n > 2 ? n - 2 : 1)}!`, `${Word(n > 2 ? n - 2 : 1)}.`));
 
       lessons.push({ id: item.id, title: `Lesson ${item.id}`, target: String(n), phase: 1, steps });
     } else {
@@ -440,7 +442,7 @@ function generatePhase1() {
         if (m === 0) {
           steps.push(showStep(num(0), "none", isLast ? "What number? Last one!" : "What number?", "Wait.", isLast ? "Zero! Great work!" : "Zero!", "Zero."));
         } else {
-          steps.push(dotsStep(m, isLast ? "How many dots? Last one!" : "How many dots?", "Wait.", isLast ? `${word(m).charAt(0).toUpperCase() + word(m).slice(1)}! Excellent!` : `${word(m).charAt(0).toUpperCase() + word(m).slice(1)}!`, `${word(m)}.`));
+          steps.push(dotsStep(m, isLast ? "How many dots? Last one!" : "How many dots?", "Wait.", isLast ? `${Word(m)}! Excellent!` : `${Word(m)}!`, `${Word(m)}.`));
         }
       }
       lessons.push({ id: item.id, title: `Lesson ${item.id}`, target: item.title, phase: 1, steps });
@@ -509,7 +511,7 @@ function generatePhase1() {
     for (let i = 0; i < 8; i++) {
       const m = nums[i];
       if (m === 0) steps.push(showStep(num(0), "none", "What number?", "Wait.", "Zero!", "Zero."));
-      else steps.push(dotsStep(m, "How many dots?", "Wait.", `${word(m).charAt(0).toUpperCase() + word(m).slice(1)}!`, `${word(m)}.`));
+      else steps.push(dotsStep(m, "How many dots?", "Wait.", `${Word(m)}!`, `${Word(m)}.`));
     }
     steps.push(showStep(sym('='), "none", "What does this mean?", "Wait.", "Equals!", "Equals. Is the same as."));
     steps.push(showStep(sym('>'), "none", "What does this mean?", "Wait.", "Greater than!", "Greater than."));
@@ -549,15 +551,15 @@ function generatePhase2() {
     for (let i = Math.max(1, n - 6); i < n; i++) reviewPool.push(i);
     const reviewNums = pick(reviewPool, 4, item.id);
     for (const r of reviewNums) {
-      steps.push(dotsStep(r, "How many dots?", "Wait.", `${word(r).charAt(0).toUpperCase() + word(r).slice(1)}!`, `${word(r)}.`));
+      steps.push(dotsStep(r, "How many dots?", "Wait.", `${Word(r)}!`, `${Word(r)}.`));
     }
     // New number
-    steps.push(countStep(num(n), n, `New number! This is ${word(n)}. ${n >= 13 && n <= 19 ? `It's ${word(n - 10)}-teen — that means ten and ${word(n - 10)}.` : n === 11 ? "Eleven — ten and one more." : n === 12 ? "Twelve — ten and two more." : n === 20 ? "Twenty — two tens!" : ""} Count the dots.`, "Point to dots.", `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}!`, `${word(n)}.`));
-    steps.push(countStep(num(n), n, "Count the dots again.", "Wait.", `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}!`, `${word(n)} dots.`));
-    steps.push(dotsStep(n, "How many dots?", "Wait.", `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}!`, `${word(n)}.`));
+    steps.push(countStep(num(n), n, `New number! This is ${word(n)}. ${n >= 13 && n <= 19 ? `It's ${word(n - 10)}-teen — that means ten and ${word(n - 10)}.` : n === 11 ? "Eleven — ten and one more." : n === 12 ? "Twelve — ten and two more." : n === 20 ? "Twenty — two tens!" : ""} Count the dots.`, "Point to dots.", `${Word(n)}!`, `${Word(n)}.`));
+    steps.push(countStep(num(n), n, "Count the dots again.", "Wait.", `${Word(n)}!`, `${Word(n)} dots.`));
+    steps.push(dotsStep(n, "How many dots?", "Wait.", `${Word(n)}!`, `${Word(n)}.`));
     // Guided
     steps.push(identifyStep(n));
-    steps.push(dotsStep(n, "How many? Quick!", "Wait.", `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}!`, `${word(n)}.`));
+    steps.push(dotsStep(n, "How many? Quick!", "Wait.", `${Word(n)}!`, `${Word(n)}.`));
     // Mixed: 7 items
     const mixPool = [];
     for (let i = Math.max(1, n - 4); i <= n; i++) mixPool.push(i);
@@ -565,10 +567,10 @@ function generatePhase2() {
     mixPool.push(...pick([1,2,3,4,5,6,7,8,9,10], 2, item.id * 3));
     const mixed = pick(mixPool, 7, item.id * 5);
     for (const m of mixed) {
-      steps.push(dotsStep(m, "How many dots?", "Wait.", `${word(m).charAt(0).toUpperCase() + word(m).slice(1)}!`, `${word(m)}.`));
+      steps.push(dotsStep(m, "How many dots?", "Wait.", `${Word(m)}!`, `${Word(m)}.`));
     }
     // Firm-up
-    steps.push(dotsStep(n, "How many dots?", "Wait.", `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}! Great!`, `${word(n)}.`));
+    steps.push(dotsStep(n, "How many dots?", "Wait.", `${Word(n)}! Great!`, `${Word(n)}.`));
     steps.push(dotsStep(pick(reviewNums, 1, item.id * 9)[0], "And this one?", "Wait.", "Correct!", "Good."));
 
     lessons.push({ id: item.id, title: `Lesson ${item.id}`, target: String(n), phase: 2, steps });
@@ -608,7 +610,7 @@ function generatePhase2() {
     const steps = [];
     // Warm-up
     const warmup = pick([5,8,12,15,18,20], 3, lid);
-    for (const w of warmup) steps.push(dotsStep(w, "How many?", "Wait.", `${word(w).charAt(0).toUpperCase() + word(w).slice(1)}!`, `${word(w)}.`));
+    for (const w of warmup) steps.push(dotsStep(w, "How many?", "Wait.", `${Word(w)}!`, `${Word(w)}.`));
     steps.push(showStep(sym('+'), "none", "What does this mean?", "Wait.", "Plus!", "Plus. Add."));
     // +1 practice
     const bases = pick([1,2,3,4,5,6,7,8,9], 6, lid * 7);
@@ -620,7 +622,7 @@ function generatePhase2() {
     steps.push(numberLineStep(bases[2] + 1, 0, 10));
     // Mixed review
     const review = pick([10,13,16,19], 3, lid * 11);
-    for (const r of review) steps.push(dotsStep(r, "How many?", "Wait.", `${word(r).charAt(0).toUpperCase() + word(r).slice(1)}!`, `${word(r)}.`));
+    for (const r of review) steps.push(dotsStep(r, "How many?", "Wait.", `${Word(r)}!`, `${Word(r)}.`));
     // More +1
     steps.push(addStep(pick([3,6,8], 1, lid * 13)[0], 1, "numberline", undefined, undefined, undefined));
     // Firm-up
@@ -632,16 +634,16 @@ function generatePhase2() {
   for (let lid = 35; lid <= 38; lid++) {
     const steps = [];
     const warmup = pick([3,7,11,14,17,20], 4, lid);
-    for (const w of warmup) steps.push(dotsStep(w, "How many?", "Wait.", `${word(w).charAt(0).toUpperCase() + word(w).slice(1)}!`, `${word(w)}.`));
+    for (const w of warmup) steps.push(dotsStep(w, "How many?", "Wait.", `${Word(w)}!`, `${Word(w)}.`));
 
     // One more / one less
     const oneMoreBases = pick([4,6,8,10,12,15], 3, lid * 3);
     for (const b of oneMoreBases) {
-      steps.push(showStep(num(b), "dots", `What is one more than ${word(b)}?`, "Wait.", `${word(b + 1).charAt(0).toUpperCase() + word(b + 1).slice(1)}!`, `One more than ${word(b)} is ${word(b + 1)}.`, { dotCount: b }));
+      steps.push(showStep(num(b), "dots", `What is one more than ${word(b)}?`, "Wait.", `${Word(b + 1)}!`, `One more than ${word(b)} is ${word(b + 1)}.`, { dotCount: b }));
     }
     const oneLessBases = pick([5,7,9,11,13,16], 3, lid * 5);
     for (const b of oneLessBases) {
-      steps.push(showStep(num(b), "dots", `What is one less than ${word(b)}?`, "Wait.", `${word(b - 1).charAt(0).toUpperCase() + word(b - 1).slice(1)}!`, `One less than ${word(b)} is ${word(b - 1)}.`, { dotCount: b }));
+      steps.push(showStep(num(b), "dots", `What is one less than ${word(b)}?`, "Wait.", `${Word(b - 1)}!`, `One less than ${word(b)} is ${word(b - 1)}.`, { dotCount: b }));
     }
     // +1 review
     steps.push(addStep(pick([2,5,7,9], 1, lid * 7)[0], 1, "dots"));
@@ -651,7 +653,7 @@ function generatePhase2() {
     steps.push(compareStep(ca, cb));
     // More dots
     const dotReview = pick([4,9,13,17,20], 3, lid * 13);
-    for (const d of dotReview) steps.push(dotsStep(d, "How many?", "Wait.", `${word(d).charAt(0).toUpperCase() + word(d).slice(1)}!`, `${word(d)}.`));
+    for (const d of dotReview) steps.push(dotsStep(d, "How many?", "Wait.", `${Word(d)}!`, `${Word(d)}.`));
     // Firm-up
     steps.push(dotsStep(pick([6,10,15,19], 1, lid * 15)[0], "How many? Last one!", "Wait.", "Correct! Great job!", "Good work."));
     lessons.push({ id: lid, title: `Lesson ${lid}`, target: "one more, one less", phase: 2, steps });
@@ -662,7 +664,7 @@ function generatePhase2() {
     const steps = [];
     const allNums = shuffle([1,3,5,7,9,11,13,15,17,19,2,4,6,8,10,12,14,16,18,20], lid);
     for (let i = 0; i < 10; i++) {
-      steps.push(dotsStep(allNums[i], "How many dots?", "Wait.", `${word(allNums[i]).charAt(0).toUpperCase() + word(allNums[i]).slice(1)}!`, `${word(allNums[i])}.`));
+      steps.push(dotsStep(allNums[i], "How many dots?", "Wait.", `${Word(allNums[i])}!`, `${Word(allNums[i])}.`));
     }
     // Add some +1 and compare
     steps.push(addStep(pick([3,6,8], 1, lid * 3)[0], 1, "dots"));
@@ -671,7 +673,7 @@ function generatePhase2() {
     steps.push(compareStep(...pick([[18,3],[8,14],[20,20]], 1, lid * 9)[0]));
     // More dots
     for (let i = 10; i < 14; i++) {
-      steps.push(dotsStep(allNums[i], "How many?", "Wait.", `${word(allNums[i]).charAt(0).toUpperCase() + word(allNums[i]).slice(1)}!`, `${word(allNums[i])}.`));
+      steps.push(dotsStep(allNums[i], "How many?", "Wait.", `${Word(allNums[i])}!`, `${Word(allNums[i])}.`));
     }
     steps.push(addStep(pick([4,6,9], 1, lid * 11)[0], 1, "dots"));
     steps.push(dotsStep(20, lid === 40 ? "Last problem! How many dots?" : "How many?", "Wait.", lid === 40 ? "Twenty! Phase 2 complete!" : "Twenty!", "Twenty."));
@@ -700,7 +702,7 @@ function generatePhase3() {
           const prevAddend = addend > 1 ? addend - 1 : 1;
           steps.push(addStep(w, Math.min(prevAddend, 10 - w), "dots"));
         } else {
-          steps.push(dotsStep(w, "How many dots?", "Wait.", `${word(w).charAt(0).toUpperCase() + word(w).slice(1)}!`, `${word(w)}.`));
+          steps.push(dotsStep(w, "How many dots?", "Wait.", `${Word(w)}!`, `${Word(w)}.`));
         }
       }
       // Review a number from phase 1-2
@@ -712,8 +714,8 @@ function generatePhase3() {
         // First lesson of block: model-lead-test
         const b = bases[0];
         steps.push(showStep(`${num(b)} ${sym('+')} ${num(addend)} ${sym('=')} ${num(b + addend)}`, "dots",
-          `${word(b)} plus ${word(addend)} equals ${word(b + addend)}. Count on from ${word(b)}: ${Array.from({length: addend}, (_, j) => word(b + j + 1)).join(', ')}.`,
-          "Point to dots as you count.", `${word(b + addend).charAt(0).toUpperCase() + word(b + addend).slice(1)}!`, `${word(b)} plus ${word(addend)} equals ${word(b + addend)}.`, { dotCount: b + addend }));
+          `${Word(b)} plus ${word(addend)} equals ${word(b + addend)}. Count on from ${word(b)}: ${Array.from({length: addend}, (_, j) => word(b + j + 1)).join(', ')}.`,
+          "Point to dots as you count.", `${Word(b + addend)}!`, `${Word(b)} plus ${word(addend)} equals ${word(b + addend)}.`, { dotCount: b + addend }));
       }
       for (const b of bases) {
         if (b + addend <= 10) steps.push(addStep(b, addend, "dots"));
@@ -738,7 +740,7 @@ function generatePhase3() {
         steps.push(addStep(a, b, "dots"));
       }
       for (const d of dotNums) {
-        steps.push(dotsStep(d, "How many dots?", "Wait.", `${word(d).charAt(0).toUpperCase() + word(d).slice(1)}!`, `${word(d)}.`));
+        steps.push(dotsStep(d, "How many dots?", "Wait.", `${Word(d)}!`, `${Word(d)}.`));
       }
 
       // Firm-up
@@ -775,7 +777,7 @@ function generatePhase3() {
     }
 
     for (const [a, b] of targetDoubles) {
-      steps.push(addStep(a, b, "dots", `Double ${word(a)}. ${word(a)} plus ${word(a)}?`));
+      steps.push(addStep(a, b, "dots", `Double ${word(a)}. ${Word(a)} plus ${word(a)}?`));
     }
 
     // Mixed
@@ -811,7 +813,7 @@ function generatePhase3() {
 
     const bases = pick([1,2,3,4,5,6,7,8,9,10], i === 0 ? 4 : 5, lid * 9);
     for (const b of bases) {
-      steps.push(addStep(b, 0, "dots", `${word(b)} plus zero?`, `${word(b).charAt(0).toUpperCase() + word(b).slice(1)}! Adding zero changes nothing!`));
+      steps.push(addStep(b, 0, "dots", `${Word(b)} plus zero?`, `${Word(b)}! Adding zero changes nothing!`));
     }
 
     // Mixed
@@ -891,9 +893,9 @@ function generatePhase3() {
     for (const [a, b] of pick(targetBonds, 2, lid * 11)) {
       const display = `${num(a)} ${sym('+')} ${q()} ${sym('=')} ${num(targetSum)}`;
       steps.push(showStep(display, "dots",
-        `${word(a)} plus what equals ${word(targetSum)}?`, "Wait.",
-        `${word(b).charAt(0).toUpperCase() + word(b).slice(1)}!`,
-        `${word(a)} plus ${word(b)} equals ${word(targetSum)}.`,
+        `${Word(a)} plus what equals ${word(targetSum)}?`, "Wait.",
+        `${Word(b)}!`,
+        `${Word(a)} plus ${word(b)} equals ${word(targetSum)}.`,
         { dotCount: targetSum, answer: b }));
     }
 
@@ -971,10 +973,10 @@ function generatePhase4() {
       if (i === 0) {
         const b = Math.max(subtrahend + 1, 5);
         steps.push(showStep(`${num(b)} ${sym('−')} ${num(subtrahend)} ${sym('=')} ${num(b - subtrahend)}`, "dots",
-          subtrahend === 1 ? `${word(b)} minus one equals ${word(b - 1)}. Minus means 'take away'. ${word(b)} take away one is ${word(b - 1)}.` :
-          `${word(b)} minus ${word(subtrahend)} equals ${word(b - subtrahend)}. Count back ${word(subtrahend)} from ${word(b)}.`,
-          "Point to the dots.", `${word(b - subtrahend).charAt(0).toUpperCase() + word(b - subtrahend).slice(1)}!`,
-          `${word(b)} minus ${word(subtrahend)} equals ${word(b - subtrahend)}.`, { dotCount: b }));
+          subtrahend === 1 ? `${Word(b)} minus one equals ${word(b - 1)}. Minus means 'take away'. ${Word(b)} take away one is ${word(b - 1)}.` :
+          `${Word(b)} minus ${word(subtrahend)} equals ${word(b - subtrahend)}. Count back ${word(subtrahend)} from ${word(b)}.`,
+          "Point to the dots.", `${Word(b - subtrahend)}!`,
+          `${Word(b)} minus ${word(subtrahend)} equals ${word(b - subtrahend)}.`, { dotCount: b }));
       }
 
       const bases = pick([2,3,4,5,6,7,8,9,10].filter(x => x >= subtrahend), i === 0 ? 4 : 6, lid * 7);
@@ -1018,10 +1020,10 @@ function generatePhase4() {
     if (i === 0) {
       const [a, b, s] = targetFamilies[0];
       steps.push(showStep(`${num(a)} ${sym('+')} ${num(b)} ${sym('=')} ${num(s)}`, "dots",
-        `${word(a)} plus ${word(b)} equals ${word(s)}.`, "Point.", `${word(s)}!`, `${word(a)} plus ${word(b)} equals ${word(s)}.`, { dotCount: s }));
+        `${Word(a)} plus ${word(b)} equals ${word(s)}.`, "Point.", `${Word(s)}!`, `${Word(a)} plus ${word(b)} equals ${word(s)}.`, { dotCount: s }));
       steps.push(showStep(`${num(s)} ${sym('−')} ${num(b)} ${sym('=')} ${num(a)}`, "dots",
         `Now: ${word(s)} minus ${word(b)} equals ${word(a)}! Addition and subtraction are related. This is called a 'fact family'.`,
-        "Point.", `${word(a)}! They're connected!`, `${word(s)} minus ${word(b)} equals ${word(a)}. A fact family!`, { dotCount: s }));
+        "Point.", `${Word(a)}! They're connected!`, `${Word(s)} minus ${word(b)} equals ${word(a)}. A fact family!`, { dotCount: s }));
     }
 
     for (const [a, b, s] of targetFamilies) {
@@ -1051,7 +1053,7 @@ function generatePhase4() {
       "Point.", "Five! Subtracting zero changes nothing!", "Five minus zero is still five.", { dotCount: 5 }));
 
     for (const b of pick([1,2,3,4,5,6,7,8,9,10], 6, 720)) {
-      steps.push(subStep(b, 0, "dots", `${word(b)} minus zero?`, `${word(b).charAt(0).toUpperCase() + word(b).slice(1)}! Same number!`));
+      steps.push(subStep(b, 0, "dots", `${Word(b)} minus zero?`, `${Word(b)}! Same number!`));
     }
 
     steps.push(addStep(pick([4,6], 1, 880)[0], 0, "dots"));
@@ -1156,16 +1158,16 @@ function generatePhase5() {
       const tens = Math.floor(n / 10);
       const ones = n % 10;
       steps.push(showStep(num(n), "placevalue",
-        `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}. How many tens? How many ones?`, "Wait.",
+        `${Word(n)}. How many tens? How many ones?`, "Wait.",
         `${tens} ten${tens !== 1 ? 's' : ''} and ${ones} one${ones !== 1 ? 's' : ''}!`,
-        `${word(n)} is ${tens} ten${tens !== 1 ? 's' : ''} and ${ones} one${ones !== 1 ? 's' : ''}.`));
+        `${Word(n)} is ${tens} ten${tens !== 1 ? 's' : ''} and ${ones} one${ones !== 1 ? 's' : ''}.`));
     }
 
     // Mixed
     steps.push(subStep(pick([7,8,9], 1, lid * 9)[0], pick([1,2], 1, lid * 9)[0], "dots"));
     steps.push(addStep(pick([3,5], 1, lid * 11)[0], pick([2,3], 1, lid * 11)[0], "dots"));
     for (const n of pick(targetNums, 2, lid * 13)) {
-      steps.push(dotsStep(n, "How many dots?", "Wait.", `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}!`, `${word(n)}.`));
+      steps.push(dotsStep(n, "How many dots?", "Wait.", `${Word(n)}!`, `${Word(n)}.`));
     }
     steps.push(dotsStep(pick([4,7,11,15], 1, lid * 15)[0], "How many?", "Wait.", "Correct!", "Good."));
 
@@ -1175,7 +1177,7 @@ function generatePhase5() {
       const tens = Math.floor(n / 10);
       const ones = n % 10;
       steps.push(showStep(num(n), "none",
-        `${word(n).charAt(0).toUpperCase() + word(n).slice(1)}. How many tens and ones?`, "Wait.",
+        `${Word(n)}. How many tens and ones?`, "Wait.",
         `${tens} ten${tens !== 1 ? 's' : ''}, ${ones} one${ones !== 1 ? 's' : ''}!`,
         `${tens} ten${tens !== 1 ? 's' : ''} and ${ones} one${ones !== 1 ? 's' : ''}.`));
     }
@@ -1198,7 +1200,7 @@ function generatePhase5() {
     steps.push(subStep(pick([8,9,10], 1, lid * 3)[0], pick([2,3], 1, lid * 3)[0], "dots"));
     // Place value review
     const pvNum = pick([12,15,18,20], 1, lid * 5)[0];
-    steps.push(showStep(num(pvNum), "none", `${word(pvNum).charAt(0).toUpperCase() + word(pvNum).slice(1)}. Tens and ones?`, "Wait.", `${Math.floor(pvNum/10)} ten${Math.floor(pvNum/10)>1?'s':''}, ${pvNum%10} one${pvNum%10!==1?'s':''}!`, "Correct."));
+    steps.push(showStep(num(pvNum), "none", `${Word(pvNum)}. Tens and ones?`, "Wait.", `${Math.floor(pvNum/10)} ten${Math.floor(pvNum/10)>1?'s':''}, ${pvNum%10} one${pvNum%10!==1?'s':''}!`, "Correct."));
     steps.push(dotsStep(pick([6,10,14], 1, lid * 7)[0], "How many?", "Wait.", "Correct!", "Good."));
 
     // New range
@@ -1364,7 +1366,7 @@ function generatePhase6() {
         const ans = a + b;
         const toTen = 10 - a;
         steps.push(addStep(a, b, "dots",
-          `${word(a)} plus ${word(b)}. Make ten: ${word(a)} plus ${word(toTen)} is ten, plus ${word(b - toTen)} more is?`));
+          `${Word(a)} plus ${word(b)}. Make ten: ${word(a)} plus ${word(toTen)} is ten, plus ${word(b - toTen)} more is?`));
       }
     } else if (i < 8) {
       // Doubles +1 (110-113)
@@ -1379,7 +1381,7 @@ function generatePhase6() {
       for (const [a, b] of selected) {
         const smaller = Math.min(a, b);
         steps.push(addStep(a, b, "dots",
-          `${word(a)} plus ${word(b)}. Double ${word(smaller)} is ${word(smaller * 2)}, plus one?`));
+          `${Word(a)} plus ${word(b)}. Double ${word(smaller)} is ${word(smaller * 2)}, plus one?`));
       }
     } else if (i < 14) {
       // Two-digit + one-digit (114-119)
