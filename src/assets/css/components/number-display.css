@@ -275,7 +275,7 @@
   width: 1.6em;
   height: 1.3em;
   border: 3px dashed var(--blue-400);
-  font-family: var(--font-child);
+  font-family: var(--font-ui);
   font-size: clamp(3rem, 8vw, 6rem);
   font-weight: 700;
   color: var(--blue-500);
