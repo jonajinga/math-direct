@@ -846,20 +846,320 @@ export default [
   },
 
   // ═══════════════════════════════════════════════════
-  // PHASES 3-7: STUB LESSONS
-  // Each has 3 starter steps to be expanded later
+  // PHASE 3: ADDITION — Lessons 41-65
+  // +1, +2, +3 facts, doubles, +0, commutative, number bonds
   // ═══════════════════════════════════════════════════
 
-  ...generateStubLessons(41, 65, 3, [
-    { range: [41, 44], target: "+1 facts" },
-    { range: [45, 48], target: "+2 facts" },
-    { range: [49, 52], target: "+3 facts" },
-    { range: [53, 55], target: "doubles" },
-    { range: [56, 57], target: "+0" },
-    { range: [58, 59], target: "commutative" },
-    { range: [60, 63], target: "number bonds" },
-    { range: [64, 65], target: "review" },
-  ]),
+  // Lesson 41: +1 facts (1+1 through 5+1)
+  {
+    id: 41, title: "Lesson 41", target: "+1 facts", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>1</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 2, action: "show", say: "Adding one means counting one more. One plus one. Start at one, count one more. What do you get?", do: "Point to the dots.", praise: "Two! One plus one is two!", correct: "One, then one more is two." },
+      { display: "<span class='math-num'>2</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 3, action: "show", say: "Two plus one?", do: "Wait.", praise: "Three!", correct: "Two, count one more: three." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 4, action: "show", say: "Three plus one?", do: "Wait.", praise: "Four!", correct: "Three, one more: four." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 5, action: "show", say: "Four plus one?", do: "Wait.", praise: "Five!", correct: "Four, one more: five." },
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 6, action: "show", say: "Five plus one?", do: "Wait.", praise: "Six!", correct: "Five, one more: six." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Without dots now. Three plus one?", do: "Wait.", praise: "Four! You don't need dots!", correct: "Four." },
+    ],
+  },
+
+  // Lesson 42: +1 facts (6+1 through 9+1)
+  {
+    id: 42, title: "Lesson 42", target: "+1 facts", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 7, action: "show", say: "Six plus one?", do: "Wait.", praise: "Seven!", correct: "Six, one more: seven." },
+      { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 8, action: "show", say: "Seven plus one?", do: "Wait.", praise: "Eight!", correct: "Seven, one more: eight." },
+      { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 9, action: "show", say: "Eight plus one?", do: "Wait.", praise: "Nine!", correct: "Eight, one more: nine." },
+      { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 10, action: "show", say: "Nine plus one?", do: "Wait.", praise: "Ten! The big one!", correct: "Nine, one more: ten." },
+      { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "No dots. Seven plus one?", do: "Wait.", praise: "Eight!", correct: "Eight." },
+      { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus one?", do: "Wait.", praise: "Ten!", correct: "Ten." },
+    ],
+  },
+
+  // Lesson 43: +1 mixed drill
+  {
+    id: 43, title: "Lesson 43", target: "+1 drill", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Four plus one?", do: "Wait.", praise: "Five!", correct: "Five." },
+      { display: "<span class='math-num'>1</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "One plus one?", do: "Wait.", praise: "Two!", correct: "Two." },
+      { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus one?", do: "Wait.", praise: "Nine!", correct: "Nine." },
+      { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus one?", do: "Wait.", praise: "Seven!", correct: "Seven." },
+      { display: "<span class='math-num'>2</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Two plus one?", do: "Wait.", praise: "Three!", correct: "Three." },
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Five plus one?", do: "Wait.", praise: "Six!", correct: "Six." },
+    ],
+  },
+
+  // Lesson 44: +1 with tally marks
+  {
+    id: 44, title: "Lesson 44", target: "+1 with tallies", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "tally", dotCount: 6, action: "show", say: "Five plus one. Look at the tally marks — one group of five, then one more mark. How many?", do: "Point to the group of 5, then the extra mark.", praise: "Six!", correct: "A group of five plus one more is six." },
+      { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "tally", dotCount: 8, action: "show", say: "Seven plus one? Count the tallies.", do: "Wait.", praise: "Eight!", correct: "Eight." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "tally", dotCount: 4, action: "show", say: "Three plus one?", do: "Wait.", praise: "Four!", correct: "Four." },
+      { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "tally", dotCount: 10, action: "show", say: "Nine plus one? How many groups of five?", do: "Wait.", praise: "Ten! Two groups of five!", correct: "Ten. Two full groups of five." },
+    ],
+  },
+
+  // Lesson 45: Introduce +2 facts
+  {
+    id: 45, title: "Lesson 45", target: "+2 facts", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>1</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 3, action: "show", say: "Now we add two. That means count on two more. One plus two: one... two, three. Three!", do: "Point to dots.", praise: "Three! One plus two is three!", correct: "One, then count two more: two, three. The answer is three." },
+      { display: "<span class='math-num'>2</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 4, action: "show", say: "Two plus two?", do: "Wait.", praise: "Four!", correct: "Two, count on two: three, four." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 5, action: "show", say: "Three plus two?", do: "Wait.", praise: "Five!", correct: "Three, four, five." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 6, action: "show", say: "Four plus two?", do: "Wait.", praise: "Six!", correct: "Four, five, six." },
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 7, action: "show", say: "Five plus two?", do: "Wait.", praise: "Seven!", correct: "Five, six, seven." },
+    ],
+  },
+
+  // Lesson 46: +2 facts (6-8)
+  {
+    id: 46, title: "Lesson 46", target: "+2 facts", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 8, action: "show", say: "Six plus two?", do: "Wait.", praise: "Eight!", correct: "Six, seven, eight." },
+      { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 9, action: "show", say: "Seven plus two?", do: "Wait.", praise: "Nine!", correct: "Seven, eight, nine." },
+      { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 10, action: "show", say: "Eight plus two?", do: "Wait.", praise: "Ten!", correct: "Eight, nine, ten." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "No dots. Four plus two?", do: "Wait.", praise: "Six!", correct: "Six." },
+      { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus two?", do: "Wait.", praise: "Nine!", correct: "Nine." },
+    ],
+  },
+
+  // Lesson 47: +2 drill
+  {
+    id: 47, title: "Lesson 47", target: "+2 drill", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Three plus two?", do: "Wait.", praise: "Five!", correct: "Five." },
+      { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus two?", do: "Wait.", praise: "Ten!", correct: "Ten." },
+      { display: "<span class='math-num'>1</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "One plus two?", do: "Wait.", praise: "Three!", correct: "Three." },
+      { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus two?", do: "Wait.", praise: "Eight!", correct: "Eight." },
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Five plus two?", do: "Wait.", praise: "Seven!", correct: "Seven." },
+    ],
+  },
+
+  // Lesson 48: Mixed +1 and +2
+  {
+    id: 48, title: "Lesson 48", target: "+1 and +2 mixed", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus one?", do: "Wait.", praise: "Seven!", correct: "Seven." },
+      { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus two?", do: "Wait.", praise: "Eight!", correct: "Eight." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Three plus one?", do: "Wait.", praise: "Four!", correct: "Four." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Three plus two?", do: "Wait.", praise: "Five!", correct: "Five." },
+      { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus one?", do: "Wait.", praise: "Ten!", correct: "Ten." },
+      { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus two?", do: "Wait.", praise: "Ten!", correct: "Ten." },
+    ],
+  },
+
+  // Lesson 49: Introduce +3 facts
+  {
+    id: 49, title: "Lesson 49", target: "+3 facts", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>1</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 4, action: "show", say: "Now we add three. Count on three: one... two, three, four!", do: "Point.", praise: "Four! One plus three is four!", correct: "One, then two, three, four." },
+      { display: "<span class='math-num'>2</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 5, action: "show", say: "Two plus three?", do: "Wait.", praise: "Five!", correct: "Two, three, four, five." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 6, action: "show", say: "Three plus three?", do: "Wait.", praise: "Six!", correct: "Three, four, five, six." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 7, action: "show", say: "Four plus three?", do: "Wait.", praise: "Seven!", correct: "Four, five, six, seven." },
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 8, action: "show", say: "Five plus three?", do: "Wait.", praise: "Eight!", correct: "Five, six, seven, eight." },
+    ],
+  },
+
+  // Lesson 50: +3 facts (6-7)
+  {
+    id: 50, title: "Lesson 50", target: "+3 facts", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 9, action: "show", say: "Six plus three?", do: "Wait.", praise: "Nine!", correct: "Six, seven, eight, nine." },
+      { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 10, action: "show", say: "Seven plus three?", do: "Wait.", praise: "Ten!", correct: "Seven, eight, nine, ten." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "No dots. Four plus three?", do: "Wait.", praise: "Seven!", correct: "Seven." },
+      { display: "<span class='math-num'>2</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Two plus three?", do: "Wait.", praise: "Five!", correct: "Five." },
+      { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus three?", do: "Wait.", praise: "Nine!", correct: "Nine." },
+    ],
+  },
+
+  // Lesson 51: +3 drill
+  {
+    id: 51, title: "Lesson 51", target: "+3 drill", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Five plus three?", do: "Wait.", praise: "Eight!", correct: "Eight." },
+      { display: "<span class='math-num'>1</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "One plus three?", do: "Wait.", praise: "Four!", correct: "Four." },
+      { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus three?", do: "Wait.", praise: "Ten!", correct: "Ten." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Three plus three?", do: "Wait.", praise: "Six!", correct: "Six." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Four plus three?", do: "Wait.", praise: "Seven!", correct: "Seven." },
+    ],
+  },
+
+  // Lesson 52: Mixed +1, +2, +3
+  {
+    id: 52, title: "Lesson 52", target: "+1, +2, +3 mixed", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Five plus one?", do: "Wait.", praise: "Six!", correct: "Six." },
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Five plus two?", do: "Wait.", praise: "Seven!", correct: "Seven." },
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Five plus three?", do: "Wait.", praise: "Eight!", correct: "Eight." },
+      { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus two?", do: "Wait.", praise: "Nine!", correct: "Nine." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Four plus three?", do: "Wait.", praise: "Seven!", correct: "Seven." },
+      { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus one?", do: "Wait.", praise: "Nine!", correct: "Nine." },
+    ],
+  },
+
+  // Lesson 53: Introduce doubles
+  {
+    id: 53, title: "Lesson 53", target: "doubles", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>1</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 2, action: "show", say: "Doubles! When both numbers are the same, it's a double. One plus one?", do: "Show two groups of 1 dot.", praise: "Two! Double one is two!", correct: "One plus one is two." },
+      { display: "<span class='math-num'>2</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 4, action: "show", say: "Double two. Two plus two?", do: "Show two groups of 2.", praise: "Four! Double two is four!", correct: "Two plus two is four." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 6, action: "show", say: "Double three. Three plus three?", do: "Show two groups of 3.", praise: "Six! Double three is six!", correct: "Three plus three is six." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 8, action: "show", say: "Double four. Four plus four?", do: "Show two groups of 4.", praise: "Eight! Double four is eight!", correct: "Four plus four is eight." },
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 10, action: "show", say: "Double five. Five plus five?", do: "Show two groups of 5.", praise: "Ten! Double five is ten!", correct: "Five plus five is ten." },
+    ],
+  },
+
+  // Lesson 54: Doubles drill
+  {
+    id: 54, title: "Lesson 54", target: "doubles drill", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double three?", do: "Wait.", praise: "Six!", correct: "Six." },
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double five?", do: "Wait.", praise: "Ten!", correct: "Ten." },
+      { display: "<span class='math-num'>2</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double two?", do: "Wait.", praise: "Four!", correct: "Four." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double four?", do: "Wait.", praise: "Eight!", correct: "Eight." },
+      { display: "<span class='math-num'>1</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double one?", do: "Wait.", praise: "Two!", correct: "Two." },
+    ],
+  },
+
+  // Lesson 55: Doubles and near-doubles
+  {
+    id: 55, title: "Lesson 55", target: "doubles review", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double four?", do: "Wait.", praise: "Eight!", correct: "Eight." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double three?", do: "Wait.", praise: "Six!", correct: "Six." },
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double five?", do: "Wait.", praise: "Ten!", correct: "Ten." },
+      { display: "<span class='math-num'>2</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "This is not a double. Two plus three?", do: "Wait.", praise: "Five!", correct: "Five." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Four plus three?", do: "Wait.", praise: "Seven!", correct: "Seven." },
+    ],
+  },
+
+  // Lesson 56: Introduce +0
+  {
+    id: 56, title: "Lesson 56", target: "+0", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>0</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 3, action: "show", say: "Three plus zero. Zero means nothing. When you add nothing, the number stays the same! Three plus zero is... three!", do: "Point to 3 dots — no extra dots appear.", praise: "Three! Adding zero changes nothing!", correct: "Three plus zero is three. Adding zero means nothing changes." },
+      { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>0</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus zero?", do: "Wait.", praise: "Seven! Nothing changed!", correct: "Seven. Adding zero changes nothing." },
+      { display: "<span class='math-num'>0</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Zero plus five? Start with nothing, add five.", do: "Wait.", praise: "Five!", correct: "Zero plus five is five." },
+      { display: "<span class='math-num'>10</span> <span class='math-symbol'>+</span> <span class='math-num'>0</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Ten plus zero?", do: "Wait.", praise: "Ten!", correct: "Ten." },
+      { display: "<span class='math-num'>0</span> <span class='math-symbol'>+</span> <span class='math-num'>0</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Zero plus zero? Nothing plus nothing?", do: "Wait.", praise: "Zero! Nothing plus nothing is still nothing!", correct: "Zero." },
+    ],
+  },
+
+  // Lesson 57: +0 mixed practice
+  {
+    id: 57, title: "Lesson 57", target: "+0 mixed", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>0</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Four plus zero?", do: "Wait.", praise: "Four!", correct: "Four." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Four plus one?", do: "Wait.", praise: "Five!", correct: "Five." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Four plus two?", do: "Wait.", praise: "Six!", correct: "Six." },
+      { display: "<span class='math-num'>0</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Zero plus eight?", do: "Wait.", praise: "Eight!", correct: "Eight." },
+      { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>0</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus zero?", do: "Wait.", praise: "Six!", correct: "Six." },
+    ],
+  },
+
+  // Lesson 58: Introduce commutative property
+  {
+    id: 58, title: "Lesson 58", target: "commutative property", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>2</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 5, action: "show", say: "Two plus three equals five.", do: "Point to 2 dots then 3 dots.", praise: "Five!", correct: "Two plus three is five." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "dots", dotCount: 5, action: "show", say: "Three plus two. Same dots, just in a different order. How many?", do: "Point to 3 dots then 2 dots.", praise: "Five! The same answer!", correct: "Three plus two is also five." },
+      { display: "<span class='math-num'>2</span> + <span class='math-num'>3</span> = <span class='math-num'>3</span> + <span class='math-num'>2</span>", visual: "none", action: "show", say: "Two plus three equals three plus two. When you add, the order doesn't matter! You always get the same answer.", do: "Point to both sides.", praise: "The order doesn't matter!", correct: "Two plus three and three plus two both equal five." },
+      { display: "<span class='math-num'>1</span> <span class='math-symbol'>+</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "One plus four?", do: "Wait.", praise: "Five!", correct: "Five." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Four plus one? Same answer as one plus four?", do: "Wait.", praise: "Five! Same answer — order doesn't matter!", correct: "Five. The order doesn't matter." },
+    ],
+  },
+
+  // Lesson 59: Commutative practice
+  {
+    id: 59, title: "Lesson 59", target: "commutative practice", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Three plus one?", do: "Wait.", praise: "Four!", correct: "Four." },
+      { display: "<span class='math-num'>1</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "One plus three? Same or different answer?", do: "Wait.", praise: "Four! Same answer!", correct: "Four. Same answer." },
+      { display: "<span class='math-num'>2</span> <span class='math-symbol'>+</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Two plus six? Hint: think six plus two instead — it might be easier!", do: "Wait.", praise: "Eight!", correct: "Eight. You can always flip the numbers to make it easier." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Three plus seven? Or think: seven plus three.", do: "Wait.", praise: "Ten!", correct: "Ten." },
+    ],
+  },
+
+  // Lesson 60: Introduce number bonds
+  {
+    id: 60, title: "Lesson 60", target: "number bonds to 5", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>5</span> = ? + ?", visual: "dots", dotCount: 5, action: "show", say: "Number bonds are all the ways to make a number. Let's find all the ways to make five. Zero plus five is one way.", do: "Point to 5 dots.", praise: "Five equals zero plus five!", correct: "0 + 5 = 5." },
+      { display: "<span class='math-num'>5</span> = <span class='math-num'>1</span> + <span class='math-num'>4</span>", visual: "dots", dotCount: 5, action: "show", say: "One plus four makes five.", do: "Point to 1 dot, then 4 dots.", praise: "One plus four is five!", correct: "1 + 4 = 5." },
+      { display: "<span class='math-num'>5</span> = <span class='math-num'>2</span> + <span class='math-num'>3</span>", visual: "dots", dotCount: 5, action: "show", say: "Two plus three makes five.", do: "Point to 2, then 3.", praise: "Two plus three is five!", correct: "2 + 3 = 5." },
+      { display: "<span class='math-num'>5</span> = <span class='math-num'>3</span> + ?", visual: "none", action: "show", say: "Three plus what makes five?", do: "Wait.", praise: "Two! Three plus two is five!", correct: "Three plus two is five." },
+      { display: "<span class='math-num'>5</span> = <span class='math-num'>4</span> + ?", visual: "none", action: "show", say: "Four plus what makes five?", do: "Wait.", praise: "One!", correct: "Four plus one is five." },
+    ],
+  },
+
+  // Lesson 61: Number bonds to 10
+  {
+    id: 61, title: "Lesson 61", target: "number bonds to 10", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>10</span> = <span class='math-num'>5</span> + ?", visual: "dots", dotCount: 10, action: "show", say: "Five plus what makes ten? Count on from five.", do: "Point to the two rows of 5.", praise: "Five! Five plus five is ten!", correct: "Five plus five is ten." },
+      { display: "<span class='math-num'>10</span> = <span class='math-num'>9</span> + ?", visual: "none", action: "show", say: "Nine plus what makes ten?", do: "Wait.", praise: "One!", correct: "Nine plus one is ten." },
+      { display: "<span class='math-num'>10</span> = <span class='math-num'>8</span> + ?", visual: "none", action: "show", say: "Eight plus what makes ten?", do: "Wait.", praise: "Two!", correct: "Eight plus two is ten." },
+      { display: "<span class='math-num'>10</span> = <span class='math-num'>7</span> + ?", visual: "none", action: "show", say: "Seven plus what makes ten?", do: "Wait.", praise: "Three!", correct: "Seven plus three is ten." },
+      { display: "<span class='math-num'>10</span> = <span class='math-num'>6</span> + ?", visual: "none", action: "show", say: "Six plus what makes ten?", do: "Wait.", praise: "Four!", correct: "Six plus four is ten." },
+      { display: "<span class='math-num'>10</span> = <span class='math-num'>4</span> + ?", visual: "none", action: "show", say: "Four plus what makes ten?", do: "Wait.", praise: "Six!", correct: "Four plus six is ten." },
+    ],
+  },
+
+  // Lesson 62: Missing addend practice
+  {
+    id: 62, title: "Lesson 62", target: "missing addend", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>3</span> + ? = <span class='math-num'>5</span>", visual: "none", action: "show", say: "Three plus what equals five?", do: "Wait.", praise: "Two!", correct: "Three plus two equals five." },
+      { display: "? + <span class='math-num'>4</span> = <span class='math-num'>7</span>", visual: "none", action: "show", say: "What plus four equals seven?", do: "Wait.", praise: "Three!", correct: "Three plus four is seven." },
+      { display: "<span class='math-num'>6</span> + ? = <span class='math-num'>10</span>", visual: "none", action: "show", say: "Six plus what equals ten?", do: "Wait.", praise: "Four!", correct: "Six plus four is ten." },
+      { display: "? + <span class='math-num'>2</span> = <span class='math-num'>8</span>", visual: "none", action: "show", say: "What plus two equals eight?", do: "Wait.", praise: "Six!", correct: "Six plus two is eight." },
+      { display: "<span class='math-num'>5</span> + ? = <span class='math-num'>9</span>", visual: "none", action: "show", say: "Five plus what equals nine?", do: "Wait.", praise: "Four!", correct: "Five plus four is nine." },
+    ],
+  },
+
+  // Lesson 63: Number bonds review
+  {
+    id: 63, title: "Lesson 63", target: "bonds review", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>10</span> = <span class='math-num'>3</span> + ?", visual: "none", action: "show", say: "Three plus what makes ten?", do: "Wait.", praise: "Seven!", correct: "Seven." },
+      { display: "<span class='math-num'>10</span> = ? + <span class='math-num'>2</span>", visual: "none", action: "show", say: "What plus two makes ten?", do: "Wait.", praise: "Eight!", correct: "Eight." },
+      { display: "<span class='math-num'>7</span> = <span class='math-num'>4</span> + ?", visual: "none", action: "show", say: "Four plus what makes seven?", do: "Wait.", praise: "Three!", correct: "Three." },
+      { display: "<span class='math-num'>8</span> = ? + <span class='math-num'>3</span>", visual: "none", action: "show", say: "What plus three makes eight?", do: "Wait.", praise: "Five!", correct: "Five." },
+      { display: "<span class='math-num'>6</span> = <span class='math-num'>2</span> + ?", visual: "none", action: "show", say: "Two plus what makes six?", do: "Wait.", praise: "Four!", correct: "Four." },
+    ],
+  },
+
+  // Lesson 64: Phase 3 review — mixed facts
+  {
+    id: 64, title: "Lesson 64", target: "addition review", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus three?", do: "Wait.", praise: "Nine!", correct: "Nine." },
+      { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double four?", do: "Wait.", praise: "Eight!", correct: "Eight." },
+      { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>0</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus zero?", do: "Wait.", praise: "Seven!", correct: "Seven." },
+      { display: "<span class='math-num'>2</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Two plus eight? Remember, you can flip it: eight plus two.", do: "Wait.", praise: "Ten!", correct: "Ten." },
+      { display: "<span class='math-num'>10</span> = <span class='math-num'>5</span> + ?", visual: "none", action: "show", say: "Five plus what makes ten?", do: "Wait.", praise: "Five! Double five!", correct: "Five." },
+      { display: "<span class='math-num'>3</span> + ? = <span class='math-num'>6</span>", visual: "none", action: "show", say: "Three plus what equals six?", do: "Wait.", praise: "Three! Double three!", correct: "Three." },
+    ],
+  },
+
+  // Lesson 65: Phase 3 comprehensive review
+  {
+    id: 65, title: "Lesson 65", target: "Phase 3 Review", phase: 3,
+    steps: [
+      { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus two?", do: "Wait.", praise: "Ten!", correct: "Ten." },
+      { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Five plus three?", do: "Wait.", praise: "Eight!", correct: "Eight." },
+      { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double three?", do: "Wait.", praise: "Six!", correct: "Six." },
+      { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>0</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus zero?", do: "Wait.", praise: "Nine!", correct: "Nine." },
+      { display: "<span class='math-num'>10</span> = <span class='math-num'>7</span> + ?", visual: "none", action: "show", say: "Seven plus what makes ten?", do: "Wait.", praise: "Three!", correct: "Three." },
+      { display: "<span class='math-num'>1</span> <span class='math-symbol'>+</span> <span class='math-num'>9</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "One plus nine? Flip it: nine plus one.", do: "Wait.", praise: "Ten! Phase 3 complete! You know all your addition facts to ten!", correct: "Ten." },
+    ],
+  },
+
+  // ═══════════════════════════════════════════════════
+  // PHASES 4-7: STUB LESSONS
+  // Each has 3 starter steps to be expanded later
+  // ═══════════════════════════════════════════════════
 
   ...generateStubLessons(66, 85, 4, [
     { range: [66, 69], target: "\u22121 facts" },
