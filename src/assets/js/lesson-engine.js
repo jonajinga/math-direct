@@ -425,14 +425,47 @@
     }
   }
 
+  function padId(id) {
+    var s = String(id);
+    while (s.length < 2) s = "0" + s;
+    return s;
+  }
+
+  var nextLessonId = lesson.id < 150 ? lesson.id + 1 : null;
+  var nextLessonUrl = nextLessonId ? "/lessons/lesson-" + padId(nextLessonId) + "/" : null;
+
   function completeLesson() {
     if (window.mathProgress) window.mathProgress.markComplete(lesson.id);
-    window.location.href = "/lessons/";
+    if (nextLessonUrl) {
+      window.location.href = nextLessonUrl;
+    } else {
+      window.location.href = "/lessons/";
+    }
+  }
+
+  function showCompletionScreen() {
+    if (window.mathProgress) window.mathProgress.markComplete(lesson.id);
+    var shell = document.querySelector(".lesson-shell");
+    if (shell) shell.classList.add("hidden");
+    var screen = document.getElementById("practice-round");
+    if (screen) {
+      var html = '<div class="practice-round__inner">' +
+        '<h2 class="practice-round__title">Lesson ' + lesson.id + ' Complete!</h2>' +
+        '<p class="practice-round__instruction">Great work!</p>' +
+        '<div class="practice-round__actions" style="display:flex;flex-direction:column;align-items:center;gap:var(--space-md)">';
+      if (nextLessonUrl) {
+        html += '<a href="' + nextLessonUrl + '" class="btn btn--cta">Next Lesson &rarr;</a>';
+      }
+      html += '<a href="/lessons/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">Back to Dashboard</a>';
+      html += '</div></div>';
+      screen.innerHTML = html;
+      screen.classList.remove("hidden");
+    }
   }
 
   function goNext() {
     if (currentStep < steps.length - 1) showStep(currentStep + 1);
-    else completeLesson();
+    else showCompletionScreen();
   }
 
   function goPrev() { if (currentStep > 0) showStep(currentStep - 1); }
