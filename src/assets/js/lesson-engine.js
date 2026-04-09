@@ -396,10 +396,17 @@
     currentStep = index;
     var step = steps[currentStep];
 
-    childText.innerHTML = wrapQuestionMarksInDisplay(step.display);
-    childText.style.fontSize = "";
-    injectAutoDots();
-    fitChildText();
+    // Hide child text when number line is the display (avoid duplication)
+    if (step.visual === "numberline") {
+      childText.innerHTML = "";
+      childText.style.display = "none";
+    } else {
+      childText.style.display = "";
+      childText.innerHTML = wrapQuestionMarksInDisplay(step.display);
+      childText.style.fontSize = "";
+      injectAutoDots();
+      fitChildText();
+    }
     prepareReveal(step);
     // If step has a ? to reveal, don't show dots in the visual area (they'd show the wrong count)
     if (currentStepHasReveal) {
