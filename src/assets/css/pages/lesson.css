@@ -310,10 +310,15 @@
   background: var(--bg-surface);
   transition: var(--transition-colors);
 }
-.btn--nav-prev:hover,
-.btn--nav-next:hover {
+.btn--nav-prev:hover {
   border-color: var(--blue-500);
-  color: var(--blue-600);
+  background: var(--blue-50);
+  color: var(--blue-700);
+}
+[data-theme="dark"] .btn--nav-prev:hover {
+  background: var(--stone-700);
+  border-color: var(--blue-400);
+  color: var(--blue-400);
 }
 .btn--nav-next {
   background: var(--blue-600);
