@@ -188,16 +188,15 @@
   function renderNumberLine(start, end, highlight) {
     if (visualHidden) { visualContainer.innerHTML = ""; return; }
     var count = end - start + 1;
-    var html = '<div class="math-numberline"><div class="math-numberline__track">';
+    var dense = count > 11;
+    var html = '<div class="math-numberline-wrap"><div class="math-numberline' + (dense ? ' math-numberline--dense' : '') + '">';
     for (var i = start; i <= end; i++) {
-      var pct = ((i - start) / (end - start)) * 100;
       var isHL = highlight !== undefined && highlight === i;
-      html += '<div class="math-numberline__tick" style="left:' + pct + '%"></div>';
-      html += '<div class="math-numberline__label' + (isHL ? ' math-numberline__label--active' : '') + '" style="left:' + pct + '%">' + i + '</div>';
-    }
-    if (highlight !== undefined) {
-      var hlPct = ((highlight - start) / (end - start)) * 100;
-      html += '<div class="math-numberline__hop" style="left:' + hlPct + '%"></div>';
+      html += '<div class="math-numberline__item">';
+      if (isHL) html += '<div class="math-numberline__hop-dot"></div>';
+      html += '<div class="math-numberline__tick"></div>';
+      html += '<div class="math-numberline__label' + (isHL ? ' math-numberline__label--active' : '') + '">' + i + '</div>';
+      html += '</div>';
     }
     html += '</div></div>';
     visualContainer.innerHTML = html;
