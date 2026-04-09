@@ -297,6 +297,25 @@
   background: var(--rose-900-20);
 }
 
+.profile-item__rename {
+  padding: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1;
+  background: none;
+  border-left: 1px solid var(--border-color);
+  transition: var(--transition-colors);
+  cursor: pointer;
+}
+.profile-item__rename:hover {
+  color: var(--blue-600);
+  background: var(--blue-50);
+}
+[data-theme="dark"] .profile-item__rename:hover {
+  color: var(--blue-400);
+  background: var(--stone-700);
+}
+
 /* ===== Teacher Dashboard ===== */
 .td-overview {
   padding: var(--space-lg);
@@ -629,5 +648,115 @@
   font-family: var(--font-child);
   min-width: 2.5rem;
   text-align: right;
+}
+
+/* ===== Print Report Button ===== */
+.td-print-btn {
+  padding: var(--space-xs) var(--space-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  cursor: pointer;
+  transition: var(--transition-colors);
+}
+.td-print-btn:hover {
+  color: var(--blue-700);
+  border-color: var(--blue-500);
+  background: var(--blue-50);
+}
+[data-theme="dark"] .td-print-btn:hover {
+  color: var(--blue-400);
+  border-color: var(--blue-400);
+  background: var(--stone-700);
+}
+
+/* ===== Teacher Notes ===== */
+.td-notes {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.td-notes__input-row {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.td-notes__input {
+  flex: 1;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-family: var(--font-ui);
+}
+.td-notes__input:focus {
+  outline: none;
+  border-color: var(--blue-500);
+}
+
+.td-notes__add {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--blue-600);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 36px;
+}
+.td-notes__add:hover { background: var(--blue-700); }
+
+.td-notes__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.td-note {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-surface-alt);
+  border: 1px solid var(--border-color);
+}
+
+.td-note__text {
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.td-note__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-xs);
+}
+
+.td-note__date {
+  font-size: 0.625rem;
+  color: var(--text-secondary);
+}
+
+.td-note__delete {
+  background: none;
+  border: none;
+  color: var(--stone-400);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 0.25rem;
+  min-width: 24px;
+  min-height: 24px;
+}
+.td-note__delete:hover { color: var(--rose-500); }
+
+.td-notes__empty {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  font-style: italic;
 }
 

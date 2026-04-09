@@ -98,6 +98,27 @@
 .lesson-card:hover .lesson-card__reset { opacity: 1; }
 .lesson-card__reset:hover { color: var(--rose-500); }
 
+/* Mark complete button (shown on incomplete cards on hover) */
+.lesson-card__mark-done {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--stone-400);
+  background: none;
+  border: none;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  cursor: pointer;
+}
+.lesson-card:hover .lesson-card__mark-done { opacity: 1; }
+.lesson-card__mark-done:hover { color: var(--green-500); }
+/* Hide mark-done when card is already complete */
+.lesson-card.is-complete .lesson-card__mark-done { display: none; }
 
 /* Parent Guide Card */
 .parent-guide {

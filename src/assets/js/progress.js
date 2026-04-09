@@ -32,7 +32,7 @@
   function createProfile(name) {
     var profiles = getProfiles();
     var id = Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
-    var profile = { id: id, name: name, completed: [] };
+    var profile = { id: id, name: name, completed: [], notes: [] };
     profiles.push(profile);
     saveProfiles(profiles);
     setActiveProfileId(id);
@@ -47,9 +47,49 @@
     }
   }
 
+  function renameProfile(id, newName) {
+    var profiles = getProfiles();
+    var profile = profiles.find(function (p) { return p.id === id; });
+    if (profile) {
+      profile.name = newName;
+      saveProfiles(profiles);
+    }
+  }
+
   function switchProfile(id) {
     setActiveProfileId(id);
     window.location.reload();
+  }
+
+  // Notes system
+  function addNote(text) {
+    var profiles = getProfiles();
+    var activeId = getActiveProfileId();
+    var profile = profiles.find(function (p) { return p.id === activeId; });
+    if (profile) {
+      if (!profile.notes) profile.notes = [];
+      profile.notes.push({
+        id: Date.now().toString(36),
+        text: text,
+        date: new Date().toISOString()
+      });
+      saveProfiles(profiles);
+    }
+  }
+
+  function deleteNote(noteId) {
+    var profiles = getProfiles();
+    var activeId = getActiveProfileId();
+    var profile = profiles.find(function (p) { return p.id === activeId; });
+    if (profile && profile.notes) {
+      profile.notes = profile.notes.filter(function (n) { return n.id !== noteId; });
+      saveProfiles(profiles);
+    }
+  }
+
+  function getNotes() {
+    var profile = getActiveProfile();
+    return (profile && profile.notes) ? profile.notes : [];
   }
 
   function migrateLegacy() {
@@ -58,7 +98,7 @@
       if (legacy && getProfiles().length === 0) {
         var completed = JSON.parse(legacy);
         if (Array.isArray(completed) && completed.length > 0) {
-          saveProfiles([{ id: "default", name: "Student 1", completed: completed }]);
+          saveProfiles([{ id: "default", name: "Student 1", completed: completed, notes: [] }]);
           setActiveProfileId("default");
           localStorage.removeItem(LEGACY_KEY);
         }
@@ -103,7 +143,7 @@
   }
 
   function exportAllProfiles() {
-    var data = JSON.stringify({ profiles: getProfiles(), version: 2 }, null, 2);
+    var data = JSON.stringify({ profiles: getProfiles(), version: 3 }, null, 2);
     var blob = new Blob([data], { type: "application/json" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -122,6 +162,7 @@
           var existing = getProfiles();
           var existingNames = new Set(existing.map(function (p) { return p.name; }));
           data.profiles.forEach(function (p) {
+            if (!p.notes) p.notes = [];
             if (!existingNames.has(p.name)) {
               p.id = Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
               existing.push(p);
@@ -153,6 +194,17 @@
     }
   }
 
+  function promptRename(id) {
+    var profiles = getProfiles();
+    var profile = profiles.find(function (p) { return p.id === id; });
+    if (!profile) return;
+    var newName = prompt("Rename student:", profile.name);
+    if (newName && newName.trim() && newName.trim() !== profile.name) {
+      renameProfile(id, newName.trim());
+      window.location.reload();
+    }
+  }
+
   function renderProfileSelector() {
     var container = document.getElementById("profile-selector");
     if (!container) return;
@@ -174,6 +226,7 @@
         html += '<span class="profile-item__name">' + escapeHtml(p.name) + '</span>';
         html += '<span class="profile-item__count">' + p.completed.length + '/150</span>';
         html += '</button>';
+        html += '<button class="profile-item__rename" onclick="window.mathProgress.promptRename(\'' + p.id + '\')" title="Rename">&#9998;</button>';
         if (!isActive) {
           html += '<button class="profile-item__delete" onclick="window.mathProgress.confirmDelete(\'' + p.id + '\', \'' + escapeHtml(p.name) + '\')" title="Delete">&times;</button>';
         }
@@ -206,6 +259,11 @@
     deleteProfile: deleteProfile,
     switchProfile: switchProfile,
     confirmDelete: confirmDelete,
+    renameProfile: renameProfile,
+    promptRename: promptRename,
+    addNote: addNote,
+    deleteNote: deleteNote,
+    getNotes: getNotes,
   };
 
   migrateLegacy();
@@ -213,10 +271,13 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     renderProfileSelector();
+
+    // Lesson cards: mark complete on click, mark incomplete on re-click
     var cards = document.querySelectorAll("[data-lesson-id]");
     var completed = getCompleted();
     cards.forEach(function (card) {
       var id = parseInt(card.getAttribute("data-lesson-id"), 10);
+
       if (completed.has(id)) {
         card.classList.add("is-complete");
         var check = document.createElement("span");
@@ -225,19 +286,38 @@
         card.appendChild(check);
         var resetBtn = document.createElement("button");
         resetBtn.className = "lesson-card__reset";
-        resetBtn.title = "Reset lesson " + id;
-        resetBtn.setAttribute("aria-label", "Reset lesson " + id);
+        resetBtn.title = "Mark incomplete";
+        resetBtn.setAttribute("aria-label", "Mark lesson " + id + " incomplete");
         resetBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>';
         resetBtn.addEventListener("click", function (e) {
           e.preventDefault(); e.stopPropagation();
           markIncomplete(id);
           card.classList.remove("is-complete");
           check.remove(); resetBtn.remove();
+          addMarkCompleteBtn(card, id);
           renderProfileSelector();
         });
         card.appendChild(resetBtn);
+      } else {
+        addMarkCompleteBtn(card, id);
       }
     });
+
+    function addMarkCompleteBtn(card, id) {
+      var btn = document.createElement("button");
+      btn.className = "lesson-card__mark-done";
+      btn.title = "Mark complete";
+      btn.setAttribute("aria-label", "Mark lesson " + id + " complete");
+      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+      btn.addEventListener("click", function (e) {
+        e.preventDefault(); e.stopPropagation();
+        markComplete(id);
+        window.location.reload();
+      });
+      card.appendChild(btn);
+    }
+
+    // Progress action buttons
     var exportBtn = document.getElementById("btn-export-progress");
     if (exportBtn) exportBtn.addEventListener("click", exportAllProfiles);
     var importBtn = document.getElementById("btn-import-progress");
