@@ -246,7 +246,7 @@
   padding: 0.15em 0.3em;
   border: 3px dashed var(--blue-400);
   font-family: var(--font-child);
-  font-size: inherit;
+  font-size: clamp(3rem, 8vw, 6rem);
   font-weight: 700;
   color: var(--blue-500);
   vertical-align: middle;
