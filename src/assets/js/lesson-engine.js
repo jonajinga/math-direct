@@ -368,6 +368,53 @@
     return dotsDiv;
   }
 
+  // Move number line highlight dot to the answer position
+  function moveNumberLineToAnswer(answer) {
+    if (!visualContainer) return;
+    var items = visualContainer.querySelectorAll(".math-numberline__item");
+    if (!items.length) return;
+    // Remove existing hop dot and active label
+    items.forEach(function (item) {
+      var hop = item.querySelector(".math-numberline__hop-dot");
+      if (hop) hop.remove();
+      var label = item.querySelector(".math-numberline__label");
+      if (label) label.classList.remove("math-numberline__label--active");
+    });
+    // Find the item matching the answer and add hop dot + active label
+    items.forEach(function (item) {
+      var label = item.querySelector(".math-numberline__label");
+      if (label && parseInt(label.textContent, 10) === answer) {
+        label.classList.add("math-numberline__label--active");
+        var dot = document.createElement("div");
+        dot.className = "math-numberline__hop-dot";
+        dot.style.animation = "correctPop 0.4s ease";
+        item.insertBefore(dot, item.firstChild);
+      }
+    });
+  }
+
+  // Restore number line to original highlight (from step data)
+  function restoreNumberLineHighlight() {
+    if (!visualContainer) return;
+    var step = steps[currentStep];
+    if (!step || step.visual !== "numberline") return;
+    var items = visualContainer.querySelectorAll(".math-numberline__item");
+    items.forEach(function (item) {
+      var hop = item.querySelector(".math-numberline__hop-dot");
+      if (hop) hop.remove();
+      var label = item.querySelector(".math-numberline__label");
+      if (label) {
+        label.classList.remove("math-numberline__label--active");
+        if (step.nlHighlight !== undefined && parseInt(label.textContent, 10) === step.nlHighlight) {
+          label.classList.add("math-numberline__label--active");
+          var dot = document.createElement("div");
+          dot.className = "math-numberline__hop-dot";
+          item.insertBefore(dot, item.firstChild);
+        }
+      }
+    });
+  }
+
   // Event delegation: single click listener on childText — toggle reveal
   if (childText) {
     childText.addEventListener("click", function (e) {
@@ -378,6 +425,7 @@
         el.textContent = "?";
         el.classList.remove("is-revealed", "math-num-with-dots");
         if (praiseBox) praiseBox.classList.remove("is-visible");
+        restoreNumberLineHighlight();
         return;
       }
       // Reveal answer
@@ -388,6 +436,8 @@
       }
       if (childText) childText.setAttribute("data-show-dots", showAutoDots ? "true" : "false");
       if (praiseBox) praiseBox.classList.add("is-visible");
+      // Move number line dot to the answer
+      moveNumberLineToAnswer(currentAnswer);
     });
   }
 
