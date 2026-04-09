@@ -277,30 +277,12 @@
   }
 
   // ─── Clickable ? to reveal answer ───
-  function wrapBareQuestionMarks() {
-    // Find bare ? text nodes and wrap them in .math-symbol-question spans
-    if (!childText) return;
-    var walker = document.createTreeWalker(childText, NodeFilter.SHOW_TEXT, null, false);
-    var nodes = [];
-    var node;
-    while ((node = walker.nextNode())) {
-      if (node.nodeValue.indexOf("?") !== -1) nodes.push(node);
-    }
-    nodes.forEach(function (textNode) {
-      var parts = textNode.nodeValue.split("?");
-      if (parts.length < 2) return;
-      var frag = document.createDocumentFragment();
-      for (var i = 0; i < parts.length; i++) {
-        if (parts[i]) frag.appendChild(document.createTextNode(parts[i]));
-        if (i < parts.length - 1) {
-          var span = document.createElement("span");
-          span.className = "math-symbol-question";
-          span.textContent = "?";
-          frag.appendChild(span);
-        }
-      }
-      textNode.parentNode.replaceChild(frag, textNode);
-    });
+  // Replace bare ? in display HTML before setting innerHTML
+  function wrapQuestionMarksInDisplay(html) {
+    // Skip if already has math-symbol-question spans
+    if (html.indexOf("math-symbol-question") !== -1) return html;
+    // Replace bare ? with the styled clickable span
+    return html.replace(/\?/g, "<span class='math-symbol-question'>?</span>");
   }
 
   function computeAnswer(step) {
@@ -339,8 +321,6 @@
 
   function injectRevealButtons(step) {
     if (!childText) return;
-    // First wrap any bare ? characters
-    wrapBareQuestionMarks();
     var qMarks = childText.querySelectorAll(".math-symbol-question");
     if (!qMarks.length) return;
     // Don't make clickable if this is a compare step (those have their own buttons)
@@ -369,7 +349,7 @@
     currentStep = index;
     var step = steps[currentStep];
 
-    childText.innerHTML = step.display;
+    childText.innerHTML = wrapQuestionMarksInDisplay(step.display);
     injectAutoDots();
     injectRevealButtons(step);
     renderVisual(step);
