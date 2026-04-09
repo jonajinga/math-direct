@@ -1407,34 +1407,481 @@ export default [
   },
 
   // ═══════════════════════════════════════════════════
-  // PHASES 5-7: STUB LESSONS
-  // Each has 3 starter steps to be expanded later
+  // PHASE 5: PLACE VALUE — Lessons 86-105
+  // Tens/ones, counting to 100, +/− within 20
   // ═══════════════════════════════════════════════════
 
-  ...generateStubLessons(86, 105, 5, [
-    { range: [86, 89], target: "tens and ones" },
-    { range: [90, 94], target: "counting to 50" },
-    { range: [95, 99], target: "counting to 100" },
-    { range: [100, 103], target: "+/\u2212 within 20" },
-    { range: [104, 105], target: "review" },
-  ]),
+  // Lesson 86: Introduce tens and ones
+  { id: 86, title: "Lesson 86", target: "tens and ones", phase: 5, steps: [
+    { display: "<span class='math-num'>10</span>", visual: "dots", dotCount: 10, action: "show", say: "You know ten. Ten dots make one group of ten. We call this one 'ten'. It has a 1 in the tens place and a 0 in the ones place.", do: "Point to the two rows of 5 dots.", praise: "One ten, zero ones!", correct: "10 means 1 ten and 0 ones." },
+    { display: "<span class='math-num'>13</span>", visual: "dots", dotCount: 13, action: "show", say: "Thirteen. Look at the dots — one full group of ten, then three more. Thirteen has 1 ten and 3 ones.", do: "Point to the ten block, then the 3 extras.", praise: "1 ten and 3 ones!", correct: "13 = 1 ten and 3 ones." },
+    { display: "<span class='math-num'>15</span> = ? tens and ? ones", visual: "dots", dotCount: 15, action: "show", say: "Fifteen. How many tens? How many ones?", do: "Wait.", praise: "1 ten and 5 ones!", correct: "15 = 1 ten and 5 ones." },
+    { display: "<span class='math-num'>10</span> = ? tens and ? ones", visual: "none", action: "show", say: "Ten. How many tens and ones?", do: "Wait.", praise: "1 ten and 0 ones!", correct: "1 ten, 0 ones." },
+    { display: "<span class='math-num'>18</span> = ? tens and ? ones", visual: "dots", dotCount: 18, action: "show", say: "Eighteen. How many tens? How many ones?", do: "Wait.", praise: "1 ten and 8 ones!", correct: "18 = 1 ten and 8 ones." },
+  ] },
 
-  ...generateStubLessons(106, 125, 6, [
-    { range: [106, 109], target: "make 10" },
-    { range: [110, 114], target: "doubles +1" },
-    { range: [115, 119], target: "2-digit + 1-digit" },
-    { range: [120, 123], target: "2-digit + tens" },
-    { range: [124, 125], target: "review" },
-  ]),
+  // Lesson 87: Tens and ones with 20
+  { id: 87, title: "Lesson 87", target: "tens and ones (20)", phase: 5, steps: [
+    { display: "<span class='math-num'>20</span>", visual: "dots", dotCount: 20, action: "show", say: "Twenty. Two full groups of ten. Twenty has 2 tens and 0 ones.", do: "Point to the two ten-blocks.", praise: "2 tens, 0 ones!", correct: "20 = 2 tens and 0 ones." },
+    { display: "<span class='math-num'>14</span> = ? tens and ? ones", visual: "none", action: "show", say: "Fourteen?", do: "Wait.", praise: "1 ten, 4 ones!", correct: "1 ten, 4 ones." },
+    { display: "<span class='math-num'>20</span> = ? tens and ? ones", visual: "none", action: "show", say: "Twenty?", do: "Wait.", praise: "2 tens, 0 ones!", correct: "2 tens, 0 ones." },
+    { display: "<span class='math-num'>16</span> = ? tens and ? ones", visual: "none", action: "show", say: "Sixteen?", do: "Wait.", praise: "1 ten, 6 ones!", correct: "1 ten, 6 ones." },
+    { display: "<span class='math-num'>11</span> = ? tens and ? ones", visual: "none", action: "show", say: "Eleven?", do: "Wait.", praise: "1 ten, 1 one!", correct: "1 ten, 1 one." },
+  ] },
 
-  ...generateStubLessons(126, 150, 7, [
-    { range: [126, 129], target: "2-digit + 2-digit" },
-    { range: [130, 134], target: "carrying" },
-    { range: [135, 139], target: "2-digit \u2212 2-digit" },
-    { range: [140, 144], target: "borrowing" },
-    { range: [145, 148], target: "word problems" },
-    { range: [149, 150], target: "mastery review" },
-  ]),
+  // Lesson 88: Building numbers from tens and ones
+  { id: 88, title: "Lesson 88", target: "build from tens/ones", phase: 5, steps: [
+    { display: "1 ten and 7 ones = ?", visual: "none", action: "show", say: "I have 1 ten and 7 ones. What number is that?", do: "Wait.", praise: "Seventeen!", correct: "1 ten and 7 ones is 17." },
+    { display: "1 ten and 2 ones = ?", visual: "none", action: "show", say: "1 ten and 2 ones?", do: "Wait.", praise: "Twelve!", correct: "12." },
+    { display: "2 tens and 0 ones = ?", visual: "none", action: "show", say: "2 tens and 0 ones?", do: "Wait.", praise: "Twenty!", correct: "20." },
+    { display: "1 ten and 9 ones = ?", visual: "none", action: "show", say: "1 ten and 9 ones?", do: "Wait.", praise: "Nineteen!", correct: "19." },
+    { display: "1 ten and 0 ones = ?", visual: "none", action: "show", say: "1 ten and 0 ones?", do: "Wait.", praise: "Ten!", correct: "10." },
+  ] },
+
+  // Lesson 89: Tens and ones review
+  { id: 89, title: "Lesson 89", target: "tens/ones review", phase: 5, steps: [
+    { display: "<span class='math-num'>17</span> = ? tens and ? ones", visual: "none", action: "show", say: "Seventeen?", do: "Wait.", praise: "1 ten, 7 ones!", correct: "1 ten, 7 ones." },
+    { display: "2 tens and 0 ones = ?", visual: "none", action: "show", say: "2 tens and 0 ones?", do: "Wait.", praise: "Twenty!", correct: "20." },
+    { display: "<span class='math-num'>12</span> = ? tens and ? ones", visual: "none", action: "show", say: "Twelve?", do: "Wait.", praise: "1 ten, 2 ones!", correct: "1 ten, 2 ones." },
+    { display: "1 ten and 5 ones = ?", visual: "none", action: "show", say: "1 ten and 5 ones?", do: "Wait.", praise: "Fifteen!", correct: "15." },
+  ] },
+
+  // Lesson 90: Counting to 30
+  { id: 90, title: "Lesson 90", target: "counting to 30", phase: 5, steps: [
+    { display: "Count: 20 to 30", visual: "numberline", nlStart: 20, nlEnd: 30, action: "show", say: "Let's count past twenty! Twenty, twenty-one, twenty-two... all the way to thirty.", do: "Point to each number on the number line.", praise: "Twenty to thirty!", correct: "20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30." },
+    { display: "<span class='math-num'>25</span> = ? tens and ? ones", visual: "none", action: "show", say: "Twenty-five. How many tens and ones?", do: "Wait.", praise: "2 tens, 5 ones!", correct: "2 tens, 5 ones." },
+    { display: "<span class='math-num'>30</span> = ? tens and ? ones", visual: "none", action: "show", say: "Thirty. How many tens?", do: "Wait.", praise: "3 tens, 0 ones!", correct: "3 tens, 0 ones." },
+    { display: "What comes after 29?", visual: "none", action: "show", say: "What comes after twenty-nine?", do: "Wait.", praise: "Thirty!", correct: "30." },
+  ] },
+
+  // Lesson 91: Counting to 40
+  { id: 91, title: "Lesson 91", target: "counting to 40", phase: 5, steps: [
+    { display: "Count: 30 to 40", visual: "numberline", nlStart: 30, nlEnd: 40, action: "show", say: "Count from thirty to forty.", do: "Point to each number.", praise: "Thirty to forty!", correct: "30 through 40." },
+    { display: "<span class='math-num'>35</span> = ? tens and ? ones", visual: "none", action: "show", say: "Thirty-five?", do: "Wait.", praise: "3 tens, 5 ones!", correct: "3 tens, 5 ones." },
+    { display: "<span class='math-num'>40</span> = ? tens and ? ones", visual: "none", action: "show", say: "Forty?", do: "Wait.", praise: "4 tens, 0 ones!", correct: "4 tens, 0 ones." },
+    { display: "3 tens and 8 ones = ?", visual: "none", action: "show", say: "3 tens and 8 ones?", do: "Wait.", praise: "Thirty-eight!", correct: "38." },
+  ] },
+
+  // Lesson 92: Skip counting by 2s
+  { id: 92, title: "Lesson 92", target: "skip count by 2", phase: 5, steps: [
+    { display: "2, 4, 6, 8, 10", visual: "numberline", nlStart: 0, nlEnd: 10, nlHighlight: 2, action: "show", say: "Skip counting by twos! We hop over one number each time: 2, 4, 6, 8, 10.", do: "Point to 2, 4, 6, 8, 10 on the number line.", praise: "2, 4, 6, 8, 10!", correct: "Skip count by 2: 2, 4, 6, 8, 10." },
+    { display: "2, 4, 6, 8, 10, 12, 14, ?, ?", visual: "none", action: "show", say: "Keep going! 2, 4, 6, 8, 10, 12, 14... what comes next?", do: "Wait.", praise: "16, 18!", correct: "16, 18. Then 20." },
+    { display: "Skip count by 2 to 20", visual: "numberline", nlStart: 0, nlEnd: 20, action: "show", say: "Skip count by twos all the way to twenty!", do: "Point to every other number.", praise: "2, 4, 6, 8, 10, 12, 14, 16, 18, 20!", correct: "2, 4, 6, 8, 10, 12, 14, 16, 18, 20." },
+  ] },
+
+  // Lesson 93: Counting to 50
+  { id: 93, title: "Lesson 93", target: "counting to 50", phase: 5, steps: [
+    { display: "Count: 40 to 50", visual: "numberline", nlStart: 40, nlEnd: 50, action: "show", say: "Count from forty to fifty.", do: "Point to each.", praise: "Forty to fifty!", correct: "40 through 50." },
+    { display: "<span class='math-num'>45</span> = ? tens and ? ones", visual: "none", action: "show", say: "Forty-five?", do: "Wait.", praise: "4 tens, 5 ones!", correct: "4 tens, 5 ones." },
+    { display: "<span class='math-num'>50</span> = ? tens and ? ones", visual: "none", action: "show", say: "Fifty?", do: "Wait.", praise: "5 tens, 0 ones!", correct: "5 tens, 0 ones." },
+    { display: "What comes after 49?", visual: "none", action: "show", say: "What comes after forty-nine?", do: "Wait.", praise: "Fifty!", correct: "50." },
+  ] },
+
+  // Lesson 94: Skip counting by 5s
+  { id: 94, title: "Lesson 94", target: "skip count by 5", phase: 5, steps: [
+    { display: "5, 10, 15, 20, 25", visual: "tally", dotCount: 25, action: "show", say: "Skip counting by fives! Each tally group is five. 5, 10, 15, 20, 25.", do: "Point to each group of 5.", praise: "5, 10, 15, 20, 25!", correct: "Skip count by 5." },
+    { display: "5, 10, 15, 20, 25, 30, ?, ?, ?, ?", visual: "none", action: "show", say: "Keep going! 30... what's next?", do: "Wait.", praise: "35, 40, 45, 50!", correct: "35, 40, 45, 50." },
+    { display: "Skip count by 5 to 50", visual: "none", action: "show", say: "Skip count by fives to fifty!", do: "Wait.", praise: "5, 10, 15, 20, 25, 30, 35, 40, 45, 50!", correct: "5, 10, 15, 20, 25, 30, 35, 40, 45, 50." },
+  ] },
+
+  // Lesson 95: Counting to 70
+  { id: 95, title: "Lesson 95", target: "counting to 70", phase: 5, steps: [
+    { display: "Count: 50 to 70", visual: "numberline", nlStart: 50, nlEnd: 70, action: "show", say: "Count from fifty to seventy.", do: "Point along the number line.", praise: "Fifty to seventy!", correct: "50 through 70." },
+    { display: "<span class='math-num'>63</span> = ? tens and ? ones", visual: "none", action: "show", say: "Sixty-three?", do: "Wait.", praise: "6 tens, 3 ones!", correct: "6 tens, 3 ones." },
+    { display: "7 tens and 0 ones = ?", visual: "none", action: "show", say: "7 tens and 0 ones?", do: "Wait.", praise: "Seventy!", correct: "70." },
+  ] },
+
+  // Lesson 96: Skip counting by 10s
+  { id: 96, title: "Lesson 96", target: "skip count by 10", phase: 5, steps: [
+    { display: "10, 20, 30, 40, 50", visual: "none", action: "show", say: "Skip counting by tens! 10, 20, 30, 40, 50. Each jump adds one more ten.", do: "Count along.", praise: "10, 20, 30, 40, 50!", correct: "Skip count by 10." },
+    { display: "10, 20, 30, 40, 50, 60, ?, ?, ?", visual: "none", action: "show", say: "Keep going! 60... what's next?", do: "Wait.", praise: "70, 80, 90!", correct: "70, 80, 90." },
+    { display: "Skip count by 10 to 100", visual: "none", action: "show", say: "Skip count by tens all the way to one hundred!", do: "Wait.", praise: "10, 20, 30, 40, 50, 60, 70, 80, 90, 100!", correct: "10, 20, 30, 40, 50, 60, 70, 80, 90, 100." },
+  ] },
+
+  // Lesson 97: Counting to 100
+  { id: 97, title: "Lesson 97", target: "counting to 100", phase: 5, steps: [
+    { display: "Count: 90 to 100", visual: "numberline", nlStart: 90, nlEnd: 100, action: "show", say: "Almost there! Count from ninety to one hundred.", do: "Point to each.", praise: "Ninety to one hundred!", correct: "90 through 100." },
+    { display: "<span class='math-num'>100</span> = ? tens", visual: "none", action: "show", say: "One hundred! How many tens in one hundred?", do: "Wait.", praise: "10 tens! Ten tens make one hundred!", correct: "10 tens = 100." },
+    { display: "<span class='math-num'>87</span> = ? tens and ? ones", visual: "none", action: "show", say: "Eighty-seven?", do: "Wait.", praise: "8 tens, 7 ones!", correct: "8 tens, 7 ones." },
+    { display: "9 tens and 4 ones = ?", visual: "none", action: "show", say: "9 tens and 4 ones?", do: "Wait.", praise: "Ninety-four!", correct: "94." },
+  ] },
+
+  // Lesson 98: Place value mixed practice
+  { id: 98, title: "Lesson 98", target: "place value practice", phase: 5, steps: [
+    { display: "<span class='math-num'>56</span> = ? tens and ? ones", visual: "none", action: "show", say: "Fifty-six?", do: "Wait.", praise: "5 tens, 6 ones!", correct: "5 tens, 6 ones." },
+    { display: "4 tens and 2 ones = ?", visual: "none", action: "show", say: "4 tens and 2 ones?", do: "Wait.", praise: "Forty-two!", correct: "42." },
+    { display: "<span class='math-num'>71</span> = ? tens and ? ones", visual: "none", action: "show", say: "Seventy-one?", do: "Wait.", praise: "7 tens, 1 one!", correct: "7 tens, 1 one." },
+    { display: "8 tens and 9 ones = ?", visual: "none", action: "show", say: "8 tens and 9 ones?", do: "Wait.", praise: "Eighty-nine!", correct: "89." },
+    { display: "<span class='math-num'>100</span> = ? tens and ? ones", visual: "none", action: "show", say: "One hundred?", do: "Wait.", praise: "10 tens, 0 ones!", correct: "10 tens, 0 ones." },
+  ] },
+
+  // Lesson 99: Ordering two-digit numbers
+  { id: 99, title: "Lesson 99", target: "ordering numbers", phase: 5, steps: [
+    { display: "<span class='math-num'>34</span> &nbsp; <span class='math-symbol-question'>?</span> &nbsp; <span class='math-num'>43</span>", visual: "compare", compareAnswer: "<", action: "show", say: "34 and 43. Which is less? Look at the tens first — 3 tens vs 4 tens.", do: "Let the child tap.", praise: "34 < 43! Fewer tens means less!", correct: "34 is less than 43." },
+    { display: "<span class='math-num'>67</span> &nbsp; <span class='math-symbol-question'>?</span> &nbsp; <span class='math-num'>59</span>", visual: "compare", compareAnswer: ">", action: "show", say: "67 and 59? Compare the tens.", do: "Let the child tap.", praise: "67 > 59!", correct: "6 tens is more than 5 tens." },
+    { display: "<span class='math-num'>82</span> &nbsp; <span class='math-symbol-question'>?</span> &nbsp; <span class='math-num'>85</span>", visual: "compare", compareAnswer: "<", action: "show", say: "82 and 85? Same tens — so compare the ones.", do: "Let the child tap.", praise: "82 < 85! Same tens, so check ones.", correct: "82 < 85. 2 ones < 5 ones." },
+    { display: "<span class='math-num'>50</span> &nbsp; <span class='math-symbol-question'>?</span> &nbsp; <span class='math-num'>50</span>", visual: "compare", compareAnswer: "=", action: "show", say: "50 and 50?", do: "Let the child tap.", praise: "Equal!", correct: "50 = 50." },
+  ] },
+
+  // Lesson 100: Addition within 20 (bridging 10)
+  { id: 100, title: "Lesson 100", target: "+ within 20", phase: 5, steps: [
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "numberline", nlStart: 0, nlEnd: 20, nlHighlight: 8, action: "show", say: "Eight plus five. Start at 8 on the number line, hop 5. You cross over 10!", do: "Point to 8, hop to 13.", praise: "Thirteen!", correct: "8 + 5 = 13." },
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "numberline", nlStart: 0, nlEnd: 20, nlHighlight: 9, action: "show", say: "Nine plus four?", do: "Wait.", praise: "Thirteen!", correct: "9 + 4 = 13." },
+    { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus six?", do: "Wait.", praise: "Thirteen!", correct: "7 + 6 = 13." },
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus seven?", do: "Wait.", praise: "Fifteen!", correct: "8 + 7 = 15." },
+    { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>9</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus nine?", do: "Wait.", praise: "Fifteen!", correct: "6 + 9 = 15." },
+  ] },
+
+  // Lesson 101: Addition within 20 continued
+  { id: 101, title: "Lesson 101", target: "+ within 20", phase: 5, steps: [
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus six?", do: "Wait.", praise: "Fifteen!", correct: "15." },
+    { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus eight?", do: "Wait.", praise: "Fifteen!", correct: "15." },
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>9</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double nine?", do: "Wait.", praise: "Eighteen!", correct: "18." },
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double eight?", do: "Wait.", praise: "Sixteen!", correct: "16." },
+    { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus seven?", do: "Wait.", praise: "Thirteen!", correct: "13." },
+  ] },
+
+  // Lesson 102: Subtraction within 20
+  { id: 102, title: "Lesson 102", target: "\u2212 within 20", phase: 5, steps: [
+    { display: "<span class='math-num'>13</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "numberline", nlStart: 0, nlEnd: 20, nlHighlight: 13, action: "show", say: "Thirteen minus five. Start at 13, hop back 5.", do: "Point to 13, count back to 8.", praise: "Eight!", correct: "13 \u2212 5 = 8." },
+    { display: "<span class='math-num'>15</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifteen minus seven?", do: "Wait.", praise: "Eight!", correct: "15 \u2212 7 = 8." },
+    { display: "<span class='math-num'>14</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fourteen minus six?", do: "Wait.", praise: "Eight!", correct: "14 \u2212 6 = 8." },
+    { display: "<span class='math-num'>16</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>9</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixteen minus nine?", do: "Wait.", praise: "Seven!", correct: "16 \u2212 9 = 7." },
+    { display: "<span class='math-num'>18</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>9</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighteen minus nine?", do: "Wait.", praise: "Nine!", correct: "18 \u2212 9 = 9." },
+  ] },
+
+  // Lesson 103: Subtraction within 20 continued
+  { id: 103, title: "Lesson 103", target: "\u2212 within 20", phase: 5, steps: [
+    { display: "<span class='math-num'>12</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Twelve minus seven?", do: "Wait.", praise: "Five!", correct: "12 \u2212 7 = 5." },
+    { display: "<span class='math-num'>17</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventeen minus eight?", do: "Wait.", praise: "Nine!", correct: "17 \u2212 8 = 9." },
+    { display: "<span class='math-num'>11</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eleven minus four?", do: "Wait.", praise: "Seven!", correct: "11 \u2212 4 = 7." },
+    { display: "<span class='math-num'>20</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>10</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Twenty minus ten?", do: "Wait.", praise: "Ten!", correct: "20 \u2212 10 = 10." },
+    { display: "<span class='math-num'>15</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifteen minus eight?", do: "Wait.", praise: "Seven!", correct: "15 \u2212 8 = 7." },
+  ] },
+
+  // Lesson 104: Mixed +/− within 20
+  { id: 104, title: "Lesson 104", target: "+/\u2212 within 20", phase: 5, steps: [
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus seven?", do: "Wait.", praise: "Sixteen!", correct: "16." },
+    { display: "<span class='math-num'>16</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixteen minus seven? Same fact family!", do: "Wait.", praise: "Nine!", correct: "9." },
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus six?", do: "Wait.", praise: "Fourteen!", correct: "14." },
+    { display: "<span class='math-num'>14</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fourteen minus eight?", do: "Wait.", praise: "Six!", correct: "6." },
+    { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double seven?", do: "Wait.", praise: "Fourteen!", correct: "14." },
+  ] },
+
+  // Lesson 105: Phase 5 Review
+  { id: 105, title: "Lesson 105", target: "Phase 5 Review", phase: 5, steps: [
+    { display: "<span class='math-num'>47</span> = ? tens and ? ones", visual: "none", action: "show", say: "Forty-seven?", do: "Wait.", praise: "4 tens, 7 ones!", correct: "4 tens, 7 ones." },
+    { display: "6 tens and 3 ones = ?", visual: "none", action: "show", say: "6 tens and 3 ones?", do: "Wait.", praise: "Sixty-three!", correct: "63." },
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus eight?", do: "Wait.", praise: "Seventeen!", correct: "17." },
+    { display: "<span class='math-num'>15</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifteen minus six?", do: "Wait.", praise: "Nine!", correct: "9." },
+    { display: "Skip count by 10 to 100", visual: "none", action: "show", say: "Skip count by tens to one hundred!", do: "Wait.", praise: "10, 20, 30... 100! Phase 5 complete!", correct: "10, 20, 30, 40, 50, 60, 70, 80, 90, 100." },
+  ] },
+
+  // ═══════════════════════════════════════════════════
+  // PHASE 6: FLUENCY — Lessons 106-125
+  // Make 10, doubles +1, 2-digit + 1-digit, 2-digit + tens
+  // ═══════════════════════════════════════════════════
+
+  // Lesson 106: Make 10 strategy intro
+  { id: 106, title: "Lesson 106", target: "make 10", phase: 6, steps: [
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus five. Here's a trick: break the 5 into 2 and 3. Eight plus 2 makes 10, then add 3 more. 10 + 3 = 13!", do: "Show the strategy on fingers.", praise: "Thirteen! Make 10 first!", correct: "8 + 2 = 10, then 10 + 3 = 13." },
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus four. Nine needs 1 to make 10. Take 1 from the 4. 10 + 3 = ?", do: "Wait.", praise: "Thirteen! 9 + 1 = 10, plus 3 = 13!", correct: "9 + 1 = 10, 10 + 3 = 13." },
+    { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus five. Seven needs 3 to make 10. Take 3 from the 5. 10 + 2 = ?", do: "Wait.", praise: "Twelve!", correct: "7 + 3 = 10, 10 + 2 = 12." },
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus six. Make 10 first.", do: "Wait.", praise: "Fourteen! 8 + 2 = 10, plus 4 = 14!", correct: "8 + 2 = 10, 10 + 4 = 14." },
+  ] },
+
+  // Lesson 107-109: Make 10 practice
+  { id: 107, title: "Lesson 107", target: "make 10 practice", phase: 6, steps: [
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus six? Make 10.", do: "Wait.", praise: "Fifteen!", correct: "9 + 1 = 10, 10 + 5 = 15." },
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus seven?", do: "Wait.", praise: "Fifteen!", correct: "8 + 2 = 10, 10 + 5 = 15." },
+    { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus six?", do: "Wait.", praise: "Thirteen!", correct: "7 + 3 = 10, 10 + 3 = 13." },
+    { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus eight?", do: "Wait.", praise: "Fourteen!", correct: "14." },
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus seven?", do: "Wait.", praise: "Sixteen!", correct: "16." },
+  ] },
+  { id: 108, title: "Lesson 108", target: "make 10 practice", phase: 6, steps: [
+    { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Five plus eight?", do: "Wait.", praise: "Thirteen!", correct: "13." },
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus eight?", do: "Wait.", praise: "Seventeen!", correct: "17." },
+    { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>9</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus nine?", do: "Wait.", praise: "Sixteen!", correct: "16." },
+    { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double six?", do: "Wait.", praise: "Twelve!", correct: "12." },
+  ] },
+  { id: 109, title: "Lesson 109", target: "make 10 drill", phase: 6, steps: [
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fast! Eight plus four?", do: "Wait.", praise: "Twelve!", correct: "12." },
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus five?", do: "Wait.", praise: "Fourteen!", correct: "14." },
+    { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus eight?", do: "Wait.", praise: "Fifteen!", correct: "15." },
+    { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus five?", do: "Wait.", praise: "Eleven!", correct: "11." },
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>9</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double nine?", do: "Wait.", praise: "Eighteen!", correct: "18." },
+  ] },
+
+  // Lesson 110-114: Doubles +1 strategy
+  { id: 110, title: "Lesson 110", target: "doubles +1", phase: 6, steps: [
+    { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus seven. These are near-doubles! Double 6 is 12, plus 1 more is 13.", do: "Explain the strategy.", praise: "Thirteen! Double 6 plus 1!", correct: "6 + 6 = 12, plus 1 = 13." },
+    { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus eight. Double 7 is 14, plus 1?", do: "Wait.", praise: "Fifteen!", correct: "7 + 7 = 14, plus 1 = 15." },
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>9</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus nine. Double 8 plus 1?", do: "Wait.", praise: "Seventeen!", correct: "8 + 8 = 16, plus 1 = 17." },
+    { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Five plus six. Double 5 plus 1?", do: "Wait.", praise: "Eleven!", correct: "5 + 5 = 10, plus 1 = 11." },
+  ] },
+  { id: 111, title: "Lesson 111", target: "doubles +1 drill", phase: 6, steps: [
+    { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus six?", do: "Wait.", praise: "Thirteen!", correct: "13." },
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus eight?", do: "Wait.", praise: "Seventeen!", correct: "17." },
+    { display: "<span class='math-num'>4</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Four plus five?", do: "Wait.", praise: "Nine!", correct: "9." },
+    { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus seven?", do: "Wait.", praise: "Thirteen!", correct: "13." },
+  ] },
+  { id: 112, title: "Lesson 112", target: "mixed strategies", phase: 6, steps: [
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus five? Use make-10 or doubles+1.", do: "Wait.", praise: "Thirteen!", correct: "13." },
+    { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double seven?", do: "Wait.", praise: "Fourteen!", correct: "14." },
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus three?", do: "Wait.", praise: "Twelve!", correct: "12." },
+    { display: "<span class='math-num'>15</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifteen minus seven?", do: "Wait.", praise: "Eight!", correct: "8." },
+    { display: "<span class='math-num'>13</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirteen minus six?", do: "Wait.", praise: "Seven!", correct: "7." },
+  ] },
+  { id: 113, title: "Lesson 113", target: "fact fluency", phase: 6, steps: [
+    { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Quick! Six plus eight?", do: "Wait.", praise: "Fourteen!", correct: "14." },
+    { display: "<span class='math-num'>16</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixteen minus eight?", do: "Wait.", praise: "Eight!", correct: "8." },
+    { display: "<span class='math-num'>7</span> <span class='math-symbol'>+</span> <span class='math-num'>9</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seven plus nine?", do: "Wait.", praise: "Sixteen!", correct: "16." },
+    { display: "<span class='math-num'>14</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fourteen minus five?", do: "Wait.", praise: "Nine!", correct: "9." },
+  ] },
+  { id: 114, title: "Lesson 114", target: "fact fluency", phase: 6, steps: [
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Double eight?", do: "Wait.", praise: "Sixteen!", correct: "16." },
+    { display: "<span class='math-num'>17</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>9</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventeen minus nine?", do: "Wait.", praise: "Eight!", correct: "8." },
+    { display: "<span class='math-num'>5</span> <span class='math-symbol'>+</span> <span class='math-num'>9</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Five plus nine?", do: "Wait.", praise: "Fourteen!", correct: "14." },
+    { display: "<span class='math-num'>12</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Twelve minus four?", do: "Wait.", praise: "Eight!", correct: "8." },
+    { display: "<span class='math-num'>11</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eleven minus seven?", do: "Wait.", praise: "Four!", correct: "4." },
+  ] },
+
+  // Lesson 115-119: Two-digit + one-digit
+  { id: 115, title: "Lesson 115", target: "2-digit + 1-digit", phase: 6, steps: [
+    { display: "<span class='math-num'>23</span> <span class='math-symbol'>+</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Twenty-three plus four. The tens stay the same — just add the ones. 3 + 4 = 7. So 23 + 4 = 27.", do: "Explain.", praise: "Twenty-seven!", correct: "23 + 4 = 27. Tens stay, ones add." },
+    { display: "<span class='math-num'>31</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirty-one plus five?", do: "Wait.", praise: "Thirty-six!", correct: "31 + 5 = 36." },
+    { display: "<span class='math-num'>42</span> <span class='math-symbol'>+</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-two plus six?", do: "Wait.", praise: "Forty-eight!", correct: "42 + 6 = 48." },
+    { display: "<span class='math-num'>54</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-four plus three?", do: "Wait.", praise: "Fifty-seven!", correct: "54 + 3 = 57." },
+  ] },
+  { id: 116, title: "Lesson 116", target: "2-digit + 1-digit", phase: 6, steps: [
+    { display: "<span class='math-num'>65</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-five plus two?", do: "Wait.", praise: "Sixty-seven!", correct: "67." },
+    { display: "<span class='math-num'>73</span> <span class='math-symbol'>+</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-three plus four?", do: "Wait.", praise: "Seventy-seven!", correct: "77." },
+    { display: "<span class='math-num'>81</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-one plus seven?", do: "Wait.", praise: "Eighty-eight!", correct: "88." },
+    { display: "<span class='math-num'>90</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Ninety plus five?", do: "Wait.", praise: "Ninety-five!", correct: "95." },
+  ] },
+  { id: 117, title: "Lesson 117", target: "2-digit + 1-digit drill", phase: 6, steps: [
+    { display: "<span class='math-num'>36</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirty-six plus three?", do: "Wait.", praise: "Thirty-nine!", correct: "39." },
+    { display: "<span class='math-num'>52</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-two plus seven?", do: "Wait.", praise: "Fifty-nine!", correct: "59." },
+    { display: "<span class='math-num'>44</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-four plus five?", do: "Wait.", praise: "Forty-nine!", correct: "49." },
+    { display: "<span class='math-num'>68</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-eight plus one?", do: "Wait.", praise: "Sixty-nine!", correct: "69." },
+  ] },
+  { id: 118, title: "Lesson 118", target: "2-digit \u2212 1-digit", phase: 6, steps: [
+    { display: "<span class='math-num'>28</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Twenty-eight minus three? Tens stay, subtract the ones.", do: "Wait.", praise: "Twenty-five!", correct: "28 \u2212 3 = 25." },
+    { display: "<span class='math-num'>47</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-seven minus five?", do: "Wait.", praise: "Forty-two!", correct: "42." },
+    { display: "<span class='math-num'>59</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-nine minus six?", do: "Wait.", praise: "Fifty-three!", correct: "53." },
+    { display: "<span class='math-num'>85</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-five minus four?", do: "Wait.", praise: "Eighty-one!", correct: "81." },
+  ] },
+  { id: 119, title: "Lesson 119", target: "mixed 2-digit +/\u2212 1-digit", phase: 6, steps: [
+    { display: "<span class='math-num'>34</span> <span class='math-symbol'>+</span> <span class='math-num'>5</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirty-four plus five?", do: "Wait.", praise: "Thirty-nine!", correct: "39." },
+    { display: "<span class='math-num'>76</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-six minus three?", do: "Wait.", praise: "Seventy-three!", correct: "73." },
+    { display: "<span class='math-num'>61</span> <span class='math-symbol'>+</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-one plus eight?", do: "Wait.", praise: "Sixty-nine!", correct: "69." },
+    { display: "<span class='math-num'>93</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Ninety-three minus two?", do: "Wait.", praise: "Ninety-one!", correct: "91." },
+  ] },
+
+  // Lesson 120-123: Two-digit + tens
+  { id: 120, title: "Lesson 120", target: "2-digit + tens", phase: 6, steps: [
+    { display: "<span class='math-num'>24</span> <span class='math-symbol'>+</span> <span class='math-num'>10</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Twenty-four plus ten. When you add 10, the tens digit goes up by 1. The ones stay the same.", do: "Explain.", praise: "Thirty-four!", correct: "24 + 10 = 34. Ones stay, tens go up." },
+    { display: "<span class='math-num'>35</span> <span class='math-symbol'>+</span> <span class='math-num'>10</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirty-five plus ten?", do: "Wait.", praise: "Forty-five!", correct: "45." },
+    { display: "<span class='math-num'>51</span> <span class='math-symbol'>+</span> <span class='math-num'>20</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-one plus twenty? Add 2 tens.", do: "Wait.", praise: "Seventy-one!", correct: "71." },
+    { display: "<span class='math-num'>43</span> <span class='math-symbol'>+</span> <span class='math-num'>30</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-three plus thirty?", do: "Wait.", praise: "Seventy-three!", correct: "73." },
+  ] },
+  { id: 121, title: "Lesson 121", target: "2-digit + tens", phase: 6, steps: [
+    { display: "<span class='math-num'>62</span> <span class='math-symbol'>+</span> <span class='math-num'>20</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-two plus twenty?", do: "Wait.", praise: "Eighty-two!", correct: "82." },
+    { display: "<span class='math-num'>18</span> <span class='math-symbol'>+</span> <span class='math-num'>30</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighteen plus thirty?", do: "Wait.", praise: "Forty-eight!", correct: "48." },
+    { display: "<span class='math-num'>77</span> <span class='math-symbol'>+</span> <span class='math-num'>10</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-seven plus ten?", do: "Wait.", praise: "Eighty-seven!", correct: "87." },
+    { display: "<span class='math-num'>50</span> <span class='math-symbol'>+</span> <span class='math-num'>40</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty plus forty?", do: "Wait.", praise: "Ninety!", correct: "90." },
+  ] },
+  { id: 122, title: "Lesson 122", target: "2-digit \u2212 tens", phase: 6, steps: [
+    { display: "<span class='math-num'>47</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>10</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-seven minus ten. Tens go down by 1, ones stay.", do: "Wait.", praise: "Thirty-seven!", correct: "37." },
+    { display: "<span class='math-num'>63</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>20</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-three minus twenty?", do: "Wait.", praise: "Forty-three!", correct: "43." },
+    { display: "<span class='math-num'>85</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>30</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-five minus thirty?", do: "Wait.", praise: "Fifty-five!", correct: "55." },
+    { display: "<span class='math-num'>90</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>40</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Ninety minus forty?", do: "Wait.", praise: "Fifty!", correct: "50." },
+  ] },
+  { id: 123, title: "Lesson 123", target: "mixed +/\u2212 tens", phase: 6, steps: [
+    { display: "<span class='math-num'>56</span> <span class='math-symbol'>+</span> <span class='math-num'>20</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-six plus twenty?", do: "Wait.", praise: "Seventy-six!", correct: "76." },
+    { display: "<span class='math-num'>76</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>20</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-six minus twenty?", do: "Wait.", praise: "Fifty-six! Back where we started!", correct: "56." },
+    { display: "<span class='math-num'>34</span> <span class='math-symbol'>+</span> <span class='math-num'>40</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirty-four plus forty?", do: "Wait.", praise: "Seventy-four!", correct: "74." },
+    { display: "<span class='math-num'>81</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>50</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-one minus fifty?", do: "Wait.", praise: "Thirty-one!", correct: "31." },
+  ] },
+
+  // Lesson 124-125: Phase 6 Review
+  { id: 124, title: "Lesson 124", target: "fluency review", phase: 6, steps: [
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eight plus seven?", do: "Wait.", praise: "Fifteen!", correct: "15." },
+    { display: "<span class='math-num'>45</span> <span class='math-symbol'>+</span> <span class='math-num'>3</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-five plus three?", do: "Wait.", praise: "Forty-eight!", correct: "48." },
+    { display: "<span class='math-num'>62</span> <span class='math-symbol'>+</span> <span class='math-num'>30</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-two plus thirty?", do: "Wait.", praise: "Ninety-two!", correct: "92." },
+    { display: "<span class='math-num'>17</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>8</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventeen minus eight?", do: "Wait.", praise: "Nine!", correct: "9." },
+    { display: "<span class='math-num'>78</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>20</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-eight minus twenty?", do: "Wait.", praise: "Fifty-eight!", correct: "58." },
+  ] },
+  { id: 125, title: "Lesson 125", target: "Phase 6 Review", phase: 6, steps: [
+    { display: "<span class='math-num'>9</span> <span class='math-symbol'>+</span> <span class='math-num'>6</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nine plus six?", do: "Wait.", praise: "Fifteen!", correct: "15." },
+    { display: "<span class='math-num'>53</span> <span class='math-symbol'>+</span> <span class='math-num'>4</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-three plus four?", do: "Wait.", praise: "Fifty-seven!", correct: "57." },
+    { display: "<span class='math-num'>40</span> <span class='math-symbol'>+</span> <span class='math-num'>50</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty plus fifty?", do: "Wait.", praise: "Ninety!", correct: "90." },
+    { display: "<span class='math-num'>86</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>30</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-six minus thirty?", do: "Wait.", praise: "Fifty-six!", correct: "56." },
+    { display: "<span class='math-num'>16</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>9</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixteen minus nine?", do: "Wait.", praise: "Seven! Phase 6 complete!", correct: "7." },
+  ] },
+
+  // ═══════════════════════════════════════════════════
+  // PHASE 7: MASTERY — Lessons 126-150
+  // 2-digit +/−, regrouping, word problems
+  // ═══════════════════════════════════════════════════
+
+  // Lessons 126-129: Two-digit + two-digit (no regrouping)
+  { id: 126, title: "Lesson 126", target: "2-digit + 2-digit", phase: 7, steps: [
+    { display: "<span class='math-num'>23</span> <span class='math-symbol'>+</span> <span class='math-num'>14</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Twenty-three plus fourteen. Add the ones: 3 + 4 = 7. Add the tens: 2 + 1 = 3. Answer: 37.", do: "Explain ones first, then tens.", praise: "Thirty-seven!", correct: "23 + 14 = 37." },
+    { display: "<span class='math-num'>32</span> <span class='math-symbol'>+</span> <span class='math-num'>25</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirty-two plus twenty-five? Ones: 2+5=7. Tens: 3+2=5.", do: "Wait.", praise: "Fifty-seven!", correct: "57." },
+    { display: "<span class='math-num'>41</span> <span class='math-symbol'>+</span> <span class='math-num'>36</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-one plus thirty-six?", do: "Wait.", praise: "Seventy-seven!", correct: "77." },
+    { display: "<span class='math-num'>53</span> <span class='math-symbol'>+</span> <span class='math-num'>24</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-three plus twenty-four?", do: "Wait.", praise: "Seventy-seven!", correct: "77." },
+  ] },
+  { id: 127, title: "Lesson 127", target: "2-digit + 2-digit", phase: 7, steps: [
+    { display: "<span class='math-num'>15</span> <span class='math-symbol'>+</span> <span class='math-num'>42</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifteen plus forty-two?", do: "Wait.", praise: "Fifty-seven!", correct: "57." },
+    { display: "<span class='math-num'>61</span> <span class='math-symbol'>+</span> <span class='math-num'>28</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-one plus twenty-eight?", do: "Wait.", praise: "Eighty-nine!", correct: "89." },
+    { display: "<span class='math-num'>34</span> <span class='math-symbol'>+</span> <span class='math-num'>45</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirty-four plus forty-five?", do: "Wait.", praise: "Seventy-nine!", correct: "79." },
+    { display: "<span class='math-num'>72</span> <span class='math-symbol'>+</span> <span class='math-num'>16</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-two plus sixteen?", do: "Wait.", praise: "Eighty-eight!", correct: "88." },
+  ] },
+  { id: 128, title: "Lesson 128", target: "2-digit + 2-digit drill", phase: 7, steps: [
+    { display: "<span class='math-num'>21</span> <span class='math-symbol'>+</span> <span class='math-num'>48</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Twenty-one plus forty-eight?", do: "Wait.", praise: "Sixty-nine!", correct: "69." },
+    { display: "<span class='math-num'>55</span> <span class='math-symbol'>+</span> <span class='math-num'>33</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-five plus thirty-three?", do: "Wait.", praise: "Eighty-eight!", correct: "88." },
+    { display: "<span class='math-num'>40</span> <span class='math-symbol'>+</span> <span class='math-num'>37</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty plus thirty-seven?", do: "Wait.", praise: "Seventy-seven!", correct: "77." },
+    { display: "<span class='math-num'>13</span> <span class='math-symbol'>+</span> <span class='math-num'>56</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirteen plus fifty-six?", do: "Wait.", praise: "Sixty-nine!", correct: "69." },
+  ] },
+  { id: 129, title: "Lesson 129", target: "2-digit + 2-digit review", phase: 7, steps: [
+    { display: "<span class='math-num'>44</span> <span class='math-symbol'>+</span> <span class='math-num'>35</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-four plus thirty-five?", do: "Wait.", praise: "Seventy-nine!", correct: "79." },
+    { display: "<span class='math-num'>62</span> <span class='math-symbol'>+</span> <span class='math-num'>17</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-two plus seventeen?", do: "Wait.", praise: "Seventy-nine!", correct: "79." },
+    { display: "<span class='math-num'>26</span> <span class='math-symbol'>+</span> <span class='math-num'>53</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Twenty-six plus fifty-three?", do: "Wait.", praise: "Seventy-nine!", correct: "79." },
+  ] },
+
+  // Lessons 130-134: Addition with regrouping (carrying)
+  { id: 130, title: "Lesson 130", target: "carrying", phase: 7, steps: [
+    { display: "<span class='math-num'>28</span> <span class='math-symbol'>+</span> <span class='math-num'>15</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Twenty-eight plus fifteen. Ones: 8 + 5 = 13. That's more than 9! Write the 3, carry the 1 ten. Tens: 2 + 1 + 1 = 4. Answer: 43.", do: "Show carrying step by step.", praise: "Forty-three! You carried!", correct: "28 + 15 = 43. 8+5=13, carry 1." },
+    { display: "<span class='math-num'>37</span> <span class='math-symbol'>+</span> <span class='math-num'>16</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirty-seven plus sixteen? Ones: 7+6=13, carry 1. Tens: 3+1+1=5.", do: "Wait.", praise: "Fifty-three!", correct: "53." },
+    { display: "<span class='math-num'>45</span> <span class='math-symbol'>+</span> <span class='math-num'>29</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-five plus twenty-nine?", do: "Wait.", praise: "Seventy-four!", correct: "74." },
+    { display: "<span class='math-num'>56</span> <span class='math-symbol'>+</span> <span class='math-num'>38</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-six plus thirty-eight?", do: "Wait.", praise: "Ninety-four!", correct: "94." },
+  ] },
+  { id: 131, title: "Lesson 131", target: "carrying practice", phase: 7, steps: [
+    { display: "<span class='math-num'>19</span> <span class='math-symbol'>+</span> <span class='math-num'>24</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nineteen plus twenty-four?", do: "Wait.", praise: "Forty-three!", correct: "43." },
+    { display: "<span class='math-num'>47</span> <span class='math-symbol'>+</span> <span class='math-num'>35</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-seven plus thirty-five?", do: "Wait.", praise: "Eighty-two!", correct: "82." },
+    { display: "<span class='math-num'>68</span> <span class='math-symbol'>+</span> <span class='math-num'>25</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-eight plus twenty-five?", do: "Wait.", praise: "Ninety-three!", correct: "93." },
+    { display: "<span class='math-num'>39</span> <span class='math-symbol'>+</span> <span class='math-num'>47</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirty-nine plus forty-seven?", do: "Wait.", praise: "Eighty-six!", correct: "86." },
+  ] },
+  { id: 132, title: "Lesson 132", target: "carrying drill", phase: 7, steps: [
+    { display: "<span class='math-num'>54</span> <span class='math-symbol'>+</span> <span class='math-num'>28</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-four plus twenty-eight?", do: "Wait.", praise: "Eighty-two!", correct: "82." },
+    { display: "<span class='math-num'>76</span> <span class='math-symbol'>+</span> <span class='math-num'>18</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-six plus eighteen?", do: "Wait.", praise: "Ninety-four!", correct: "94." },
+    { display: "<span class='math-num'>29</span> <span class='math-symbol'>+</span> <span class='math-num'>33</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Twenty-nine plus thirty-three?", do: "Wait.", praise: "Sixty-two!", correct: "62." },
+    { display: "<span class='math-num'>48</span> <span class='math-symbol'>+</span> <span class='math-num'>44</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-eight plus forty-four?", do: "Wait.", praise: "Ninety-two!", correct: "92." },
+  ] },
+  { id: 133, title: "Lesson 133", target: "mixed add (carry/no carry)", phase: 7, steps: [
+    { display: "<span class='math-num'>32</span> <span class='math-symbol'>+</span> <span class='math-num'>45</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Do you need to carry? Thirty-two plus forty-five?", do: "Wait.", praise: "Seventy-seven! No carry needed.", correct: "77." },
+    { display: "<span class='math-num'>38</span> <span class='math-symbol'>+</span> <span class='math-num'>45</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirty-eight plus forty-five? Do you carry?", do: "Wait.", praise: "Eighty-three! Yes, carry!", correct: "83. 8+5=13, carry 1." },
+    { display: "<span class='math-num'>51</span> <span class='math-symbol'>+</span> <span class='math-num'>27</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-one plus twenty-seven?", do: "Wait.", praise: "Seventy-eight! No carry.", correct: "78." },
+    { display: "<span class='math-num'>57</span> <span class='math-symbol'>+</span> <span class='math-num'>26</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-seven plus twenty-six?", do: "Wait.", praise: "Eighty-three! Carry!", correct: "83." },
+  ] },
+  { id: 134, title: "Lesson 134", target: "carrying review", phase: 7, steps: [
+    { display: "<span class='math-num'>65</span> <span class='math-symbol'>+</span> <span class='math-num'>27</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-five plus twenty-seven?", do: "Wait.", praise: "Ninety-two!", correct: "92." },
+    { display: "<span class='math-num'>43</span> <span class='math-symbol'>+</span> <span class='math-num'>39</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-three plus thirty-nine?", do: "Wait.", praise: "Eighty-two!", correct: "82." },
+    { display: "<span class='math-num'>17</span> <span class='math-symbol'>+</span> <span class='math-num'>58</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventeen plus fifty-eight?", do: "Wait.", praise: "Seventy-five!", correct: "75." },
+  ] },
+
+  // Lessons 135-139: Two-digit subtraction (with and without borrowing)
+  { id: 135, title: "Lesson 135", target: "2-digit \u2212 2-digit", phase: 7, steps: [
+    { display: "<span class='math-num'>57</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>23</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-seven minus twenty-three. Ones: 7\u22123=4. Tens: 5\u22122=3. Answer: 34.", do: "Explain.", praise: "Thirty-four!", correct: "57 \u2212 23 = 34." },
+    { display: "<span class='math-num'>68</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>35</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-eight minus thirty-five?", do: "Wait.", praise: "Thirty-three!", correct: "33." },
+    { display: "<span class='math-num'>89</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>46</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-nine minus forty-six?", do: "Wait.", praise: "Forty-three!", correct: "43." },
+    { display: "<span class='math-num'>76</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>51</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-six minus fifty-one?", do: "Wait.", praise: "Twenty-five!", correct: "25." },
+  ] },
+  { id: 136, title: "Lesson 136", target: "2-digit \u2212 2-digit drill", phase: 7, steps: [
+    { display: "<span class='math-num'>95</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>42</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Ninety-five minus forty-two?", do: "Wait.", praise: "Fifty-three!", correct: "53." },
+    { display: "<span class='math-num'>48</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>25</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-eight minus twenty-five?", do: "Wait.", praise: "Twenty-three!", correct: "23." },
+    { display: "<span class='math-num'>74</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>31</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-four minus thirty-one?", do: "Wait.", praise: "Forty-three!", correct: "43." },
+    { display: "<span class='math-num'>86</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>64</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-six minus sixty-four?", do: "Wait.", praise: "Twenty-two!", correct: "22." },
+  ] },
+  { id: 137, title: "Lesson 137", target: "borrowing intro", phase: 7, steps: [
+    { display: "<span class='math-num'>42</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>17</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-two minus seventeen. Ones: 2\u22127... we can't! Borrow 1 ten. Now it's 12\u22127=5. Tens: 3\u22121=2. Answer: 25.", do: "Show borrowing step by step.", praise: "Twenty-five! You borrowed!", correct: "42 \u2212 17 = 25. Borrow 1 ten." },
+    { display: "<span class='math-num'>53</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>28</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-three minus twenty-eight? 3\u22128 can't, borrow.", do: "Wait.", praise: "Twenty-five!", correct: "25." },
+    { display: "<span class='math-num'>71</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>34</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-one minus thirty-four?", do: "Wait.", praise: "Thirty-seven!", correct: "37." },
+    { display: "<span class='math-num'>60</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>25</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty minus twenty-five? 0\u22125 can't, borrow.", do: "Wait.", praise: "Thirty-five!", correct: "35." },
+  ] },
+  { id: 138, title: "Lesson 138", target: "borrowing practice", phase: 7, steps: [
+    { display: "<span class='math-num'>84</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>39</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-four minus thirty-nine?", do: "Wait.", praise: "Forty-five!", correct: "45." },
+    { display: "<span class='math-num'>62</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>45</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-two minus forty-five?", do: "Wait.", praise: "Seventeen!", correct: "17." },
+    { display: "<span class='math-num'>93</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>58</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Ninety-three minus fifty-eight?", do: "Wait.", praise: "Thirty-five!", correct: "35." },
+    { display: "<span class='math-num'>50</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>16</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty minus sixteen?", do: "Wait.", praise: "Thirty-four!", correct: "34." },
+  ] },
+  { id: 139, title: "Lesson 139", target: "mixed sub (borrow/no borrow)", phase: 7, steps: [
+    { display: "<span class='math-num'>67</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>23</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Borrow or not? Sixty-seven minus twenty-three?", do: "Wait.", praise: "Forty-four! No borrow.", correct: "44." },
+    { display: "<span class='math-num'>63</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>27</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-three minus twenty-seven?", do: "Wait.", praise: "Thirty-six! Borrow!", correct: "36." },
+    { display: "<span class='math-num'>85</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>41</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-five minus forty-one?", do: "Wait.", praise: "Forty-four! No borrow.", correct: "44." },
+    { display: "<span class='math-num'>81</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>45</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-one minus forty-five?", do: "Wait.", praise: "Thirty-six! Borrow!", correct: "36." },
+  ] },
+
+  // Lessons 140-144: Mixed two-digit +/−
+  { id: 140, title: "Lesson 140", target: "mixed 2-digit +/\u2212", phase: 7, steps: [
+    { display: "<span class='math-num'>34</span> <span class='math-symbol'>+</span> <span class='math-num'>29</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirty-four plus twenty-nine?", do: "Wait.", praise: "Sixty-three!", correct: "63." },
+    { display: "<span class='math-num'>63</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>29</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-three minus twenty-nine?", do: "Wait.", praise: "Thirty-four! Back to the start!", correct: "34." },
+    { display: "<span class='math-num'>55</span> <span class='math-symbol'>+</span> <span class='math-num'>37</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-five plus thirty-seven?", do: "Wait.", praise: "Ninety-two!", correct: "92." },
+    { display: "<span class='math-num'>92</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>55</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Ninety-two minus fifty-five?", do: "Wait.", praise: "Thirty-seven!", correct: "37." },
+  ] },
+  { id: 141, title: "Lesson 141", target: "mixed 2-digit +/\u2212", phase: 7, steps: [
+    { display: "<span class='math-num'>46</span> <span class='math-symbol'>+</span> <span class='math-num'>38</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-six plus thirty-eight?", do: "Wait.", praise: "Eighty-four!", correct: "84." },
+    { display: "<span class='math-num'>73</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>48</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-three minus forty-eight?", do: "Wait.", praise: "Twenty-five!", correct: "25." },
+    { display: "<span class='math-num'>29</span> <span class='math-symbol'>+</span> <span class='math-num'>54</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Twenty-nine plus fifty-four?", do: "Wait.", praise: "Eighty-three!", correct: "83." },
+    { display: "<span class='math-num'>90</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>36</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Ninety minus thirty-six?", do: "Wait.", praise: "Fifty-four!", correct: "54." },
+  ] },
+  { id: 142, title: "Lesson 142", target: "2-digit +/\u2212 drill", phase: 7, steps: [
+    { display: "<span class='math-num'>58</span> <span class='math-symbol'>+</span> <span class='math-num'>34</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Fifty-eight plus thirty-four?", do: "Wait.", praise: "Ninety-two!", correct: "92." },
+    { display: "<span class='math-num'>81</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>57</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-one minus fifty-seven?", do: "Wait.", praise: "Twenty-four!", correct: "24." },
+    { display: "<span class='math-num'>67</span> <span class='math-symbol'>+</span> <span class='math-num'>25</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-seven plus twenty-five?", do: "Wait.", praise: "Ninety-two!", correct: "92." },
+    { display: "<span class='math-num'>44</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>19</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-four minus nineteen?", do: "Wait.", praise: "Twenty-five!", correct: "25." },
+  ] },
+  { id: 143, title: "Lesson 143", target: "2-digit +/\u2212 drill", phase: 7, steps: [
+    { display: "<span class='math-num'>37</span> <span class='math-symbol'>+</span> <span class='math-num'>46</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Thirty-seven plus forty-six?", do: "Wait.", praise: "Eighty-three!", correct: "83." },
+    { display: "<span class='math-num'>72</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>38</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-two minus thirty-eight?", do: "Wait.", praise: "Thirty-four!", correct: "34." },
+    { display: "<span class='math-num'>19</span> <span class='math-symbol'>+</span> <span class='math-num'>65</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Nineteen plus sixty-five?", do: "Wait.", praise: "Eighty-four!", correct: "84." },
+    { display: "<span class='math-num'>100</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>43</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "One hundred minus forty-three?", do: "Wait.", praise: "Fifty-seven!", correct: "57." },
+  ] },
+  { id: 144, title: "Lesson 144", target: "2-digit review", phase: 7, steps: [
+    { display: "<span class='math-num'>48</span> <span class='math-symbol'>+</span> <span class='math-num'>36</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-eight plus thirty-six?", do: "Wait.", praise: "Eighty-four!", correct: "84." },
+    { display: "<span class='math-num'>84</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>36</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-four minus thirty-six?", do: "Wait.", praise: "Forty-eight!", correct: "48." },
+    { display: "<span class='math-num'>75</span> <span class='math-symbol'>+</span> <span class='math-num'>18</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Seventy-five plus eighteen?", do: "Wait.", praise: "Ninety-three!", correct: "93." },
+    { display: "<span class='math-num'>93</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>75</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Ninety-three minus seventy-five?", do: "Wait.", praise: "Eighteen!", correct: "18." },
+  ] },
+
+  // Lessons 145-148: Word problems
+  { id: 145, title: "Lesson 145", target: "word problems (+)", phase: 7, steps: [
+    { display: "Sam has 12 apples. He picks 9 more. How many now?", visual: "none", action: "show", say: "Sam has 12 apples and picks 9 more. What operation? Addition! 12 + 9 = ?", do: "Wait.", praise: "Twenty-one apples!", correct: "12 + 9 = 21.", answer: 21 },
+    { display: "There are 35 birds in a tree. 24 more land. How many total?", visual: "none", action: "show", say: "35 birds plus 24 more. What's the total?", do: "Wait.", praise: "Fifty-nine birds!", correct: "35 + 24 = 59.", answer: 59 },
+    { display: "Maria has 47 stickers. Her friend gives her 38 more.", visual: "none", action: "show", say: "47 plus 38?", do: "Wait.", praise: "Eighty-five stickers!", correct: "47 + 38 = 85.", answer: 85 },
+  ] },
+  { id: 146, title: "Lesson 146", target: "word problems (\u2212)", phase: 7, steps: [
+    { display: "Tom has 15 marbles. He gives away 8. How many left?", visual: "none", action: "show", say: "Tom starts with 15 and gives away 8. Subtraction! 15 \u2212 8 = ?", do: "Wait.", praise: "Seven marbles left!", correct: "15 \u2212 8 = 7.", answer: 7 },
+    { display: "A jar has 53 cookies. 27 are eaten. How many remain?", visual: "none", action: "show", say: "53 minus 27?", do: "Wait.", praise: "Twenty-six cookies!", correct: "53 \u2212 27 = 26.", answer: 26 },
+    { display: "There are 80 pages in a book. Kim has read 45. How many left?", visual: "none", action: "show", say: "80 minus 45?", do: "Wait.", praise: "Thirty-five pages!", correct: "80 \u2212 45 = 35.", answer: 35 },
+  ] },
+  { id: 147, title: "Lesson 147", target: "word problems (mixed)", phase: 7, steps: [
+    { display: "A box has 28 red balls and 35 blue balls. How many total?", visual: "none", action: "show", say: "Add or subtract? 28 + 35 = ?", do: "Wait.", praise: "Sixty-three balls!", correct: "28 + 35 = 63.", answer: 63 },
+    { display: "There are 72 students. 38 go home. How many are still here?", visual: "none", action: "show", say: "Subtract! 72 \u2212 38 = ?", do: "Wait.", praise: "Thirty-four students!", correct: "72 \u2212 38 = 34.", answer: 34 },
+    { display: "Leo has 46 cards. He gets 29 more. Then he gives away 15. How many now?", visual: "none", action: "show", say: "Two steps! 46 + 29 = 75. Then 75 \u2212 15 = ?", do: "Wait.", praise: "Sixty! Two-step problem!", correct: "46 + 29 = 75, 75 \u2212 15 = 60.", answer: 60 },
+  ] },
+  { id: 148, title: "Lesson 148", target: "word problems drill", phase: 7, steps: [
+    { display: "A farmer has 54 chickens and 38 ducks. How many more chickens than ducks?", visual: "none", action: "show", say: "'How many more' means subtract. 54 \u2212 38 = ?", do: "Wait.", praise: "Sixteen more chickens!", correct: "54 \u2212 38 = 16.", answer: 16 },
+    { display: "Emma saves 25 dollars each month for 3 months. She also gets 18 dollars as a gift. How much total?", visual: "none", action: "show", say: "25 + 25 + 25 = 75, plus 18 = ?", do: "Wait.", praise: "Ninety-three dollars!", correct: "75 + 18 = 93.", answer: 93 },
+    { display: "A class needs 100 cans for a food drive. They have collected 67. How many more do they need?", visual: "none", action: "show", say: "100 \u2212 67 = ?", do: "Wait.", praise: "Thirty-three more cans!", correct: "100 \u2212 67 = 33.", answer: 33 },
+  ] },
+
+  // Lessons 149-150: Mastery review
+  { id: 149, title: "Lesson 149", target: "mastery review", phase: 7, steps: [
+    { display: "<span class='math-num'>47</span> <span class='math-symbol'>+</span> <span class='math-num'>36</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Forty-seven plus thirty-six?", do: "Wait.", praise: "Eighty-three!", correct: "83." },
+    { display: "<span class='math-num'>91</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>58</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Ninety-one minus fifty-eight?", do: "Wait.", praise: "Thirty-three!", correct: "33." },
+    { display: "<span class='math-num'>8</span> <span class='math-symbol'>+</span> <span class='math-num'>7</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Quick fact: eight plus seven?", do: "Wait.", praise: "Fifteen!", correct: "15." },
+    { display: "A store has 83 toys. They sell 47. How many are left?", visual: "none", action: "show", say: "83 minus 47?", do: "Wait.", praise: "Thirty-six!", correct: "36.", answer: 36 },
+    { display: "<span class='math-num'>65</span> <span class='math-symbol'>+</span> <span class='math-num'>28</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Sixty-five plus twenty-eight?", do: "Wait.", praise: "Ninety-three!", correct: "93." },
+  ] },
+  { id: 150, title: "Lesson 150", target: "Graduation!", phase: 7, steps: [
+    { display: "<span class='math-num'>56</span> <span class='math-symbol'>+</span> <span class='math-num'>37</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Last lesson! Fifty-six plus thirty-seven?", do: "Wait.", praise: "Ninety-three!", correct: "93." },
+    { display: "<span class='math-num'>82</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>49</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Eighty-two minus forty-nine?", do: "Wait.", praise: "Thirty-three!", correct: "33." },
+    { display: "<span class='math-num'>100</span> <span class='math-symbol'>\u2212</span> <span class='math-num'>57</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "One hundred minus fifty-seven?", do: "Wait.", praise: "Forty-three!", correct: "43." },
+    { display: "A garden has 38 red flowers and 45 yellow flowers. How many flowers in all?", visual: "none", action: "show", say: "Last problem! 38 + 45 = ?", do: "Wait.", praise: "Eighty-three flowers!", correct: "38 + 45 = 83.", answer: 83 },
+    { display: "Congratulations!", visual: "none", action: "show", say: "You did it! You have completed all 150 lessons. You can count to 100, add and subtract two-digit numbers, and solve word problems. You are a math star!", do: "Celebrate!", praise: "Math Direct complete! You are amazing!", correct: "Congratulations on finishing the program!" },
+  ] },
 ];
 
 function generateStubLessons(start, end, phase, groups) {
