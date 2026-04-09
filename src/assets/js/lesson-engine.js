@@ -127,6 +127,63 @@
     });
   }
 
+  // ─── Dot groups: side-by-side blocks for equations/comparisons ───
+  function renderDotGroups(groups, symbols) {
+    if (!groups || !groups.length || visualHidden) { visualContainer.innerHTML = ""; return; }
+    var html = '<div class="math-dot-groups">';
+    for (var g = 0; g < groups.length; g++) {
+      if (g > 0 && symbols && symbols[g - 1]) {
+        html += '<span class="math-dot-groups__symbol">' + symbols[g - 1] + '</span>';
+      }
+      html += buildDotGroup(groups[g]);
+    }
+    html += '</div>';
+    visualContainer.innerHTML = html;
+  }
+
+  function buildDotGroup(count) {
+    var html = '<div class="math-dot-group">';
+    var placed = 0;
+    var tens = Math.floor(count / 10);
+    var remainder = count % 10;
+    for (var t = 0; t < tens; t++) {
+      html += '<div class="math-dot-group__row">';
+      for (var i = 0; i < 5; i++) { html += '<span class="math-dot"></span>'; placed++; }
+      html += '</div><div class="math-dot-group__row">';
+      for (var i = 0; i < 5; i++) { html += '<span class="math-dot"></span>'; placed++; }
+      html += '</div>';
+      if (remainder > 0 || t < tens - 1) html += '<div class="math-dot-group__separator"></div>';
+    }
+    while (placed < count) {
+      var rowSize = Math.min(5, count - placed);
+      html += '<div class="math-dot-group__row">';
+      for (var i = 0; i < rowSize; i++) { html += '<span class="math-dot"></span>'; placed++; }
+      html += '</div>';
+    }
+    html += '<div class="math-dot-group__label">' + count + '</div>';
+    html += '</div>';
+    return html;
+  }
+
+  // ─── Number line renderer ───
+  function renderNumberLine(start, end, highlight) {
+    if (visualHidden) { visualContainer.innerHTML = ""; return; }
+    var count = end - start + 1;
+    var html = '<div class="math-numberline"><div class="math-numberline__track">';
+    for (var i = start; i <= end; i++) {
+      var pct = ((i - start) / (end - start)) * 100;
+      var isHL = highlight !== undefined && highlight === i;
+      html += '<div class="math-numberline__tick" style="left:' + pct + '%"></div>';
+      html += '<div class="math-numberline__label' + (isHL ? ' math-numberline__label--active' : '') + '" style="left:' + pct + '%">' + i + '</div>';
+    }
+    if (highlight !== undefined) {
+      var hlPct = ((highlight - start) / (end - start)) * 100;
+      html += '<div class="math-numberline__hop" style="left:' + hlPct + '%"></div>';
+    }
+    html += '</div></div>';
+    visualContainer.innerHTML = html;
+  }
+
   function renderVisual(step) {
     if (!visualContainer) return;
     if (visualHidden || !step.visual || step.visual === "none") {
@@ -134,13 +191,23 @@
       if (visualRemote) visualRemote.style.display = "none";
       return;
     }
-    // Only show play controls for visuals that have animations (dots, tally)
+    // Always show remote (for dots toggle); hide play/reset/speed/eye when no animation
+    if (visualRemote) visualRemote.style.display = "";
     var hasAnimation = step.visual === "dots" || step.visual === "tally";
-    if (visualRemote) visualRemote.style.display = hasAnimation ? "" : "none";
+    var playBtn = document.getElementById("btn-play-pause");
+    var resetBtn = document.getElementById("btn-reset");
+    var speedSlider = document.getElementById("speed-slider");
+    var toggleVisBtn = document.getElementById("btn-toggle-visual");
+    [playBtn, resetBtn, speedSlider, toggleVisBtn].forEach(function (el) {
+      if (el) el.style.display = hasAnimation ? "" : "none";
+    });
 
     switch (step.visual) {
       case "dots":
         renderDots(step.dotCount || 0, false);
+        break;
+      case "dot-groups":
+        renderDotGroups(step.dotGroups, step.groupSymbols);
         break;
       case "tally":
         renderTally(step.dotCount || step.tallyCount || 0);
@@ -149,10 +216,12 @@
         renderCompare(step);
         break;
       case "equation":
-        visualContainer.innerHTML = "";
+        // If dotGroups provided, show them; otherwise empty
+        if (step.dotGroups) renderDotGroups(step.dotGroups, step.groupSymbols);
+        else visualContainer.innerHTML = "";
         break;
       case "numberline":
-        visualContainer.innerHTML = '<div class="math-numberline"><div class="math-numberline__track"></div></div>';
+        renderNumberLine(step.nlStart || 0, step.nlEnd || 10, step.nlHighlight);
         break;
       case "placevalue":
         visualContainer.innerHTML = "";
@@ -162,12 +231,98 @@
     }
   }
 
+  // ─── Auto-dots: inject dot patterns beneath .math-num elements ───
+  var showAutoDots = true;
+  try { var stored = localStorage.getItem("math-direct-show-dots"); if (stored !== null) showAutoDots = stored === "true"; } catch (e) {}
+
+  function injectAutoDots() {
+    if (!childText) return;
+    childText.setAttribute("data-show-dots", showAutoDots ? "true" : "false");
+    var nums = childText.querySelectorAll(".math-num");
+    nums.forEach(function (el) {
+      if (el.parentNode.classList && el.parentNode.classList.contains("math-num-with-dots")) return;
+      var val = parseInt(el.textContent, 10);
+      if (isNaN(val) || val < 0 || val > 20) return;
+      var wrapper = document.createElement("span");
+      wrapper.className = "math-num-with-dots";
+      el.parentNode.insertBefore(wrapper, el);
+      wrapper.appendChild(el);
+      if (val > 0) {
+        var dotsDiv = document.createElement("span");
+        dotsDiv.className = "math-num-autodots";
+        var placed = 0;
+        while (placed < val) {
+          var rowSize = Math.min(5, val - placed);
+          var row = document.createElement("span");
+          row.className = "math-num-autodots__row";
+          for (var i = 0; i < rowSize; i++) {
+            var dot = document.createElement("span");
+            dot.className = "math-dot";
+            row.appendChild(dot);
+            placed++;
+          }
+          dotsDiv.appendChild(row);
+        }
+        wrapper.appendChild(dotsDiv);
+      }
+    });
+  }
+
+  function toggleAutoDots() {
+    showAutoDots = !showAutoDots;
+    try { localStorage.setItem("math-direct-show-dots", showAutoDots ? "true" : "false"); } catch (e) {}
+    var btn = document.getElementById("btn-toggle-dots");
+    if (btn) btn.classList.toggle("is-active", showAutoDots);
+    if (childText) childText.setAttribute("data-show-dots", showAutoDots ? "true" : "false");
+  }
+
+  // ─── Clickable ? to reveal answer ───
+  function injectRevealButtons(step) {
+    if (!childText) return;
+    var qMarks = childText.querySelectorAll(".math-symbol-question");
+    if (!qMarks.length) return;
+    var answer = step.answer;
+    // If no explicit answer, try to compute from display text
+    if (answer === undefined) {
+      // Try to parse "X + Y = ?" or "X − Y = ?" or "N = X + ?"
+      var text = (step.display || "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
+      var m;
+      // Pattern: a + b = ?
+      m = text.match(/(\d+)\s*\+\s*(\d+)\s*=\s*\?/);
+      if (m) { answer = parseInt(m[1], 10) + parseInt(m[2], 10); }
+      // Pattern: a − b = ?
+      if (answer === undefined) {
+        m = text.match(/(\d+)\s*[−\-]\s*(\d+)\s*=\s*\?/);
+        if (m) { answer = parseInt(m[1], 10) - parseInt(m[2], 10); }
+      }
+    }
+    if (answer === undefined) return;
+    qMarks.forEach(function (el) {
+      el.setAttribute("role", "button");
+      el.setAttribute("tabindex", "0");
+      el.title = "Tap to reveal answer";
+      function reveal() {
+        if (el.classList.contains("is-revealed")) return;
+        el.textContent = answer;
+        el.classList.add("is-revealed");
+        // Show praise
+        praiseBox.classList.add("is-visible");
+      }
+      el.addEventListener("click", reveal);
+      el.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); reveal(); }
+      });
+    });
+  }
+
   function showStep(index) {
     if (index < 0 || index >= steps.length) return;
     currentStep = index;
     var step = steps[currentStep];
 
     childText.innerHTML = step.display;
+    injectAutoDots();
+    injectRevealButtons(step);
     renderVisual(step);
 
     stepNumber.textContent = "Step " + (currentStep + 1);
@@ -243,6 +398,7 @@
   window.playPause = playPause;
   window.resetVisual = resetVisual;
   window.toggleVisual = toggleVisual;
+  window.toggleAutoDots = toggleAutoDots;
   window.nextStep = goNext;
   window.prevStep = goPrev;
   window.completeLesson = completeLesson;
@@ -265,6 +421,10 @@
   });
 
   document.addEventListener("DOMContentLoaded", function () {
+    // Init dot toggle button state
+    var dotBtn = document.getElementById("btn-toggle-dots");
+    if (dotBtn) dotBtn.classList.toggle("is-active", showAutoDots);
+
     showStep(0);
 
     // Auto-hide header on lesson pages

@@ -337,7 +337,7 @@ export default [
       { display: "<span class='math-num'>5</span>", visual: "dots", dotCount: 5, action: "count", say: "New number! This is five. Count: one, two, three, four, five.", do: "Point to each dot.", praise: "Five!", correct: "One, two, three, four, five. This is five." },
       { display: "<span class='math-num'>5</span>", visual: "dots", dotCount: 5, action: "show", say: "Your turn. How many?", do: "Wait.", praise: "Five — you got it!", correct: "Five." },
       { display: "<span class='math-num'>5</span> <span class='math-symbol'>=</span> <span class='math-dots'>\u2022\u2022\u2022 \u2022\u2022</span>", visual: "equation", action: "show", say: "Five equals five dots.", do: "Point from number to dots.", praise: "Five equals five!", correct: "Five equals five dots." },
-      { display: "<span class='math-num'>0</span> <span class='math-num'>1</span> <span class='math-num'>2</span> <span class='math-num'>3</span> <span class='math-num'>4</span> <span class='math-num'>5</span>", visual: "none", action: "show", say: "Count from zero to five.", do: "Point in order.", praise: "Zero through five — excellent!", correct: "Zero, one, two, three, four, five." },
+      { display: "Count: 0 to 5", visual: "numberline", nlStart: 0, nlEnd: 5, action: "show", say: "Count from zero to five.", do: "Point to each number on the number line.", praise: "Zero through five — excellent!", correct: "Zero, one, two, three, four, five." },
     ],
   },
 
@@ -368,7 +368,7 @@ export default [
       { display: "<span class='math-num'>6</span>", visual: "dots", dotCount: 6, action: "count", say: "New number! This is six. Count: one, two, three, four, five, six.", do: "Point to each dot.", praise: "Six!", correct: "One, two, three, four, five, six. Six." },
       { display: "<span class='math-num'>6</span>", visual: "dots", dotCount: 6, action: "show", say: "How many dots?", do: "Wait.", praise: "Six!", correct: "Six dots. Six." },
       { display: "<span class='math-num'>6</span> <span class='math-symbol'>=</span> <span class='math-dots'>\u2022\u2022\u2022 \u2022\u2022\u2022</span>", visual: "equation", action: "show", say: "Six equals six dots.", do: "Point.", praise: "Six equals six!", correct: "Six equals six dots." },
-      { display: "<span class='math-num'>0</span> <span class='math-num'>1</span> <span class='math-num'>2</span> <span class='math-num'>3</span> <span class='math-num'>4</span> <span class='math-num'>5</span> <span class='math-num'>6</span>", visual: "none", action: "show", say: "Count from zero to six.", do: "Point in order.", praise: "Perfect counting!", correct: "Zero, one, two, three, four, five, six." },
+      { display: "Count: 0 to 6", visual: "numberline", nlStart: 0, nlEnd: 6, action: "show", say: "Count from zero to six.", do: "Point to each number on the number line.", praise: "Perfect counting!", correct: "Zero, one, two, three, four, five, six." },
     ],
   },
 
@@ -398,7 +398,7 @@ export default [
       { display: "<span class='math-num'>5</span> &nbsp; <span class='math-num'>6</span>", visual: "none", action: "show", say: "Review: what numbers?", do: "Point.", praise: "Five and six!", correct: "Five, six." },
       { display: "<span class='math-num'>7</span>", visual: "dots", dotCount: 7, action: "count", say: "New number! This is seven. Count: one, two, three, four, five, six, seven.", do: "Point to each dot.", praise: "Seven!", correct: "Count with me: one through seven. Seven." },
       { display: "<span class='math-num'>7</span>", visual: "dots", dotCount: 7, action: "show", say: "How many dots?", do: "Wait.", praise: "Seven!", correct: "Seven." },
-      { display: "<span class='math-num'>0</span> <span class='math-num'>1</span> <span class='math-num'>2</span> <span class='math-num'>3</span> <span class='math-num'>4</span> <span class='math-num'>5</span> <span class='math-num'>6</span> <span class='math-num'>7</span>", visual: "none", action: "show", say: "Count zero to seven.", do: "Point in order.", praise: "Zero through seven!", correct: "Zero, one, two, three, four, five, six, seven." },
+      { display: "Count: 0 to 7", visual: "numberline", nlStart: 0, nlEnd: 7, action: "show", say: "Count zero to seven.", do: "Point to each number on the number line.", praise: "Zero through seven!", correct: "Zero, one, two, three, four, five, six, seven." },
     ],
   },
 
@@ -456,7 +456,7 @@ export default [
       { display: "<span class='math-num'>7</span> &nbsp; <span class='math-num'>8</span>", visual: "none", action: "show", say: "Review: what numbers?", do: "Point.", praise: "Seven and eight!", correct: "Seven, eight." },
       { display: "<span class='math-num'>9</span>", visual: "dots", dotCount: 9, action: "count", say: "New number! This is nine. Count: one, two, three, four, five, six, seven, eight, nine.", do: "Point to each dot.", praise: "Nine!", correct: "Count with me. Nine." },
       { display: "<span class='math-num'>9</span>", visual: "dots", dotCount: 9, action: "show", say: "How many?", do: "Wait.", praise: "Nine!", correct: "Nine." },
-      { display: "<span class='math-num'>0</span> <span class='math-num'>1</span> <span class='math-num'>2</span> <span class='math-num'>3</span> <span class='math-num'>4</span> <span class='math-num'>5</span> <span class='math-num'>6</span> <span class='math-num'>7</span> <span class='math-num'>8</span> <span class='math-num'>9</span>", visual: "none", action: "show", say: "Count zero to nine.", do: "Point.", praise: "All the way to nine!", correct: "Zero through nine." },
+      { display: "Count: 0 to 9", visual: "numberline", nlStart: 0, nlEnd: 9, action: "show", say: "Count zero to nine.", do: "Point to each number on the number line.", praise: "All the way to nine!", correct: "Zero through nine." },
     ],
   },
 
@@ -486,7 +486,7 @@ export default [
       { display: "<span class='math-num'>8</span> &nbsp; <span class='math-num'>9</span>", visual: "none", action: "show", say: "Review: what numbers?", do: "Point.", praise: "Eight and nine!", correct: "Eight, nine." },
       { display: "<span class='math-num'>10</span>", visual: "dots", dotCount: 10, action: "count", say: "New number! This is ten. It's special — it uses two digits: a 1 and a 0. Count the dots: one, two, three, four, five, six, seven, eight, nine, ten.", do: "Point to each dot.", praise: "Ten! The big one-zero!", correct: "Count with me. Ten." },
       { display: "<span class='math-num'>10</span>", visual: "dots", dotCount: 10, action: "show", say: "How many dots?", do: "Wait.", praise: "Ten!", correct: "Ten." },
-      { display: "<span class='math-num'>0</span> <span class='math-num'>1</span> <span class='math-num'>2</span> <span class='math-num'>3</span> <span class='math-num'>4</span> <span class='math-num'>5</span> <span class='math-num'>6</span> <span class='math-num'>7</span> <span class='math-num'>8</span> <span class='math-num'>9</span> <span class='math-num'>10</span>", visual: "none", action: "show", say: "Count from zero all the way to ten!", do: "Point to each.", praise: "Zero to ten — amazing!", correct: "Zero, one, two, three, four, five, six, seven, eight, nine, ten." },
+      { display: "Count: 0 to 10", visual: "numberline", nlStart: 0, nlEnd: 10, action: "show", say: "Count from zero all the way to ten!", do: "Point to each number on the number line.", praise: "Zero to ten — amazing!", correct: "Zero, one, two, three, four, five, six, seven, eight, nine, ten." },
     ],
   },
 
@@ -526,12 +526,12 @@ export default [
     target: "Phase 1 Review",
     phase: 1,
     steps: [
-      { display: "<span class='math-num'>0</span> <span class='math-num'>1</span> <span class='math-num'>2</span> <span class='math-num'>3</span> <span class='math-num'>4</span> <span class='math-num'>5</span> <span class='math-num'>6</span> <span class='math-num'>7</span> <span class='math-num'>8</span> <span class='math-num'>9</span> <span class='math-num'>10</span>", visual: "none", action: "show", say: "Count from zero to ten!", do: "Point to each.", praise: "Zero to ten — you know them all!", correct: "Zero through ten." },
+      { display: "Count: 0 to 10", visual: "numberline", nlStart: 0, nlEnd: 10, action: "show", say: "Count from zero to ten!", do: "Point to each number on the number line.", praise: "Zero to ten — you know them all!", correct: "Zero through ten." },
       { display: "<span class='math-num'>8</span>", visual: "dots", dotCount: 8, action: "show", say: "What number?", do: "Wait.", praise: "Eight!", correct: "Eight." },
       { display: "<span class='math-num'>3</span>", visual: "dots", dotCount: 3, action: "show", say: "What number?", do: "Wait.", praise: "Three!", correct: "Three." },
       { display: "<span class='math-num'>6</span> <span class='math-symbol'>=</span> <span class='math-dots'>\u2022\u2022\u2022 \u2022\u2022\u2022</span>", visual: "equation", action: "show", say: "Read this.", do: "Wait.", praise: "Six equals six dots!", correct: "Six equals six dots." },
       { display: "<span class='math-num'>4</span> &nbsp; <span class='math-symbol-question'>?</span> &nbsp; <span class='math-num'>9</span>", visual: "compare", compareAnswer: "<", action: "show", say: "Tap the right symbol.", do: "Let the child tap.", praise: "4 < 9! Less than!", correct: "Four is less than nine." },
-      { display: "<span class='math-num'>10</span> <span class='math-num'>9</span> <span class='math-num'>8</span> <span class='math-num'>7</span> <span class='math-num'>6</span> <span class='math-num'>5</span> <span class='math-num'>4</span> <span class='math-num'>3</span> <span class='math-num'>2</span> <span class='math-num'>1</span> <span class='math-num'>0</span>", visual: "none", action: "show", say: "Now count backward from ten to zero!", do: "Point to each.", praise: "Ten, nine, eight, seven, six, five, four, three, two, one, zero! Phase 1 complete!", correct: "Ten, nine, eight, seven, six, five, four, three, two, one, zero." },
+      { display: "Count back: 10 to 0", visual: "numberline", nlStart: 0, nlEnd: 10, nlHighlight: 10, action: "show", say: "Now count backward from ten to zero!", do: "Point to each number on the number line, right to left.", praise: "Ten, nine, eight, seven, six, five, four, three, two, one, zero! Phase 1 complete!", correct: "Ten, nine, eight, seven, six, five, four, three, two, one, zero." },
     ],
   },
 
@@ -551,7 +551,7 @@ export default [
       { display: "<span class='math-num'>11</span>", visual: "dots", dotCount: 11, action: "count", say: "New number! This is eleven. Eleven is ten and one more. Count: one, two, three... all the way to eleven.", do: "Point to each dot as you count.", praise: "Eleven! Ten and one more!", correct: "Let's count together. One through eleven. This is eleven." },
       { display: "<span class='math-num'>11</span>", visual: "dots", dotCount: 11, action: "show", say: "Your turn. What number? How many dots?", do: "Wait for the child.", praise: "Eleven!", correct: "This is eleven. Eleven dots." },
       { display: "<span class='math-num'>10</span> &nbsp; <span class='math-num'>11</span>", visual: "none", action: "show", say: "Ten, eleven. What comes after ten?", do: "Point to each number.", praise: "Eleven comes after ten!", correct: "After ten comes eleven. Ten, eleven." },
-      { display: "<span class='math-num'>11</span> <span class='math-symbol'>=</span> <span class='math-num'>10</span> + <span class='math-num'>1</span>", visual: "equation", action: "show", say: "Eleven equals ten plus one. Eleven is ten and one more.", do: "Point to each part of the equation.", praise: "Eleven is ten plus one!", correct: "Eleven equals ten plus one." },
+      { display: "<span class='math-num'>11</span> <span class='math-symbol'>=</span> <span class='math-num'>10</span> + <span class='math-num'>1</span>", visual: "equation", dotGroups: [10, 1], groupSymbols: ["+"], action: "show", say: "Eleven equals ten plus one. Eleven is ten and one more. Look at the dots — a full ten, plus one more.", do: "Point to each part of the equation, then the dot groups.", praise: "Eleven is ten plus one!", correct: "Eleven equals ten plus one." },
     ],
   },
 
@@ -581,7 +581,7 @@ export default [
       { display: "<span class='math-num'>13</span>", visual: "dots", dotCount: 13, action: "count", say: "New number! This is thirteen. Thirteen is ten and three. The name 'thirteen' has 'three' in it — thir-teen.", do: "Point to each dot.", praise: "Thirteen! Ten and three!", correct: "Thirteen. Count with me." },
       { display: "<span class='math-num'>13</span>", visual: "dots", dotCount: 13, action: "show", say: "What number? How many dots?", do: "Wait.", praise: "Thirteen!", correct: "Thirteen." },
       { display: "<span class='math-num'>13</span> <span class='math-symbol'>=</span> <span class='math-num'>10</span> + <span class='math-num'>3</span>", visual: "equation", action: "show", say: "Thirteen equals ten plus three.", do: "Point.", praise: "Ten plus three is thirteen!", correct: "Thirteen equals ten plus three." },
-      { display: "<span class='math-num'>10</span> <span class='math-num'>11</span> <span class='math-num'>12</span> <span class='math-num'>13</span>", visual: "none", action: "show", say: "Count from ten to thirteen.", do: "Point.", praise: "Ten through thirteen!", correct: "Ten, eleven, twelve, thirteen." },
+      { display: "Count: 10 to 13", visual: "numberline", nlStart: 10, nlEnd: 13, action: "show", say: "Count from ten to thirteen.", do: "Point to each number on the number line.", praise: "Ten through thirteen!", correct: "Ten, eleven, twelve, thirteen." },
     ],
   },
 
@@ -612,7 +612,7 @@ export default [
       { display: "<span class='math-num'>11</span>", visual: "dots", dotCount: 11, action: "show", say: "Quick review. What number?", do: "Wait.", praise: "Eleven!", correct: "Eleven." },
       { display: "<span class='math-num'>13</span>", visual: "dots", dotCount: 13, action: "show", say: "What number?", do: "Wait.", praise: "Thirteen!", correct: "Thirteen." },
       { display: "<span class='math-num'>14</span>", visual: "dots", dotCount: 14, action: "show", say: "What number?", do: "Wait.", praise: "Fourteen!", correct: "Fourteen." },
-      { display: "<span class='math-num'>10</span> <span class='math-num'>11</span> <span class='math-num'>12</span> <span class='math-num'>13</span> <span class='math-num'>14</span> <span class='math-num'>15</span>", visual: "none", action: "show", say: "Count from ten to fifteen.", do: "Point in order.", praise: "Ten through fifteen — great!", correct: "Ten, eleven, twelve, thirteen, fourteen, fifteen." },
+      { display: "Count: 10 to 15", visual: "numberline", nlStart: 10, nlEnd: 15, action: "show", say: "Count from ten to fifteen.", do: "Point to each number on the number line.", praise: "Ten through fifteen — great!", correct: "Ten, eleven, twelve, thirteen, fourteen, fifteen." },
     ],
   },
 
@@ -684,7 +684,7 @@ export default [
       { display: "<span class='math-num'>20</span> <span class='math-symbol'>=</span> <span class='math-num'>10</span> + <span class='math-num'>10</span>", visual: "equation", action: "show", say: "Twenty equals ten plus ten. Two groups of ten.", do: "Point.", praise: "Ten plus ten is twenty!", correct: "Twenty equals ten plus ten." },
       { display: "<span class='math-num'>16</span>", visual: "dots", dotCount: 16, action: "show", say: "Quick review. What number?", do: "Wait.", praise: "Sixteen!", correct: "Sixteen." },
       { display: "<span class='math-num'>18</span>", visual: "dots", dotCount: 18, action: "show", say: "What number?", do: "Wait.", praise: "Eighteen!", correct: "Eighteen." },
-      { display: "<span class='math-num'>0</span> <span class='math-num'>1</span> <span class='math-num'>2</span> <span class='math-num'>3</span> <span class='math-num'>4</span> <span class='math-num'>5</span> <span class='math-num'>6</span> <span class='math-num'>7</span> <span class='math-num'>8</span> <span class='math-num'>9</span> <span class='math-num'>10</span> <span class='math-num'>11</span> <span class='math-num'>12</span> <span class='math-num'>13</span> <span class='math-num'>14</span> <span class='math-num'>15</span> <span class='math-num'>16</span> <span class='math-num'>17</span> <span class='math-num'>18</span> <span class='math-num'>19</span> <span class='math-num'>20</span>", visual: "none", action: "show", say: "Count from zero all the way to twenty!", do: "Point to each number.", praise: "Zero to twenty — incredible!", correct: "Zero through twenty. You know all these numbers!" },
+      { display: "Count: 0 to 20", visual: "numberline", nlStart: 0, nlEnd: 20, action: "show", say: "Count from zero all the way to twenty!", do: "Point to each number on the number line.", praise: "Zero to twenty — incredible!", correct: "Zero through twenty. You know all these numbers!" },
     ],
   },
 
@@ -773,12 +773,12 @@ export default [
     target: "counting backward",
     phase: 2,
     steps: [
-      { display: "<span class='math-num'>10</span> <span class='math-num'>9</span> <span class='math-num'>8</span> <span class='math-num'>7</span> <span class='math-num'>6</span> <span class='math-num'>5</span> <span class='math-num'>4</span> <span class='math-num'>3</span> <span class='math-num'>2</span> <span class='math-num'>1</span> <span class='math-num'>0</span>", visual: "none", action: "show", say: "Let's count backward from ten. Ten, nine, eight, seven, six, five, four, three, two, one, zero!", do: "Point to each number.", praise: "Backward from ten to zero!", correct: "Ten, nine, eight, seven, six, five, four, three, two, one, zero." },
-      { display: "<span class='math-num'>5</span> <span class='math-num'>4</span> <span class='math-num'>3</span> <span class='math-num'>2</span> <span class='math-num'>1</span> <span class='math-num'>0</span>", visual: "none", action: "show", say: "Your turn. Count backward from five.", do: "Wait.", praise: "Five, four, three, two, one, zero!", correct: "Five, four, three, two, one, zero." },
+      { display: "Count back: 10 to 0", visual: "numberline", nlStart: 0, nlEnd: 10, nlHighlight: 10, action: "show", say: "Let's count backward from ten. Ten, nine, eight, seven, six, five, four, three, two, one, zero!", do: "Point to each number on the number line, right to left.", praise: "Backward from ten to zero!", correct: "Ten, nine, eight, seven, six, five, four, three, two, one, zero." },
+      { display: "Count back: 5 to 0", visual: "numberline", nlStart: 0, nlEnd: 5, nlHighlight: 5, action: "show", say: "Your turn. Count backward from five.", do: "Point right to left on the number line.", praise: "Five, four, three, two, one, zero!", correct: "Five, four, three, two, one, zero." },
       { display: "<span class='math-num'>?</span>", visual: "none", action: "show", say: "I say a number, you say the number that comes before it. Ready? Seven.", do: "Wait.", praise: "Six!", correct: "Before seven is six." },
       { display: "<span class='math-num'>?</span>", visual: "none", action: "show", say: "What comes before four?", do: "Wait.", praise: "Three!", correct: "Before four is three." },
       { display: "<span class='math-num'>?</span>", visual: "none", action: "show", say: "What comes before ten?", do: "Wait.", praise: "Nine!", correct: "Before ten is nine." },
-      { display: "<span class='math-num'>20</span> <span class='math-num'>19</span> <span class='math-num'>18</span> <span class='math-num'>17</span> <span class='math-num'>16</span> <span class='math-num'>15</span> <span class='math-num'>14</span> <span class='math-num'>13</span> <span class='math-num'>12</span> <span class='math-num'>11</span> <span class='math-num'>10</span>", visual: "none", action: "show", say: "Challenge! Count backward from twenty to ten.", do: "Point to each.", praise: "Twenty down to ten!", correct: "Twenty, nineteen, eighteen, seventeen, sixteen, fifteen, fourteen, thirteen, twelve, eleven, ten." },
+      { display: "Count back: 20 to 10", visual: "numberline", nlStart: 10, nlEnd: 20, nlHighlight: 20, action: "show", say: "Challenge! Count backward from twenty to ten.", do: "Point to each number on the number line, right to left.", praise: "Twenty down to ten!", correct: "Twenty, nineteen, eighteen, seventeen, sixteen, fifteen, fourteen, thirteen, twelve, eleven, ten." },
     ],
   },
 
@@ -836,12 +836,12 @@ export default [
     target: "Phase 2 Review",
     phase: 2,
     steps: [
-      { display: "<span class='math-num'>0</span> <span class='math-num'>1</span> <span class='math-num'>2</span> <span class='math-num'>3</span> <span class='math-num'>4</span> <span class='math-num'>5</span> <span class='math-num'>6</span> <span class='math-num'>7</span> <span class='math-num'>8</span> <span class='math-num'>9</span> <span class='math-num'>10</span> <span class='math-num'>11</span> <span class='math-num'>12</span> <span class='math-num'>13</span> <span class='math-num'>14</span> <span class='math-num'>15</span> <span class='math-num'>16</span> <span class='math-num'>17</span> <span class='math-num'>18</span> <span class='math-num'>19</span> <span class='math-num'>20</span>", visual: "none", action: "show", say: "Count from zero to twenty!", do: "Point to each.", praise: "Zero to twenty!", correct: "Zero all the way to twenty." },
+      { display: "Count: 0 to 20", visual: "numberline", nlStart: 0, nlEnd: 20, action: "show", say: "Count from zero to twenty!", do: "Point to each number on the number line.", praise: "Zero to twenty!", correct: "Zero all the way to twenty." },
       { display: "<span class='math-num'>15</span>", visual: "none", action: "show", say: "What number? How much is ten plus what?", do: "Wait.", praise: "Fifteen! Ten plus five!", correct: "Fifteen. Ten plus five." },
       { display: "<span class='math-num'>6</span> <span class='math-symbol'>+</span> <span class='math-num'>1</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Six plus one?", do: "Wait.", praise: "Seven!", correct: "Seven." },
       { display: "<span class='math-num'>3</span> <span class='math-symbol'>+</span> <span class='math-num'>2</span> <span class='math-symbol'>=</span> ?", visual: "none", action: "show", say: "Three plus two?", do: "Wait.", praise: "Five!", correct: "Five." },
       { display: "<span class='math-num'>12</span>", visual: "none", action: "show", say: "What is one more than twelve?", do: "Wait.", praise: "Thirteen!", correct: "Thirteen." },
-      { display: "<span class='math-num'>20</span> <span class='math-num'>19</span> <span class='math-num'>18</span> <span class='math-num'>17</span> <span class='math-num'>16</span> <span class='math-num'>15</span> <span class='math-num'>14</span> <span class='math-num'>13</span> <span class='math-num'>12</span> <span class='math-num'>11</span> <span class='math-num'>10</span>", visual: "none", action: "show", say: "Count backward from twenty to ten!", do: "Point.", praise: "Phase 2 complete! You know numbers to twenty and you can add!", correct: "Twenty, nineteen, eighteen... all the way to ten." },
+      { display: "Count back: 20 to 10", visual: "numberline", nlStart: 10, nlEnd: 20, nlHighlight: 20, action: "show", say: "Count backward from twenty to ten!", do: "Point to each number on the number line, right to left.", praise: "Phase 2 complete! You know numbers to twenty and you can add!", correct: "Twenty, nineteen, eighteen... all the way to ten." },
     ],
   },
 
