@@ -270,14 +270,10 @@
 
 /* Question mark placeholder — clickable to reveal answer */
 .math-symbol-question {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.15rem;
-  width: 1.8em;
-  height: 1.4em;
-  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 1.6em;
+  height: 1.3em;
   border: 3px dashed var(--blue-400);
   font-family: var(--font-child);
   font-size: clamp(3rem, 8vw, 6rem);
@@ -296,14 +292,19 @@
   background: var(--stone-700);
 }
 .math-symbol-question.is-revealed {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
   border-style: solid;
   border-color: var(--green-600);
   background: var(--green-50);
   color: var(--green-800);
   cursor: pointer;
   animation: correctPop 0.4s ease;
-  width: 1.8em;
-  height: 1.4em;
+  width: 1.6em;
+  height: 1.3em;
   overflow: visible;
 }
 [data-theme="dark"] .math-symbol-question.is-revealed {
