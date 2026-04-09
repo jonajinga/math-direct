@@ -304,9 +304,7 @@
   // ─── Clickable ? to reveal answer ───
   // Replace bare ? in display HTML before setting innerHTML
   function wrapQuestionMarksInDisplay(html) {
-    // Skip if already has math-symbol-question spans
     if (html.indexOf("math-symbol-question") !== -1) return html;
-    // Replace bare ? with the styled clickable span
     return html.replace(/\?/g, "<span class='math-symbol-question'>?</span>");
   }
 
