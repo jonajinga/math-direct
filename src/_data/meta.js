@@ -8,5 +8,5 @@ export default {
   language: "en",
   locale: "en_US",
   themeColor: "#1e3a5f",
-  ogImage: "/assets/img/og-default.jpg",
+  ogImage: "/assets/img/og-default.svg",
 };

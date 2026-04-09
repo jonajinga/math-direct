@@ -10,7 +10,7 @@ eleventyExcludeFromCollections: true
     <description>{{ meta.description }}</description>
     <language>{{ meta.language }}</language>
     <atom:link href="{{ meta.url }}/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>{{ "" | year }}-01-01T00:00:00Z</lastBuildDate>
+    <lastBuildDate>{{ page.date | htmlDateString }}</lastBuildDate>
     {%- for phase in phases %}
     <item>
       <title>Phase {{ phase.id }}: {{ phase.title | replace("Phase " + phase.id + ": ", "") }}</title>
