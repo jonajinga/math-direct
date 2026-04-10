@@ -15,6 +15,11 @@
       {% endfor %}
     </ul>
   </nav>
+  <div class="hamburger-panel__dashboards">
+    <span class="hamburger-panel__section-label">Dashboards</span>
+    <a href="/teacher/" class="hamburger-panel__link{% if page.url == '/teacher/' %} is-active{% endif %}">Teacher Dashboard</a>
+    <a href="/student/" class="hamburger-panel__link{% if page.url == '/student/' %} is-active{% endif %}">Student Dashboard</a>
+  </div>
   <div class="hamburger-panel__footer">
     <a href="/lessons/" class="btn btn--cta hamburger-panel__cta">Start Learning</a>
   </div>

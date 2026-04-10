@@ -17,6 +17,33 @@
   margin: 0 auto;
 }
 
+/* Dashboard quick links */
+.dashboard-links {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.dashboard-links__item {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--blue-600);
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--blue-200);
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.dashboard-links__item:hover {
+  background: var(--blue-50);
+  border-color: var(--blue-400);
+}
+[data-theme="dark"] .dashboard-links__item {
+  color: var(--blue-400);
+  border-color: var(--blue-800);
+}
+[data-theme="dark"] .dashboard-links__item:hover {
+  background: var(--stone-700);
+}
+
 /* Phase section */
 .phase-section {
   margin-bottom: var(--space-xl);

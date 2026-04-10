@@ -4,8 +4,9 @@ export default {
     { label: "Lessons", url: "/lessons/" },
     { label: "Practice", url: "/practice/" },
     { label: "Flashcards", url: "/flashcards/" },
+    { label: "Teacher", url: "/teacher/" },
+    { label: "Student", url: "/student/" },
     { label: "Guide", url: "/guide/" },
-    { label: "Curriculum", url: "/curriculum/" },
   ],
   footer: {
     quickLinks: [

@@ -8,7 +8,11 @@ bodyClass: page-lessons
 <div class="dashboard">
   <div class="dashboard__inner">
 
-    {# Student Profile Selector #}
+    {# Dashboard links + Profile Selector #}
+    <div class="dashboard-links">
+      <a href="/teacher/" class="dashboard-links__item">Teacher Dashboard</a>
+      <a href="/student/" class="dashboard-links__item">Student Dashboard</a>
+    </div>
     <div id="profile-selector"></div>
 
     {% for phase in phases %}
