@@ -787,3 +787,88 @@
   font-style: italic;
 }
 
+/* ===== Student Picker ===== */
+.sd-picker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  padding: var(--space-md);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  margin-bottom: var(--space-lg);
+}
+
+.sd-picker__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sd-picker__select {
+  flex: 1;
+  min-width: 10rem;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+
+.sd-picker__print {
+  padding: var(--space-xs) var(--space-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  cursor: pointer;
+  transition: var(--transition-colors);
+}
+.sd-picker__print:hover {
+  color: var(--blue-700);
+  border-color: var(--blue-500);
+}
+[data-theme="dark"] .sd-picker__print:hover {
+  color: var(--blue-400);
+  border-color: var(--blue-400);
+}
+
+/* Completed lessons grid */
+.sd-completed {
+  margin-top: var(--space-lg);
+}
+
+.sd-completed__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: var(--space-sm);
+}
+
+.sd-completed__item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--green-700);
+  background: var(--green-50);
+  border: 1px solid var(--green-200);
+}
+.sd-completed__item:hover {
+  background: var(--green-100, var(--green-50));
+  border-color: var(--green-400);
+}
+[data-theme="dark"] .sd-completed__item {
+  color: var(--green-400);
+  background: rgba(20, 83, 45, 0.2);
+  border-color: rgba(20, 83, 45, 0.4);
+}
+
