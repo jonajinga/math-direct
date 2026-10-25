@@ -13,6 +13,20 @@ npm run check      # validate every lesson and print a summary
 
 `npm run check -- --list k` prints one line per Kindergarten lesson. `npm run check -- --show first 52` prints the full script of First Grade lesson 52.
 
+More checks, each run against a built site (`npm run build` first):
+
+```
+npm run check:all      # the curriculum, a clean build, the PWA files, and the copy rules
+npm run check:fit      # every step of a sample of runner pages fits one phone screen at four sizes
+npm run check:session  # a sitting is saved, continued, and cleared
+npm run check:program  # first-try scoring, retests, On your own, the test gate, signals, the timed check
+npm run check:a11y     # axe-core over every screen at two sizes, plus contrast, target, reflow, and spacing probes
+npm run check:keys     # a keyboard walk of the runner and the app shell
+npm run check:browser  # all of the browser checks above
+```
+
+The browser checks need Playwright with Chromium: `npm i -g playwright && npx playwright install chromium`. The manual checks (screen readers, zoom, an installed app offline) are listed in `docs/a11y-checklist.md`.
+
 ## How the curriculum is built
 
 The lessons are not stored as files. They are generated at build time from the code in `curriculum/`, and the build stops if any lesson breaks a rule.

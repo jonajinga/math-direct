@@ -37,6 +37,7 @@ p a:hover, li a:hover, .prose a:hover { text-decoration-thickness: 2px; }
 /* Skip links appear only when focused. */
 .skip-link {
   position: absolute; top: -100%; left: var(--sp-4); z-index: 100;
+  display: inline-flex; align-items: center; min-height: var(--tap);
   padding: var(--sp-2) var(--sp-4);
   background: var(--primary); color: #fff; font-weight: 700; border-radius: var(--r-1);
 }

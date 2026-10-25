@@ -27,7 +27,7 @@ permalink: /curriculum/
         <h3>{{ t.name }}</h3>
         <p class="scope__std">{{ t.standard }}</p>
         <p class="scope__sum">{{ t.summary }}</p>
-        <ul class="scope__units">{% for u in t.units %}<li><a href="/{{ level.slug }}/lesson-{{ u.lesson | pad(3) }}/">{{ u.lesson }}</a> {{ u.label }}</li>{% endfor %}</ul>
+        <ul class="scope__units">{% for u in t.units %}<li><a class="scope__unit" href="/{{ level.slug }}/lesson-{{ u.lesson | pad(3) }}/"><span class="scope__n">{{ u.lesson }}</span><span>{{ u.label }}</span></a></li>{% endfor %}</ul>
       </div>
       {% endfor %}
     </div>

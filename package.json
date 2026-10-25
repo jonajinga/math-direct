@@ -14,7 +14,10 @@
     "check:fit:all": "node scripts/check-fit.mjs --all",
     "check:session": "node scripts/check-session.mjs",
     "check:program": "node scripts/check-program.mjs",
-    "check:all": "npm run check && npm run clean && npm run build && npm run check:pwa && npm run check:copy"
+    "check:a11y": "node scripts/check-a11y.mjs",
+    "check:keys": "node scripts/check-keyboard.mjs",
+    "check:all": "npm run check && npm run clean && npm run build && npm run check:pwa && npm run check:copy",
+    "check:browser": "npm run check:fit && npm run check:session && npm run check:program && npm run check:a11y && npm run check:keys"
   },
   "keywords": [
     "math",
@@ -29,6 +32,7 @@
   "type": "module",
   "devDependencies": {
     "@11ty/eleventy": "^3.1.5",
-    "@sardine/eleventy-plugin-tinyhtml": "^0.2.0"
+    "@sardine/eleventy-plugin-tinyhtml": "^0.2.0",
+    "axe-core": "^4.10.3"
   }
 }

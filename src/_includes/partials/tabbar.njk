@@ -1,4 +1,4 @@
-<nav class="tabbar" id="tabbar" aria-label="Main">
+<nav class="tabbar" id="tabbar" tabindex="-1" aria-label="Main">
   <ul class="tabbar__list">
     {% for t in nav.tabs %}
     {% set active = page.url | tabActive(t, program.levels) %}

@@ -144,7 +144,7 @@
         facts.forEach(function (f) { var ab = f.key.split(op).map(Number); maxA = Math.max(maxA, ab[0]); maxB = Math.max(maxB, ab[1]); });
         var map = {};
         facts.forEach(function (f) { map[f.key] = f; });
-        body += '<div class="fact-region" role="region" aria-label="' + esc(l.name) + " " + (op === "+" ? "addition" : "subtraction") + ' facts"><p class="fact-region__cap">Scroll sideways to see all.</p><div class="fact-grid-wrap"><table class="fact-grid"><caption>' + (op === "+" ? "Addition: row plus column" : "Subtraction: row minus column") + "</caption><tr><th scope=\"col\"><span class=\"sr-only\">Row</span></th>";
+        body += '<div class="fact-region"><p class="fact-region__cap">Scroll sideways to see all.</p><div class="fact-grid-wrap" role="region" tabindex="0" aria-label="' + esc(l.name) + " " + (op === "+" ? "addition" : "subtraction") + ' facts, scrolls sideways"><table class="fact-grid"><caption>' + (op === "+" ? "Addition: row plus column" : "Subtraction: row minus column") + "</caption><tr><th scope=\"col\"><span class=\"sr-only\">Row</span></th>";
         for (var b = 0; b <= maxB; b++) body += '<th scope="col">' + b + "</th>";
         body += "</tr>";
         for (var a = 0; a <= maxA; a++) {

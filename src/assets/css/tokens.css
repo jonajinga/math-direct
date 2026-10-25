@@ -21,12 +21,15 @@
   --primary-soft: #e3eef8;
 
   /* Meanings */
-  --firm: #166534;         /* Firm, finished: 7.1:1 */
+  --firm: #166534;         /* Firm, finished: 7.1:1 on white */
+  --firm-strong: #14532d;  /* text on --firm-soft: 8.3:1 */
   --firm-soft: #dcfce7;
-  --error: #991b1b;        /* Error: 8.3:1 */
+  --error: #991b1b;        /* Error: 8.3:1 on white */
+  --error-strong: #7f1d1d; /* text on --error-soft: 8.1:1 */
   --error-soft: #fee2e2;
   --lead: #5b21b6;         /* the "Together" cue: 9.0:1 */
-  --note: #9a3412;         /* set-up cue, to repeat: 7.3:1 */
+  --note: #9a3412;         /* set-up cue, to repeat: 7.3:1 on white */
+  --note-strong: #7c2d12;  /* text on --note-soft: 8.3:1 */
   --note-soft: #fef3c7;
 
   /* Surfaces */

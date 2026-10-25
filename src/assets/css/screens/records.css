@@ -27,10 +27,10 @@
 .fact-grid caption { text-align: left; font-size: var(--fs-2); font-weight: 700; padding-bottom: var(--sp-1); }
 .fact-grid th { padding: 0.125rem 0.25rem; color: var(--ink-2); font-weight: 700; min-width: 1.5rem; text-align: center; }
 .fact-grid td { width: 1.5rem; height: 1.5rem; border: 1px solid var(--surface); text-align: center; font-weight: 700; font-size: 0.75rem; line-height: 1; }
-.fc-firm, .fk--firm { background: var(--firm-soft); color: var(--firm); }
+.fc-firm, .fk--firm { background: var(--firm-soft); color: var(--firm-strong); }
 .fc-automatic, .fk--automatic { background: var(--firm); color: #fff; letter-spacing: -0.15em; }
 .fc-learning, .fk--learning { background: var(--primary-soft); color: var(--primary-strong); }
-.fc-shaky, .fk--shaky { background: var(--note-soft); color: var(--note); }
+.fc-shaky, .fk--shaky { background: var(--note-soft); color: var(--note-strong); }
 .fc-new, .fk--new { background: var(--surface-2); color: var(--ink-2); }
 .fc-later, .fc-none { background: transparent; }
 .fc-later { border: 1px dashed var(--line-strong) !important; }
@@ -49,7 +49,7 @@
 .recent { display: grid; grid-template-columns: 1fr; gap: 0.125rem; padding: var(--sp-2) 0; border-top: 1px solid var(--line); font-size: var(--fs-2); }
 .recent:first-child { border-top: 0; padding-top: 0; }
 .recent__date { color: var(--ink-2); font-size: var(--fs-1); }
-.recent__name { font-weight: 700; color: var(--primary); text-decoration: underline; text-underline-offset: 0.15em; }
+.recent__name { display: inline-flex; align-items: center; min-height: var(--tap); font-weight: 700; color: var(--primary); text-decoration: underline; text-underline-offset: 0.15em; }
 .recent__nums { color: var(--ink-2); }
 .recent__advice { font-weight: 600; }
 .dash-parts { margin-top: var(--sp-1); }

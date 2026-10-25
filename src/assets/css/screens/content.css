@@ -17,9 +17,9 @@
 .guide-feedback h3 { font-family: var(--font-ui); font-size: var(--fs-3); margin: 0 0 var(--sp-1); }
 .guide-feedback p { font-size: var(--fs-2); margin: 0; }
 .guide-feedback--praise { background: var(--firm-soft); }
-.guide-feedback--praise h3 { color: var(--firm); }
+.guide-feedback--praise h3 { color: var(--firm-strong); }
 .guide-feedback--correct { background: var(--error-soft); }
-.guide-feedback--correct h3 { color: var(--error); }
+.guide-feedback--correct h3 { color: var(--error-strong); }
 
 .guide-tips { list-style: none; margin: 0 0 var(--sp-3); padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
 .guide-tips li { position: relative; padding-left: var(--sp-4); line-height: 1.55; }
@@ -46,8 +46,7 @@
 .scope__track h3 { font-family: var(--font-ui); font-size: var(--fs-3); margin: 0; }
 .scope__std { color: var(--ink-2); font-size: var(--fs-1); margin: 0 0 var(--sp-1); }
 .scope__sum { margin: 0 0 var(--sp-2); font-size: var(--fs-2); color: var(--ink-2); }
-.scope__units { list-style: none; margin: 0; padding: 0; font-size: var(--fs-2); line-height: 1.7; columns: 2 14rem; }
-.scope__units a { display: inline-block; min-width: 2rem; font-weight: 700; }
+.scope__units { list-style: none; margin: 0; padding: 0; font-size: var(--fs-2); line-height: 1.5; }
 
 /* Search */
 .search-form { display: flex; gap: var(--sp-2); margin: 0 0 var(--sp-4); }
@@ -75,3 +74,10 @@
 .signal-list li { display: flex; gap: var(--sp-3); align-items: flex-start; }
 .signal-list svg { flex: 0 0 4rem; width: 4rem; height: 3rem; color: var(--primary); }
 .signal-list div { line-height: 1.5; }
+
+/* Each unit in the scope and sequence is one link: the lesson number, then the label */
+.scope__units { list-style: none; margin: 0; padding: 0; }
+.scope__units li + li { border-top: 1px solid var(--line); }
+.scope__unit { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--tap); padding: var(--sp-1) 0; color: var(--ink); text-decoration: none; font-size: var(--fs-2); }
+.scope__unit:hover .scope__n { background: var(--primary-strong); }
+.scope__n { flex: 0 0 2.5rem; display: inline-flex; align-items: center; justify-content: center; min-height: 1.75rem; border-radius: var(--r-1); background: var(--primary); color: #fff; font-weight: 700; font-size: var(--fs-1); }

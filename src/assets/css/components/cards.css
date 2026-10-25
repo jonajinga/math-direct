@@ -32,8 +32,8 @@
 /* Status marks: a glyph with text, never color alone */
 .status { display: inline-flex; align-items: center; gap: 0.3em; font-size: var(--fs-1); font-weight: 700; padding: 0.1em 0.5em; border-radius: var(--r-full); }
 .status svg { width: 1em; height: 1em; }
-.status--done { background: var(--firm-soft); color: var(--firm); }
-.status--repeat { background: var(--note-soft); color: var(--note); }
+.status--done { background: var(--firm-soft); color: var(--firm-strong); }
+.status--repeat { background: var(--note-soft); color: var(--note-strong); }
 .status--next { background: var(--primary-soft); color: var(--primary-strong); }
 .status--plain { background: var(--surface-2); color: var(--ink-2); }
 
