@@ -27,5 +27,5 @@ bodyClass: page-level page-dashboard
   </div>
 </div>
 <script id="dash-data" type="application/json">{{ program.summary | dump | safe }}</script>
-<script src="/assets/js/progress.js"></script>
-<script src="/assets/js/dashboard.js" defer></script>
+<script src="/assets/js/progress.js?v={{ build.version }}"></script>
+<script src="/assets/js/dashboard.js?v={{ build.version }}" defer></script>

@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
     start.hidden = true;
     shell.hidden = false;
     var s = document.createElement("script");
-    s.src = "/assets/js/lesson-engine.js";
+    s.src = "/assets/js/lesson-engine.js?v={{ build.version }}";
     document.body.appendChild(s);
   }
   var btns = document.querySelectorAll("[data-facts]");
