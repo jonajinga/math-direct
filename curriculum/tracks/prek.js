@@ -1327,6 +1327,7 @@ export default {
   worksheetItems: 3,
   worksheetOptional: true,
   reviewIntervals: [2, 3, 4],
+  tagline: "Counting to 20, reading numbers to 10, seeing small amounts at a glance, shapes, patterns, and the first story problems.",
   description: "Pre-K builds the foundation: counting aloud to 20, counting objects, seeing small amounts at a glance, reading numbers to 10, comparing groups, shapes, position and size words, patterns, sorting, and the first spoken story problems.",
   endsWith: "By the end of Pre-K, the child counts to 20, counts out up to 10 objects, reads the numbers 0 to 10, sees amounts to 5 at a glance, names four shapes, continues simple patterns, and solves spoken story problems within 5 with pictures.",
   materials: ["Ten small objects, such as blocks or buttons", "Crayons or pencils for the optional worksheets"],

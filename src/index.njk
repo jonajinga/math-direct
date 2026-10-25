@@ -57,7 +57,7 @@ bodyClass: page-home
       <a href="{{ level.url }}" class="phase-card">
         <span class="phase-card__badge">{{ level.age }}</span>
         <h3 class="phase-card__title">{{ level.name }}</h3>
-        <p class="phase-card__desc">{{ level.lessons }} lessons of {{ level.minutes }} minutes. {{ level.endsWith | replace("By the end of " + level.name + ", the child ", "The child ") | replace("By the end of the Bridge, the child ", "The child ") | truncate(170) }}</p>
+        <p class="phase-card__desc">{{ level.lessons }} lessons of {{ level.minutes }} minutes. {{ level.tagline }}</p>
       </a>
       {% endfor %}
     </div>

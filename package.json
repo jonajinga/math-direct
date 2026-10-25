@@ -1,11 +1,12 @@
 {
   "name": "math-direct",
   "version": "1.0.0",
-  "description": "Free, open-source math app that teaches children numbers, addition, and subtraction using Direct Instruction methodology.",
+  "description": "Free scripted Direct Instruction math lessons for Pre-K, Kindergarten, and First Grade.",
   "scripts": {
     "start": "npx @11ty/eleventy --serve --port=8080",
     "dev": "npx @11ty/eleventy --serve --port=8080",
     "build": "npx @11ty/eleventy",
+    "check": "node scripts/check-curriculum.js",
     "clean": "npx rimraf _site"
   },
   "keywords": [

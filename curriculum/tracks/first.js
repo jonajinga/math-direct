@@ -1523,6 +1523,7 @@ export default {
   worksheetItems: 5,
   reviewIntervals: [2, 4, 6],
   placementPoints: [1, 40, 80, 115],
+  tagline: "Numbers to 120, tens and ones, facts to 20, story problems of every kind, time, graphs, and halves and fourths.",
   description: "First Grade covers the Common Core first-grade standards: counting, reading, and writing to 120; tens and ones; addition and subtraction facts to 20 learned through strategies; the meaning of the equal sign; story problems of every kind; adding two-digit numbers; length, time, graphs, shapes, halves and fourths; and, as an option, coins.",
   endsWith: "By the end of First Grade, the child counts, reads, and writes to 120, knows the addition and subtraction facts within 10 without counting and can work out any fact within 20, solves every kind of one-step story problem within 20, adds within 100 using tens and ones, tells time to the half hour, and reads simple graphs.",
   materials: ["Paper and a pencil", "Ten straws or craft sticks and a rubber band, for bundling tens (optional)", "About ten paper clips", "A few real coins (optional)"],

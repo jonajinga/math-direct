@@ -56,6 +56,8 @@
 .mat-card .mdv-svg { width: min(100%, calc(var(--vis-h) * var(--ar, 1))); height: auto; }
 .mat-card .mdv-cells { width: min(100%, calc(var(--cell) * var(--cw, 1)), calc(var(--vis-h) * var(--ar, 1))); }
 .mat-card .mdv-num--lg { font-size: 4.5rem; }
+.mat-sheet--one .mat-card { aspect-ratio: auto; --vis-h: 34rem; border: none; }
+.mat-sheet--one .mat-card .mdv-svg { width: min(100%, 40rem); }
 
 @media print {
   @page { margin: 0.5in; }

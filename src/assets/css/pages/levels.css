@@ -137,3 +137,10 @@
   .level-page { padding: 0; }
   body { background: #fff !important; }
 }
+
+/* Style guide visual sample */
+.sg-visuals { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--space-sm); }
+.sg-visual { background: var(--bg-child-view); border: 1px solid var(--border-color); height: 10rem; display: flex; align-items: center; justify-content: center; padding: 0.5rem; --vis-h: 8rem; --cell: 2.5rem; }
+.sg-visual .mdv-svg { width: min(100%, calc(var(--vis-h) * var(--ar, 1))); height: auto; }
+.sg-visual .mdv-cells { width: min(100%, calc(var(--cell) * var(--cw, 1)), calc(var(--vis-h) * var(--ar, 1))); }
+.sg-visual .mdv-eq { font-size: 2.25rem; }

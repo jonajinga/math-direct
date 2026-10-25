@@ -103,6 +103,7 @@ export function buildProgram({ strict = true } = {}) {
       minutes: level.minutes,
       lessons: level.lessons,
       description: level.description,
+      tagline: level.tagline,
       endsWith: level.endsWith,
       materials: level.materials || [],
       optional: !!level.optional,

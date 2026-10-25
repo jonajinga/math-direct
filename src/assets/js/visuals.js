@@ -646,6 +646,15 @@
   };
 
   R.pv = function (v) {
+    if (v.mat) {
+      // An empty tens-and-ones mat to print and lay sticks and counters on.
+      var mb = '<rect x="2" y="2" width="596" height="396" fill="none" stroke="var(--v-ink)" stroke-width="3"/>' +
+        '<line x1="360" y1="2" x2="360" y2="398" stroke="var(--v-ink)" stroke-width="3"/>' +
+        '<line x1="2" y1="56" x2="598" y2="56" stroke="var(--v-ink)" stroke-width="2"/>' +
+        '<text x="181" y="40" text-anchor="middle" font-size="30" font-weight="700" fill="var(--v-ink)">Tens</text>' +
+        '<text x="479" y="40" text-anchor="middle" font-size="30" font-weight="700" fill="var(--v-ink)">Ones</text>';
+      return '<div class="mdv mdv-pv">' + svg(600, 400, mb) + "</div>";
+    }
     var tens = v.tens || 0, ones = v.ones || 0, body = "", x = 10;
     var stickW = 22, gap = 12, cellH = 20;
     for (var t = 0; t < tens; t++) {
@@ -707,6 +716,7 @@
       var r1 = m % 5 === 0 ? 84 : 88;
       body += '<line x1="' + (100 + Math.sin(am) * r1).toFixed(1) + '" y1="' + (100 - Math.cos(am) * r1).toFixed(1) + '" x2="' + (100 + Math.sin(am) * 92).toFixed(1) + '" y2="' + (100 - Math.cos(am) * 92).toFixed(1) + '" stroke="var(--v-ink)" stroke-width="' + (m % 5 === 0 ? 3 : 1) + '"/>';
     }
+    if (v.noHands) return '<div class="mdv mdv-clock mdv--' + (v.size || "lg") + '">' + svg(200, 200, body + '<circle cx="100" cy="100" r="5" fill="var(--v-ink)"/>') + "</div>";
     var hourA = ((v.h % 12) + v.m / 60) / 12 * Math.PI * 2;
     var minA = (v.m / 60) * Math.PI * 2;
     body += '<line x1="100" y1="100" x2="' + (100 + Math.sin(hourA) * 46).toFixed(1) + '" y2="' + (100 - Math.cos(hourA) * 46).toFixed(1) + '" stroke="var(--v-hour)" stroke-width="10" stroke-linecap="round"/>';

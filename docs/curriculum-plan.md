@@ -4,6 +4,8 @@
 
 Prepared October 2026. Everything in Part 1 was checked against the code and the generated lessons in this repository. Part 2 is the plan.
 
+> **Status, October 2026: built.** The plan below has been carried out. The program now has Pre-K (100 lessons), Kindergarten (140), First Grade (150), and the Bridge (20), with 41 mastery tests, a placement test, worksheets, practice, fact review, and the teacher dashboard. The decisions in section 2.6 were made as recommended: printing was restored for worksheets and materials only; progress saved under the old program is kept and shown on the dashboard, with the placement test suggested for finding the new starting lesson; money is included as an optional First Grade track; and the old 150 lessons were retired, with their addresses redirected. Part 1 describes the old program and is kept as a record. See README.md for how the curriculum is built.
+
 ---
 
 ## Summary

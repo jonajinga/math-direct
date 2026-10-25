@@ -23,12 +23,12 @@ bodyClass: page-worksheet
     { title: "Ten-frames 1 to 10", note: "For five and some more, partners of ten, and teen numbers.", cols: 2, cards: Array.from({ length: 10 }, function (_, i) { return { t: "frame", size: 10, n: i + 1 }; }) },
     { title: "Empty ten-frames", note: "Lay counters such as beans or buttons in the boxes.", cols: 2, cards: [0, 0, 0, 0].map(function () { return { t: "frame", size: 10, n: 0 }; }) },
     { title: "Shape cards", note: "For naming shapes. Turn the cards in any direction; the shape keeps its name.", cols: 4, cards: ["circle", "square", "triangle", "rectangle", "hexagon", "trapezoid", "semicircle", "rhombus"].map(function (s) { return { t: "shape", s: s, c: "white" }; }) },
-    { title: "Tens and ones mat", note: "Put bundles of ten on the left and single ones on the right.", cols: 1, cards: [{ t: "pv", tens: 0, ones: 0, chart: true }] },
-    { title: "Clock face", note: "Draw the hands with a pencil, or cut out two paper hands and fasten them with a paper fastener.", cols: 1, cards: [{ t: "clock", h: 12, m: 0 }] },
+    { title: "Tens and ones mat", note: "Put bundles of ten on the left and single ones on the right.", cols: 1, cards: [{ t: "pv", mat: true }] },
+    { title: "Clock face", note: "Draw the hands with a pencil, or cut out two paper hands and fasten them with a paper fastener.", cols: 1, cards: [{ t: "clock", h: 12, m: 0, noHands: true }] },
   ];
   var html = "";
   sets.forEach(function (s) {
-    html += '<section class="mat-sheet"><h2>' + s.title + "</h2><p>" + s.note + '</p><div class="mat-grid" style="--mat-cols:' + s.cols + '">';
+    html += '<section class="mat-sheet' + (s.cols === 1 ? " mat-sheet--one" : "") + '"><h2>' + s.title + "</h2><p>" + s.note + '</p><div class="mat-grid" style="--mat-cols:' + s.cols + '">';
     s.cards.forEach(function (c) { html += '<div class="mat-card">' + MDV.render(c) + "</div>"; });
     html += "</div></section>";
   });

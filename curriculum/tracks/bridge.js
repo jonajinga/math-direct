@@ -259,6 +259,7 @@ export default {
   testEvery: 10,
   reviewIntervals: [2, 2, 3],
   placementPoints: [1],
+  tagline: "Adding and subtracting two-digit numbers in columns, with carrying and trading.",
   description: "An optional unit for a child who finishes First Grade early: adding and subtracting two-digit numbers in columns, carrying and trading tens, and story problems with bigger numbers. This is second-grade work.",
   endsWith: "By the end of the Bridge, the child adds and subtracts two-digit numbers in columns, carrying and trading tens correctly, and solves two-digit story problems.",
   materials: ["Paper and a pencil", "Ten straws or craft sticks, for showing a trade (optional)"],

@@ -49,7 +49,7 @@ excludeFromSitemap: true
         </div>
         <div class="sg-type-sample">
           <span class="sg-type-sample__label">UI / Navigation</span>
-          <span class="sg-type-sample__preview" style="font-family:var(--font-ui);font-size:1.25rem;font-weight:600">Phase 3: Addition</span>
+          <span class="sg-type-sample__preview" style="font-family:var(--font-ui);font-size:1.25rem;font-weight:600">Kindergarten, Lesson 40</span>
           <span class="sg-type-sample__meta">Source Sans 3, 400/600/700 &mdash; headers, nav, labels, buttons</span>
         </div>
         <div class="sg-type-sample">
@@ -89,109 +89,57 @@ excludeFromSitemap: true
       </div>
     </div>
 
-    {# ── Lesson Components ── #}
+    {# ── Lesson panel ── #}
     <div class="guide-section">
-      <h2 class="guide-section__title">Lesson Components</h2>
-
-      <h3 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin-bottom:var(--space-sm)">Say Script</h3>
-      <p class="step-say">This is six. Count the dots: one, two, three, four, five, six.</p>
-
-      <h3 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin:var(--space-lg) 0 var(--space-sm)">Do Instruction</h3>
-      <div class="step-do" style="width:100%">
-        <span class="step-do__icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
-        <p class="step-do__text">Point to each dot as you count.</p>
-      </div>
-
-      <h3 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin:var(--space-lg) 0 var(--space-sm)">Feedback</h3>
-      <div style="display:flex;flex-direction:column;gap:var(--space-sm);width:100%">
-        <div class="feedback-box" style="display:flex" >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          <span class="feedback-box__text">Six! Good job.</span>
-        </div>
-        <div class="feedback-box feedback-box--correct" style="display:flex">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M1 20a10 10 0 0 1 17.3-6.9L23 10"/></svg>
-          <span class="feedback-box__text">Count again: one, two, three, four, five, six. Six.</span>
-        </div>
+      <h2 class="guide-section__title">Lesson panel</h2>
+      <p>The teacher's panel shows one step at a time. The cue tells the teacher whose turn it is; the boxes give the words, the action, the expected answer, the confirmation, and the correction. Confirmations are short and name the answer. There are no exclamation marks.</p>
+      <div style="display:flex;flex-direction:column;gap:0.625rem;max-width:40rem">
+        <div class="tp-stepline"><span class="tp-cue tp-cue--model">My turn</span><span class="tp-cue tp-cue--lead">Together</span><span class="tp-cue tp-cue--test">Your turn</span><span class="tp-cue tp-cue--note">Set up</span></div>
+        <p class="tp-say">Touch and count the apples.</p>
+        <div class="tp-box tp-do"><span class="tp-label">Do</span><p>Watch that the child touches each picture once.</p></div>
+        <div class="tp-box tp-answer"><span class="tp-label">Child</span><p>One, two, three, four, five, six.</p></div>
+        <div class="tp-box tp-confirm"><span class="tp-label">If right</span><p>Yes.</p></div>
+        <div class="tp-box tp-correct is-active"><span class="tp-label">If wrong</span><p>Stop. My turn. I touch each picture once and say one number for each. One, two, three, four, five, six. Your turn. Touch and count the apples.</p></div>
+        <div style="display:flex;gap:0.5rem"><button class="tp-btn tp-btn--error" type="button">Error</button><button class="tp-btn tp-btn--firm" type="button">Firm</button><button class="tp-btn tp-btn--next" type="button">Next</button></div>
       </div>
     </div>
 
-    {# ── Visual Aids ── #}
+    {# ── Visual aids ── #}
     <div class="guide-section">
-      <h2 class="guide-section__title">Visual Aids</h2>
-
-      <h3 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin-bottom:var(--space-sm)">Dot Patterns (rows of 5)</h3>
-      <div style="display:flex;gap:var(--space-xl);flex-wrap:wrap;align-items:flex-start">
-        <div>
-          <div class="math-dots" style="padding:var(--space-sm)">
-            <div class="math-dots__row"><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span></div>
-          </div>
-          <p style="text-align:center;font-size:0.75rem;color:var(--text-secondary)">3</p>
-        </div>
-        <div>
-          <div class="math-dots" style="padding:var(--space-sm)">
-            <div class="math-dots__row"><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span></div>
-            <div class="math-dots__row"><span class="math-dot"></span><span class="math-dot"></span></div>
-          </div>
-          <p style="text-align:center;font-size:0.75rem;color:var(--text-secondary)">7</p>
-        </div>
-        <div>
-          <div class="math-dots" style="padding:var(--space-sm)">
-            <div class="math-dots__row"><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span></div>
-            <div class="math-dots__row"><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span></div>
-            <div class="math-dots__separator"></div>
-            <div class="math-dots__row"><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span><span class="math-dot"></span></div>
-          </div>
-          <p style="text-align:center;font-size:0.75rem;color:var(--text-secondary)">14</p>
-        </div>
-      </div>
-
-      <h3 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin:var(--space-lg) 0 var(--space-sm)">Step Progress Dots</h3>
-      <div style="display:flex;gap:0.3rem;align-items:center">
-        <div class="step-dot is-done"></div>
-        <div class="step-dot is-done"></div>
-        <div class="step-dot is-done"></div>
-        <div class="step-dot is-active"></div>
-        <div class="step-dot"></div>
-        <div class="step-dot"></div>
-        <div class="step-dot"></div>
-      </div>
+      <h2 class="guide-section__title">Visual aids</h2>
+      <p>Every picture on the child's screen is drawn by one renderer (assets/js/visuals.js) from plain data written in the curriculum. A sample:</p>
+      <div class="sg-visuals" id="sg-visuals"></div>
     </div>
+    <script src="/assets/js/visuals.js"></script>
+    <script>
+    (function () {
+      var specs = [
+        { t: "dots", n: 7, arr: "row" }, { t: "frame", size: 10, n: 7 }, { t: "obj", icon: "duck", n: 4 },
+        { t: "eq", parts: [8, "+", 5, "=", "?"] }, { t: "family", a: 8, b: 5, c: 13, miss: "c" }, { t: "pv", tens: 3, ones: 4 },
+        { t: "shape", s: "hexagon", c: "yellow" }, { t: "solid", s: "cube", c: "blue" }, { t: "clock", h: 4, m: 30 },
+      ];
+      var box = document.getElementById("sg-visuals");
+      box.innerHTML = specs.map(function (s) { return '<div class="sg-visual">' + MDV.render(s) + "</div>"; }).join("");
+    })();
+    </script>
 
     {# ── Cards ── #}
     <div class="guide-section">
       <h2 class="guide-section__title">Cards</h2>
       <div class="guide-cards">
-        <div class="guide-card">
-          <h3 class="guide-card__title">Guide Card</h3>
-          <p>Used on the guide and features pages for grouped information blocks.</p>
-        </div>
-        <div class="guide-card">
-          <h3 class="guide-card__title">Another Card</h3>
-          <p>Cards stack on mobile and form a 2-column grid on wider screens.</p>
-        </div>
+        <div class="guide-card"><h3 class="guide-card__title">Guide card</h3><p>Used on the guide and features pages for grouped information.</p></div>
+        <div class="guide-card"><h3 class="guide-card__title">Another card</h3><p>Cards stack on narrow screens and form a grid on wider ones.</p></div>
       </div>
     </div>
 
-    {# ── Curriculum Stats ── #}
+    {# ── Stats ── #}
     <div class="guide-section">
-      <h2 class="guide-section__title">Stats Bar</h2>
+      <h2 class="guide-section__title">Stats bar</h2>
       <div class="curriculum-stats">
-        <div class="curriculum-stat">
-          <span class="curriculum-stat__number">{{ program.lessons.length }}</span>
-          <span class="curriculum-stat__label">Lessons</span>
-        </div>
-        <div class="curriculum-stat">
-          <span class="curriculum-stat__number">7</span>
-          <span class="curriculum-stat__label">Phases</span>
-        </div>
-        <div class="curriculum-stat">
-          <span class="curriculum-stat__number">68</span>
-          <span class="curriculum-stat__label">Concepts</span>
-        </div>
-        <div class="curriculum-stat">
-          <span class="curriculum-stat__number">63</span>
-          <span class="curriculum-stat__label">Practice Sets</span>
-        </div>
+        <div class="curriculum-stat"><span class="curriculum-stat__number">{{ program.lessons.length }}</span><span class="curriculum-stat__label">Lessons</span></div>
+        <div class="curriculum-stat"><span class="curriculum-stat__number">{{ program.levels.length }}</span><span class="curriculum-stat__label">Levels</span></div>
+        <div class="curriculum-stat"><span class="curriculum-stat__number">{{ program.tests.length }}</span><span class="curriculum-stat__label">Mastery tests</span></div>
+        <div class="curriculum-stat"><span class="curriculum-stat__number">{{ program.practice.length }}</span><span class="curriculum-stat__label">Practice sets</span></div>
       </div>
     </div>
 

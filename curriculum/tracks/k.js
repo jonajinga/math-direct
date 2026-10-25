@@ -1610,6 +1610,7 @@ export default {
   worksheetItems: 4,
   reviewIntervals: [2, 4, 5],
   placementPoints: [1, 35, 70, 105],
+  tagline: "Counting to 100, numbers to 20, adding and subtracting within 10, ways to make 10, measuring, and shapes.",
   description: "Kindergarten covers the counting, number, and shape work of the Common Core kindergarten standards: counting to 100, reading and writing numbers to 20, teen numbers as ten and some more, adding and subtracting within 10, ways to make 10, number families, story problems, measuring, sorting, and flat and solid shapes.",
   endsWith: "By the end of Kindergarten, the child counts to 100 by ones and tens, reads and writes numbers to 20, adds and subtracts within 10 with objects or by counting on and back, knows the addition and subtraction facts within 5 without counting, finds the partner that makes 10, solves spoken story problems, and names flat and solid shapes.",
   materials: ["Twenty small objects, such as blocks, buttons, or beans", "A pencil and the printed worksheets", "A few household objects shaped like a ball, a block, a can, and a cone"],
