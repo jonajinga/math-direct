@@ -80,6 +80,43 @@
     var profiles = getProfiles().filter(function (p) { return p.id !== id; });
     write(profiles);
     if (getActiveId() === id) setActiveId(profiles.length ? profiles[0].id : "");
+    clearSession(id);
+  }
+
+  // A sitting left in the middle: one per child, kept for twelve hours.
+  //   { kind, url, id, title, where, marks, pos, results, delayedAdded, placement, elapsed, childId, savedAt }
+  var SESSION_KEY = "math-direct-sessions";
+  var SESSION_HOURS = 12;
+  function readSessions() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "{}") || {}; } catch (e) { return {}; }
+  }
+  function writeSessions(all) {
+    try { localStorage.setItem(SESSION_KEY, JSON.stringify(all)); } catch (e) {}
+  }
+  function saveSession(s) {
+    var p = getActiveProfile();
+    if (!p || !s) return;
+    var all = readSessions();
+    s.childId = p.id;
+    s.savedAt = new Date().toISOString();
+    all[p.id] = s;
+    writeSessions(all);
+  }
+  function loadSession(childId) {
+    var p = childId ? { id: childId } : getActiveProfile();
+    if (!p) return null;
+    var s = readSessions()[p.id];
+    if (!s) return null;
+    if (Date.now() - new Date(s.savedAt).getTime() > SESSION_HOURS * 3600 * 1000) { clearSession(p.id); return null; }
+    return s;
+  }
+  function clearSession(childId) {
+    var p = childId ? { id: childId } : getActiveProfile();
+    if (!p) return;
+    var all = readSessions();
+    if (!all[p.id]) return;
+    delete all[p.id];
+    writeSessions(all);
   }
   function renameProfile(id, name) {
     var profiles = getProfiles();
@@ -379,6 +416,7 @@
     confirmDelete: confirmDelete, promptRename: promptRename, promptAdd: promptAdd,
     renderProfileSelector: renderProfileSelector, renderChildChips: renderChildChips,
     currentLevel: currentLevel, lastResult: lastResult,
+    saveSession: saveSession, loadSession: loadSession, clearSession: clearSession,
   };
 
   migrateLegacy();

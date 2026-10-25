@@ -22,6 +22,13 @@
 
   var levelId = P.currentLevel();
   var html = "";
+  // A sitting left in the middle comes first.
+  var sitting = P.loadSession ? P.loadSession() : null;
+  if (sitting && sitting.url && sitting.kind !== "practice") {
+    html += '<div class="card next-card card--strong" data-continue-card><p class="kicker">Continue</p><h2 class="card__title">' + esc(sitting.title || "Where you left off") + "</h2>" +
+      '<p class="card__text">' + esc(p.name) + " stopped " + (sitting.where ? "at " + esc(sitting.where.replace(/^Ex /, "Exercise ")) : "part way through") + (sitting.marks ? ", with " + sitting.marks + " answer" + (sitting.marks === 1 ? "" : "s") + " marked" : "") + ", " + day(sitting.savedAt).toLowerCase() + ".</p>" +
+      '<div class="btn-row"><a class="btn btn--primary btn--big" href="' + esc(sitting.url) + '?continue=1">Continue</a><button type="button" class="btn btn--quiet" data-discard-sitting>Start it over later</button></div></div>';
+  }
   if (!levelId && !anyProfileStarted) {
     // The welcome above already says where to begin.
   } else if (!levelId) {
@@ -48,4 +55,11 @@
   }
   html += '<ul class="today-links"><li><a href="/lessons/">All lessons</a></li><li><a href="/records/">Records</a></li><li><a href="/placement/">Placement test</a></li></ul>';
   host.innerHTML = html;
+  var discard = host.querySelector("[data-discard-sitting]");
+  if (discard) discard.addEventListener("click", function () {
+    P.clearSession();
+    var card = host.querySelector("[data-continue-card]");
+    if (card) card.remove();
+    if (window.MD && MD.toast) MD.toast("The sitting was cleared.");
+  });
 })();

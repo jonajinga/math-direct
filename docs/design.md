@@ -59,3 +59,10 @@ script, the mark, the child's touch, and the end of a flash. `npm run
 check:fit` walks every step of a sample of pages at 375x667, 667x375,
 740x360, and 320x568 and fails on any overflow, clipped text, moved
 primary button, or a tap that shows a verdict.
+
+The sitting is saved to the browser after every move and mark (one per
+child, kept twelve hours) and cleared when the lesson, test, or placement
+finishes. Opening the same page again offers to continue; Today shows a
+Continue card. Practice sets draw new items each time and are not saved.
+`npm run check:session` marks three answers, leaves, returns, continues, and
+finishes, and checks the sitting at each step.

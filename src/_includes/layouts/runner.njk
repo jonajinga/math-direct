@@ -120,6 +120,14 @@ bodyClass: page-runner
   </form>
 </dialog>
 
+<dialog class="sheet" id="sheet-continue" aria-labelledby="sheet-continue-title">
+  <form method="dialog" class="sheet__form">
+    <div class="sheet__head"><h2 class="sheet__title" id="sheet-continue-title">Continue where you left off?</h2></div>
+    <div class="sheet__body"><p id="sheet-continue-text"></p></div>
+    <div class="sheet__foot"><button type="submit" class="btn btn--secondary" value="restart">Start from the beginning</button><button type="submit" class="btn btn--primary" value="continue" autofocus>Continue</button></div>
+  </form>
+</dialog>
+
 <div class="runner-finish" id="runner-finish" hidden></div>
 </main>
 

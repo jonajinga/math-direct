@@ -37,6 +37,7 @@
   var touched = null; // what the child touched on this step: { idx, right }
   var placement = { idx: 0, startIdx: 0, passed: {}, failed: {}, direction: 1 };
   var where = { child: "", level: "", name: "", ex: "", exShort: "" };
+  var leaving = false; // set when the parent leaves through a sheet, so the browser does not ask again
 
   function key(s, i) { return s + ":" + i; }
   function currentSeg() { return segments[pos.seg]; }
@@ -219,7 +220,62 @@
     renderOutline();
     syncBar();
     fitPanel();
+    saveSession();
     announce((cueLabel(st.cue) ? cueLabel(st.cue) + ". " : "") + (st.say || ""));
+  }
+
+  // ── The sitting: saved after every move and mark, cleared when finished ──
+  // Practice sets draw new items each time, so they are not saved.
+  function sessionId() { return DATA.lesson ? DATA.lesson.id : DATA.test ? DATA.test.id : MODE; }
+  function markCount() { var n = 0; for (var k in results) n++; return n; }
+  function saveSession() {
+    if (!P || !P.saveSession || MODE === "practice" || !DATA) return;
+    if (!markCount() && pos.seg === 0 && pos.step === 0 && MODE !== "placement") return;
+    P.saveSession({
+      kind: MODE, url: window.location.pathname, id: sessionId(),
+      title: (where.level ? where.level + " · " : "") + where.name, where: where.ex, marks: markCount(),
+      pos: { seg: pos.seg, step: pos.step }, results: results, delayedAdded: delayedAdded,
+      placement: MODE === "placement" ? placement : null, elapsed: Date.now() - startTime,
+    });
+  }
+  function clearSession() { if (P && P.clearSession) P.clearSession(); }
+  function savedSitting() {
+    if (!P || !P.loadSession || MODE === "practice") return null;
+    var s = P.loadSession();
+    if (!s || s.url !== window.location.pathname || s.kind !== MODE) return null;
+    if (!s.marks && !(s.pos && (s.pos.seg || s.pos.step)) && MODE !== "placement") return null;
+    return s;
+  }
+  function restoreSitting(s) {
+    if (MODE === "placement" && s.placement) {
+      placement = s.placement;
+      loadPlacementSection();
+    }
+    results = s.results || {};
+    delayedAdded = !!s.delayedAdded;
+    if (delayedAdded && MODE === "lesson") {
+      var del = buildDelayed();
+      if (del) segments.push(del);
+    }
+    pos = { seg: Math.min(s.pos.seg, segments.length - 1), step: 0 };
+    pos.step = Math.min(s.pos.step, segments[pos.seg].steps.length - 1);
+    startTime = Date.now() - (s.elapsed || 0);
+    render();
+  }
+  function offerContinue(s) {
+    var dlg = $("sheet-continue"), text = $("sheet-continue-text");
+    if (!dlg) { restoreSitting(s); return; }
+    var when = "";
+    try { var d = new Date(s.savedAt), mins = Math.round((Date.now() - d.getTime()) / 60000); when = mins < 2 ? "a moment ago" : mins < 60 ? mins + " minutes ago" : mins < 120 ? "an hour ago" : Math.round(mins / 60) + " hours ago"; } catch (e) {}
+    text.textContent = "You stopped " + (s.where ? "at " + s.where.replace(/^Ex /, "Exercise ") : "part way through") + (s.marks ? ", with " + s.marks + " answer" + (s.marks === 1 ? "" : "s") + " marked" : "") + (when ? ", " + when : "") + ".";
+    render();
+    dlg.addEventListener("close", function onClose() {
+      dlg.removeEventListener("close", onClose);
+      if (dlg.returnValue === "continue") restoreSitting(s);
+      else { clearSession(); render(); }
+      el.btnMore.focus();
+    });
+    openSheet("sheet-continue");
   }
 
   // The control bar: four fixed slots. More · tool · Error · primary.
@@ -426,6 +482,7 @@
     if (!st || st.cue !== "test" || errorState) return;
     results[key(pos.seg, pos.step)] = r;
     if (st.fact && P && P.recordFact) P.recordFact(st.fact, r === "firm");
+    saveSession();
     if (r === "firm" || MODE === "test" || MODE === "placement") {
       announce(r === "firm" ? "Marked firm." : "Marked as an error.");
       advance();
@@ -483,21 +540,26 @@
   }
 
   // ── End of script ──
+  function buildDelayed() {
+    var missed = [];
+    segments.forEach(function (s, si) {
+      if (s.kind === "delayed") return;
+      s.steps.forEach(function (st, i) {
+        if (results[key(si, i)] === "error") {
+          var c = asTestStep(st);
+          c.from = { seg: si, step: i };
+          missed.push(c);
+        }
+      });
+    });
+    return missed.length ? { title: "Missed items, once more", meta: "Delayed test", kind: "delayed", steps: missed } : null;
+  }
   function endOfScript() {
     if (MODE === "lesson" && !delayedAdded) {
-      var missed = [];
-      segments.forEach(function (s, si) {
-        s.steps.forEach(function (st, i) {
-          if (results[key(si, i)] === "error") {
-            var c = asTestStep(st);
-            c.from = { seg: si, step: i };
-            missed.push(c);
-          }
-        });
-      });
       delayedAdded = true;
-      if (missed.length) {
-        segments.push({ title: "Missed items, once more", meta: "Delayed test", kind: "delayed", steps: missed });
+      var del = buildDelayed();
+      if (del) {
+        segments.push(del);
         pos.seg = segments.length - 1;
         pos.step = 0;
         render();
@@ -534,6 +596,7 @@
   function showFinish(html, bar) {
     clearTimeout(flashTimer);
     bigPicture(false);
+    clearSession();
     el.shell.hidden = true;
     el.finish.innerHTML = html + (bar || "");
     el.finish.hidden = false;
@@ -749,9 +812,11 @@
     placement.idx = next;
     loadPlacementSection();
     var s2 = DATA.sections[next];
+    var keep = true;
     var html = '<article class="finish"><p class="finish__kicker">Placement test</p><h1 class="finish__title">Section ' + (passed ? "passed" : "not passed") + '</h1><p class="finish__lead">' +
       (passed ? "The child knows this part of the program. The next section checks the next span of lessons." : "This span of lessons is not yet firm. The next section checks the span before it.") + "</p></article>";
     showFinish(html, actionBar({ label: "Begin: " + s2.title, id: "placement-continue" }));
+    if (keep) saveSession();
     $("placement-continue").addEventListener("click", function () {
       el.finish.hidden = true;
       el.finish.innerHTML = "";
@@ -805,7 +870,8 @@
   function renderChildSheet() {
     if (!el.childList) return;
     var profiles = P ? P.getProfiles() : [], active = P ? P.getActiveProfile() : null;
-    el.childText.textContent = "Marks made so far are not saved. The " + thing() + " starts again for the child you pick.";
+    el.childText.textContent = MODE === "practice" ? "Marks made in a practice set are not kept. The practice starts again for the child you pick." :
+      (active ? active.name + "'s" : "The") + " marks are saved, and the " + thing() + " can be continued later. It starts again for the child you pick.";
     el.childList.innerHTML = profiles.map(function (p) {
       var on = active && active.id === p.id;
       return '<li><button type="button" class="sheet__row" data-child="' + escapeAttr(p.id) + '"' + (on ? " disabled" : "") + ">" + escapeHtml(p.name) + (on ? "<small>Teaching now</small>" : "") + "</button></li>";
@@ -815,8 +881,9 @@
   function setLeaveSheet() {
     var t = thing();
     el.leaveTitle.textContent = "Leave " + (t === "placement test" ? "the placement test" : "this " + t) + "?";
-    el.leaveText.textContent = "Marks made so far are not saved.";
+    el.leaveText.textContent = MODE === "practice" ? "Marks made in a practice set are not kept." : "The marks are saved. You can continue later from Today.";
     el.leaveGo.href = DATA.exitUrl || "/lessons/";
+    el.leaveGo.addEventListener("click", function () { leaving = true; });
   }
 
   // Big picture: the stage fills the screen; one button comes back.
@@ -858,6 +925,7 @@
   if (el.childList) el.childList.addEventListener("click", function (e) {
     var b = e.target.closest("[data-child]");
     if (!b || b.disabled || !P) return;
+    leaving = true;
     P.switchProfile(b.getAttribute("data-child"));
   });
 
@@ -894,6 +962,12 @@
     }
   });
 
+  // The browser's own back gesture or a closed tab: ask first while marks exist.
+  window.addEventListener("beforeunload", function (e) {
+    if (leaving || el.shell.hidden || !markCount()) return;
+    e.preventDefault();
+    e.returnValue = "";
+  });
   window.addEventListener("resize", function () { fitStage(); fitStrip(); });
   // Web fonts can arrive after the first step is laid out; fit again then.
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!el.shell.hidden && currentStep()) { fitPanel(); fitStrip(); fitStage(); } });
@@ -932,11 +1006,19 @@
     el.shell.hidden = false;
     var hide = el.moreList.querySelector('[data-act="over"]');
     if (hide) hide.parentNode.hidden = MODE !== "lesson";
+    var saved = savedSitting();
+    var wantsContinue = /[?&]continue=1/.test(window.location.search);
     if (MODE === "lesson") initLesson();
     else if (MODE === "test") initTest();
     else if (MODE === "practice") initPractice();
     else if (MODE === "placement") {
       var chooser = $("placement-start");
+      if (saved && saved.placement) {
+        if (chooser) chooser.hidden = true;
+        initPlacement(saved.placement.startIdx);
+        if (wantsContinue) restoreSitting(saved); else offerContinue(saved);
+        return;
+      }
       if (chooser) {
         el.shell.hidden = true;
         chooser.hidden = false;
@@ -954,6 +1036,7 @@
       }
       initPlacement(0);
     }
+    if (saved) { if (wantsContinue) restoreSitting(saved); else offerContinue(saved); return; }
     render();
   }
 
