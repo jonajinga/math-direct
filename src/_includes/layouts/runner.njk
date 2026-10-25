@@ -29,34 +29,43 @@ bodyClass: page-runner
     </header>
 
     <div class="tp-body" id="tp-body">
-      <div class="tp-ex">
-        <h1 class="tp-ex__title" id="tp-ex-title"></h1>
-        <p class="tp-ex__meta" id="tp-ex-meta"></p>
-      </div>
       <div class="tp-stepline">
         <span class="tp-cue" id="tp-cue"></span>
+        <h1 class="tp-ex__title" id="tp-ex-title"></h1>
         <span class="tp-step-no" id="tp-step-no"></span>
       </div>
+      <p class="tp-ex__meta" id="tp-ex-meta"></p>
       <p class="tp-say" id="tp-say"></p>
       <div class="tp-box tp-do" id="tp-do" hidden><span class="tp-label">Do</span><p id="tp-do-text"></p></div>
-      <div class="tp-box tp-answer" id="tp-answer" hidden><span class="tp-label">Child</span><p id="tp-answer-text"></p></div>
-      <div class="tp-box tp-confirm" id="tp-confirm" hidden><span class="tp-label">If right</span><p id="tp-confirm-text"></p></div>
+      <div class="tp-pair">
+        <div class="tp-box tp-answer" id="tp-answer" hidden><span class="tp-label">Child</span><p id="tp-answer-text"></p></div>
+        <div class="tp-box tp-confirm" id="tp-confirm" hidden><span class="tp-label">If right</span><p id="tp-confirm-text"></p></div>
+      </div>
       <div class="tp-box tp-correct" id="tp-correct" hidden><span class="tp-label">If wrong</span><p id="tp-correct-text"></p></div>
       <p class="tp-test-note" id="tp-test-note" hidden>This is a test. Do not correct or help. Mark each answer and go on.</p>
     </div>
 
     <footer class="tp-controls">
-      <button type="button" class="tp-btn tp-btn--quiet" id="btn-back" title="Back (Left arrow)">Back</button>
+      <button type="button" class="tp-btn tp-btn--quiet tp-btn--icon" id="btn-back" title="Back (Left arrow)" aria-label="Back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        <span class="tp-btn__label">Back</span>
+      </button>
       <div class="tp-controls__main">
         <button type="button" class="tp-btn tp-btn--error" id="btn-error" title="Error (X)" hidden>Error</button>
         <button type="button" class="tp-btn tp-btn--firm" id="btn-firm" title="Firm (F or Right arrow)" hidden>Firm</button>
         <button type="button" class="tp-btn tp-btn--next" id="btn-next" title="Next (Right arrow)">Next</button>
-        <button type="button" class="tp-btn tp-btn--quiet" id="btn-over" title="Start the exercise over (S)" hidden>Start exercise over</button>
+        <button type="button" class="tp-btn tp-btn--quiet" id="btn-over" title="Start the exercise over (S)" hidden><span class="tp-btn__long">Start exercise over</span><span class="tp-btn__short">Start over</span></button>
         <button type="button" class="tp-btn tp-btn--next" id="btn-goon" title="Go on (Right arrow)" hidden>Go on</button>
       </div>
       <div class="tp-controls__aux">
-        <button type="button" class="tp-btn tp-btn--quiet" id="btn-show" title="Show again (Space)" hidden>Show again</button>
-        <button type="button" class="tp-btn tp-btn--quiet" id="btn-clear" title="Clear the marks" hidden>Clear marks</button>
+        <button type="button" class="tp-btn tp-btn--quiet tp-btn--icon" id="btn-show" title="Show again (Space)" aria-label="Show again" hidden>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          <span class="tp-btn__label">Show again</span>
+        </button>
+        <button type="button" class="tp-btn tp-btn--quiet tp-btn--icon" id="btn-clear" title="Clear the marks" aria-label="Clear marks" hidden>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+          <span class="tp-btn__label">Clear marks</span>
+        </button>
       </div>
     </footer>
   </section>

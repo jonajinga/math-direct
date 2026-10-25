@@ -25,13 +25,21 @@ export function buildMasteryTests(level, built) {
       const inBlock = track.units.filter((u) => u.lesson >= start && u.lesson <= end);
       if (!final && !inBlock.length) continue;
       const items = trackItems(level, track, upTo, end, `test${t}`);
-      // At least two items per part, so one slip does not decide it.
+      // At least two items per part where the skill allows, so each part checks
+      // more than one example.
       for (let salt = 2; items.length < 2 && salt < 6; salt++) {
         const seen = new Set(items.map((x) => x.say + JSON.stringify(x.screen)));
         for (const extra of trackItems(level, track, upTo, end, `test${t}-${salt}`)) {
           if (items.length >= 3) break;
           if (!seen.has(extra.say + JSON.stringify(extra.screen))) items.push(extra);
         }
+      }
+      // Some skills give one fixed item for their newest unit. Add one from an
+      // earlier unit, so the part checks the newest step and one before it.
+      for (let k = upTo.length - 1; items.length < 2 && k >= 1; k--) {
+        const seen = new Set(items.map((x) => x.say + JSON.stringify(x.screen)));
+        const extra = trackItems(level, track, upTo.slice(0, k), end, `test${t}-prev${k}`).find((x) => !seen.has(x.say + JSON.stringify(x.screen)));
+        if (extra) items.push(extra);
       }
       if (!items.length) continue;
       const remedyUnits = inBlock.length ? inBlock : upTo.slice(-2);

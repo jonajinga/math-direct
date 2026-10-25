@@ -1,5 +1,5 @@
 // Math Direct Service Worker — Offline Support
-var STATIC_CACHE = "math-direct-static-v3";
+var STATIC_CACHE = "math-direct-static-v4";
 
 // Core assets cached on install
 var CORE_ASSETS = [
