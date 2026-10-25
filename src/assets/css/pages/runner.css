@@ -66,7 +66,9 @@
   padding: 0.375rem var(--space-md);
 }
 .tp-head__row { display: flex; align-items: center; gap: var(--space-sm); }
-.tp-where { flex: 1; min-width: 0; font-size: 0.8125rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tp-where { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.tp-where__level { font-size: 0.6875rem; font-weight: 600; color: var(--text-secondary); }
+.tp-where__name { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); }
 .tp-student { flex-shrink: 0; }
 .student-pick { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: var(--text-secondary); }
 .student-pick__select {
@@ -142,11 +144,9 @@
   margin: 0;
   font-family: var(--font-ui);
   font-size: calc(0.9375rem * var(--fs, 1));
+  line-height: 1.25;
   font-weight: 700;
   color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .tp-ex__meta { font-size: 0.75rem; color: var(--text-secondary); margin: -0.25rem 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -269,12 +269,16 @@
 /* A narrow panel (phones, and the side panel on smaller tablets) keeps the
    same controls but drops the words from the small buttons. */
 @container panel (max-width: 30rem) {
-  .student-pick__label, .tp-icon-btn__label, .tp-btn__label, .tp-btn__long { display: none; }
+  .student-pick__label, .tp-icon-btn__label, .tp-btn__label, .tp-btn__long, .tp-head__theme { display: none; }
   .tp-btn__short { display: inline; }
   .tp-head, .tp-body, .tp-controls { padding-left: 0.75rem; padding-right: 0.75rem; }
   .tp-btn { padding: 0 0.75rem; font-size: 0.875rem; }
   .tp-controls__main > .tp-btn { flex: 1 1 0; max-width: 9rem; min-width: 0; }
-  .student-pick__select { max-width: 7.5rem; }
+  .student-pick__select { max-width: 6.5rem; }
+}
+/* The word labels in the header return only when the panel has room. */
+@container panel (max-width: 38rem) {
+  .student-pick__label, .tp-icon-btn__label { display: none; }
 }
 @container panel (min-width: 40rem) {
   .tp-body { padding-left: var(--space-xl); padding-right: var(--space-xl); }
@@ -298,7 +302,8 @@
 }
 .tp-outline[hidden] { display: none; }
 .tp-outline__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm); }
-.tp-outline__head h2 { font-size: 1rem; margin: 0; }
+.tp-outline__head { gap: var(--space-sm); }
+.tp-outline__head h2 { flex: 1; font-size: 1rem; margin: 0; }
 .tp-outline__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; }
 .tp-outline__list button {
   width: 100%;

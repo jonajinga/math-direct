@@ -15,7 +15,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var stage = $("child-stage");
   var el = {
-    where: $("tp-where"), exTitle: $("tp-ex-title"), exMeta: $("tp-ex-meta"), stepNo: $("tp-step-no"),
+    whereLevel: $("tp-where-level"), whereName: $("tp-where-name"), exTitle: $("tp-ex-title"), exMeta: $("tp-ex-meta"), stepNo: $("tp-step-no"),
     progress: $("tp-progress"), cue: $("tp-cue"), say: $("tp-say"), doBox: $("tp-do"), doText: $("tp-do-text"),
     answerBox: $("tp-answer"), answerText: $("tp-answer-text"), confirmBox: $("tp-confirm"), confirmText: $("tp-confirm-text"),
     correctBox: $("tp-correct"), correctText: $("tp-correct-text"), testNote: $("tp-test-note"),
@@ -45,7 +45,7 @@
     lesson.exercises.forEach(function (ex) {
       segments.push({ title: ex.title, meta: ex.trackName + " · " + kindName(ex.kind), kind: ex.kind, track: ex.track, n: ex.n, materials: ex.materials, steps: ex.steps });
     });
-    el.where.textContent = lesson.levelName + " · Lesson " + lesson.number;
+    setWhere(lesson.levelName, "Lesson " + lesson.number);
     // Worksheet and level links in the outline.
     var keys = el.outline && el.outline.querySelector(".tp-outline__keys");
     if (keys) {
@@ -57,6 +57,13 @@
     }
   }
 
+  // The header names the level on a small line and the lesson, test, or set
+  // below it in full.
+  function setWhere(level, name) {
+    el.whereLevel.textContent = level;
+    el.whereName.textContent = name;
+  }
+
   function kindName(k) {
     return { "new": "new teaching", firm: "firming", review: "review", delayed: "delayed test", test: "test", practice: "practice", placement: "placement" }[k] || k;
   }
@@ -66,7 +73,7 @@
     t.parts.forEach(function (p, i) {
       segments.push({ title: p.trackName, meta: "Part " + (i + 1) + " of " + t.parts.length, kind: "test", part: i, steps: p.items.map(function (s) { return asTestStep(s); }) });
     });
-    el.where.textContent = t.levelName + " · " + t.title;
+    setWhere(t.levelName + (t.final ? ", end of level" : ""), "Mastery Test " + t.number);
   }
 
   function asTestStep(s) {
@@ -88,7 +95,7 @@
     segments = [{ title: sec.title, meta: "Placement section", kind: "placement", section: placement.idx, steps: sec.items.map(asTestStep) }];
     pos = { seg: 0, step: 0 };
     results = {};
-    el.where.textContent = "Placement test · " + sec.title;
+    setWhere("Placement test", sec.title);
   }
 
   function initPractice() {
@@ -118,7 +125,7 @@
       chosen.push(asTestStep(it));
     }
     segments = [{ title: set.title, meta: set.levelName + " practice", kind: "practice", steps: chosen }];
-    el.where.textContent = set.levelName + " · Practice";
+    setWhere(set.levelName + " practice", set.title);
   }
 
   // ── Rendering a step ──
@@ -696,7 +703,19 @@
     }
   });
 
-  window.addEventListener("resize", function () { fitStage(); if (el.shell && !el.shell.hidden) fitPanel(); });
+  window.addEventListener("resize", function () { fitStage(); });
+  // Refit the panel whenever its body changes size: a turned screen, or a
+  // header that grows a line when the child's name picker appears.
+  if (window.ResizeObserver) {
+    var lastHeight = 0;
+    new ResizeObserver(function () {
+      if (el.teacher.clientHeight === lastHeight || el.shell.hidden || !currentStep()) return;
+      lastHeight = el.teacher.clientHeight;
+      fitPanel();
+    }).observe(el.teacher);
+  } else {
+    window.addEventListener("resize", function () { if (!el.shell.hidden) fitPanel(); });
+  }
 
   function start() {
     if (MODE === "lesson") initLesson();
