@@ -1,5 +1,5 @@
 // Math Direct Service Worker — Offline Support
-var STATIC_CACHE = "math-direct-static-v4";
+var STATIC_CACHE = "math-direct-static-v5";
 
 // Core assets cached on install
 var CORE_ASSETS = [
@@ -55,15 +55,23 @@ self.addEventListener("fetch", function (event) {
   // Only handle same-origin GET requests
   if (event.request.method !== "GET" || url.origin !== self.location.origin) return;
 
-  // Static assets (CSS, JS, images): stale-while-revalidate
+  // Static assets (CSS, JS, images): stale-while-revalidate. Pages ask for
+  // styles and scripts with a version tag, so a new build's files are
+  // fetched at once. Only the newest copy of each file is kept, and when
+  // offline any saved copy of the file will do.
   if (url.pathname.match(/^\/assets\//)) {
     event.respondWith(
       caches.open(STATIC_CACHE).then(function (cache) {
         return cache.match(event.request).then(function (cached) {
           var fetched = fetch(event.request).then(function (response) {
-            if (response.status === 200) cache.put(event.request, response.clone());
+            if (response.status === 200) {
+              var copy = response.clone();
+              cache.delete(event.request, { ignoreSearch: true }).then(function () { cache.put(event.request, copy); });
+            }
             return response;
-          }).catch(function () { return cached; });
+          }).catch(function () {
+            return cached || cache.match(event.request, { ignoreSearch: true });
+          });
           return cached || fetched;
         });
       })

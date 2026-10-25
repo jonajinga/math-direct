@@ -87,7 +87,7 @@ bodyClass: page-runner
 <div class="runner-finish" id="runner-finish" hidden></div>
 
 {% block scripts %}
-<script src="/assets/js/progress.js"></script>
-<script src="/assets/js/visuals.js"></script>
-<script src="/assets/js/lesson-engine.js" defer></script>
+<script src="/assets/js/progress.js?v={{ build.version }}"></script>
+<script src="/assets/js/visuals.js?v={{ build.version }}"></script>
+<script src="/assets/js/lesson-engine.js?v={{ build.version }}" defer></script>
 {% endblock %}
