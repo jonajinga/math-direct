@@ -4,9 +4,14 @@
 
 import { V, ICONS } from "../lib/v.js";
 import { model, lead, test, note, fix, fixPoint, fixChain } from "../lib/steps.js";
-import { word, Word, chain, Chain, plural } from "../lib/words.js";
+import { word, Word, chain, Chain, plural, an } from "../lib/words.js";
 
-export { V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural, ICONS };
+export { V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural, an, ICONS };
+
+// "duck, fish" -> "Duck, fish"
+export function capFirst(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
 
 // ── Counting aloud ──
 
@@ -49,7 +54,7 @@ export function touchCount(icon, n, arr, opts = {}) {
         item: `count-obj:${n}`,
       }),
     test(screen, `How many ${plural(icon)}?`, Word(n) + ".",
-      fix(Word(n) + ".", `How many ${plural(icon)}?`, `The last number you said was ${word(n)}. So there are ${word(n)} ${name}.`), {
+      fix(Word(n) + ".", `How many ${plural(icon)}?`, `The last number we count tells how many. ${Chain(1, n)} The last number is ${word(n)}, so there ${n === 1 ? "is" : "are"} ${word(n)} ${name}.`), {
         skill: "count",
         item: `how-many:${n}`,
       }),
@@ -79,11 +84,11 @@ export function touchNum(d, others, rand, opts = {}) {
 
 export function flashTest(n, arr, ms, seed) {
   return test(V.dots(n, { arr, seed }), "Look. How many dots?", Word(n) + ".",
-    fix(Word(n) + ".", "Look. How many dots?", "Press Show to show the dots again, and leave them up."), {
+    fix(Word(n) + ".", "Look. How many dots?", "Look at the dots. They stay up now."), {
       flash: ms,
       skill: "subitize",
       item: `flash:${n}:${arr}`,
-      do: "The dots show for a moment, then disappear. Space or Show brings them back.",
+      do: "The dots show for a moment, then hide. Show again, the curved arrow, brings them back.",
     });
 }
 

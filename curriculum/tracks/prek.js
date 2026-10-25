@@ -1,7 +1,7 @@
 // Pre-K: 100 lessons, about ten minutes each, for children of about four.
 
 import {
-  V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural,
+  V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural, an, capFirst,
   countTest, countAnswer, touchCount, readNum, touchNum, flashTest, touchChoice, iconSeq,
   favorNew, others,
 } from "./common.js";
@@ -68,7 +68,7 @@ const countAloud = {
     if (to >= 5) {
       const stop = ctx.rand.int(3, to - 1);
       steps.push(countTest(1, stop, 1, {
-        do: `The child should stop at ${word(stop)}. Stopping on the right number matters as much as the count.`,
+        do: `Listen for a clean stop at ${word(stop)}. Stopping on the right number matters as much as saying the numbers in order.`,
       }));
     }
     return { title: `Count to ${word(to)}`, steps };
@@ -124,7 +124,7 @@ const countObjects = {
         do: "Touch each picture once. A ring appears on each one you touch.",
       }));
     } else if (u.arr === "circle") {
-      steps.push(model(s, `These ${plural(icons[0])} are in a circle. My turn. I start at the one with the dot under it, and I go around. I stop when I get back to the start. ${Chain(1, u.max)} There are ${word(u.max)}.`, {
+      steps.push(model(s, `These ${plural(icons[0])} are in a circle. My turn. I start at the one with the dot under it, and I go around. I stop when I get back to the start. ${Chain(1, u.max)} There are ${word(u.max)} ${plural(icons[0])}.`, {
         do: "Start at the marked picture and go around once.",
       }));
     } else {
@@ -193,7 +193,7 @@ const countOut = {
     const s = V.obj(icon, total, { arr: "row", tap: true, seed });
     return test(s, `Touch ${word(k)} ${plural(icon, k)}. Stop at ${word(k)}.`, `(Touches ${word(k)}, saying ${chain(1, k)}, and stops.)`,
       fixPoint(`I count as I touch, and I stop at ${word(k)}. ${Chain(1, k)} Stop.`, `Touch ${word(k)} ${plural(icon, k)}. Stop at ${word(k)}.`), {
-        do: `Press Clear to remove the marks first if needed. The child should stop at ${word(k)}.`,
+        do: `If marks are left from before, clear them first with the eraser. The child should stop at ${word(k)}.`,
         skill: "count",
         item: `count-out:${k}`,
         confirm: `Yes, ${word(k)}. You stopped at ${word(k)}.`,
@@ -270,7 +270,7 @@ const subitize = {
     const steps = [];
     const known = Math.max(...intro.map((x) => x.n));
     if (u.id === "n2") {
-      steps.push(model(V.dots(1, { arr: "dice" }), "Look at the screen. I will show you some dots for a short time. My turn. One. I see one dot. I did not need to count.", { flash: ms, do: "The dots appear for two seconds. Press Show or Space to show them again." }));
+      steps.push(model(V.dots(1, { arr: "dice" }), "Look at the screen. I will show you some dots for a short time. My turn. One. I see one dot. I did not need to count.", { flash: ms, do: "The dots show for two seconds, then hide. Show again, the curved arrow, brings them back." }));
       steps.push(model(V.dots(2, { arr: "dice" }), "Look. My turn. Two. I see two dots without counting.", { flash: ms }));
       steps.push(lead(V.dots(2, { arr: "line" }), "Look. How many dots? Say it with me.", "Two.", { flash: ms }));
       steps.push(flashTest(1, "dice", ms));
@@ -288,7 +288,7 @@ const subitize = {
     }
     const n = u.n;
     steps.push(model(V.dots(n, { arr: "dice" }), `Look. My turn. ${Word(n)}. I see ${word(n)} dots without counting.`, { flash: ms }));
-    steps.push(model(V.dots(n, { arr: u.id === "mixed" ? "scatter" : "line", seed: ctx.lesson }), `These ${word(n)} dots are in a different shape. They are still ${word(n)}. ${Word(n)}.`, { flash: ms }));
+    steps.push(model(V.dots(n, { arr: u.id === "mixed" ? "scatter" : "line", seed: ctx.lesson }), `These dots are in a different pattern, but there are still ${word(n)}. ${Word(n)}.`, { flash: ms }));
     steps.push(lead(V.dots(n, { arr: "dice" }), "Look. How many dots? Say it with me.", Word(n) + ".", { flash: ms }));
     const pool = [];
     for (let i = 1; i <= known; i++) pool.push(i);
@@ -341,7 +341,7 @@ const numerals = {
     if (d === 10) first = "My turn. This is ten. Ten is written with a one and a zero. Ten.";
     if (d === 1) first = "Now we will learn to read numbers. My turn. This is one. One.";
     steps.push(model(V.num(d), first, { do: "Touch the number as you say its name.", skill: "read" }));
-    steps.push(lead(V.num(d), "Say it with me. What number is this?", Word(d) + ".", { skill: "read" }));
+    steps.push(lead(V.num(d), "What number is this? Say it with me.", Word(d) + ".", { skill: "read" }));
     steps.push(test(V.num(d), "Your turn. What number is this?", Word(d) + ".", fix(Word(d) + ".", "What number is this?"), { skill: "read", item: `read:${d}` }));
     if (known.length) {
       const k = Math.min(2, known.length);
@@ -376,7 +376,7 @@ const numerals = {
     const opts = r.shuffle([d, d, ...others(r, pool, d, 3)]);
     return {
       kind: "circle",
-      prompt: `Circle every ${word(d)}.`,
+      prompt: `Circle every ${d}.`,
       opts: opts.map((x) => V.num(x, { size: "sm" })),
       ans: opts.map((x, i) => (x === d ? i : -1)).filter((i) => i >= 0),
     };
@@ -405,9 +405,9 @@ const matchTrack = {
     return [
       readNum(k, { say: "What number is this?" }),
       test(V.row(V.num(k, { size: "md" }), V.choices(opts.map((x) => V.dots(x, { arr: "row", size: "sm" })), opts.indexOf(k))),
-        `Touch the group with ${word(k)} dots.`, `(Touches the group of ${word(k)}.)`,
-        fixPoint(`I count each group. (Touch and count.) This group has ${word(k)}.`, `Touch the group with ${word(k)} dots.`),
-        { skill: "match", item: `match:${k}`, confirm: `Yes, ${word(k)} dots.` }),
+        `Touch the group with ${word(k)} ${plural("dot", k)}.`, `(Touches the group of ${word(k)}.)`,
+        fixPoint(`I count each group. (Touch and count.) This group has ${word(k)}. (Touch it.)`, `Touch the group with ${word(k)} ${plural("dot", k)}.`),
+        { skill: "match", item: `match:${k}`, confirm: `Yes, ${word(k)} ${plural("dot", k)}.` }),
     ];
   },
   groupToNum(k, max, r) {
@@ -435,13 +435,13 @@ const matchTrack = {
     return {
       title: u.label,
       steps: [
-        model(s1, `My turn. This number is ${word(k1)}. I look for the group with ${word(k1)} dots. I count each group. (Touch and count.) This group has ${word(k1)} dots. It matches the number ${word(k1)}.`, {
+        model(s1, `My turn. This number is ${word(k1)}. I look for the group with ${word(k1)} dots. I count each group. (Touch and count.) This group has ${word(k1)} dots. It goes with the number ${word(k1)}.`, {
           do: "Touch and count each group aloud, then touch the matching group.",
         }),
-        lead(s2, `Do it with me. This number is ${word(k2)}. Let's find the group with ${word(k2)} dots.`, `(Together, touches the group of ${word(k2)}.)`),
+        lead(s2, `This number is ${word(k2)}. Find the group with ${word(k2)} ${plural("dot", k2)} with me. Get ready.`, `(Together, touches the group of ${word(k2)}.)`),
         ...this.numToGroup(r.int(1, u.max), u.max, r),
         model(V.row(V.dots(k2, { arr: "row", size: "sm" }), V.choices(opts2.map((x) => V.num(x, { size: "sm" })), opts2.indexOf(k2))),
-          `Now the other way. My turn. I count the dots. ${Chain(1, k2)} There are ${word(k2)}. This is the number ${word(k2)}. (Touch it.)`),
+          `Now the other way. My turn. I count the dots. ${Chain(1, k2)} There ${k2 === 1 ? "is one dot" : `are ${word(k2)} dots`}. This is the number ${word(k2)}. (Touch it.)`),
         ...this.groupToNum(r.int(2, u.max), u.max, r),
       ],
     };
@@ -517,7 +517,7 @@ const compare = {
     const [a, b] = this.pair(r, max, isSame);
     const ans = a === b ? "Yes." : "No.";
     return test(V.match(a, b, { icon, lines: true }), "Do these rows have the same number?", ans,
-      fix(ans, "Do these rows have the same number?", a === b ? "Every one has a partner. No extras." : "Some have no partners. They are extras."),
+      fix(ans, "Do these rows have the same number?", a === b ? "Every one has a partner. There are no extras." : "Some have no partners. They are extras."),
       { skill: "compare", item: `same:${a}:${b}` });
   },
   newEx(u, ctx, intro) {
@@ -531,7 +531,7 @@ const compare = {
             do: "Touch each matched pair, then the extras.",
           }),
           model(V.match(2, 4, { icon: icons[1] }), `This time the bottom row has extras. The bottom row has more.`),
-          lead(V.match(4, 2, { icon: icons[2], tap: true, ans: 0 }), "Let's touch the row that has more together. Get ready.", "(Touches the top row.)"),
+          lead(V.match(4, 2, { icon: icons[2], tap: true, ans: 0 }), "Touch the row that has more with me. Get ready.", "(Touches the top row.)"),
           this.moreTest(r, 5, icons[3]),
           this.moreTest(r, 5, icons[4]),
           this.moreTest(r, 5, icons[0]),
@@ -557,10 +557,10 @@ const compare = {
         title: u.label,
         steps: [
           model(V.match(5, 2, { icon: icons[0] }), "My turn. The top row has extras. It has more. The bottom row has no extras. It has fewer. (Touch the bottom row.) This row has fewer.", {
-            do: "Fewer is the opposite of more.",
+            do: "Point to the extras in the top row, then touch the bottom row.",
           }),
           model(V.match(2, 6, { icon: icons[1] }), "Which row has fewer? The top row. It has no extras."),
-          lead(V.match(4, 1, { icon: icons[2], tap: true, ans: 1 }), "Let's touch the row that has fewer together. Get ready.", "(Touches the bottom row.)"),
+          lead(V.match(4, 1, { icon: icons[2], tap: true, ans: 1 }), "Touch the row that has fewer with me. Get ready.", "(Touches the bottom row.)"),
           this.moreTest(r, 6, icons[3], { fewer: true }),
           this.moreTest(r, 6, icons[4], { fewer: true }),
           this.moreTest(r, 6, icons[0]),
@@ -573,7 +573,7 @@ const compare = {
       steps: [
         model(V.match(4, 6, { icon: icons[0], lines: false, spread: 0 }), `Look. The top row is spread out, so it is longer. My turn. I match each one with a partner. (Touch each pair.) The bottom row has extras. The bottom row has more, even though the top row looks longer.`),
         model(V.match(4, 6, { icon: icons[0], lines: true, spread: 0 }), "Here are the partners. The bottom row has two extras. It has more."),
-        lead(V.match(5, 3, { icon: icons[1], lines: false, spread: 1, tap: true, ans: 0 }), "Let's match them in our heads and touch the row with more.", "(Touches the top row.)"),
+        lead(V.match(5, 3, { icon: icons[1], lines: false, spread: 1, tap: true, ans: 0 }), "Match them in your head with me. Then touch the row that has more.", "(Touches the top row.)"),
         this.moreTest(r, 8, icons[2], { noLines: true, spread: r.int(0, 1) }),
         this.moreTest(r, 8, icons[3], { noLines: true, spread: r.int(0, 1), fewer: true }),
         this.moreTest(r, 8, icons[4], { noLines: true, spread: r.int(0, 1) }),
@@ -671,7 +671,7 @@ const shapes = {
     return shapeVis(o);
   },
   nameTest(r, s) {
-    return test(this.randomShape(r, s), "What shape is this?", `A ${s}.`, fix(`A ${s}.`, "What shape is this?"), { skill: "shape", item: `name:${s}` });
+    return test(this.randomShape(r, s), "What shape is this?", `A ${s}.`, fix(`A ${s}.`, "What shape is this?", SHAPE_INFO[s] && SHAPE_INFO[s].rule), { skill: "shape", item: `name:${s}` });
   },
   touchTest(r, s, pool) {
     const opts = r.shuffle([s, ...r.sample(pool.filter((x) => x !== s), 2)]);
@@ -694,12 +694,12 @@ const shapes = {
     steps.push(lead(shapeVis({ s, c: "purple", scale: 0.9, rot: s === "circle" ? 0 : 30 }), `Is this a ${s}? Say it with me.`, "Yes."));
     const isItems = r.shuffle([
       { v: shapeVis({ s, c: r.pick(SHAPE_COLORS), scale: 0.5 }), a: "Yes." },
-      { v: shapeVis(info.no[0]), a: "No." },
+      { v: shapeVis(info.no[0]), a: "No.", why: info.no[0].why },
       { v: shapeVis({ s, c: r.pick(SHAPE_COLORS), rot: s === "circle" ? 0 : 60, scale: 1.1 }), a: "Yes." },
-      { v: shapeVis(info.no[1]), a: "No." },
+      { v: shapeVis(info.no[1]), a: "No.", why: info.no[1].why },
     ]);
     for (const [i, it] of isItems.entries()) {
-      steps.push(test(it.v, `${i === 0 ? "Your turn. " : ""}Is this a ${s}?`, it.a, fix(it.a, `Is this a ${s}?`, it.a === "Yes." ? info.rule : `It is not a ${s}.`), { skill: "shape", item: `is:${s}` }));
+      steps.push(test(it.v, `${i === 0 ? "Your turn. " : ""}Is this a ${s}?`, it.a, fix(it.a, `Is this a ${s}?`, it.a === "Yes." ? info.rule : `It is not a ${s}. ${it.why}`), { skill: "shape", item: `is:${s}` }));
     }
     const pool = Array.from(new Set([...known, "circle", "square", "triangle", "oval"]));
     steps.push(this.touchTest(r, s, pool));
@@ -710,7 +710,7 @@ const shapes = {
     const r = ctx.rand;
     const known = intro.map((x) => x.s);
     const picks = favorNew(r, known, 4);
-    const steps = picks.map((s, i) => (i === 1 || i === 3 ? this.touchTest(r, s, Array.from(new Set([...known, "circle", "square", "triangle", "oval"]))) : known.length > 1 ? this.nameTest(r, s) : test(this.randomShape(r, s), `Is this a ${s}?`, "Yes.", fix("Yes.", `Is this a ${s}?`), { skill: "shape", item: `is:${s}` })));
+    const steps = picks.map((s, i) => (i === 1 || i === 3 ? this.touchTest(r, s, Array.from(new Set([...known, "circle", "square", "triangle", "oval"]))) : known.length > 1 ? this.nameTest(r, s) : test(this.randomShape(r, s), `Is this a ${s}?`, "Yes.", fix("Yes.", `Is this a ${s}?`, SHAPE_INFO[s].rule), { skill: "shape", item: `is:${s}` })));
     return { title: "Shapes", steps };
   },
   testItems(units, ctx) {
@@ -754,13 +754,13 @@ const position = {
   summary: "Use on, under, next to, in, above, in front of, behind, first, and last to tell where something is.",
   standard: "ELOF: geometry and spatial sense",
   units: [
-    { id: "on", lesson: 10, label: "On" },
-    { id: "under", lesson: 16, label: "Under" },
-    { id: "next", lesson: 28, label: "Next to" },
-    { id: "in", lesson: 36, label: "In" },
-    { id: "above", lesson: 49, label: "Above" },
-    { id: "front", lesson: 57, label: "In front of" },
-    { id: "behind", lesson: 63, label: "Behind" },
+    { id: "on", lesson: 10, label: "The word on" },
+    { id: "under", lesson: 16, label: "The word under" },
+    { id: "next", lesson: 28, label: "The words next to" },
+    { id: "in", lesson: 36, label: "The word in" },
+    { id: "above", lesson: 49, label: "The word above" },
+    { id: "front", lesson: 57, label: "The words in front of" },
+    { id: "behind", lesson: 63, label: "The word behind" },
     { id: "firstlast", lesson: 74, label: "First and last" },
   ],
   sceneOf(rel, obj) {
@@ -769,7 +769,7 @@ const position = {
   whereTest(rel, obj) {
     const p = POS[rel];
     const ans = `${p.phrase.charAt(0).toUpperCase() + p.phrase.slice(1)} the ${p.ref}.`;
-    return test(this.sceneOf(rel, obj), `Where is the ${obj}?`, ans, fix(ans, `Where is the ${obj}?`), { skill: "position", item: `where:${rel}` });
+    return test(this.sceneOf(rel, obj), `Where is the ${obj}?`, ans, fix(ans, `Where is the ${obj}?`, `Look. The ${obj} is ${p.phrase} the ${p.ref}.`), { skill: "position", item: `where:${rel}` });
   },
   touchTest(r, rel, known, obj) {
     const sameRef = known.filter((x) => x !== rel && x !== "firstlast" && POS[x].ref === POS[rel].ref);
@@ -785,8 +785,8 @@ const position = {
   lineTest(r, which) {
     const icons = iconSeq(r, 5);
     const idx = which === "first" ? 0 : icons.length - 1;
-    return test(V.lineup(icons, { tap: true, ans: idx }), `Touch the one that is ${which}.`, `(Touches the ${icons[idx]}.)`,
-      fixPoint(`The flag is at the front of the line. The ${icons[idx]} is ${which}. (Touch it.)`, `Touch the one that is ${which}.`),
+    return test(V.lineup(icons, { tap: true, ans: idx }), `Touch the ${which} one.`, `(Touches the ${icons[idx]}.)`,
+      fixPoint(`The flag is at the front of the line. The ${icons[idx]} is at the ${which === "first" ? "front" : "end"}, so it is ${which}. (Touch it.)`, `Touch the ${which} one.`),
       { skill: "position", item: `line:${which}` });
   },
   newEx(u, ctx, intro) {
@@ -797,8 +797,8 @@ const position = {
       return {
         title: u.label,
         steps: [
-          model(V.lineup(icons), `These animals are in a line, waiting their turn. The flag shows the front of the line. My turn. The ${icons[0]} is at the front. It is first. The ${icons[4]} is at the end. It is last.`, { do: "Touch the first animal, then the last." }),
-          lead(V.lineup(icons, { tap: true, ans: 0 }), "Touch the one that is first with me.", `(Touches the ${icons[0]}.)`),
+          model(V.lineup(icons), `These things are in a line. The flag shows the front of the line. My turn. The ${icons[0]} is at the front. It is first. The ${icons[4]} is at the end. It is last.`, { do: "Touch the first picture, then the last." }),
+          lead(V.lineup(icons, { tap: true, ans: 0 }), "Touch the first one with me.", `(Touches the ${icons[0]}.)`),
           this.lineTest(r, "first"),
           this.lineTest(r, "last"),
           this.lineTest(r, "first"),
@@ -903,9 +903,16 @@ const size = {
     const bigIndex = flip ? 1 : 0;
     const ans = wantA ? bigIndex : 1 - bigIndex;
     const what = kind === "heavy" ? `the ${wantWord} one` : `the ${wantWord} ${icon}`;
+    const reason = {
+      big: `This ${icon} is bigger than the other one. It is big.`,
+      small: `This ${icon} is smaller than the other one. It is small.`,
+      long: `These start at the same place. This ${icon} goes farther, so it is long.`,
+      tall: `These stand on the same floor. This ${icon} goes up higher, so it is tall.`,
+      short: kind === "tall" ? `These stand on the same floor. This ${icon} does not go up as high, so it is short.` : `These start at the same place. This ${icon} does not go as far, so it is short.`,
+    };
     const fixLine = kind === "heavy"
-      ? `The heavy side of the scale goes down. ${wantA ? "This one is heavy." : "This one is light."} (Touch it.)`
-      : `This ${icon} is ${wantWord}. (Touch it.)`;
+      ? `The heavy side of the scale goes down. ${wantA ? "This one is heavy." : "The light side stays up. This one is light."} (Touch it.)`
+      : `${reason[wantWord]} (Touch it.)`;
     return test(this.pairVis(kind, icon, flip, ans), `Touch ${what}.`, `(Touches ${what}.)`, fixPoint(fixLine, `Touch ${what}.`),
       { skill: "size", item: `${kind}:${wantWord}`, confirm: `Yes, that one is ${wantWord}.` });
   },
@@ -997,7 +1004,7 @@ const patterns = {
     const choices = Array.from(new Set(p.core.map((c) => p.icons[c])));
     const opts = r.shuffle(choices);
     return [
-      lead(V.pattern(shown.map((i) => ({ icon: i })), { blanks: 1 }), "Say the pattern with me. Get ready.", shown.map((i) => i).join(", ") + ".", { do: "Touch each picture as you say it together." }),
+      lead(V.pattern(shown.map((i) => ({ icon: i })), { blanks: 1 }), "Say the pattern with me. Get ready.", capFirst(shown.join(", ")) + ".", { do: "Touch each picture as you say it together." }),
       test(V.row(V.pattern(shown.map((i) => ({ icon: i })), { blanks: 1 }), V.choices(opts.map((i) => V.obj(i, 1)), opts.indexOf(next))),
         "What comes next? Touch it.", `(Touches the ${next}.)`,
         fixPoint(`Listen to the pattern: ${shown.join(", ")}, ${next}. ${next.charAt(0).toUpperCase() + next.slice(1)} comes next. (Touch it.)`, "What comes next? Touch it."),
@@ -1011,9 +1018,9 @@ const patterns = {
     const coreNames = p.core.map((c) => p.icons[c]).join(", ");
     const shown = p.seq.slice(0, p.seq.length - 1);
     const steps = [
-      model(V.pattern(p.seq.map((i) => ({ icon: i }))), `My turn. Listen. ${names.charAt(0).toUpperCase() + names.slice(1)}. ${coreNames.charAt(0).toUpperCase() + coreNames.slice(1)} happens again and again. That is a pattern.`, { do: "Touch each picture as you say it." }),
-      lead(V.pattern(p.seq.map((i) => ({ icon: i }))), "Say it with me. Get ready.", names.charAt(0).toUpperCase() + names.slice(1) + "."),
-      model(V.pattern(shown.map((i) => ({ icon: i })), { blanks: 1 }), `What comes next? My turn. ${shown.join(", ")}, ${p.seq[p.seq.length - 1]}. ${p.seq[p.seq.length - 1].charAt(0).toUpperCase() + p.seq[p.seq.length - 1].slice(1)} comes next.`),
+      model(V.pattern(p.seq.map((i) => ({ icon: i }))), `My turn. Listen. ${capFirst(names)}. The part "${coreNames}" happens again and again. That is a pattern.`, { do: "Touch each picture as you say it." }),
+      lead(V.pattern(p.seq.map((i) => ({ icon: i }))), "Say it with me. Get ready.", capFirst(names) + "."),
+      model(V.pattern(shown.map((i) => ({ icon: i })), { blanks: 1 }), `What comes next? My turn. ${capFirst(shown.join(", "))}, ${p.seq[p.seq.length - 1]}. ${capFirst(p.seq[p.seq.length - 1])} comes next.`),
       ...this.nextTest(r, u.id),
       ...this.nextTest(r, u.id),
     ];
@@ -1095,7 +1102,7 @@ const sorting = {
       test(screen, "Touch the one that does not belong.", `(Touches ${st.oddName}.)`,
         fixPoint(`${st.same.replace("They are", "These are")} This one is not. It does not belong. (Touch ${st.oddName}.)`, "Touch the one that does not belong."),
         { skill: "sort", item: `odd:${by}`, confirm: "Yes, that one does not belong." }),
-      test(screen, "Why does it not belong?", st.why, fix(st.why, "Why does it not belong?"), { skill: "sort", item: `why:${by}` }),
+      test(screen, "Why doesn't it belong?", st.why, fix(st.why, "Why doesn't it belong?", `${st.same.replace("They are", "These are")} This one is not.`), { skill: "sort", item: `why:${by}` }),
     ];
   },
   newEx(u, ctx) {
@@ -1108,11 +1115,11 @@ const sorting = {
       title: u.label,
       steps: [
         model(V.choices(allA.map((x) => this.vis(x)), allA.findIndex((x) => x.odd)),
-          `My turn. ${a.same.replace("They are", "Three of these are")} One is not. It does not belong with the others. (Touch it.) Why? ${a.why}`, {
+          `My turn. ${a.same.replace("They are all", "Three of these are")} One is not. It does not belong with the others. (Touch it.) Why? ${a.why}`, {
             do: "Touch each one that is the same, then the one that is different.",
           }),
-        lead(V.choices(allB.map((x) => this.vis(x)), allB.findIndex((x) => x.odd)), "Let's find the one that does not belong together. Get ready.", `(Touches ${b.oddName}.)`),
-        lead(V.choices(allB.map((x) => this.vis(x)), allB.findIndex((x) => x.odd)), "Why does it not belong? Say it with me.", b.why),
+        lead(V.choices(allB.map((x) => this.vis(x)), allB.findIndex((x) => x.odd)), "Let's find it together. Touch the one that does not belong. Get ready.", `(Touches ${b.oddName}.)`),
+        lead(V.choices(allB.map((x) => this.vis(x)), allB.findIndex((x) => x.odd)), "Why doesn't it belong? Say it with me.", b.why),
         ...this.oddTest(r, u.id),
         ...this.oddTest(r, u.id),
       ],
@@ -1178,7 +1185,7 @@ const stories = {
     return [
       test(V.story(icon, start, { add }), `Listen. ${Word(start)} ${plural(icon, start)} ${start === 1 ? "is" : "are"} ${place}. ${Word(add)} more ${comes}. Touch and count all the ${plural(icon)}.`, Chain(1, total),
         fixChain(Chain(1, total), `Touch and count all the ${plural(icon)}.`), { skill: "story", item: `join:${start}+${add}` }),
-      test(V.story(icon, start, { add }), `How many ${plural(icon)} now?`, Word(total) + ".", fix(Word(total) + ".", `How many ${plural(icon)} now?`), { skill: "story", item: `join-total:${total}` }),
+      test(V.story(icon, start, { add }), `How many ${plural(icon)} now?`, Word(total) + ".", fix(Word(total) + ".", `How many ${plural(icon)} now?`, `The last number we counted was ${word(total)}, so there are ${word(total)} ${plural(icon)} now.`), { skill: "story", item: `join-total:${total}` }),
     ];
   },
   takeItem(r, icon) {
@@ -1190,7 +1197,7 @@ const stories = {
     return [
       test(V.story(icon, start, { take }), `Listen. There are ${word(start)} ${plural(icon, start)}. ${Word(take)} ${past}. We do not count the ones that are crossed out. Touch and count the ${plural(icon)} that are left.`, Chain(1, left),
         fixChain(Chain(1, left), `Touch and count the ${plural(icon)} that are left.`), { skill: "story", item: `take:${start}-${take}` }),
-      test(V.story(icon, start, { take }), `How many ${plural(icon)} are left?`, Word(left) + ".", fix(Word(left) + ".", `How many ${plural(icon)} are left?`), { skill: "story", item: `take-left:${left}` }),
+      test(V.story(icon, start, { take }), `How many ${plural(icon)} are left?`, Word(left) + ".", fix(Word(left) + ".", `How many ${plural(icon)} are left?`, `The last number we counted was ${word(left)}, so ${word(left)} ${left === 1 ? "is" : "are"} left.`), { skill: "story", item: `take-left:${left}` }),
     ];
   },
   newEx(u, ctx) {
@@ -1270,11 +1277,11 @@ export function writingTrack(units, opts = {}) {
       return {
         title: u.label,
         steps: [
-          model(V.write(d), `My turn to write ${word(d)}. Watch. ${howTo}`, { do: "The number draws itself. Press Show to draw it again. Say each part as it is drawn." }),
-          lead(V.write(d), `Write ${word(d)} in the air with me, big. ${howTo}`, `(Writes ${d} in the air.)`, { do: "Stand beside the child and write in the air together with one finger." }),
+          model(V.write(d), `My turn to write ${word(d)}. Watch. ${howTo}`, { do: "The number draws itself. Show again, the curved arrow, draws it again. Say each part as it is drawn." }),
+          lead(V.write(d), `Write ${word(d)} in the air with me. Make it big. ${howTo}`, `(Writes ${d} in the air.)`, { do: "Stand beside the child and write in the air together with one finger." }),
           test(V.num(d), `Your turn. Write ${word(d)} in the air.`, `(Writes ${d} in the air, starting at the top.)`,
             fixPoint(`Watch. ${howTo}`, `Write ${word(d)} in the air.`), { skill: "write", item: `write:${d}`, confirm: "Yes. You started at the top." }),
-          note(V.num(d), `On the worksheet for this lesson, trace each ${word(d)}, then write one by yourself.`, { do: "Watch the first one. If the child starts at the bottom, stop and show again." }),
+          note(V.num(d), `On today's worksheet, trace each ${word(d)}. Then write ${an(word(d))} ${word(d)} by yourself.`, { do: "Watch the first one. If the child starts at the bottom, stop and show again." }),
         ],
       };
     },
@@ -1284,18 +1291,19 @@ export function writingTrack(units, opts = {}) {
       return {
         title: "Writing numbers",
         steps: [
-          test(V.num(d), `Write ${word(d)} in the air.`, `(Writes ${d} in the air, starting at the top.)`, fixPoint(`Watch. ${String(d).split("").map((x) => STROKES[x]).join(" ")}`, `Write ${word(d)} in the air.`), { skill: "write", item: `write:${d}` }),
+          test(V.num(d), `Write ${word(d)} in the air.`, `(Writes ${d} in the air, starting at the top.)`, fixPoint(`Watch. ${String(d).split("").map((x) => STROKES[x]).join(" Then, next to it: ")}`, `Write ${word(d)} in the air.`), { skill: "write", item: `write:${d}` }),
         ],
       };
     },
     testItems(units) {
       const d = units[units.length - 1].d;
-      return [test(V.say(), `Write ${word(d)} on paper.`, `(Writes ${d}, starting at the top.)`, fixPoint("Watch me write it.", `Write ${word(d)}.`), { skill: "write", item: `write:${d}` })];
+      const howTo = String(d).split("").map((x) => STROKES[x]).join(" Then, next to it: ");
+      return [test(V.say(), `Write the number ${word(d)} on paper.`, `(Writes ${d}, starting at the top.)`, fixPoint(`Watch. (Write it on paper.) ${howTo}`, `Write the number ${word(d)} on paper.`), { skill: "write", item: `write:${d}` })];
     },
     worksheet(intro, ctx) {
       const r = ctx.rand;
       const d = favorNew(r, intro.map((u) => u.d), 1)[0];
-      return { kind: "trace", d, prompt: `Trace each ${word(d)}. Then write ${word(d)} by yourself.` };
+      return { kind: "trace", d, prompt: `Trace each ${d}. Then write ${an(word(d))} ${d} by yourself.` };
     },
   };
 }

@@ -59,6 +59,12 @@ export function ordinal(n) {
     "seventh", "eighth", "ninth", "tenth"][n] || n + "th";
 }
 
+// "a" or "an" before a word, as it is said: "an eight", "a one".
+// "an eight", "an apple", but "a one": the word starts with a "w" sound.
+export function an(w) {
+  return /^(eight|eleven|eighteen|eighty|[aei]|o(?!ne\b))/i.test(String(w)) ? "an" : "a";
+}
+
 export function list(items) {
   if (items.length <= 1) return items.join("");
   if (items.length === 2) return items.join(" and ");
