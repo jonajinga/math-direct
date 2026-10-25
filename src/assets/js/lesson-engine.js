@@ -15,7 +15,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var stage = $("child-stage");
   var el = {
-    where: $("tp-where"), exTitle: $("tp-ex-title"), exMeta: $("tp-ex-meta"), stepNo: $("tp-step-no"),
+    whereLevel: $("tp-where-level"), whereName: $("tp-where-name"), exTitle: $("tp-ex-title"), exMeta: $("tp-ex-meta"), stepNo: $("tp-step-no"),
     progress: $("tp-progress"), cue: $("tp-cue"), say: $("tp-say"), doBox: $("tp-do"), doText: $("tp-do-text"),
     answerBox: $("tp-answer"), answerText: $("tp-answer-text"), confirmBox: $("tp-confirm"), confirmText: $("tp-confirm-text"),
     correctBox: $("tp-correct"), correctText: $("tp-correct-text"), testNote: $("tp-test-note"),
@@ -45,7 +45,7 @@
     lesson.exercises.forEach(function (ex) {
       segments.push({ title: ex.title, meta: ex.trackName + " · " + kindName(ex.kind), kind: ex.kind, track: ex.track, n: ex.n, materials: ex.materials, steps: ex.steps });
     });
-    el.where.textContent = lesson.levelName + " · Lesson " + lesson.number;
+    setWhere(lesson.levelName, "Lesson " + lesson.number);
     // Worksheet and level links in the outline.
     var keys = el.outline && el.outline.querySelector(".tp-outline__keys");
     if (keys) {
@@ -57,6 +57,13 @@
     }
   }
 
+  // The header names the level on a small line and the lesson, test, or set
+  // below it in full.
+  function setWhere(level, name) {
+    el.whereLevel.textContent = level;
+    el.whereName.textContent = name;
+  }
+
   function kindName(k) {
     return { "new": "new teaching", firm: "firming", review: "review", delayed: "delayed test", test: "test", practice: "practice", placement: "placement" }[k] || k;
   }
@@ -66,7 +73,7 @@
     t.parts.forEach(function (p, i) {
       segments.push({ title: p.trackName, meta: "Part " + (i + 1) + " of " + t.parts.length, kind: "test", part: i, steps: p.items.map(function (s) { return asTestStep(s); }) });
     });
-    el.where.textContent = t.levelName + " · " + t.title;
+    setWhere(t.levelName + (t.final ? ", end of level" : ""), "Mastery Test " + t.number);
   }
 
   function asTestStep(s) {
@@ -88,7 +95,7 @@
     segments = [{ title: sec.title, meta: "Placement section", kind: "placement", section: placement.idx, steps: sec.items.map(asTestStep) }];
     pos = { seg: 0, step: 0 };
     results = {};
-    el.where.textContent = "Placement test · " + sec.title;
+    setWhere("Placement test", sec.title);
   }
 
   function initPractice() {
@@ -118,7 +125,7 @@
       chosen.push(asTestStep(it));
     }
     segments = [{ title: set.title, meta: set.levelName + " practice", kind: "practice", steps: chosen }];
-    el.where.textContent = set.levelName + " · Practice";
+    setWhere(set.levelName + " practice", set.title);
   }
 
   // ── Rendering a step ──
@@ -143,15 +150,17 @@
     var meta = seg.meta || "";
     if (MODE === "lesson") meta = "Exercise " + (pos.seg + 1) + " of " + segments.length + " · " + meta;
     el.exMeta.textContent = meta;
-    el.stepNo.textContent = "Step " + (pos.step + 1) + " of " + seg.steps.length;
+    el.stepNo.textContent = (pos.step + 1) + " of " + seg.steps.length;
+    el.stepNo.title = "Step " + (pos.step + 1) + " of " + seg.steps.length;
+    el.exTitle.title = seg.title;
     el.cue.textContent = cueLabel(st.cue);
     el.cue.className = "tp-cue tp-cue--" + (MODE === "test" || MODE === "placement" ? "test" : st.cue);
     el.say.textContent = st.say || "";
     setBox(el.doBox, el.doText, st["do"] || (seg.materials && pos.step === 0 ? "You will need: " + seg.materials + "." : ""));
     var testing = MODE === "test" || MODE === "placement";
-    setBox(el.answerBox, el.answerText, st.answer || "");
+    setBox(el.answerBox, el.answerText, numeralChains(st.answer || ""));
     setBox(el.confirmBox, el.confirmText, !testing && st.cue === "test" ? st.confirm : "");
-    setBox(el.correctBox, el.correctText, !testing && st.cue === "test" ? st.correct : "");
+    setBox(el.correctBox, el.correctText, !testing && st.cue === "test" ? numeralChains(st.correct) : "");
     el.correctBox.classList.remove("is-active");
     el.testNote.hidden = !testing;
 
@@ -169,7 +178,50 @@
     el.btnError.classList.toggle("is-chosen", r === "error");
     renderProgress();
     renderOutline();
-    el.teacher.scrollTop = 0;
+    fitPanel();
+  }
+
+  // Keep the teacher's panel on one screen. If the text does not fit, hide
+  // the exercise details, then step the type down a little at a time. The
+  // body scrolls only if the smallest setting still does not fit.
+  var FIT_STEPS = 4;
+  function fitPanel() {
+    var b = el.teacher, n;
+    for (n = 1; n <= FIT_STEPS; n++) b.classList.remove("fit-" + n);
+    for (n = 1; n <= FIT_STEPS && b.scrollHeight > b.clientHeight + 1; n++) b.classList.add("fit-" + n);
+    b.scrollTop = 0;
+  }
+
+  // A long counting chain is easier to scan as numerals: "105, 106, 107".
+  // The child never sees the panel, so this changes only what the parent reads.
+  var ONES = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+  var TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+  function wordValue(w) {
+    w = w.toLowerCase();
+    var total = 0, m = w.match(/^([a-z]+) hundred(?: (.+))?$/);
+    if (m) {
+      var h = ONES.indexOf(m[1]);
+      if (h < 1 || h > 9) return -1;
+      total = h * 100;
+      if (!m[2]) return total;
+      w = m[2];
+    }
+    var i = ONES.indexOf(w);
+    if (i >= 0) return total + i;
+    var p = w.split("-"), t = TENS.indexOf(p[0]);
+    if (t < 2 || p.length > 2) return -1;
+    if (p.length === 1) return total + t * 10;
+    var o = ONES.indexOf(p[1]);
+    return o >= 1 && o <= 9 ? total + t * 10 + o : -1;
+  }
+  function numeralChains(text) {
+    if (!text) return text;
+    return text.replace(/[A-Za-z][A-Za-z -]*(?:, [A-Za-z][A-Za-z -]*){5,}/g, function (run) {
+      if (run.length < 70) return run;
+      var nums = run.split(", ").map(wordValue);
+      for (var i = 0; i < nums.length; i++) if (nums[i] < 0) return run;
+      return nums.join(", ");
+    });
   }
 
   function setBox(box, textEl, text) {
@@ -285,6 +337,7 @@
         el.btnFirm.hidden = true; el.btnError.hidden = true; el.btnNext.hidden = false;
         setBox(el.confirmBox, el.confirmText, MODE === "test" || MODE === "placement" ? "Marked firm." : st.confirm);
         renderProgress();
+        fitPanel();
         return;
       }
       advance();
@@ -298,6 +351,7 @@
         el.btnFirm.hidden = true; el.btnError.hidden = true; el.btnNext.hidden = false;
         setBox(el.confirmBox, el.confirmText, "Marked as an error. Do not correct during a test.");
         renderProgress();
+        fitPanel();
         return;
       }
       advance();
@@ -306,7 +360,10 @@
     errorState = true;
     el.correctBox.hidden = false;
     el.correctBox.classList.add("is-active");
+    // The correction states the answer, so the other boxes can give way to it.
     el.confirmBox.hidden = true;
+    el.answerBox.hidden = true;
+    el.doBox.hidden = true;
     el.btnFirm.hidden = true;
     el.btnError.hidden = true;
     el.btnNext.hidden = true;
@@ -315,7 +372,8 @@
     if (currentStep().flash) { clearTimeout(flashTimer); stage.classList.remove("is-flashed"); }
     renderProgress();
     renderOutline();
-    el.correctBox.scrollIntoView({ block: "nearest" });
+    fitPanel();
+    if (el.teacher.scrollHeight > el.teacher.clientHeight + 1) el.teacher.scrollTop = el.correctBox.offsetTop - el.teacher.offsetTop;
   }
 
   function startOver() {
@@ -446,9 +504,8 @@
     var html = '<div class="finish">';
     html += '<p class="finish__kicker">' + escapeHtml(lesson.levelName) + (name ? " · " + escapeHtml(name) : "") + "</p>";
     html += '<h1 class="finish__title">Lesson ' + lesson.number + " is finished</h1>";
-    html += '<p class="finish__lead">This record is for you, the teacher. The child does not need to see it.</p>';
-    html += '<dl class="finish__facts"><div><dt>Answers firm</dt><dd>' + main.firm + "</dd></div><div><dt>Errors</dt><dd>" + main.errors + "</dd></div>";
-    if (del) html += "<div><dt>Missed items firm at the end</dt><dd>" + delayed.firm + " of " + (delayed.firm + delayed.errors) + "</dd></div>";
+    html += '<dl class="finish__facts"><div><dt>Firm</dt><dd>' + main.firm + "</dd></div><div><dt>Errors</dt><dd>" + main.errors + "</dd></div>";
+    if (del) html += '<div title="Missed items asked again at the end of the lesson, and how many were firm"><dt>Retest</dt><dd>' + delayed.firm + " of " + (delayed.firm + delayed.errors) + "</dd></div>";
     html += "<div><dt>Time</dt><dd>" + minutes + " min</dd></div></dl>";
     if (exErrors.length) {
       html += '<h2 class="finish__h2">Where the errors were</h2><ul class="finish__list">';
@@ -457,7 +514,7 @@
     }
     html += '<div class="finish__advice">';
     if (repeat) {
-      html += "<p><strong>Repeat this lesson next time.</strong> " + (stillMissed.length > 1 ? "Several items were still missed at the end of the lesson." : "More than one answer in four needed correcting.") + " Repeating a lesson is normal. It is how the program makes sure each step is firm before the next one is built on it.</p>";
+      html += "<p><strong>Repeat this lesson next time.</strong> " + (stillMissed.length > 1 ? "Several items were still missed at the end of the lesson." : "More than one answer in four needed correcting.") + " Repeating a lesson is normal; it makes sure each step is firm before the next is built on it.</p>";
     } else if (stillMissed.length) {
       html += "<p><strong>Go on to the next lesson, but first reteach one exercise.</strong> At the start of the next session, teach this exercise again from the beginning: " + escapeHtml(stillMissed.join(", ")) + ".</p>";
     } else {
@@ -477,7 +534,7 @@
   }
 
   function noteForm() {
-    return '<div class="finish__note"><label for="finish-note">Note for your records (optional)</label><textarea id="finish-note" rows="2" placeholder="For example: confused six and nine; tired today."></textarea><button type="button" class="btn btn--outline-dark" id="finish-note-save">Save note</button></div>';
+    return '<details class="finish__note"><summary>Add a note for your records</summary><div class="finish__note-body"><label class="sr-only" for="finish-note">Note</label><textarea id="finish-note" rows="2" placeholder="For example: confused six and nine; tired today."></textarea><button type="button" class="btn btn--outline-dark" id="finish-note-save">Save note</button></div></details>';
   }
 
   function finishTest(minutes) {
@@ -497,23 +554,31 @@
     if (!failed.length) {
       html += '<div class="finish__advice"><p><strong>Every part was passed.</strong> Go on to the next lesson.</p></div>';
     } else {
-      html += '<div class="finish__advice"><p><strong>' + failed.length + " part" + (failed.length > 1 ? "s need" : " needs") + " reteaching.</strong> Teach the exercises listed for each part below. Then give only those parts of the test again before going on. The lessons after this test build on these skills.</p></div>";
+      html += '<div class="finish__advice"><p><strong>' + failed.length + " part" + (failed.length > 1 ? "s need" : " needs") + " reteaching.</strong> Teach the exercises listed below, then give only those parts of the test again before going on.</p></div>";
     }
-    html += '<table class="finish__table"><thead><tr><th>Part</th><th>Errors</th><th>Result</th><th>If not passed, reteach</th></tr></thead><tbody>';
-    parts.forEach(function (p) {
-      html += "<tr><td>" + escapeHtml(p.trackName) + "</td><td>" + p.errors + " of " + p.items + "</td><td>" + (p.passed ? "Passed" : "<strong>Reteach</strong>") + "</td><td>";
-      if (!p.passed) {
-        html += p.remedy.map(function (r) { return '<a href="' + r.url + '">Lesson ' + r.lesson + ", exercise " + r.exercise + "</a> (" + escapeHtml(r.label) + ")"; }).join("<br>") || "Repeat the last three lessons' exercises for this skill.";
-      }
-      html += "</td></tr>";
-    });
-    html += "</tbody></table>";
+    // Parts to reteach, each with its lessons; then the passed parts on one line.
+    if (failed.length) {
+      html += '<h2 class="finish__h2">Reteach</h2><ul class="finish__list">';
+      failed.forEach(function (p) {
+        html += "<li><strong>" + escapeHtml(p.trackName) + "</strong>, " + errorsIn(p) + ": " +
+          (p.remedy.map(function (r) { return '<a href="' + r.url + '">Lesson ' + r.lesson + ", exercise " + r.exercise + "</a> (" + escapeHtml(r.label) + ")"; }).join("; ") || "repeat the last three lessons' exercises for this skill") + ".</li>";
+      });
+      html += "</ul>";
+    }
+    var passed = parts.filter(function (p) { return p.passed; });
+    if (passed.length) {
+      html += '<p class="finish__passed"><strong>Passed:</strong> ' + passed.map(function (p) { return escapeHtml(p.trackName) + (p.errors ? " (" + errorsIn(p) + ")" : ""); }).join(", ") + ".</p>";
+    }
     html += '<div class="finish__actions">';
     if (t.next) html += '<a class="btn btn--cta" href="' + t.next.url + '">' + escapeHtml(t.next.title) + "</a>";
     html += '<a class="btn btn--outline-dark" href="' + t.url + '">Give the test again</a>';
     html += '<a class="btn btn--outline-dark" href="/teacher/">Teacher dashboard</a>';
     html += "</div>" + noteForm() + "</div>";
     showFinish(html);
+  }
+
+  function errorsIn(p) {
+    return p.errors + " error" + (p.errors === 1 ? "" : "s") + " in " + p.items;
   }
 
   function finishPractice() {
@@ -639,6 +704,18 @@
   });
 
   window.addEventListener("resize", function () { fitStage(); });
+  // Refit the panel whenever its body changes size: a turned screen, or a
+  // header that grows a line when the child's name picker appears.
+  if (window.ResizeObserver) {
+    var lastHeight = 0;
+    new ResizeObserver(function () {
+      if (el.teacher.clientHeight === lastHeight || el.shell.hidden || !currentStep()) return;
+      lastHeight = el.teacher.clientHeight;
+      fitPanel();
+    }).observe(el.teacher);
+  } else {
+    window.addEventListener("resize", function () { if (!el.shell.hidden) fitPanel(); });
+  }
 
   function start() {
     if (MODE === "lesson") initLesson();

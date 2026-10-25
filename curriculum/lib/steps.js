@@ -65,10 +65,12 @@ export function fixPoint(show, question, preface) {
   return `${preface ? preface + " " : ""}My turn. ${show} Your turn. ${question}`;
 }
 
-// Correction for a chain (counting): model, lead, test.
+// Correction for a chain (counting): model, lead, test. A long chain is
+// printed once; the parent leads it again from the same line.
 export function fixChain(chainText, question) {
   const c = lowerFirst(chainText);
-  return `Stop. My turn: ${c} Do it with me: ${c} Your turn. ${question}`;
+  const long = chainText.split(",").length > 6;
+  return `Stop. My turn: ${c} Do it with me${long ? ". (Say the same numbers together.)" : `: ${c}`} Your turn. ${question}`;
 }
 
 export function exercise(track, kind, title, steps, extra = {}) {
