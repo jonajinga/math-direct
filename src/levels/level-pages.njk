@@ -45,8 +45,12 @@ eleventyComputed:
       </section>
     </div>
 
-    <h2 class="level-section-title">Lessons</h2>
-    <p class="level-section-note">Each lesson begins with a short warm-up, teaches something new, and reviews earlier skills. A mastery test follows every tenth lesson. A check mark shows a lesson the selected child has finished; a lesson to repeat is marked in amber.</p>
+    <div class="level-section-head">
+      <h2 class="level-section-title">Lessons</h2>
+      <button type="button" class="btn btn--outline-dark btn--sm" data-mark-toggle aria-pressed="false">Change marks</button>
+    </div>
+    <p class="level-section-note">Each lesson begins with a short warm-up, teaches something new, and reviews earlier skills. A mastery test follows every tenth lesson. A check mark shows a lesson the selected child has finished; a lesson to repeat is marked in amber. To change a mark yourself, choose Change marks.</p>
+    <p class="level-mark-note" data-mark-note hidden>Tap a lesson or test to mark it finished, mark it to repeat, or reset it. Choose Done when you have finished.</p>
     {% for lesson in level.lessonList %}
     {% if loop.index0 % 10 == 0 %}<div class="lesson-block"><h3 class="lesson-block__title">Lessons {{ lesson.number }} to {{ [lesson.number + 9, level.lessons] | min }}</h3><div class="lesson-grid2">{% endif %}
       <a href="{{ lesson.url }}" class="lcard" data-lesson-id="{{ lesson.id }}">
@@ -63,6 +67,23 @@ eleventyComputed:
       {% endif %}
     {% if loop.index0 % 10 == 9 or loop.last %}</div></div>{% endif %}
     {% endfor %}
+
+    <dialog class="mark-dialog" id="mark-dialog" aria-labelledby="mark-title">
+      <form method="dialog" class="mark-dialog__form">
+        <h2 class="mark-dialog__title" id="mark-title"></h2>
+        <p class="mark-dialog__status" id="mark-status"></p>
+        <div class="mark-dialog__choices">
+          <button type="submit" class="btn btn--outline-dark" value="done" id="mark-done"></button>
+          <button type="submit" class="btn btn--outline-dark" value="repeat" id="mark-repeat"></button>
+          <button type="submit" class="btn btn--outline-dark" value="new" id="mark-new"></button>
+        </div>
+        <p class="mark-dialog__help" id="mark-help"></p>
+        <div class="mark-dialog__foot">
+          <a class="mark-dialog__open" id="mark-open" href="#"></a>
+          <button type="submit" class="btn btn--outline-dark btn--sm" value="">Cancel</button>
+        </div>
+      </form>
+    </dialog>
 
     <h2 class="level-section-title">Skill tracks</h2>
     <p class="level-section-note">A track is one skill taught across many lessons. Several tracks run side by side, so each lesson practices a little of each.</p>

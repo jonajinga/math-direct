@@ -2,6 +2,7 @@
 //
 // A profile is one child:
 //   { id, name, completed: ["prek-001", ...],
+//     redo: ["prek-004", ...],                 lessons the teacher marked to repeat
 //     lessons: { lessonId: [summary, ...] },   last five teachings of each lesson
 //     tests: { testId: [summary, ...] },
 //     facts: { "3+2": { r: [1,0,1], last } }, last five results for each fact
@@ -33,6 +34,7 @@
     if (!p.tests) p.tests = {};
     if (!p.facts) p.facts = {};
     if (!Array.isArray(p.completed)) p.completed = [];
+    if (!Array.isArray(p.redo)) p.redo = [];
     // Old program: completed held lesson numbers 1 to 150.
     var old = p.completed.filter(function (c) { return typeof c === "number"; });
     if (old.length) {
@@ -104,6 +106,8 @@
   function recordLesson(id, summary) {
     update(function (p) {
       p.lessons[id] = (p.lessons[id] || []).concat([summary]).slice(-5);
+      // A new teaching replaces any mark the teacher set by hand.
+      p.redo = p.redo.filter(function (c) { return c !== id; });
       if (!summary.repeat && p.completed.indexOf(id) === -1) p.completed.push(id);
       p.lastLesson = { id: id, date: summary.date };
     });
@@ -111,6 +115,30 @@
   function lessonHistory(id) {
     var p = getActiveProfile();
     return p && p.lessons[id] ? p.lessons[id] : [];
+  }
+
+  // A lesson is "done", "repeat" (the last teaching said to repeat it, or the
+  // teacher marked it so), or "new" (not taught, or reset).
+  function lessonStatus(id, profile) {
+    var p = profile || getActiveProfile();
+    if (!p) return "new";
+    if (p.completed.indexOf(id) !== -1) return "done";
+    if (p.redo && p.redo.indexOf(id) !== -1) return "repeat";
+    var h = p.lessons[id];
+    return h && h.length && h[h.length - 1].repeat ? "repeat" : "new";
+  }
+  // The teacher's own mark. "new" resets the lesson: its record is erased.
+  function setLessonStatus(id, status) {
+    update(function (p) {
+      p.completed = p.completed.filter(function (c) { return c !== id; });
+      p.redo = p.redo.filter(function (c) { return c !== id; });
+      if (status === "done") p.completed.push(id);
+      else if (status === "repeat") p.redo.push(id);
+      else {
+        delete p.lessons[id];
+        if (p.lastLesson && p.lastLesson.id === id) delete p.lastLesson;
+      }
+    });
   }
 
   // The next lesson to teach in a level: the one after the highest completed.
@@ -142,6 +170,18 @@
   // ── Tests, placement, facts ──
   function recordTest(id, summary) {
     update(function (p) { p.tests[id] = (p.tests[id] || []).concat([summary]).slice(-5); });
+  }
+  // A test is "passed", "retake" (give it again), or "new" (not given).
+  function testStatus(id, profile) {
+    var p = profile || getActiveProfile();
+    var h = p && p.tests[id];
+    if (!h || !h.length) return "new";
+    return h[h.length - 1].passed ? "passed" : "retake";
+  }
+  // The teacher's own mark, kept as a result with no parts. "new" erases the record.
+  function setTestStatus(id, status) {
+    if (status === "new") { update(function (p) { delete p.tests[id]; }); return; }
+    recordTest(id, { date: new Date().toISOString(), manual: true, parts: [], passed: status === "passed" });
   }
   function recordPlacement(rec) {
     update(function (p) { p.placement = rec; });
@@ -175,7 +215,7 @@
   }
 
   function resetProgress() {
-    update(function (p) { p.completed = []; p.lessons = {}; p.tests = {}; p.facts = {}; p.placement = null; });
+    update(function (p) { p.completed = []; p.redo = []; p.lessons = {}; p.tests = {}; p.facts = {}; p.placement = null; });
   }
 
   // ── Export and import ──
@@ -194,6 +234,9 @@
     var set = {};
     target.completed.concat(src.completed).forEach(function (c) { set[c] = 1; });
     target.completed = Object.keys(set);
+    var redo = {};
+    target.redo.concat(src.redo).forEach(function (c) { if (!set[c]) redo[c] = 1; });
+    target.redo = Object.keys(redo);
     ["lessons", "tests"].forEach(function (k) {
       Object.keys(src[k]).forEach(function (id) {
         target[k][id] = (target[k][id] || []).concat(src[k][id]).sort(function (a, b) { return a.date < b.date ? -1 : 1; }).slice(-5);
@@ -311,6 +354,7 @@
     deleteProfile: deleteProfile, renameProfile: renameProfile, switchProfile: switchProfile,
     getCompleted: getCompleted, isComplete: isComplete, markComplete: markComplete, markIncomplete: markIncomplete,
     recordLesson: recordLesson, lessonHistory: lessonHistory, nextLesson: nextLesson, nextStep: nextStep,
+    lessonStatus: lessonStatus, setLessonStatus: setLessonStatus, testStatus: testStatus, setTestStatus: setTestStatus,
     recordTest: recordTest, recordPlacement: recordPlacement, recordFact: recordFact, factStatus: factStatus,
     addNote: addNote, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
     exportAllProfiles: exportAllProfiles, importProfiles: importProfiles,
