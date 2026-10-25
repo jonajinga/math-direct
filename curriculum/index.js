@@ -116,6 +116,7 @@ export function buildProgram({ strict = true } = {}) {
         minutes: l.minutes,
         newUnits: l.newUnits,
         tracks: l.exercises.map((e) => e.trackName),
+        independent: l.independent ? l.independent.steps.length : 0,
         testAfter: l.testAfter || null,
       })),
       tests: mt.map((t) => ({ id: t.id, url: t.url, title: t.title, afterLesson: t.afterLesson })),

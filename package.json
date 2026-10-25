@@ -13,6 +13,7 @@
     "check:fit": "node scripts/check-fit.mjs",
     "check:fit:all": "node scripts/check-fit.mjs --all",
     "check:session": "node scripts/check-session.mjs",
+    "check:program": "node scripts/check-program.mjs",
     "check:all": "npm run check && npm run clean && npm run build && npm run check:pwa && npm run check:copy"
   },
   "keywords": [

@@ -33,6 +33,7 @@
     if (!p.lessons) p.lessons = {};
     if (!p.tests) p.tests = {};
     if (!p.facts) p.facts = {};
+    if (!p.items) p.items = {};
     if (!Array.isArray(p.completed)) p.completed = [];
     if (!Array.isArray(p.redo)) p.redo = [];
     // Old program: completed held lesson numbers 1 to 150.
@@ -195,18 +196,48 @@
   function nextStep(levelId, total, tests, slug) {
     var n = nextLesson(levelId, total);
     var p = getActiveProfile();
-    var due = (tests || []).filter(function (t) { return t.afterLesson === n - 1; })[0];
-    if (due && p) {
-      var h = p.tests[due.id];
-      var passed = h && h.length && h[h.length - 1].passed;
-      if (!passed) return { url: due.url, label: due.title, test: true };
-    }
+    // The latest test that falls before the next lesson, and after where the
+    // child began the level, must be passed or marked passed before going on.
+    // A passed test covers the ones before it.
+    var from = p && p.placement && p.placement.level === levelId ? p.placement.lesson : 1;
+    var due = (tests || []).filter(function (t) { return t.afterLesson < n && t.afterLesson >= from; });
+    var last = due[due.length - 1];
+    if (last && p && testStatus(last.id, p) !== "passed") return { url: last.url, label: last.title, test: true };
     return { url: "/" + slug + "/lesson-" + String(n).padStart(3, "0") + "/", label: "Lesson " + n, test: false };
   }
 
   // ── Tests, placement, facts ──
   function recordTest(id, summary) {
-    update(function (p) { p.tests[id] = (p.tests[id] || []).concat([summary]).slice(-5); });
+    update(function (p) {
+      var h = p.tests[id] || [];
+      if (summary.partial && h.length && h[h.length - 1].parts && h[h.length - 1].parts.length) {
+        // Only some parts were given again: keep the other parts' last results.
+        var prev = h[h.length - 1];
+        var parts = prev.parts.map(function (old) {
+          var again = summary.parts.filter(function (x) { return x.track === old.track; })[0];
+          return again || old;
+        });
+        summary = { date: summary.date, minutes: summary.minutes, parts: parts, passed: parts.every(function (x) { return x.passed; }), retested: summary.parts.map(function (x) { return x.track; }) };
+      }
+      p.tests[id] = h.concat([summary]).slice(-5);
+    });
+  }
+  // Per-item results: the last five first-try results for each item key, as 1 or 0.
+  function recordItems(items, date) {
+    if (!items) return;
+    update(function (p) {
+      p.items = p.items || {};
+      for (var k in items) {
+        var cur = p.items[k] || { r: [] };
+        cur.r = cur.r.concat([items[k].first ? 1 : 0]).slice(-5);
+        cur.last = date || new Date().toISOString();
+        p.items[k] = cur;
+      }
+    });
+  }
+  function itemHistory(key, profile) {
+    var p = profile || getActiveProfile();
+    return p && p.items && p.items[key] ? p.items[key] : null;
   }
   // A test is "passed", "retake" (give it again), or "new" (not given).
   function testStatus(id, profile) {
@@ -252,7 +283,7 @@
   }
 
   function resetProgress() {
-    update(function (p) { p.completed = []; p.redo = []; p.lessons = {}; p.tests = {}; p.facts = {}; p.placement = null; });
+    update(function (p) { p.completed = []; p.redo = []; p.lessons = {}; p.tests = {}; p.facts = {}; p.items = {}; p.placement = null; });
   }
 
   // ── Export and import ──
@@ -411,6 +442,7 @@
     recordLesson: recordLesson, lessonHistory: lessonHistory, nextLesson: nextLesson, nextStep: nextStep,
     lessonStatus: lessonStatus, setLessonStatus: setLessonStatus, testStatus: testStatus, setTestStatus: setTestStatus,
     recordTest: recordTest, recordPlacement: recordPlacement, recordFact: recordFact, factStatus: factStatus,
+    recordItems: recordItems, itemHistory: itemHistory,
     addNote: addNote, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
     exportAllProfiles: exportAllProfiles, importProfiles: importProfiles,
     confirmDelete: confirmDelete, promptRename: promptRename, promptAdd: promptAdd,

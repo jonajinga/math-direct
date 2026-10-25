@@ -29,7 +29,9 @@
   var DATA = null, MODE = "", HOOKS = {};
   var segments = [];
   var pos = { seg: 0, step: 0 };
-  var results = {}; // "seg:step" -> "firm" | "error"
+  var results = {}; // step uid -> { first: "firm" | "error", last: "firm" | "error", n: tries }
+  var inserted = []; // retest steps added after corrections: { seg, at, from }
+  var moved = false; // the parent moved or marked something in this sitting
   var errorState = false; // showing a correction after an Error
   var delayedAdded = false;
   var flashTimer = null;
@@ -39,7 +41,12 @@
   var where = { child: "", level: "", name: "", ex: "", exShort: "" };
   var leaving = false; // set when the parent leaves through a sheet, so the browser does not ask again
 
-  function key(s, i) { return s + ":" + i; }
+  function key(s, i) { var st = segments[s] && segments[s].steps[i]; return st ? st.uid : s + ":" + i; }
+  function firstOf(k) { var r = results[k]; return r ? r.first : null; }
+  function lastOf(k) { var r = results[k]; return r ? r.last : null; }
+  function assignUids() {
+    segments.forEach(function (s, si) { s.steps.forEach(function (st, i) { if (!st.uid) st.uid = si + ":" + i; }); });
+  }
   function currentSeg() { return segments[pos.seg]; }
   function currentStep() { var s = currentSeg(); return s ? s.steps[pos.step] : null; }
   function escapeHtml(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
@@ -53,6 +60,10 @@
     segments = lesson.exercises.map(function (ex) {
       return { title: ex.title, meta: ex.trackName + " · " + kindName(ex.kind), kind: ex.kind, track: ex.track, n: ex.n, materials: ex.materials, steps: ex.steps };
     });
+    if (lesson.independent && lesson.independent.steps.length) {
+      segments.push({ title: "Independent work", meta: "Read each line once, give no help", kind: "independent", steps: lesson.independent.steps });
+    }
+    assignUids();
     setWhere(lesson.levelName, "Lesson " + lesson.number);
     el.outlineLinks.innerHTML = '<a href="/' + lesson.levelSlug + '/">All ' + escapeHtml(lesson.levelName) + " lessons</a>";
   }
@@ -66,12 +77,18 @@
     return { "new": "new teaching", firm: "firming", review: "review", delayed: "delayed test", test: "test", practice: "practice", placement: "placement" }[k] || k;
   }
 
+  var testParts = [];
   function initTest() {
     var t = DATA.test;
-    segments = t.parts.map(function (p, i) {
-      return { title: p.trackName, meta: "Part " + (i + 1) + " of " + t.parts.length, kind: "test", part: i, steps: p.items.map(asTestStep) };
+    // ?parts=2,4 gives only those parts again (numbered from 1).
+    var only = (new URLSearchParams(window.location.search).get("parts") || "").split(",").map(Number).filter(function (x) { return x >= 1 && x <= t.parts.length; });
+    testParts = only.length ? only.map(function (x) { return x - 1; }) : t.parts.map(function (p, i) { return i; });
+    segments = testParts.map(function (pi, i) {
+      var p = t.parts[pi];
+      return { title: p.trackName, meta: "Part " + (i + 1) + " of " + testParts.length, kind: "test", part: pi, steps: p.items.map(asTestStep) };
     });
-    setWhere(t.levelName + (t.final ? ", end of level" : ""), "Mastery Test " + t.number);
+    assignUids();
+    setWhere(t.levelName + (t.final ? ", end of level" : ""), "Mastery Test " + t.number + (only.length ? ", " + only.length + " part" + (only.length > 1 ? "s" : "") + " again" : ""));
     el.outlineLinks.innerHTML = '<a href="/' + t.levelSlug + '/">All ' + escapeHtml(t.levelName) + " lessons</a>";
   }
 
@@ -90,6 +107,7 @@
   function loadPlacementSection() {
     var sec = DATA.sections[placement.idx];
     segments = [{ title: sec.title, meta: "Placement section", kind: "placement", section: placement.idx, steps: sec.items.map(asTestStep) }];
+    assignUids();
     pos = { seg: 0, step: 0 };
     results = {};
     setWhere("Placement test", sec.title);
@@ -123,6 +141,7 @@
       }
     }
     segments = [{ title: set.title, meta: set.levelName + " practice", kind: "practice", steps: chosen }];
+    assignUids();
     setWhere(set.levelName + " practice", set.title);
     el.outlineLinks.innerHTML = '<a href="/practice/">All practice</a>';
   }
@@ -159,7 +178,7 @@
       s.steps.forEach(function (st, i) {
         total++;
         if (si < pos.seg || (si === pos.seg && i < pos.step)) done++;
-        if (results[key(si, i)] === "error") errs++;
+        if (firstOf(st.uid) === "error") errs++;
       });
       var cls = "rn-rail__seg" + (si === pos.seg ? " is-current" : "") + (si < pos.seg ? " is-done" : "") + (errs ? " has-errors" : "");
       html += '<span class="' + cls + '" style="--p:' + (si < pos.seg ? 1 : si === pos.seg ? (pos.step + 1) / s.steps.length : 0) + '"></span>';
@@ -171,10 +190,12 @@
   }
 
   // ── Rendering a step ──
-  function cueLabel(c) {
+  function cueLabel(c, seg) {
     if (MODE === "test" || MODE === "placement") return "Test item";
+    if (seg && seg.kind === "independent") return "On your own";
     return { model: "My turn", lead: "Together", test: "Your turn", note: "Set up" }[c] || "";
   }
+  function isOwn() { var seg = currentSeg(); return !!seg && seg.kind === "independent"; }
 
   function announce(text) {
     if (!el.live) return;
@@ -203,17 +224,21 @@
     el.stepNo.textContent = (pos.step + 1) + " of " + seg.steps.length;
     el.stepNo.setAttribute("aria-label", "Step " + (pos.step + 1) + " of " + seg.steps.length);
     var testing = MODE === "test" || MODE === "placement";
-    el.cue.textContent = cueLabel(st.cue);
-    el.cue.className = "tp-cue tp-cue--" + (testing ? "test" : st.cue);
+    var own = seg.kind === "independent";
+    el.cue.textContent = cueLabel(st.cue, seg);
+    el.cue.className = "tp-cue tp-cue--" + (testing ? "test" : own ? "own" : st.cue);
     el.say.textContent = st.say || "";
-    setBox(el.doBox, el.doText, st["do"] || (seg.materials && pos.step === 0 ? "You will need: " + seg.materials + "." : ""));
+    setBox(el.doBox, el.doText, own ? "" : st["do"] || (seg.materials && pos.step === 0 ? "You will need: " + seg.materials + "." : ""));
     setBox(el.answerBox, el.answerText, numeralChains(st.answer || ""));
-    setBox(el.confirmBox, el.confirmText, !testing && st.cue === "test" ? st.confirm : "");
-    setBox(el.correctBox, el.correctText, !testing && st.cue === "test" ? numeralChains(st.correct) : "");
+    setBox(el.confirmBox, el.confirmText, !testing && !own && st.cue === "test" ? st.confirm : "");
+    setBox(el.correctBox, el.correctText, !testing && !own && st.cue === "test" ? numeralChains(st.correct) : "");
     el.correctBox.classList.remove("is-active");
     el.touched.hidden = true;
     el.touched.textContent = "";
-    el.testNote.hidden = !testing;
+    el.testNote.textContent = testing ? "This is a test. Do not correct or help. Mark each answer and go on." :
+      own ? "Read the line once. Give no help. Mark the answer." :
+      st.retestOf ? "Asked again after the correction. Mark it as before." : "";
+    el.testNote.hidden = !el.testNote.textContent;
 
     renderStrip();
     renderRail();
@@ -221,7 +246,7 @@
     syncBar();
     fitPanel();
     saveSession();
-    announce((cueLabel(st.cue) ? cueLabel(st.cue) + ". " : "") + (st.say || ""));
+    announce((cueLabel(st.cue, seg) ? cueLabel(st.cue, seg) + ". " : "") + (st.say || ""));
   }
 
   // ── The sitting: saved after every move and mark, cleared when finished ──
@@ -230,11 +255,11 @@
   function markCount() { var n = 0; for (var k in results) n++; return n; }
   function saveSession() {
     if (!P || !P.saveSession || MODE === "practice" || !DATA) return;
-    if (!markCount() && pos.seg === 0 && pos.step === 0 && MODE !== "placement") return;
+    if (!markCount() && !moved && MODE !== "placement") return;
     P.saveSession({
-      kind: MODE, url: window.location.pathname, id: sessionId(),
+      kind: MODE, url: window.location.pathname + (testParts.length && testParts.length < (DATA.test ? DATA.test.parts.length : 0) ? window.location.search : ""), id: sessionId(),
       title: (where.level ? where.level + " · " : "") + where.name, where: where.ex, marks: markCount(),
-      pos: { seg: pos.seg, step: pos.step }, results: results, delayedAdded: delayedAdded,
+      pos: { seg: pos.seg, step: pos.step }, results: results, delayedAdded: delayedAdded, inserted: inserted,
       placement: MODE === "placement" ? placement : null, elapsed: Date.now() - startTime,
     });
   }
@@ -242,7 +267,8 @@
   function savedSitting() {
     if (!P || !P.loadSession || MODE === "practice") return null;
     var s = P.loadSession();
-    if (!s || s.url !== window.location.pathname || s.kind !== MODE) return null;
+    var here = window.location.pathname + (MODE === "test" && /[?&]parts=/.test(window.location.search) ? window.location.search : "");
+    if (!s || s.url !== here || s.kind !== MODE) return null;
     if (!s.marks && !(s.pos && (s.pos.seg || s.pos.step)) && MODE !== "placement") return null;
     return s;
   }
@@ -251,7 +277,19 @@
       placement = s.placement;
       loadPlacementSection();
     }
-    results = s.results || {};
+    results = {};
+    for (var k in (s.results || {})) {
+      var v = s.results[k];
+      results[k] = typeof v === "string" ? { first: v, last: v, n: 1 } : v;
+    }
+    inserted = [];
+    (s.inserted || []).forEach(function (ins) {
+      var seg = segments[ins.seg];
+      if (!seg) return;
+      var src = seg.steps.filter(function (st) { return st.uid === ins.from; })[0];
+      if (src) insertRetest(seg, ins.seg, seg.steps.indexOf(src));
+    });
+    moved = true;
     delayedAdded = !!s.delayedAdded;
     if (delayedAdded && MODE === "lesson") {
       var del = buildDelayed();
@@ -280,7 +318,7 @@
 
   // The control bar: four fixed slots. More · tool · Error · primary.
   function anyErrors() {
-    for (var k in results) if (results[k] === "error") return true;
+    for (var k in results) if (results[k].first === "error") return true;
     return false;
   }
   function isLastStep() {
@@ -292,7 +330,7 @@
   function syncBar() {
     var st = currentStep(), seg = currentSeg();
     var isTest = !!(st && st.cue === "test");
-    var canOver = MODE === "lesson" && !!seg && seg.kind !== "delayed";
+    var canOver = MODE === "lesson" && !!seg && seg.kind !== "delayed" && seg.kind !== "independent";
     var marks = st ? hasMarks(st.screen) : false;
     var showAgain = !!(st && (st.flash || touched));
     el.btnShow.hidden = !showAgain;
@@ -305,7 +343,7 @@
     el.btnFirm.hidden = errorState || !isTest;
     el.btnNext.hidden = errorState || isTest;
     el.btnNext.textContent = isLastStep() ? "Finish" : "Next";
-    var r = results[key(pos.seg, pos.step)];
+    var r = lastOf(key(pos.seg, pos.step));
     el.btnFirm.setAttribute("aria-pressed", r === "firm" ? "true" : "false");
     el.btnError.setAttribute("aria-pressed", r === "error" ? "true" : "false");
     el.btnFirm.classList.toggle("is-suggested", !!(touched && touched.right));
@@ -454,7 +492,7 @@
     var html = "";
     segments.forEach(function (s, si) {
       var errs = 0;
-      s.steps.forEach(function (st, i) { if (results[key(si, i)] === "error") errs++; });
+      s.steps.forEach(function (st) { if (firstOf(st.uid) === "error") errs++; });
       html += '<li><button type="button" class="sheet__row" data-seg="' + si + '"' + (si === pos.seg ? ' aria-current="true"' : "") + '><span class="rn-outline__n">' + (si + 1) + "</span><span>" + escapeHtml(s.title) +
         "<small>" + escapeHtml(s.meta || "") + (s.materials ? " · needs " + escapeHtml(s.materials) : "") + (errs ? " · " + errs + " error" + (errs > 1 ? "s" : "") : "") + (si === pos.seg ? " · now" : "") + "</small></span></button></li>";
     });
@@ -478,16 +516,23 @@
   }
 
   function mark(r) {
-    var st = currentStep();
+    var st = currentStep(), seg = currentSeg();
     if (!st || st.cue !== "test" || errorState) return;
-    results[key(pos.seg, pos.step)] = r;
-    if (st.fact && P && P.recordFact) P.recordFact(st.fact, r === "firm");
+    var k = st.uid, cur = results[k];
+    if (!cur) results[k] = { first: r, last: r, n: 1 };
+    else { cur.last = r; cur.n++; }
+    moved = true;
+    if (st.fact && P && P.recordFact && !cur) P.recordFact(st.fact, r === "firm");
     saveSession();
-    if (r === "firm" || MODE === "test" || MODE === "placement") {
+    if (r === "firm" || MODE === "test" || MODE === "placement" || seg.kind === "independent") {
       announce(r === "firm" ? "Marked firm." : "Marked as an error.");
       advance();
       return;
     }
+    // In a lesson, a missed item comes back two items later, as Direct
+    // Instruction does within a task. A retest that is missed again is not
+    // doubled; the delayed test at the end catches it.
+    if (MODE === "lesson" && seg.kind !== "delayed" && !st.retestOf && !cur) insertRetest(seg, pos.seg, pos.step);
     // Error in a lesson or practice set: show the correction in full.
     errorState = true;
     touched = null;
@@ -507,6 +552,18 @@
     announce("Marked as an error. Correction: " + (st.correct || ""));
   }
 
+  function insertRetest(seg, si, i) {
+    var st = seg.steps[i];
+    st.retests = (st.retests || 0) + 1;
+    var clone = asTestStep(st);
+    delete clone.retests;
+    clone.retestOf = st.uid;
+    clone.uid = st.uid + ":r" + st.retests;
+    var at = Math.min(i + 3, seg.steps.length);
+    seg.steps.splice(at, 0, clone);
+    inserted.push({ seg: si, at: at, from: st.uid });
+  }
+
   function startOver() {
     if (MODE !== "lesson") return;
     var seg = currentSeg();
@@ -520,6 +577,7 @@
   }
 
   function advance() {
+    moved = true;
     var seg = currentSeg();
     if (pos.step < seg.steps.length - 1) { pos.step++; render(); return; }
     if (pos.seg < segments.length - 1) { pos.seg++; pos.step = 0; render(); return; }
@@ -527,6 +585,7 @@
   }
 
   function back() {
+    moved = true;
     if (pos.step > 0) pos.step--;
     else if (pos.seg > 0) { pos.seg--; pos.step = segments[pos.seg].steps.length - 1; }
     else return;
@@ -534,6 +593,7 @@
   }
 
   function jump(seg, step) {
+    moved = true;
     pos.seg = Math.max(0, Math.min(seg, segments.length - 1));
     pos.step = step || 0;
     render();
@@ -545,11 +605,13 @@
     segments.forEach(function (s, si) {
       if (s.kind === "delayed") return;
       s.steps.forEach(function (st, i) {
-        if (results[key(si, i)] === "error") {
-          var c = asTestStep(st);
-          c.from = { seg: si, step: i };
-          missed.push(c);
-        }
+        if (st.retestOf || firstOf(st.uid) !== "error") return;
+        var c = asTestStep(st);
+        delete c.retests;
+        c.from = { seg: si, step: i, uid: st.uid };
+        c.uid = st.uid + ":d";
+        delete c.independent;
+        missed.push(c);
       });
     });
     return missed.length ? { title: "Missed items, once more", meta: "Delayed test", kind: "delayed", steps: missed } : null;
@@ -570,17 +632,39 @@
     finish();
   }
 
-  function tally(filter) {
+  // Counts the first-try results of the steps a filter admits; retest
+  // steps added after corrections are counted apart.
+  function tally(filter, which) {
     var firm = 0, errors = 0;
-    segments.forEach(function (s, si) {
+    segments.forEach(function (s) {
       if (filter && !filter(s)) return;
-      s.steps.forEach(function (st, i) {
-        var r = results[key(si, i)];
+      s.steps.forEach(function (st) {
+        if (which === "retest" ? !st.retestOf : !!st.retestOf) return;
+        var r = firstOf(st.uid);
         if (r === "firm") firm++;
         if (r === "error") errors++;
       });
     });
     return { firm: firm, errors: errors };
+  }
+  function itemResults() {
+    var items = {};
+    segments.forEach(function (s) {
+      if (s.kind === "delayed") return;
+      s.steps.forEach(function (st) {
+        if (!st.item || st.retestOf || !results[st.uid]) return;
+        var r = results[st.uid];
+        if (!items[st.item]) items[st.item] = { first: r.first === "firm", last: r.last === "firm" };
+        else items[st.item].last = r.last === "firm";
+      });
+    });
+    // A retest's result is the item's latest.
+    segments.forEach(function (s) {
+      s.steps.forEach(function (st) {
+        if (st.item && (st.retestOf || s.kind === "delayed") && results[st.uid] && items[st.item]) items[st.item].last = results[st.uid].last === "firm";
+      });
+    });
+    return items;
   }
 
   // ── Finish screens: an article with its main action in a fixed bar ──
@@ -638,21 +722,23 @@
 
   function finishLesson(minutes) {
     var lesson = DATA.lesson;
-    var main = tally(function (s) { return s.kind !== "delayed"; });
+    var isEx = function (s) { return s.kind !== "delayed" && s.kind !== "independent"; };
+    var main = tally(isEx);
+    var retests = tally(isEx, "retest");
+    var own = tally(function (s) { return s.kind === "independent"; });
     var delayed = tally(function (s) { return s.kind === "delayed"; });
     var exErrors = [];
     segments.forEach(function (s, si) {
-      if (s.kind === "delayed") return;
+      if (!isEx(s)) return;
       var errs = 0;
-      s.steps.forEach(function (st, i) { if (results[key(si, i)] === "error") errs++; });
+      s.steps.forEach(function (st) { if (!st.retestOf && firstOf(st.uid) === "error") errs++; });
       if (errs) exErrors.push({ n: si + 1, title: s.title, track: s.track, errors: errs });
     });
     var stillMissed = [];
     var del = segments.filter(function (s) { return s.kind === "delayed"; })[0];
     if (del) {
-      var di = segments.indexOf(del);
-      del.steps.forEach(function (st, i) {
-        if (results[key(di, i)] === "error") {
+      del.steps.forEach(function (st) {
+        if (lastOf(st.uid) === "error") {
           var src = segments[st.from.seg];
           if (stillMissed.indexOf(src.title) === -1) stillMissed.push(src.title);
         }
@@ -660,18 +746,24 @@
     }
     var total = main.firm + main.errors;
     var repeat = total > 0 && (main.errors / total > 0.25 || stillMissed.length > 1);
+    var ownTotal = own.firm + own.errors;
+    var ownLow = ownTotal > 0 && own.firm / ownTotal < 0.85;
     var summary = {
-      date: new Date().toISOString(), minutes: minutes, firm: main.firm, errors: main.errors,
+      date: new Date().toISOString(), minutes: minutes, firm: main.firm, errors: main.errors, firstTry: true,
+      retestFirm: retests.firm, retestErrors: retests.errors,
       delayedFirm: delayed.firm, delayedErrors: delayed.errors, exercises: exErrors, stillMissed: stillMissed, repeat: repeat,
+      independent: ownTotal ? { firm: own.firm, errors: own.errors } : null,
     };
-    if (P) P.recordLesson(lesson.id, summary);
+    if (P) { P.recordLesson(lesson.id, summary); if (P.recordItems) P.recordItems(itemResults(), summary.date); }
 
     var name = childName();
     var html = '<article class="finish">';
     html += '<p class="finish__kicker">' + escapeHtml(lesson.levelName) + (name ? " · " + escapeHtml(name) : "") + "</p>";
     html += '<h1 class="finish__title">Lesson ' + lesson.number + " is finished</h1>";
     html += '<dl class="finish__facts"><div><dt>Firm</dt><dd>' + main.firm + "</dd></div><div><dt>Errors</dt><dd>" + main.errors + "</dd></div>";
+    if (retests.firm + retests.errors) html += "<div><dt>Asked again</dt><dd>" + retests.firm + " of " + (retests.firm + retests.errors) + "</dd></div>";
     if (del) html += "<div><dt>Retest</dt><dd>" + delayed.firm + " of " + (delayed.firm + delayed.errors) + "</dd></div>";
+    if (ownTotal) html += "<div><dt>On your own</dt><dd>" + own.firm + " of " + ownTotal + "</dd></div>";
     html += "<div><dt>Time</dt><dd>" + minutes + " min</dd></div></dl>";
     if (exErrors.length) {
       html += '<h2 class="finish__h2">Where the errors were</h2><ul class="finish__list">';
@@ -686,6 +778,7 @@
     } else {
       html += "<p><strong>Go on to the next lesson.</strong> Every item was firm by the end.</p>";
     }
+    if (ownLow) html += "<p>On your own, " + own.errors + " of " + ownTotal + " were missed. Before the next lesson, go over those items with the child.</p>";
     html += "</div>";
     html += markRow("lesson", lesson.id);
     html += '<ul class="finish__links"><li><a href="' + lesson.url + '">Teach this lesson again</a></li><li><a href="/records/">Records</a></li></ul>';
@@ -712,14 +805,27 @@
 
   function finishTest(minutes) {
     var t = DATA.test;
-    var parts = t.parts.map(function (p, pi) {
-      var si = pi, errs = 0, n = p.items.length;
-      segments[si].steps.forEach(function (st, i) { if (results[key(si, i)] === "error") errs++; });
-      return { track: p.track, trackName: p.trackName, items: n, errors: errs, passed: errs <= p.allowed, remedy: p.remedy };
+    var partial = testParts.length < t.parts.length;
+    var given = segments.map(function (seg) {
+      var p = t.parts[seg.part], errs = 0;
+      seg.steps.forEach(function (st) { if (firstOf(st.uid) === "error") errs++; });
+      return { track: p.track, trackName: p.trackName, items: p.items.length, errors: errs, allowed: p.allowed, passed: errs <= p.allowed, remedy: p.remedy, n: seg.part + 1 };
     });
+    var summary = { date: new Date().toISOString(), minutes: minutes, partial: partial, parts: given.map(function (p) { return { track: p.track, trackName: p.trackName, items: p.items, errors: p.errors, passed: p.passed }; }), passed: given.every(function (p) { return p.passed; }) };
+    if (P) { P.recordTest(t.id, summary); if (P.recordItems) P.recordItems(itemResults(), summary.date); }
+    // What the record now says, with the parts not given this time.
+    var parts = given;
+    if (partial && P) {
+      var h = P.getActiveProfile() && P.getActiveProfile().tests[t.id];
+      var rec = h && h[h.length - 1];
+      if (rec && rec.parts) parts = rec.parts.map(function (rp) {
+        var g = given.filter(function (x) { return x.track === rp.track; })[0];
+        if (g) return g;
+        var tp = t.parts.filter(function (x) { return x.track === rp.track; })[0];
+        return { track: rp.track, trackName: rp.trackName, items: rp.items, errors: rp.errors, passed: rp.passed, remedy: tp ? tp.remedy : [], n: t.parts.indexOf(tp) + 1, earlier: true };
+      });
+    }
     var failed = parts.filter(function (p) { return !p.passed; });
-    var summary = { date: new Date().toISOString(), minutes: minutes, parts: parts.map(function (p) { return { track: p.track, trackName: p.trackName, items: p.items, errors: p.errors, passed: p.passed }; }), passed: !failed.length };
-    if (P) P.recordTest(t.id, summary);
 
     var html = '<article class="finish">';
     html += '<p class="finish__kicker">' + escapeHtml(t.levelName) + (childName() ? " · " + escapeHtml(childName()) : "") + "</p>";
@@ -727,12 +833,12 @@
     if (!failed.length) {
       html += '<div class="finish__advice"><p><strong>Every part was passed.</strong> Go on to the next lesson.</p></div>';
     } else {
-      html += '<div class="finish__advice"><p><strong>' + failed.length + " part" + (failed.length > 1 ? "s need" : " needs") + " reteaching.</strong> Teach the exercises listed below, then give only those parts of the test again before going on.</p></div>";
+      html += '<div class="finish__advice"><p><strong>' + failed.length + " part" + (failed.length > 1 ? "s need" : " needs") + " reteaching.</strong> Teach the exercises listed below, then give only " + (failed.length > 1 ? "those parts" : "that part") + " of the test again before going on. A part is passed with every item right" + (t.parts.some(function (p) { return p.allowed; }) ? ", or one error in five or more" : "") + ".</p></div>";
     }
     if (failed.length) {
       html += '<h2 class="finish__h2">Reteach</h2><ul class="finish__list">';
       failed.forEach(function (p) {
-        html += "<li><strong>" + escapeHtml(p.trackName) + "</strong>, " + errorsIn(p) + ": " +
+        html += "<li><strong>" + escapeHtml(p.trackName) + "</strong>, " + errorsIn(p) + (p.earlier ? " last time" : "") + ": " +
           (p.remedy.map(function (r) { return '<a href="' + r.url + '">Lesson ' + r.lesson + ", exercise " + r.exercise + "</a> (" + escapeHtml(r.label) + ")"; }).join("; ") || "repeat the last three lessons' exercises for this skill") + ".</li>";
       });
       html += "</ul>";
@@ -744,8 +850,15 @@
     html += markRow("test", t.id);
     html += '<ul class="finish__links"><li><a href="' + t.url + '">Give the test again</a></li><li><a href="/' + t.levelSlug + '/">All ' + escapeHtml(t.levelName) + " lessons</a></li></ul>";
     html += noteForm() + "</article>";
-    var primary = t.next ? { label: t.next.title, href: t.next.url } : { label: "Records", href: "/records/" };
-    showFinish(html, actionBar(primary, t.next ? { label: "Records", href: "/records/" } : null));
+    var primary, secondary;
+    if (failed.length) {
+      primary = { label: "Give " + (failed.length > 1 ? "the failed parts" : "that part") + " again", href: t.url + "?parts=" + failed.map(function (p) { return p.n; }).join(",") };
+      secondary = { label: "All lessons", href: "/" + t.levelSlug + "/" };
+    } else {
+      primary = t.next ? { label: t.next.title, href: t.next.url } : { label: "Records", href: "/records/" };
+      secondary = t.next ? { label: "Records", href: "/records/" } : null;
+    }
+    showFinish(html, actionBar(primary, secondary));
   }
 
   function errorsIn(p) {
@@ -755,7 +868,7 @@
   function finishPractice() {
     var missed = [];
     var seg = segments[0];
-    seg.steps.forEach(function (st, i) { if (results[key(0, i)] === "error") missed.push(st); });
+    seg.steps.forEach(function (st) { if (lastOf(st.uid) === "error") missed.push(st); });
     var tl = tally();
     var html = '<article class="finish">';
     html += '<p class="finish__kicker">' + escapeHtml(DATA.set.levelName) + " practice" + (childName() ? " · " + escapeHtml(childName()) : "") + "</p>";
@@ -988,6 +1101,8 @@
     segments = [];
     pos = { seg: 0, step: 0 };
     results = {};
+    inserted = [];
+    moved = false;
     errorState = false;
     delayedAdded = false;
     touched = null;
@@ -1037,6 +1152,9 @@
       initPlacement(0);
     }
     if (saved) { if (wantsContinue) restoreSitting(saved); else offerContinue(saved); return; }
+    // A remedy link from a test opens the exercise it names.
+    var ex = /#ex(\d+)/.exec(window.location.hash);
+    if (ex && MODE === "lesson") { pos.seg = Math.max(0, Math.min(Number(ex[1]) - 1, segments.length - 1)); pos.step = 0; }
     render();
   }
 

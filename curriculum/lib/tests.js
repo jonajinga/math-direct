@@ -6,8 +6,46 @@ function pad2(n) {
   return String(n).padStart(2, "0");
 }
 
+// A part is passed with every item right, or one error in five or more
+// (at least four in five right).
 export function allowedErrors(items) {
-  return items >= 4 ? 1 : 0;
+  return items >= 5 ? 1 : 0;
+}
+
+const PART_MIN = 4;
+const PART_MAX = 8;
+
+// Items for one part of a mastery test: one or two from the newest unit, one
+// from each other unit the part covers (the block's units, or every unit on
+// the final test), one from before the block for retention, and then fresh
+// draws until the part has at least four.
+function partItems(level, track, upTo, start, end, t, final) {
+  const items = [];
+  const seen = new Set();
+  const add = (list, limit) => {
+    let n = 0;
+    for (const x of list) {
+      const k = x.say + JSON.stringify(x.screen);
+      if (seen.has(k) || items.length >= PART_MAX) continue;
+      seen.add(k);
+      items.push(x);
+      n++;
+      if (limit && n >= limit) break;
+    }
+  };
+  const inBlock = upTo.filter((u) => u.lesson >= start);
+  const cover = final ? upTo : inBlock.length ? inBlock : upTo.slice(-2);
+  for (let i = cover.length - 1; i >= 0; i--) {
+    const idx = upTo.indexOf(cover[i]);
+    add(trackItems(level, track, upTo.slice(0, idx + 1), end, `test${t}-u${idx}`), i === cover.length - 1 ? 2 : 1);
+  }
+  if (!final && inBlock.length && upTo.length > inBlock.length) {
+    add(trackItems(level, track, upTo.slice(0, upTo.length - inBlock.length), end, `test${t}-prev`), 1);
+  }
+  for (let salt = 2; items.length < PART_MIN && salt < 10; salt++) {
+    add(trackItems(level, track, upTo, end, `test${t}-${salt}`), PART_MIN - items.length);
+  }
+  return items;
 }
 
 export function buildMasteryTests(level, built) {
@@ -24,30 +62,14 @@ export function buildMasteryTests(level, built) {
       if (!upTo.length || !track.testItems) continue;
       const inBlock = track.units.filter((u) => u.lesson >= start && u.lesson <= end);
       if (!final && !inBlock.length) continue;
-      const items = trackItems(level, track, upTo, end, `test${t}`);
-      // At least two items per part where the skill allows, so each part checks
-      // more than one example.
-      for (let salt = 2; items.length < 2 && salt < 6; salt++) {
-        const seen = new Set(items.map((x) => x.say + JSON.stringify(x.screen)));
-        for (const extra of trackItems(level, track, upTo, end, `test${t}-${salt}`)) {
-          if (items.length >= 3) break;
-          if (!seen.has(extra.say + JSON.stringify(extra.screen))) items.push(extra);
-        }
-      }
-      // Some skills give one fixed item for their newest unit. Add one from an
-      // earlier unit, so the part checks the newest step and one before it.
-      for (let k = upTo.length - 1; items.length < 2 && k >= 1; k--) {
-        const seen = new Set(items.map((x) => x.say + JSON.stringify(x.screen)));
-        const extra = trackItems(level, track, upTo.slice(0, k), end, `test${t}-prev${k}`).find((x) => !seen.has(x.say + JSON.stringify(x.screen)));
-        if (extra) items.push(extra);
-      }
+      const items = partItems(level, track, upTo, start, end, t, final);
       if (!items.length) continue;
       const remedyUnits = inBlock.length ? inBlock : upTo.slice(-2);
       const remedy = remedyUnits
         .map((u) => {
           const home = built.unitHome[`${track.id}:${u.id}`];
           if (!home) return null;
-          return { lesson: home.lesson, exercise: home.exercise, label: u.label, url: `/${level.slug}/lesson-${String(home.lesson).padStart(3, "0")}/` };
+          return { lesson: home.lesson, exercise: home.exercise, label: u.label, url: `/${level.slug}/lesson-${String(home.lesson).padStart(3, "0")}/#ex${home.exercise}` };
         })
         .filter(Boolean);
       parts.push({

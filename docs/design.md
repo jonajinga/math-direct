@@ -66,3 +66,18 @@ finishes. Opening the same page again offers to continue; Today shows a
 Continue card. Practice sets draw new items each time and are not saved.
 `npm run check:session` marks three answers, leaves, returns, continues, and
 finishes, and checks the sitting at each step.
+
+## Scoring
+
+The first try is what counts. A step's record keeps its first mark and its
+last; a corrected answer stays an error in the lesson's totals and in the
+repeat rule. After a correction the same item is asked again two items
+later in the same exercise (counted apart as "Asked again"), and every item
+missed on its first try returns once more in the delayed test at the end.
+Most lessons end with On your own: three to eight items from firmed and
+reviewed tracks, each answered by one touch, read once with no help and no
+correction. Mastery test parts hold four to eight items drawn from every
+step the part covers; a part passes with every item right, or one error in
+five or more. Failed parts can be given again alone, and the record merges.
+The next step stays on the latest due test until it is passed.
+`npm run check:program` exercises all of this in a browser.

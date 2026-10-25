@@ -29,7 +29,33 @@ export function estimateMinutes(lesson) {
       s += t;
     }
   }
+  if (lesson.independent) s += 10 + lesson.independent.steps.length * STEP_SECONDS.test;
   return Math.round(s / 60);
+}
+
+// One touch answers each On your own item: exactly one group to touch, no
+// pictures to mark one by one.
+function tapGroups(screen) {
+  let groups = 0;
+  walk(screen, (v) => {
+    if (v.t === "choices" && Array.isArray(v.opts)) groups++;
+    else if (v.tap && v.t !== "obj" && typeof v.ans === "number") groups++;
+  });
+  return groups;
+}
+export function validateIndependent(level, lesson, errors) {
+  const own = lesson.independent;
+  if (!own) return;
+  const L = `${level.id} lesson ${lesson.number}, On your own`;
+  if (own.steps.length < 3 || own.steps.length > 8) errors.push(`${L}: ${own.steps.length} items, not 3 to 8`);
+  own.steps.forEach((st, i) => {
+    const where = `${L}, item ${i + 1}`;
+    validateStep(st, where, errors);
+    checkReadable(level, lesson.number, st, where, errors);
+    if (st.cue !== "test") errors.push(`${where}: not a test step`);
+    if (tapGroups(st.screen) !== 1) errors.push(`${where}: needs exactly one group to touch`);
+    if (!/^\(Touches/.test(st.answer || "")) errors.push(`${where}: the answer is not a touch`);
+  });
 }
 
 // Every number printed on the child's screen.
@@ -147,6 +173,7 @@ export function validateLevel(level, built) {
       seen[ex.track].push(lesson.number);
     });
     lesson.steps = steps;
+    validateIndependent(level, lesson, errors);
     lesson.minutes = estimateMinutes(lesson);
     if (steps > (level.maxSteps || 80)) errors.push(`${L}: ${steps} steps, more than the ${level.maxSteps} allowed`);
   }
