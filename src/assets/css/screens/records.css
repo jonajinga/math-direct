@@ -43,8 +43,23 @@
 .dash-notes li .dash-small { grid-column: 1; margin: 0; }
 .dash-note-del { grid-column: 2; grid-row: 1 / span 2; }
 
-.records-actions { margin-top: var(--sp-5); }
+/* Recent lessons: a list on phones, columns from 40 em */
+.recent-list { list-style: none; margin: 0; padding: 0; }
+.recent { display: grid; grid-template-columns: 1fr; gap: 0.125rem; padding: var(--sp-2) 0; border-top: 1px solid var(--line); font-size: var(--fs-2); }
+.recent:first-child { border-top: 0; padding-top: 0; }
+.recent__date { color: var(--ink-2); font-size: var(--fs-1); }
+.recent__name { font-weight: 700; color: var(--primary); text-decoration: underline; text-underline-offset: 0.15em; }
+.recent__nums { color: var(--ink-2); }
+.recent__advice { font-weight: 600; }
+.dash-parts { margin-top: var(--sp-1); }
+.dash-parts summary { cursor: pointer; color: var(--primary); font-size: var(--fs-1); font-weight: 600; min-height: var(--tap); display: flex; align-items: center; }
+.dash-parts ul { margin: 0 0 var(--sp-2); padding-left: 1.25rem; font-size: var(--fs-1); color: var(--ink-2); }
+.dash-notes li { grid-template-columns: 1fr auto; }
+.dash-note-del { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+.card .dash-tests { margin-top: var(--sp-2); }
+.card .pbar__label { margin-bottom: var(--sp-1); }
 
 @media (min-width: 40em) {
   .dash-levels { grid-template-columns: 1fr 1fr; }
+  .recent { grid-template-columns: 5rem 9rem 1fr auto; gap: var(--sp-3); align-items: baseline; }
 }

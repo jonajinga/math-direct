@@ -472,7 +472,17 @@
       var p = getActiveProfile();
       if (!window.MD) return;
       MD.confirm({ title: "Erase " + (p ? p.name + "'s" : "this child's") + " records?", text: "Lessons, tests, facts, and the placement result are erased. Notes are kept. Save a backup first if you may want them back.", ok: "Erase", cancel: "Keep", danger: true }).then(function (yes) {
-        if (yes) { resetProgress(); window.location.reload(); }
+        if (!yes) return;
+        // The records are held for a minute behind Undo before they are gone.
+        var keep = JSON.parse(JSON.stringify(getActiveProfile()));
+        resetProgress();
+        clearSession();
+        MD.toast("Records erased.", { action: "Undo", ms: 60000, onAction: function () {
+          var profiles = getProfiles();
+          var i = profiles.findIndex(function (x) { return x.id === keep.id; });
+          if (i !== -1) { profiles[i] = keep; write(profiles); }
+          MD.toast("Records restored.");
+        } });
       });
     });
   }

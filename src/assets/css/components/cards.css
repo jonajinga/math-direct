@@ -19,6 +19,8 @@
   border: 0; background: none; color: var(--ink); font: inherit; text-align: left; text-decoration: none; cursor: pointer;
 }
 .row:hover { background: var(--surface-2); }
+.row--danger { color: var(--error); }
+.row--danger > svg { color: var(--error); }
 .row__main { flex: 1 1 auto; min-width: 0; }
 .row__title { display: block; font-weight: 700; font-size: var(--fs-3); }
 .row__sub { display: block; color: var(--ink-2); font-size: var(--fs-1); margin-top: 2px; }

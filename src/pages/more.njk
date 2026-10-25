@@ -24,11 +24,20 @@ bodyClass: page-more
   {% endfor %}
 </ul>
 
+<h2 class="section-title">Children and records</h2>
+<div data-child-picker></div>
+<ul class="rows">
+  <li><a class="row" href="/records/"><span class="row__main"><span class="row__title">Records</span><span class="row__sub">Each child's results, and renaming or removing a child</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+  <li><button class="row" type="button" id="btn-export-progress"><span class="row__main"><span class="row__title">Save a backup</span><span class="row__sub">A file with every child's records, to keep or to load on another device</span></span>{% include "partials/icons/download.njk" %}</button></li>
+  <li><button class="row" type="button" id="btn-import-progress"><span class="row__main"><span class="row__title">Load a backup</span><span class="row__sub">Records in the file are added to the records here</span></span>{% include "partials/icons/upload.njk" %}</button><input type="file" id="import-progress-input" accept=".json" hidden aria-label="Backup file"></li>
+  <li><button class="row row--danger" type="button" id="btn-reset-progress"><span class="row__main"><span class="row__title">Erase this child's records</span><span class="row__sub">Lessons, tests, and facts. Notes are kept.</span></span>{% include "partials/icons/x.njk" %}</button></li>
+</ul>
+<p class="muted small">Records live in this browser only. Clearing the browser's site data erases them, so save a backup now and then.</p>
+
 <h2 class="section-title">This app</h2>
 <ul class="rows">
   <li><button class="row" type="button" data-install hidden><span class="row__main"><span class="row__title">Install the app</span><span class="row__sub">Opens like an app and works without a connection</span></span>{% include "partials/icons/chevron-right.njk" %}</button></li>
   <li><button class="row" type="button" data-sheet-open="sheet-ios-install" id="ios-install-row" hidden><span class="row__main"><span class="row__title">Add to the Home Screen</span><span class="row__sub">On an iPhone or iPad</span></span>{% include "partials/icons/chevron-right.njk" %}</button></li>
-  <li><a class="row" href="/records/"><span class="row__main"><span class="row__title">Records and backups</span><span class="row__sub">Save, load, or erase a child's records</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
 </ul>
 
 <h2 class="section-title">About</h2>
@@ -38,6 +47,7 @@ bodyClass: page-more
   <li><a class="row" href="/terms/"><span class="row__main"><span class="row__title">Terms of use</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
 </ul>
 <p class="muted small">Math Direct is free and open source. Build {{ build.version }}.</p>
+<script src="/assets/js/progress.js?v={{ build.version }}"></script>
 
 <dialog class="sheet" id="sheet-ios-install" aria-labelledby="ios-install-title">
   <form method="dialog" class="sheet__form">

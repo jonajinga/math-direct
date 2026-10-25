@@ -1,9 +1,10 @@
 ---
 layout: layouts/app.njk
 title: Records
-description: Each child's lessons, mastery tests, the skills where errors cluster, a chart of which facts are firm, and notes. All records stay in this browser.
+description: Each child's next step, lessons, mastery tests by part, the skills where errors cluster, the pace, a chart of which facts are firm, and notes. All records stay in this browser.
 permalink: /records/
 bodyClass: page-records
+actionBar: true
 ---
 <header class="screen__head">
   <h1 class="screen__title">Records</h1>
@@ -11,16 +12,28 @@ bodyClass: page-records
 </header>
 <div id="profile-selector"></div>
 <div id="dash"></div>
-<section class="records-actions">
-  <h2 class="section-title">Backups</h2>
-  <p class="muted small">Records live in this browser only. Save a backup now and then, and load it on another device to carry records over. Clearing the browser's site data erases them.</p>
-  <div class="btn-row">
-    <button class="btn btn--secondary" id="btn-export-progress" type="button">Save a backup</button>
-    <button class="btn btn--secondary" id="btn-import-progress" type="button">Load a backup</button>
-    <button class="btn btn--danger" id="btn-reset-progress" type="button">Erase this child's records</button>
-    <input type="file" id="import-progress-input" accept=".json" hidden aria-label="Backup file">
+<p class="muted small">Backups, loading, and erasing are under <a href="/more/">More</a>.</p>
+
+<dialog class="sheet" id="sheet-note" aria-labelledby="sheet-note-title">
+  <form method="dialog" class="sheet__form">
+    <div class="sheet__head"><h2 class="sheet__title" id="sheet-note-title">Add a note</h2></div>
+    <div class="sheet__body">
+      <div class="field">
+        <label for="note-text">Note</label>
+        <textarea id="note-text" rows="3" maxlength="500" placeholder="For example: confused six and nine; tired today."></textarea>
+        <p class="field__error" id="note-error" hidden></p>
+      </div>
+    </div>
+    <div class="sheet__foot"><button type="submit" class="btn btn--secondary" value="cancel">Cancel</button><button type="submit" class="btn btn--primary" value="save">Save note</button></div>
+  </form>
+</dialog>
+
+<div class="action-bar">
+  <div class="action-bar__inner">
+    <button type="button" class="btn btn--primary" id="btn-add-note">Add note</button>
   </div>
-</section>
+</div>
+
 <script id="dash-data" type="application/json">{{ program.summary | dump | safe }}</script>
 <script src="/assets/js/progress.js?v={{ build.version }}"></script>
 <script src="/assets/js/records.js?v={{ build.version }}" defer></script>
