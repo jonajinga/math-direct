@@ -1,8 +1,7 @@
 // First Grade: 150 lessons, 20 to 30 minutes each, for children of about six.
 
 import {
-  V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural,
-  countTest, readNum, touchNum, touchChoice, iconSeq, favorNew, others,
+  V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural, countTest, readNum, touchNum, touchChoice, iconSeq, favorNew, others, an,
 } from "./common.js";
 import { factStep, families as kFamilies } from "./k.js";
 import { retrack, TAKE_VERBS } from "./prek.js";
@@ -51,12 +50,12 @@ const countAloud = {
     const r = ctx.rand;
     const steps = [];
     if (u.type === "from") {
-      steps.push(model(V.say(), "My turn. I start at forty-seven and count to fifty-three. Forty-seven... forty-eight, forty-nine, fifty, fifty-one, fifty-two, fifty-three. Listen to the change at fifty.", { do: "Stress the move to the next ten." }));
+      steps.push(model(V.say(), "My turn. I start at forty-seven and count to fifty-three. Listen to the change at fifty. Forty-seven... forty-eight, forty-nine, fifty, fifty-one, fifty-two, fifty-three.", { do: "Stress the move to the next ten." }));
       steps.push(lead(V.say(), "Do it with me. Start at sixty-eight. Count to seventy-four. Get it going.", Chain(68, 74)));
     } else if (u.type === "back") {
       const a = u.max === 20 ? 17 : 63;
       steps.push(model(V.say(), `Counting backward, the numbers get smaller. My turn. ${Chain(a, a - 6, -1)}`));
-      steps.push(lead(V.say(), `Do it with me. Start at ${word(a)}. Count backward. Get it going.`, Chain(a, a - 6, -1)));
+      steps.push(lead(V.say(), `Do it with me. Start at ${word(a)}. Count backward to ${word(a - 6)}. Get it going.`, Chain(a, a - 6, -1)));
     } else if (u.type === "tensfrom") {
       steps.push(model(V.say(), "When we count by tens from any number, only the tens change. The ones stay the same. My turn. Start at three: three, thirteen, twenty-three, thirty-three, forty-three, fifty-three."));
       steps.push(lead(V.say(), "Do it with me. Start at six. Count by tens to sixty-six. Get it going.", Chain(6, 66, 10)));
@@ -122,7 +121,7 @@ const numerals = {
     const t = Math.floor(a / 10);
     return {
       title: u.label, steps: [
-        model(V.num(a), `My turn. We read the first digit as a ten word, then the second digit. ${String(t)} in the first place means ${word(t * 10)}. ${a % 10 ? `Then ${word(a % 10)}. ${Word(a)}.` : `${Word(a)}.`}`, { skill: "read", do: "Touch the first digit, then the second." }),
+        model(V.num(a), `My turn. The first digit tells how many tens, so we say it as a tens word. Then we say the second digit. The ${word(t)} in the first place means ${word(t * 10)}. ${a % 10 ? `Then ${word(a % 10)}. ${Word(a)}.` : `${Word(a)}.`}`, { skill: "read", do: "Touch the first digit, then the second." }),
         lead(V.num(b), "Read it with me. Get ready.", Word(b) + ".", { skill: "read" }),
         ...r.sample(range(u.lo, u.hi), 4).map((d) => readNum(d)),
         this.reversedTouch(r, u),
@@ -161,7 +160,19 @@ const dictation = {
   ],
   item(r, max) {
     const n = r.int(max > 100 ? 101 : 21, max);
-    return test(V.say(), `Write ${word(n)} on your paper.`, `(Writes ${n}.)`, fixPoint(`${Word(n)} is ${n >= 100 ? "one hundred and " + word(n - 100) : `${word(Math.floor(n / 10))} tens and ${word(n % 10)} ones`}. I write ${String(n).split("").join(", then ")}.`, `Write ${word(n)}.`), { skill: "write", item: `dict:${n}`, confirm: `Yes, ${n}.` });
+    const ask = `Write ${word(n)} on your paper.`;
+    return test(V.say(), ask, `(Writes ${n}.)`, fixPoint(`${this.parts(n)} I write ${this.digits(n)}.`, ask), { skill: "write", item: `dict:${n}`, confirm: `Yes, ${word(n)}.` });
+  },
+  // "Twenty-eight is two tens and eight ones."
+  parts(n) {
+    const unit = (k, one, many) => `${k ? word(k) : "no"} ${k === 1 ? one : many}`;
+    const t = Math.floor((n % 100) / 10), o = n % 10;
+    if (n >= 100) return `${Word(n)} is one hundred, ${unit(t, "ten", "tens")}, and ${unit(o, "one", "ones")}.`;
+    return `${Word(n)} is ${unit(t, "ten", "tens")} and ${unit(o, "one", "ones")}.`;
+  },
+  // "a two, then an eight"
+  digits(n) {
+    return String(n).split("").map((d) => `${an(word(Number(d)))} ${word(Number(d))}`).join(", then ");
   },
   newEx(u, ctx) {
     const r = ctx.rand;
@@ -170,7 +181,7 @@ const dictation = {
       title: u.label,
       materials: "paper and a pencil",
       steps: [
-        model(V.num(ex), `When I hear a number, I write the tens digit first, then the ones. My turn. ${Word(ex)}. I write ${String(ex).split("").join(", then ")}.`),
+        model(V.num(ex), `When I hear a number, I write the ${ex >= 100 ? "hundreds digit first, then the tens, then the ones" : "tens digit first, then the ones"}. My turn. ${Word(ex)}. I write ${this.digits(ex)}.`),
         lead(V.say(), u.max > 100 ? "Write one hundred eight with me." : "Write thirty-two with me. Three tens, two ones.", u.max > 100 ? "(Writes 108.)" : "(Writes 32.)"),
         this.item(r, u.max), this.item(r, u.max), this.item(r, u.max),
       ],
@@ -210,7 +221,7 @@ const placeValue = {
     const t = Math.floor(n / 10), o = n % 10;
     const ans = `${Word(t)} ${t === 1 ? "ten" : "tens"}, ${word(o)} ${o === 1 ? "one" : "ones"}. ${Word(n)}.`;
     return test(V.pv(t, o), "How many tens? How many ones? What number is it?", ans,
-      fix(ans, "What number is it?", "Count the tens sticks, then the ones."), { skill: "place-value", item: `pv-build:${n}` });
+      fix(ans, "How many tens? How many ones? What number is it?", `I count the tens sticks: ${chain(10, t * 10, 10)}. Then the ones: ${o ? chain(1, o) : "there are none"}.`), { skill: "place-value", item: `pv-build:${n}` });
   },
   splitItem(r, max) {
     const n = r.int(11, Math.min(max, 99));
@@ -224,7 +235,7 @@ const placeValue = {
     const more = r() < 0.5;
     const ans = more ? n + 10 : n - 10;
     return test(V.num(n), `What is ten ${more ? "more" : "less"} than ${word(n)}?`, Word(ans) + ".",
-      fix(Word(ans) + ".", `What is ten ${more ? "more" : "less"} than ${word(n)}?`, `Ten ${more ? "more" : "less"} changes only the tens digit, by one. The ones stay the same.`), { skill: "place-value", item: `ten${more ? "more" : "less"}:${n}` });
+      fix(Word(ans) + ".", `What is ten ${more ? "more" : "less"} than ${word(n)}?`, `Ten ${more ? "more makes the tens digit one bigger" : "less makes the tens digit one smaller"}. The ones stay the same.`), { skill: "place-value", item: `ten${more ? "more" : "less"}:${n}` });
   },
   compareItem(r, max, signs) {
     const top = Math.min(max, 99);
@@ -241,7 +252,7 @@ const placeValue = {
     const read = sign === ">" ? "is greater than" : sign === "<" ? "is less than" : "equals";
     const ans = `${cap(sign === ">" ? "greater than" : sign === "<" ? "less than" : "equals")}. ${Word(a)} ${read} ${word(b)}.`;
     return test(V.eq(a, "?", b), "Which sign goes in the box: greater than, less than, or equals? Then read it.", ans,
-      fix(ans, "Which sign goes in the box? Read it.", sign === "=" ? "The numbers are the same, so they are equal." : `Compare the tens first. The open side of the sign faces the greater number.`), { skill: "place-value", item: `cmp:${a}:${b}` });
+      fix(ans, "Which sign goes in the box: greater than, less than, or equals? Then read it.", sign === "=" ? "The numbers are the same, so they are equal." : `Compare the tens first. The open side of the sign faces the greater number.`), { skill: "place-value", item: `cmp:${a}:${b}` });
   },
   newEx(u, ctx) {
     const r = ctx.rand;
@@ -252,9 +263,9 @@ const placeValue = {
           model(V.pv(0, 10), "Here are ten ones. My turn. When we have ten ones, we can bundle them into one ten.", { do: "If you have ten straws or sticks, bundle them with a rubber band as you say this." }),
           model(V.pv(1, 0), "This stick is one ten. It is the same as ten ones."),
           lead(V.pv(1, 0), "How many ones are in one ten? Say it with me.", "Ten."),
-          test(V.pv(2, 0), "How many tens?", "Two tens.", fix("Two tens.", "How many tens?"), { skill: "place-value", item: "pv-tens:2" }),
+          test(V.pv(2, 0), "How many tens?", "Two tens.", fix("Two tens.", "How many tens?", "I count the sticks: one ten, two tens."), { skill: "place-value", item: "pv-tens:2" }),
           test(V.pv(2, 0), "Two tens is how many ones?", "Twenty.", fix("Twenty.", "Two tens is how many ones?", "Count by tens: ten, twenty."), { skill: "place-value", item: "pv-tens:20" }),
-          test(V.pv(4, 0), "How many tens? How many ones is that?", "Four tens. Forty.", fix("Four tens. Forty.", "How many tens? How many ones is that?", "Count by tens: ten, twenty, thirty, forty."), { skill: "place-value", item: "pv-tens:40" }),
+          test(V.pv(4, 0), "How many tens? What number is that?", "Four tens. Forty.", fix("Four tens. Forty.", "How many tens? What number is that?", "I count by tens: ten, twenty, thirty, forty."), { skill: "place-value", item: "pv-tens:40" }),
         ],
         materials: "ten straws or craft sticks and a rubber band (optional)",
       };
@@ -327,14 +338,18 @@ const placeValue = {
     if (has("build")) steps.push(this.buildItem(r, max));
     if (has("tenmore")) steps.push(this.tenMoreItem(r, max));
     if (has("greater")) steps.push(this.compareItem(r, max, has("compare") ? [">", "<", "="] : has("less") ? [">", "<"] : [">"]));
-    if (!steps.length) steps.push(test(V.pv(r.int(2, 9), 0), "How many tens?", "(Says the number of tens.)", fixPoint("Count the sticks with me.", "How many tens?"), { skill: "place-value", item: "pv-tens" }));
+    if (!steps.length) {
+      const k = r.int(2, 9);
+      const sticks = Array.from({ length: k }, (_, i) => (i === 0 ? "one ten" : `${word(i + 1)} tens`)).join(", ");
+      steps.push(test(V.pv(k, 0), "How many tens?", `${Word(k)} tens.`, fix(`${Word(k)} tens.`, "How many tens?", `I count the sticks: ${sticks}.`), { skill: "place-value", item: `pv-tens:${k}` }));
+    }
     return { title: "Place value", steps };
   },
   testItems(units, ctx) {
     const r = ctx.rand;
     const max = numMax(ctx.lesson);
     const u = units[units.length - 1];
-    if (u.id === "bundle") return [test(V.pv(3, 0), "How many tens? How many ones is that?", "Three tens. Thirty.", fix("Three tens. Thirty.", "How many tens? How many ones is that?"), { skill: "place-value", item: "pv-tens:30" })];
+    if (u.id === "bundle") return [test(V.pv(3, 0), "How many tens? What number is that?", "Three tens. Thirty.", fix("Three tens. Thirty.", "How many tens? What number is that?", "I count by tens: ten, twenty, thirty."), { skill: "place-value", item: "pv-tens:30" })];
     if (u.id === "build") return [this.buildItem(r, max), this.buildItem(r, max)];
     if (u.id === "split") return [this.splitItem(r, max), this.splitItem(r, max)];
     if (u.id === "tenmore") return [this.tenMoreItem(r, max), this.tenMoreItem(r, max)];
@@ -408,7 +423,7 @@ const addFacts = {
     const a = r.int(1, 9), b = 10 - a, c = r.int(1, 9);
     const order = r.shuffle([a, c, b]);
     return test(V.eq(order[0], "+", order[1], "+", order[2], "=", "?"), "Look for two numbers that make ten. Add them first. Then add the third. What is the answer?", Word(a + b + c) + ".",
-      fix(Word(a + b + c) + ".", "What is the answer?", `${Word(a)} and ${word(b)} make ten. Ten plus ${word(c)} is ${word(10 + c)}.`), { skill: "add", item: `three:${order.join("+")}` });
+      fix(Word(a + b + c) + ".", "Look for two numbers that make ten. Add them first. Then add the third. What is the answer?", `${Word(a)} and ${word(b)} make ten. Ten plus ${word(c)} is ${word(10 + c)}.`), { skill: "add", item: `three:${order.join("+")}` });
   },
   newEx(u, ctx, intro) {
     const r = ctx.rand;
@@ -416,7 +431,7 @@ const addFacts = {
     const steps = [];
     switch (u.id) {
       case "plus12":
-        steps.push(model(V.eq(7, "+", 2, "=", "?"), "We know some rules for adding. Plus zero: the number stays the same. Plus one: the next number. Plus two: count on two. My turn. Seven plus two: seeven... eight, nine. Nine."));
+        steps.push(model(V.eq(7, "+", 2, "=", "?"), "We know some rules for adding. Plus zero: the number stays the same. Plus one: the next number. Plus two: count on two. My turn. Seven plus two: seven... eight, nine. Nine."));
         steps.push(lead(V.eq(5, "+", 1, "=", "?"), "Five plus one. Say it with me.", "Six."));
         break;
       case "turn":
@@ -522,7 +537,7 @@ const subFacts = {
     const steps = [];
     switch (u.id) {
       case "minus12":
-        steps.push(model(V.eq(9, "−", 2, "=", "?"), "Our subtraction rules. Minus zero: the number stays the same. Minus one: the number before. Minus two: count back two. My turn. Nine minus two: nine... eight, seven. Seven."));
+        steps.push(model(V.eq(9, "−", 2, "=", "?"), "We know some rules for subtracting. Minus zero: the number stays the same. Minus one: the number before. Minus two: count back two. My turn. Nine minus two: nine... eight, seven. Seven."));
         steps.push(lead(V.eq(6, "−", 1, "=", "?"), "Six minus one. Say it with me.", "Five."));
         break;
       case "from10":
@@ -586,8 +601,11 @@ const families = {
   ],
   fourItem(r, max) {
     const c = r.int(6, max), a = r.int(2, Math.min(9, c - 2)), b = c - a;
-    return test(V.family(a, b, c), "Say the four facts in this family: two plus facts and two minus facts.", `${Word(a)} plus ${word(b)} equals ${word(c)}. ${Word(b)} plus ${word(a)} equals ${word(c)}. ${Word(c)} minus ${word(a)} equals ${word(b)}. ${Word(c)} minus ${word(b)} equals ${word(a)}.`,
-      fix(`${Word(a)} plus ${word(b)} equals ${word(c)}. ${Word(b)} plus ${word(a)} equals ${word(c)}. ${Word(c)} minus ${word(a)} equals ${word(b)}. ${Word(c)} minus ${word(b)} equals ${word(a)}.`, "Say the four facts.", "The plus facts start with the small numbers. The minus facts start with the big number."), { skill: "family", item: `four:${a}:${b}` });
+    const ask = "Say the four facts in this family: two plus facts and two minus facts.";
+    const facts = `${Word(a)} plus ${word(b)} equals ${word(c)}. ${Word(b)} plus ${word(a)} equals ${word(c)}. ${Word(c)} minus ${word(a)} equals ${word(b)}. ${Word(c)} minus ${word(b)} equals ${word(a)}.`;
+    // The facts are printed once; the parent leads them again from the same line.
+    return test(V.family(a, b, c), ask, facts,
+      `The plus facts start with the small numbers. The minus facts start with the big number. My turn: ${facts.charAt(0).toLowerCase() + facts.slice(1)} Say them with me. (Say the same four facts together.) Your turn. ${ask}`, { skill: "family", item: `four:${a}:${b}`, confirm: "Yes. Those are the four facts." });
   },
   newEx(u, ctx, intro) {
     const r = ctx.rand;
@@ -679,6 +697,15 @@ const fluency = {
   },
 };
 
+// One side of an equation, worked out: { value, text: "six plus one is seven" }.
+function sideOf(side) {
+  let value = side[0];
+  for (let i = 1; i < side.length; i += 2) value = side[i] === "+" ? value + side[i + 1] : value - side[i + 1];
+  if (side.length === 1) return { value, text: word(value) };
+  const said = side.map((p) => (p === "+" ? "plus" : p === "−" ? "minus" : word(p))).join(" ");
+  return { value, text: `${said} is ${word(value)}` };
+}
+
 // ─────────────────────────────────────────────────────────────
 // The equal sign
 // ─────────────────────────────────────────────────────────────
@@ -705,7 +732,16 @@ const equalSign = {
     ];
     const [parts, isTrue] = r.pick(kinds)();
     const ans = isTrue ? "True." : "False.";
-    return test(V.eq(...parts), "Is this true or false? Work out each side.", ans, fix(ans, "Is it true or false?", isTrue ? "Both sides are the same amount." : "The two sides are not the same amount."), { skill: "equal", item: `tf:${parts.join("")}` });
+    const eq = parts.indexOf("=");
+    const [left, right] = [sideOf(parts.slice(0, eq)), sideOf(parts.slice(eq + 1))];
+    const why = `This side: ${left.text}. That side: ${right.text}. ${isTrue ? `Both sides are ${word(left.value)}, so it is true.` : `${cap(word(left.value))} is not ${word(right.value)}, so it is false.`}`;
+    return test(V.eq(...parts), "Is this true or false? Work out each side.", ans, fix(ans, "Is this true or false? Work out each side.", why), { skill: "equal", item: `tf:${parts.join("")}` });
+  },
+  // "Nine equals five plus four. Yes."
+  sameItem(c, a, b) {
+    const ans = `${Word(c)} equals ${word(a)} plus ${word(b)}. Yes.`;
+    return test(V.eq(c, "=", a, "+", b), "Read it. Is it the same on both sides?", ans,
+      fix(ans, "Read it. Is it the same on both sides?", `${Word(a)} plus ${word(b)} is ${word(c)}, so both sides are ${word(c)}.`), { skill: "equal", item: `same:${c}`, confirm: `Right. Both sides are ${word(c)}.` });
   },
   unknownItem(r) {
     const c = r.int(6, 18), a = r.int(2, Math.min(9, c - 1)), b = c - a;
@@ -714,7 +750,7 @@ const equalSign = {
       [[c, "−", "?", "=", a], b], [["?", "−", a, "=", b], c], [[a, "=", c, "−", "?"], b],
     ];
     const [parts, ans] = r.pick(forms);
-    return test(V.eq(...parts), "What number goes in the box?", Word(ans) + ".", fix(Word(ans) + ".", "What number goes in the box?", `Think of the family: ${word(a)}, ${word(b)}, and ${word(c)}.`), { skill: "equal", item: `unknown:${parts.join("")}` });
+    return test(V.eq(...parts), "What number goes in the box?", Word(ans) + ".", fix(Word(ans) + ".", "What number goes in the box?", `Think of the family: ${word(a)} and ${word(b)} make ${word(c)}. So the box is ${word(ans)}.`), { skill: "equal", item: `unknown:${parts.join("")}` });
   },
   newEx(u, ctx) {
     const r = ctx.rand;
@@ -724,8 +760,8 @@ const equalSign = {
           model([V.eq(5, "=", 3, "+", 2), V.row(V.dots(5, { size: "sm" }), V.sign("="), V.dots(3, { size: "sm" }), V.sign("+"), V.dots(2, { size: "sm" }))], "The equal sign means the same amount is on both sides. It does not mean the answer comes next. My turn. Five equals three plus two. Five on this side. Three plus two, five, on that side. The same."),
           model(V.eq(4, "+", 4, "=", 6, "+", 2), "Four plus four is eight. Six plus two is eight. Both sides are eight, so they are equal."),
           lead(V.eq(7, "=", 7), "Read it with me.", "Seven equals seven."),
-          test(V.eq(9, "=", 5, "+", 4), "Read it. Is it the same on both sides?", "Nine equals five plus four. Yes.", fix("Nine equals five plus four. Yes.", "Read it. Is it the same on both sides?"), { skill: "equal", item: "same:9" }),
-          test(V.eq(3, "+", 5, "=", 5, "+", 3), "Read it. Is it the same on both sides?", "Three plus five equals five plus three. Yes.", fix("Three plus five equals five plus three. Yes.", "Read it. Is it the same on both sides?"), { skill: "equal", item: "same:turn" }),
+          this.sameItem(9, 5, 4),
+          test(V.eq(3, "+", 5, "=", 5, "+", 3), "Read it. Is it the same on both sides?", "Three plus five equals five plus three. Yes.", fix("Three plus five equals five plus three. Yes.", "Read it. Is it the same on both sides?", "Three plus five is eight. Five plus three is eight."), { skill: "equal", item: "same:turn", confirm: "Right. Both sides are eight." }),
         ],
       };
     }
@@ -733,7 +769,7 @@ const equalSign = {
       return {
         title: u.label, steps: [
           model(V.eq(6, "+", 1, "=", 8), "A true equation has the same amount on both sides. A false one does not. My turn. Six plus one is seven. Seven is not eight. This is false."),
-          model(V.eq(10, "=", 6, "+", 4), "Ten. Six plus four is ten. Ten and ten. This is true."),
+          model(V.eq(10, "=", 6, "+", 4), "Ten on this side. Six plus four is ten on that side. Ten and ten are the same, so this is true."),
           lead(V.eq(2, "+", 5, "=", 5, "+", 2), "True or false? Say it with me.", "True."),
           this.tfItem(r), this.tfItem(r), this.tfItem(r), this.tfItem(r),
         ],
@@ -753,7 +789,7 @@ const equalSign = {
     const has = (id) => intro.some((u) => u.id === id);
     const steps = [];
     if (has("truefalse")) steps.push(this.tfItem(r), this.tfItem(r));
-    else steps.push(test(V.eq(r.int(3, 9), "=", r.int(3, 9)), "Read it. Is it the same on both sides?", "(Reads it and says yes or no.)", fixPoint("Both sides must be the same amount.", "Is it the same on both sides?"), { skill: "equal", item: "same" }));
+    else { const b = r.int(2, 6), c = r.int(1, 4); steps.push(this.sameItem(b + c, b, c)); }
     if (has("unknown")) steps.push(this.unknownItem(r), this.unknownItem(r));
     return { title: "The equal sign", steps };
   },
@@ -762,7 +798,7 @@ const equalSign = {
     const u = units[units.length - 1];
     if (u.id === "unknown") return [this.unknownItem(r), this.unknownItem(r)];
     if (u.id === "truefalse") return [this.tfItem(r), this.tfItem(r)];
-    return [test(V.eq(8, "=", 4, "+", 4), "Read it. Is it the same on both sides?", "Eight equals four plus four. Yes.", fix("Eight equals four plus four. Yes.", "Read it. Is it the same on both sides?"), { skill: "equal", item: "same:8" })];
+    return [this.sameItem(8, 4, 4)];
   },
   worksheet(intro, ctx) {
     const r = ctx.rand;
@@ -778,7 +814,9 @@ const equalSign = {
 // Story problems of every kind
 // ─────────────────────────────────────────────────────────────
 
-const NAMES = ["Ana", "Ben", "Cora", "Dev", "Eli", "Faye", "Gus", "Hana", "Ivy", "Jon", "Kai", "Lena", "Max", "Nell", "Omar", "Pia", "Ray", "Sam", "Tess", "Will"];
+// Each name with the word the story uses for that child after the first mention.
+const NAMES = [["Ana", "she"], ["Ben", "he"], ["Cora", "she"], ["Dev", "he"], ["Eli", "he"], ["Faye", "she"], ["Gus", "he"], ["Hana", "she"], ["Ivy", "she"], ["Jon", "he"],
+  ["Kate", "she"], ["Lena", "she"], ["Max", "he"], ["Nell", "she"], ["Omar", "he"], ["Pia", "she"], ["Ray", "he"], ["Seth", "he"], ["Tess", "she"], ["Will", "he"]];
 const THINGS = ["stickers", "marbles", "shells", "crayons", "stamps", "acorns", "rocks", "beads", "cards", "buttons"];
 
 const stories = {
@@ -795,21 +833,27 @@ const stories = {
     { id: "start", lesson: 68, label: "How many at the start" },
     { id: "three", lesson: 96, label: "Three numbers in one story" },
   ],
-  // Each kind returns [story text, family a, b, c, which is missing].
+  // Each kind returns the story, the final question alone, the family a, b,
+  // c, which number is missing, and, when the big number is missing, why.
   make(r, kind, max) {
-    const name = r.pick(NAMES), other = r.pick(NAMES.filter((n) => n !== name)), thing = r.pick(THINGS);
+    const [name, pro] = r.pick(NAMES), other = r.pick(NAMES.filter((n) => n[0] !== name))[0], thing = r.pick(THINGS);
+    const Pro = cap(pro);
     const c = r.int(6, max), a = r.int(2, Math.min(c - 2, 12)), b = c - a;
+    const story = (text, ask, miss, why) => ({ text: `${text} ${ask}`, ask, a, b, c, miss, why });
     switch (kind) {
-      case "result+": return { text: `${name} had ${word(a)} ${thing}. ${name} got ${word(b)} more. How many ${thing} does ${name} have now?`, a, b, c, miss: "c" };
-      case "result-": return { text: `${name} had ${word(c)} ${thing}. ${name} gave away ${word(a)}. How many ${thing} does ${name} have now?`, a, b, c, miss: "b" };
-      case "together": return { text: `${name} has ${word(a)} red ${thing} and ${word(b)} blue ${thing}. How many ${thing} does ${name} have in all?`, a, b, c, miss: "c" };
-      case "apart": return { text: `${name} has ${word(c)} ${thing}. ${Word(a)} are red. The rest are blue. How many are blue?`, a, b, c, miss: "b" };
-      case "change+": return { text: `${name} had ${word(a)} ${thing}. ${name} found some more. Now ${name} has ${word(c)}. How many did ${name} find?`, a, b, c, miss: "b" };
-      case "change-": return { text: `${name} had ${word(c)} ${thing}. ${name} lost some. Now ${name} has ${word(a)}. How many did ${name} lose?`, a, b: c - a, c, miss: "b" };
-      case "more": return { text: `${name} has ${word(c)} ${thing}. ${other} has ${word(a)} ${thing}. How many more ${thing} does ${name} have than ${other}?`, a, b, c, miss: "b" };
-      case "fewer": return { text: `${name} has ${word(a)} ${thing}. ${other} has ${word(c)} ${thing}. How many fewer ${thing} does ${name} have than ${other}?`, a, b, c, miss: "b" };
-      case "start+": return { text: `${name} had some ${thing}. ${name} got ${word(b)} more. Now ${name} has ${word(c)}. How many did ${name} have at the start?`, a, b, c, miss: "a" };
-      case "start-": return { text: `${name} had some ${thing}. ${name} gave away ${word(a)}. Now ${name} has ${word(b)}. How many did ${name} have at the start?`, a, b, c, miss: "c" };
+      case "result+": return story(`${name} had ${word(a)} ${thing}. ${Pro} got ${word(b)} more.`, `How many ${thing} does ${name} have now?`, "c",
+        `${name} got more, so the number ${pro} has now is the big number. We are finding it, so the big number is missing.`);
+      case "result-": return story(`${name} had ${word(c)} ${thing}. ${Pro} gave away ${word(a)}.`, `How many ${thing} does ${name} have left?`, "b");
+      case "together": return story(`${name} has ${word(a)} red ${thing} and ${word(b)} blue ${thing}.`, `How many ${thing} does ${pro} have in all?`, "c",
+        "In all is the big number. We are finding it, so the big number is missing.");
+      case "apart": return story(`${name} has ${word(c)} ${thing}. ${Word(a)} are red, and the rest are blue.`, "How many are blue?", "b");
+      case "change+": return story(`${name} had ${word(a)} ${thing}. ${Pro} found some more. Now ${pro} has ${word(c)}.`, `How many ${thing} did ${name} find?`, "b");
+      case "change-": return story(`${name} had ${word(c)} ${thing}. ${Pro} lost some. Now ${pro} has ${word(a)}.`, `How many ${thing} did ${name} lose?`, "b");
+      case "more": return story(`${name} has ${word(c)} ${thing}. ${other} has ${word(a)}.`, `How many more ${thing} does ${name} have than ${other}?`, "b");
+      case "fewer": return story(`${name} has ${word(a)} ${thing}. ${other} has ${word(c)}.`, `How many fewer ${thing} does ${name} have than ${other}?`, "b");
+      case "start+": return story(`${name} had some ${thing}. ${Pro} got ${word(b)} more. Now ${pro} has ${word(c)}.`, `How many ${thing} did ${name} have at the start?`, "a");
+      case "start-": return story(`${name} had some ${thing}. ${Pro} gave away ${word(a)}. Now ${pro} has ${word(b)}.`, `How many ${thing} did ${name} have at the start?`, "c",
+        `${name} had the most at the start, before ${pro} gave some away. The start is the big number, and we are finding it, so the big number is missing.`);
       default: return null;
     }
   },
@@ -832,18 +876,19 @@ const stories = {
     const out = [];
     if (full) {
       out.push(test(V.family(p.miss === "a" ? "?" : p.a, p.miss === "b" ? "?" : p.b, p.miss === "c" ? "?" : p.c, p.miss), `${p.text} Is the big number missing?`, big ? "Yes." : "No.",
-        fix(big ? "Yes." : "No.", "Is the big number missing?", big ? "We are finding the total, so the big number is missing." : `The big number is ${word(p.c)}. We know it.`), { skill: "story", item: `story-big:${p.miss}` }));
+        fix(big ? "Yes." : "No.", "Is the big number missing?", big ? p.why : `The big number is ${word(p.c)}, and we know it, so it is not missing.`), { skill: "story", item: `story-big:${p.miss}` }));
       out.push(test(V.family(p.miss === "a" ? "?" : p.a, p.miss === "b" ? "?" : p.b, p.miss === "c" ? "?" : p.c, p.miss), "So do we add or subtract? Say the number problem.", `${big ? "Add" : "Subtract"}. ${opLine}`,
         fix(`${big ? "Add" : "Subtract"}. ${opLine}`, "Do we add or subtract? Say the number problem.", big ? "When the big number is missing, we add." : "When a small number is missing, we subtract from the big number."), { skill: "story", item: `story-op:${p.miss}` }));
     }
-    out.push(test(V.say(), full ? "What is the answer to the story?" : `${p.text}`, Word(ans) + ".", fix(Word(ans) + ".", "What is the answer?", opLine), { skill: "story", item: `story:${p.a}:${p.b}:${p.c}` }));
+    out.push(test(V.say(), full ? "What is the answer to the story?" : `${p.text}`, Word(ans) + ".", fix(Word(ans) + ".", full ? "What is the answer to the story?" : p.ask, opLine), { skill: "story", item: `story:${p.a}:${p.b}:${p.c}` }));
     return out;
   },
   threeItem(r) {
-    const name = r.pick(NAMES), thing = r.pick(THINGS);
+    const [name, pro] = r.pick(NAMES), thing = r.pick(THINGS);
     const a = r.int(2, 6), b = r.int(2, 6), c = r.int(1, 20 - a - b > 6 ? 6 : 20 - a - b);
-    return test(V.say(), `${name} found ${word(a)} ${thing} on Monday, ${word(b)} on Tuesday, and ${word(c)} on Wednesday. How many ${thing} did ${name} find in all?`, Word(a + b + c) + ".",
-      fix(Word(a + b + c) + ".", "How many in all?", `Add two numbers first, then the third. ${Word(a)} plus ${word(b)} is ${word(a + b)}. ${Word(a + b)} plus ${word(c)} is ${word(a + b + c)}.`), { skill: "story", item: "story-three" });
+    const ask = `How many ${thing} did ${pro} find in all?`;
+    return test(V.say(), `${name} found ${word(a)} ${thing} on Monday, ${word(b)} on Tuesday, and ${word(c)} on Wednesday. ${ask}`, Word(a + b + c) + ".",
+      fix(Word(a + b + c) + ".", ask, `Add the first two numbers, then add the third. ${Word(a)} plus ${word(b)} is ${word(a + b)}. ${Word(a + b)} plus ${word(c)} is ${word(a + b + c)}.`), { skill: "story", item: "story-three" });
   },
   newEx(u, ctx, intro) {
     const r = ctx.rand;
@@ -853,18 +898,18 @@ const stories = {
       more: V.family(7, "?", 11, "b"), fewer: V.family(6, "?", 10, "b"), start: V.family("?", 5, 13, "a"),
     };
     const intros = {
-      result: ["result+", "Listen. Ana had five shells. Ana found three more. How many shells does Ana have now? My turn. We make a number family. Ana got more, so we are finding the big number. The big number is missing, so we add. Five plus three equals eight. Ana has eight shells."],
-      parts: ["together", "Listen. Ben has six red crayons and four blue crayons. How many crayons in all? The red and blue are the small numbers. In all is the big number. It is missing, so we add. Six plus four equals ten."],
+      result: ["result+", "Listen. Ana had five shells. She found three more. How many shells does Ana have now? My turn. We make a number family. Ana got more, so the number she has now is the big number. It is missing, so we add. Five plus three equals eight. Ana has eight shells."],
+      parts: ["together", "Listen. Ben has six red crayons and four blue crayons. How many crayons does he have in all? My turn. The red crayons and the blue crayons are the small numbers. In all is the big number. It is missing, so we add. Six plus four equals ten. Ben has ten crayons."],
       change: ["change+", "Listen. Cora had seven stamps. She got some more. Now she has twelve. How many did she get? My turn. Twelve is the big number. Seven is a small number. The other small number is missing, so we subtract. Twelve minus seven equals five. Cora got five stamps."],
-      more: ["more", "Listen. Dev has eleven marbles. Eli has seven marbles. How many more marbles does Dev have than Eli? My turn. Dev has more, so eleven is the big number. Eli's seven is a small number. How many more is the missing small number. We subtract. Eleven minus seven equals four. Dev has four more."],
-      fewer: ["fewer", "Listen. Faye has six rocks. Gus has ten rocks. How many fewer rocks does Faye have than Gus? My turn. Gus has more, so ten is the big number. Faye's six is a small number. How many fewer is the other small number. Ten minus six equals four. Faye has four fewer."],
-      start: ["start+", "Listen. Hana had some beads. She got five more. Now she has thirteen. How many did she have at the start? My turn. Thirteen is the big number. Five is a small number. The start is the missing small number. Thirteen minus five equals eight. She had eight at the start."],
+      more: ["more", "Listen. Dev has eleven marbles. Eli has seven marbles. How many more marbles does Dev have than Eli? My turn. Dev has more, so eleven is the big number. Eli's seven is a small number. How many more is the other small number. It is missing, so we subtract. Eleven minus seven equals four. Dev has four more marbles than Eli."],
+      fewer: ["fewer", "Listen. Faye has six rocks. Gus has ten rocks. How many fewer rocks does Faye have than Gus? My turn. Gus has more, so ten is the big number. Faye's six is a small number. How many fewer is the other small number. It is missing, so we subtract. Ten minus six equals four. Faye has four fewer rocks than Gus."],
+      start: ["start+", "Listen. Hana had some beads. She got five more. Now she has thirteen. How many did she have at the start? My turn. Thirteen is the big number. Five is a small number. The start is the missing small number, so we subtract. Thirteen minus five equals eight. Hana had eight beads at the start."],
     };
     if (u.id === "three") {
       return {
         title: u.label, steps: [
           model(V.say(), "Listen. Ivy read three books on Monday, four on Tuesday, and six on Wednesday. How many books did she read in all? My turn. In all means add all three. Three plus four is seven. Seven plus six is thirteen. Ivy read thirteen books."),
-          lead(V.say(), "Jon has two red cars, five blue cars, and eight green cars. How many cars in all? Look for two that make ten: two and eight. Ten plus five. Say it with me.", "Fifteen."),
+          lead(V.say(), "Jon has two red cars, five blue cars, and eight green cars. How many cars does he have in all? Work it out with me. Look for two numbers that make ten: two and eight. Ten plus five is how many?", "Fifteen."),
           this.threeItem(r), this.threeItem(r),
         ],
       };
@@ -901,7 +946,7 @@ const stories = {
 
 const twoDigit = {
   id: "two-digit",
-  name: "Two-digit adding",
+  name: "Two-digit adding and subtracting",
   summary: "Add a one-digit number or a multiple of ten to a two-digit number, sometimes making a new ten, and subtract tens, using tens-and-ones drawings.",
   standard: "1.NBT.4, 1.NBT.6",
   units: [
@@ -929,18 +974,38 @@ const twoDigit = {
   item(r, id, withPv) {
     const p = this.gen(r, id);
     const screen = withPv ? [V.eq(p.a, p.op, p.b, "=", "?"), V.row(V.pv(Math.floor(p.a / 10), p.a % 10), V.sign(p.op), V.pv(Math.floor(p.b / 10), p.b % 10))] : V.eq(p.a, p.op, p.b, "=", "?");
-    const how = p.op === "−" ? "Take away the tens. The ones stay the same." : id === "newten" ? "Add the ones. If there are ten or more ones, make a new ten." : "Add the tens to the tens and the ones to the ones.";
+    const how = this.work(p);
     return test(screen, `${Word(p.a)} ${p.op === "+" ? "plus" : "minus"} ${word(p.b)} equals how many?`, Word(p.ans) + ".",
       fix(Word(p.ans) + ".", `${Word(p.a)} ${p.op === "+" ? "plus" : "minus"} ${word(p.b)} equals how many?`, how), { skill: "add", item: `2d:${p.a}${p.op}${p.b}` });
+  },
+  // The working, spoken ones first and then tens, as the model shows it.
+  work(p) {
+    const tens = (k) => (k === 1 ? "one ten" : `${word(k)} tens`);
+    const ta = Math.floor(p.a / 10), oa = p.a % 10, tb = Math.floor(p.b / 10), ob = p.b % 10;
+    const tAns = Math.floor(p.ans / 10);
+    const end = `${Word(p.ans)}.`;
+    if (p.op === "−") {
+      const ones = oa ? `The ones stay the same: ${word(oa)}.` : "There are no ones.";
+      return `${ones} ${cap(tens(ta))} take away ${tens(tb)} is ${tens(tAns)}. ${end}`;
+    }
+    const sum = oa + ob;
+    if (sum >= 10) {
+      const left = sum - 10;
+      const newTen = left ? `That makes a new ten, with ${word(left)} left over.` : "That makes a new ten, with no ones left over.";
+      return `Ones first: ${word(oa)} plus ${word(ob)} is ${word(sum)}. ${newTen} ${cap(tens(ta))} and the new ten make ${tens(ta + 1)}. ${end}`;
+    }
+    const ones = ob ? `Ones first: ${word(oa)} plus ${word(ob)} is ${word(sum)}.` : oa ? `The ones stay the same: ${word(oa)}.` : "There are no ones.";
+    const tensLine = tb ? `${cap(tens(ta))} plus ${tens(tb)} is ${tens(ta + tb)}.` : `The tens stay the same: ${tens(ta)}.`;
+    return `${ones} ${tensLine} ${end}`;
   },
   newEx(u, ctx) {
     const r = ctx.rand;
     const models = {
       plusone: [[V.eq(43, "+", 5, "=", "?"), V.row(V.pv(4, 3), V.sign("+"), V.pv(0, 5))], "Forty-three plus five. We add ones to ones. Three ones plus five ones is eight ones. The tens stay the same: four tens. Four tens and eight ones is forty-eight."],
-      plustens: [[V.eq(26, "+", 30, "=", "?"), V.row(V.pv(2, 6), V.sign("+"), V.pv(3, 0))], "Twenty-six plus thirty. We add tens to tens. Two tens plus three tens is five tens. The ones stay the same: six. Fifty-six."],
+      plustens: [[V.eq(26, "+", 30, "=", "?"), V.row(V.pv(2, 6), V.sign("+"), V.pv(3, 0))], "Twenty-six plus thirty. Ones first: thirty has no ones, so the ones stay the same: six. Then tens: two tens plus three tens is five tens. Five tens and six ones is fifty-six."],
       newten: [[V.eq(38, "+", 5, "=", "?"), V.row(V.pv(3, 8), V.sign("+"), V.pv(0, 5))], "Thirty-eight plus five. Eight ones plus five ones is thirteen ones. That is enough for a new ten. Thirteen ones is one ten and three ones. Now there are four tens and three ones. Forty-three."],
-      minustens: [[V.eq(70, "−", 30, "=", "?"), V.pv(7, 0)], "Seventy minus thirty. Seven tens take away three tens is four tens. Forty."],
-      twominustens: [[V.eq(64, "−", 20, "=", "?"), V.pv(6, 4)], "Sixty-four minus twenty. Take away two tens. Six tens minus two tens is four tens. The ones stay the same: four. Forty-four."],
+      minustens: [[V.eq(70, "−", 30, "=", "?"), V.pv(7, 0)], "Seventy minus thirty. There are no ones, so we look at the tens. Seven tens take away three tens is four tens. Forty."],
+      twominustens: [[V.eq(64, "−", 20, "=", "?"), V.pv(6, 4)], "Sixty-four minus twenty. Ones first: twenty has no ones, so the ones stay the same: four. Then tens: six tens take away two tens is four tens. Four tens and four ones is forty-four."],
       twotwo: [[V.eq(32, "+", 45, "=", "?"), V.row(V.pv(3, 2), V.sign("+"), V.pv(4, 5))], "Thirty-two plus forty-five. Ones first: two plus five is seven. Then tens: three tens plus four tens is seven tens. Seventy-seven."],
     };
     const [screen, say] = models[u.id];
@@ -956,7 +1021,7 @@ const twoDigit = {
   reviewEx(intro, ctx) {
     const r = ctx.rand;
     const ids = favorNew(r, intro.map((u) => u.id), 3);
-    return { title: "Two-digit adding", steps: ids.map((id, i) => this.item(r, id, i === 0)) };
+    return { title: "Two-digit adding and subtracting", steps: ids.map((id, i) => this.item(r, id, i === 0)) };
   },
   testItems(units, ctx) {
     const r = ctx.rand;
@@ -990,16 +1055,18 @@ const length = {
     const sizes = r.shuffle([1, 0.7, 0.4]);
     const want = r() < 0.5 ? "longest" : "shortest";
     const ans = sizes.indexOf(want === "longest" ? 1 : 0.4);
-    return test(V.size("long", sizes, { icon: r.pick(["pencil", "ribbon"]), tap: true, ans }), `Touch the ${want} one.`, `(Touches the ${want}.)`, fixPoint(`The ends are lined up. The ${want} one ${want === "longest" ? "goes farthest" : "stops first"}. (Touch it.)`, `Touch the ${want} one.`), { skill: "measure", item: `len:${want}` });
+    return test(V.size("long", sizes, { icon: r.pick(["pencil", "ribbon"]), tap: true, ans }), `Touch the ${want} one.`, `(Touches the ${want} one.)`, fixPoint(`The ends are lined up. The ${want} one ${want === "longest" ? "goes farthest" : "stops first"}. (Touch it.)`, `Touch the ${want} one.`), { skill: "measure", item: `len:${want}` });
   },
   indirectItem(r) {
     const [x, y, z] = r.sample(["the rope", "the ribbon", "the string", "the stick", "the belt"], 3);
-    return test(V.say(), `${cap(x)} is longer than ${y}. ${cap(y)} is longer than ${z}. Is ${x} longer or shorter than ${z}?`, "Longer.",
-      fix("Longer.", `Is ${x} longer or shorter than ${z}?`, `${cap(x)} is longer than ${y}, and ${y} is longer than ${z}. So ${x} is longer than ${z}.`), { skill: "measure", item: "indirect" });
+    const rel = r() < 0.5 ? "longer" : "shorter";
+    const ask = `Is ${x} longer or shorter than ${z}?`;
+    return test(V.say(), `${cap(x)} is ${rel} than ${y}. ${cap(y)} is ${rel} than ${z}. ${ask}`, `${cap(rel)}.`,
+      fix(`${cap(rel)}.`, ask, `${cap(x)} is ${rel} than ${y}, and ${y} is ${rel} than ${z}. So ${x} is ${rel} than ${z}.`), { skill: "measure", item: "indirect" });
   },
   measureItem(r) {
     const n = r.int(3, 8);
-    return test(V.measure("pencil", n), "How many paper clips long is the pencil?", `${Word(n)} paper clips.`, fix(`${Word(n)} paper clips.`, "How many paper clips long is the pencil?", "Count the clips from one end to the other."), { skill: "measure", item: `measure:${n}` });
+    return test(V.measure("pencil", n), "How many paper clips long is the pencil?", `${Word(n)} paper clips.`, fix(`${Word(n)} paper clips.`, "How many paper clips long is the pencil?", `I count the clips from one end of the pencil to the other. ${Chain(1, n)}`), { skill: "measure", item: `measure:${n}` });
   },
   newEx(u, ctx) {
     const r = ctx.rand;
@@ -1007,7 +1074,7 @@ const length = {
       return {
         title: u.label, steps: [
           model(V.size("long", [0.7, 1, 0.4], { icon: "ribbon" }), "To put things in order by length, line up the ends. My turn. This ribbon is longest. This one is shortest. This one is in the middle."),
-          lead(V.size("long", [0.4, 0.7, 1], { icon: "pencil", tap: true, ans: 2 }), "Touch the longest pencil with me.", "(Touches the longest.)"),
+          lead(V.size("long", [0.4, 0.7, 1], { icon: "pencil", tap: true, ans: 2 }), "Touch the longest pencil with me.", "(Touches the longest pencil.)"),
           this.orderItem(r), this.orderItem(r), this.orderItem(r),
         ],
       };
@@ -1015,8 +1082,8 @@ const length = {
     if (u.id === "indirect") {
       return {
         title: u.label, steps: [
-          model(V.say(), "Sometimes we cannot put two things side by side. We can use a third thing. My turn. The rug is longer than the string. The string is longer than the bed. So the rug is longer than the bed."),
-          lead(V.say(), "The hose is longer than the rope. The rope is longer than the jump rope. Is the hose longer or shorter than the jump rope? Say it with me.", "Longer."),
+          model(V.say(), "Sometimes we cannot put two things side by side. Then we compare each one with a third thing. My turn. The rug is longer than this rope. The rope is longer than the bed. So the rug is longer than the bed."),
+          lead(V.say(), "The hose is longer than the rope. The rope is longer than the shoelace. Is the hose longer or shorter than the shoelace? Say it with me.", "Longer."),
           this.indirectItem(r), this.indirectItem(r),
         ],
       };
@@ -1027,16 +1094,16 @@ const length = {
           model(V.measure("pencil", 5), "We can measure how long something is with units that are all the same size. My turn. These paper clips go from one end of the pencil to the other. One, two, three, four, five. The pencil is five paper clips long."),
           lead(V.measure("pencil", 4), "Count the clips with me.", "One, two, three, four. Four paper clips."),
           this.measureItem(r), this.measureItem(r),
-          note(V.say(), "Now measure something real. Lay paper clips, or any small things that are all the same size, end to end along a spoon. How many long is it?", { do: "Make sure the clips touch end to end.", materials: true }),
+          note(V.say(), "Now measure something real. Lay paper clips, or any small things that are all the same size, end to end along a spoon. How many paper clips long is the spoon?", { do: "Make sure the clips touch end to end.", materials: true }),
         ],
         materials: "about ten paper clips, or other small objects all the same size",
       };
     }
     return {
       title: u.label, steps: [
-        model(V.measure("pencil", 5), "When we measure, the units must touch end to end. No gaps between them, and no overlaps. If there are gaps, the count will be too small. If they overlap, the count will be too big."),
+        model(V.measure("pencil", 5), "When we measure, the units must touch end to end, with no gaps between them and no overlaps. If there are gaps, the count comes out too small. If they overlap, the count comes out too big."),
         lead(V.say(), "Can there be gaps between the units? Say it with me.", "No."),
-        test(V.say(), "Can the units overlap?", "No.", fix("No.", "Can the units overlap?", "Each unit starts where the last one ends."), { skill: "measure", item: "overlap" }),
+        test(V.say(), "Can the units overlap?", "No.", fix("No.", "Can the units overlap?", "Each unit starts right where the last one ends, so they do not overlap."), { skill: "measure", item: "overlap" }),
         this.measureItem(r),
       ],
     };
@@ -1087,7 +1154,10 @@ const time = {
   },
   readItem(r, half, digital) {
     const h = r.int(1, 12), m = half && r() < 0.6 ? 30 : 0;
-    return test(V.clock(h, m, { digital }), "What time is it?", this.say(h, m), fix(this.say(h, m), "What time is it?", m === 0 ? `The minute hand points to twelve, so it is o'clock. The hour hand points to ${word(h)}.` : `The minute hand points to six, so it is half past. The hour hand is just past ${word(h)}.`), { skill: "time", item: `time:${h}:${m}` });
+    const why = digital
+      ? (m === 0 ? `The number before the dots is ${word(h)}, the hour. Zero, zero after the dots means no minutes, so it is ${word(h)} o'clock.` : `The number before the dots is ${word(h)}, the hour. Thirty after the dots means thirty minutes past, and that is half past ${word(h)}.`)
+      : (m === 0 ? `The minute hand points straight up to twelve. The hour hand points to ${word(h)}, so it is ${word(h)} o'clock.` : `The minute hand points straight down to six, so it is half past. The hour hand has just passed ${word(h)}.`);
+    return test(V.clock(h, m, { digital }), "What time is it?", this.say(h, m), fix(this.say(h, m), "What time is it?", why), { skill: "time", item: `time:${h}:${m}` });
   },
   matchItem(r) {
     const h = r.int(1, 12), m = r.pick([0, 30]);
@@ -1101,10 +1171,10 @@ const time = {
     if (u.id === "hands") {
       return {
         title: u.label, steps: [
-          model(V.clock(3, 0), "This is a clock. It has two hands. The short hand is the hour hand. It points to the hour. The long hand is the minute hand. My turn. The short hand points to three."),
+          model(V.clock(3, 0), "This is a clock. It has two hands. The short hand is the hour hand. It points to the hour. The long hand is the minute hand. My turn. The hour hand, the short one, points to three."),
           lead(V.clock(5, 0), "Which hand is the short hand? Say it with me.", "The hour hand."),
-          test(V.clock(8, 0), "What number does the hour hand point to?", "Eight.", fix("Eight.", "What number does the hour hand point to?", "The hour hand is the short hand."), { skill: "time", item: "hour-hand" }),
-          test(V.clock(2, 0), "Which hand is the long hand?", "The minute hand.", fix("The minute hand.", "Which hand is the long hand?"), { skill: "time", item: "minute-hand" }),
+          test(V.clock(8, 0), "What number does the hour hand point to?", "Eight.", fix("Eight.", "What number does the hour hand point to?", "The hour hand is the short hand. It points to eight."), { skill: "time", item: "hour-hand" }),
+          test(V.clock(2, 0), "Which hand is the long hand?", "The minute hand.", fix("The minute hand.", "Which hand is the long hand?", "The long hand is the minute hand. The short hand is the hour hand."), { skill: "time", item: "minute-hand" }),
         ],
       };
     }
@@ -1129,8 +1199,8 @@ const time = {
     if (u.id === "digital") {
       return {
         title: u.label, steps: [
-          model(V.clock(6, 0, { digital: true }), "A digital clock shows time with numbers. The number before the dots is the hour. The numbers after the dots are the minutes. Six, zero, zero means six o'clock."),
-          model(V.clock(6, 30, { digital: true }), "Six, thirty means thirty minutes past six. That is half past six."),
+          model(V.clock(6, 0, { digital: true }), "A digital clock shows the time with numbers. The number before the dots is the hour. The numbers after the dots are the minutes. Here the hour is six, and zero, zero means no minutes. It is six o'clock."),
+          model(V.clock(6, 30, { digital: true }), "Here the hour is six again, and thirty means thirty minutes past six. Thirty minutes is half an hour, so it is half past six. We can also say six thirty."),
           lead(V.clock(11, 0, { digital: true }), "What time is it? Say it with me.", "Eleven o'clock."),
           this.readItem(r, true, true), this.readItem(r, true, true),
         ],
@@ -1138,7 +1208,7 @@ const time = {
     }
     return {
       title: u.label, steps: [
-        model(V.row(V.clock(3, 30, { size: "md" }), V.clock(3, 30, { digital: true })), "These two clocks show the same time: half past three, three thirty."),
+        model(V.row(V.clock(3, 30, { size: "md" }), V.clock(3, 30, { digital: true })), "These two clocks show the same time. The clock face shows half past three. The digital clock shows three thirty. Half past three and three thirty are the same time."),
         lead(V.row(V.clock(10, 0, { size: "md" }), V.clock(10, 0, { digital: true })), "Do these show the same time? Say it with me.", "Yes. Ten o'clock."),
         this.matchItem(r), this.matchItem(r),
       ],
@@ -1147,7 +1217,10 @@ const time = {
   reviewEx(intro, ctx) {
     const r = ctx.rand;
     const has = (id) => intro.some((u) => u.id === id);
-    if (!has("oclock")) return { title: "Telling time", steps: [test(V.clock(r.int(1, 12), 0), "What number does the hour hand point to?", "(Says the hour.)", fixPoint("The short hand is the hour hand.", "What number does the hour hand point to?"), { skill: "time", item: "hour-hand" })] };
+    if (!has("oclock")) {
+      const h = r.int(1, 12);
+      return { title: "Telling time", steps: [test(V.clock(h, 0), "What number does the hour hand point to?", Word(h) + ".", fix(Word(h) + ".", "What number does the hour hand point to?", `The hour hand is the short hand. It points to ${word(h)}.`), { skill: "time", item: "hour-hand" })] };
+    }
     const steps = [this.readItem(r, has("half")), this.readItem(r, has("half"), has("digital") && r() < 0.5)];
     if (has("match")) steps.push(this.matchItem(r));
     return { title: "Telling time", steps };
@@ -1155,7 +1228,7 @@ const time = {
   testItems(units, ctx) {
     const r = ctx.rand;
     const has = (id) => units.some((u) => u.id === id);
-    if (!has("oclock")) return [test(V.clock(6, 0), "Which hand is the short hand?", "The hour hand.", fix("The hour hand.", "Which hand is the short hand?"), { skill: "time", item: "hands" })];
+    if (!has("oclock")) return [test(V.clock(6, 0), "Which hand is the short hand?", "The hour hand.", fix("The hour hand.", "Which hand is the short hand?", "The short hand is the hour hand. The long hand is the minute hand."), { skill: "time", item: "hands" })];
     if (has("match")) return [this.matchItem(r), this.readItem(r, true)];
     return [this.readItem(r, has("half"), has("digital")), this.readItem(r, has("half"))];
   },
@@ -1182,22 +1255,37 @@ const data = {
     { id: "compare", lesson: 78, label: "How many more, how many in all" },
     { id: "chart", lesson: 90, label: "Tally charts" },
   ],
+  // "five, ten, eleven, twelve." Bundles by fives, then the single marks.
+  tallyCount(n) {
+    const out = [];
+    for (let k = 5; k <= n; k += 5) out.push(k);
+    for (let k = out.length * 5 + 1; k <= n; k++) out.push(k);
+    return out.map(word).join(", ") + ".";
+  },
   tallyItem(r) {
     const n = r.int(3, 14);
-    return test(V.tally(n), "How many tally marks? Count the bundles by fives, then the rest.", Word(n) + ".", fix(Word(n) + ".", "How many tally marks?", "Each bundle with a line across is five."), { skill: "data", item: `tally:${n}` });
+    const say = n >= 5 ? "How many tally marks? Count the bundles by fives, then the rest." : "How many tally marks?";
+    const how = n % 5 ? "I count the bundles by fives, then the rest" : "I count the bundles by fives";
+    const why = n >= 5 ? `Each bundle with a line across is five. ${how}: ${this.tallyCount(n)}` : `There is no bundle yet, so I count each mark: ${this.tallyCount(n)}`;
+    return test(V.tally(n), say, Word(n) + ".", fix(Word(n) + ".", "How many tally marks?", why), { skill: "data", item: `tally:${n}` });
   },
   graphQ(r, kind) {
     const icons = r.sample(["apple", "ball", "star", "fish", "duck"], 3);
     const ns = r.sample([2, 3, 4, 5, 6, 7, 8], 3);
     const g = V.graph(kind === "chart" ? "tally" : "picture", icons.map((icon, i) => ({ icon, n: ns[i] })));
+    const things = (i) => plural(icons[i], ns[i]);
+    const countRow = (i) => (kind === "chart" ? `I count the marks in the ${icons[i]} row: ${this.tallyCount(ns[i])}` : `I count the ${plural(icons[i])}: ${chain(1, ns[i])}.`);
     const qs = [
-      () => { const i = r.int(0, 2); return [`How many ${plural(icons[i])}?`, Word(ns[i]) + "."]; },
-      () => [`How many in all?`, Word(ns[0] + ns[1] + ns[2]) + "."],
-      () => { const [i, j] = r.sample([0, 1, 2], 2); const big = ns[i] > ns[j] ? i : j, small = big === i ? j : i; return [`How many more ${plural(icons[big])} than ${plural(icons[small])}?`, Word(ns[big] - ns[small]) + "."]; },
+      () => { const i = r.int(0, 2); return [`How many ${plural(icons[i])}?`, Word(ns[i]) + ".", countRow(i)]; },
+      () => [`How many in all?`, Word(ns[0] + ns[1] + ns[2]) + ".", `I add the rows: ${word(ns[0])} ${things(0)}, ${word(ns[1])} ${things(1)}, and ${word(ns[2])} ${things(2)}. ${Word(ns[0])} plus ${word(ns[1])} is ${word(ns[0] + ns[1])}. ${Word(ns[0] + ns[1])} plus ${word(ns[2])} is ${word(ns[0] + ns[1] + ns[2])}.`],
+      () => {
+        const [i, j] = r.sample([0, 1, 2], 2); const big = ns[i] > ns[j] ? i : j, small = big === i ? j : i;
+        return [`How many more ${plural(icons[big])} than ${plural(icons[small])}?`, Word(ns[big] - ns[small]) + ".", `${Word(ns[big])} ${things(big)} and ${word(ns[small])} ${things(small)}. ${Word(ns[big])} minus ${word(ns[small])} is ${word(ns[big] - ns[small])}.`];
+      },
     ];
     const pick = kind === "picture" || kind === "tally" ? qs[0] : r.pick(qs);
-    const [q, a] = pick();
-    return test(g, q, a, fix(a, q, "Count each row carefully."), { skill: "data", item: `graph:${q}` });
+    const [q, a, why] = pick();
+    return test(g, q, a, fix(a, q, why), { skill: "data", item: `graph:${q}` });
   },
   newEx(u, ctx) {
     const r = ctx.rand;
@@ -1222,8 +1310,8 @@ const data = {
     if (u.id === "compare") {
       return {
         title: u.label, steps: [
-          model(V.graph("picture", [{ icon: "apple", n: 7 }, { icon: "ball", n: 3 }, { icon: "star", n: 5 }]), "My turn. How many more apples than balls? Seven apples. Three balls. Seven minus three is four. Four more apples. How many in all? Seven plus three plus five is fifteen."),
-          lead(V.graph("picture", [{ icon: "fish", n: 6 }, { icon: "duck", n: 4 }, { icon: "apple", n: 2 }]), "How many more fish than ducks? Six minus four. Say it with me.", "Two."),
+          model(V.graph("picture", [{ icon: "apple", n: 7 }, { icon: "ball", n: 3 }, { icon: "star", n: 5 }]), "My turn. How many more apples than balls? Seven apples and three balls. Seven minus three is four, so there are four more apples than balls. How many in all? Seven plus three plus five is fifteen. There are fifteen things in all."),
+          lead(V.graph("picture", [{ icon: "fish", n: 6 }, { icon: "duck", n: 4 }, { icon: "apple", n: 2 }]), "How many more fish than ducks? Six fish and four ducks. Six minus four is how many? Say it with me.", "Two."),
           this.graphQ(r, "compare"), this.graphQ(r, "compare"),
         ],
       };
@@ -1291,20 +1379,28 @@ const shapes = {
   nameItem(r, pool) {
     const s = r.pick(pool);
     const names = { "semicircle": "A half-circle." };
+    const rules = {
+      trapezoid: "A trapezoid has four sides. The top and the bottom go the same way, and one is shorter than the other.",
+      semicircle: "A half-circle has one curved side and one straight side. It is a circle cut in half.",
+      hexagon: "A hexagon has six sides and six corners.",
+      rectangle: "A rectangle has four sides and four square corners.",
+      triangle: "A triangle has three straight sides and three corners.",
+      square: "A square has four sides that are all the same length, and four square corners.",
+    };
     const ans = names[s] || `A ${s}.`;
-    return test(V.shape(s, { c: r.pick(["red", "blue", "green", "orange", "purple"]), rot: s === "semicircle" ? 0 : r.pick([0, 0, 180]) }), "What shape is this?", ans, fix(ans, "What shape is this?"), { skill: "shape", item: `name:${s}` });
+    return test(V.shape(s, { c: r.pick(["red", "blue", "green", "orange", "purple"]), rot: s === "semicircle" ? 0 : r.pick([0, 0, 180]) }), "What shape is this?", ans, fix(ans, "What shape is this?", rules[s]), { skill: "shape", item: `name:${s}` });
   },
   partsItem(r, kind) {
     if (kind === "count") {
       const cut = r.pick(["halves", "fourths"]);
       const s = r.pick(["circle", "rect"]);
       const n = cut === "halves" ? 2 : 4;
-      return test(V.parts(s, cut, { c: "blue" }), "How many equal parts?", Word(n) + ".", fix(Word(n) + ".", "How many equal parts?"), { skill: "fraction", item: `parts:${cut}` });
+      return test(V.parts(s, cut, { c: "blue" }), "How many equal parts?", Word(n) + ".", fix(Word(n) + ".", "How many equal parts?", `I count the parts: ${chain(1, n)}.`), { skill: "fraction", item: `parts:${cut}` });
     }
     if (kind === "name") {
       const cut = r.pick(["halves", "fourths"]);
       const ans = cut === "halves" ? "Halves." : "Fourths.";
-      return test(V.parts(r.pick(["circle", "rect"]), cut, { shade: 1, c: "orange" }), "Is this cut into halves or fourths?", ans, fix(ans, "Halves or fourths?", cut === "halves" ? "Two equal parts are halves." : "Four equal parts are fourths. We also call them quarters."), { skill: "fraction", item: `name:${cut}` });
+      return test(V.parts(r.pick(["circle", "rect"]), cut, { shade: 1, c: "orange" }), "Is this cut into halves or fourths?", ans, fix(ans, "Is this cut into halves or fourths?", cut === "halves" ? "There are two equal parts. Two equal parts are halves." : "There are four equal parts. Four equal parts are fourths. We also call them quarters."), { skill: "fraction", item: `name:${cut}` });
     }
     if (kind === "equal") {
       const eq = r() < 0.5;
@@ -1313,7 +1409,7 @@ const shapes = {
       return test(V.parts(r.pick(["circle", "rect"]), cut, { c: "green" }), "Are these equal parts?", ans, fix(ans, "Are these equal parts?", eq ? "All the parts are the same size." : "The parts are not the same size."), { skill: "fraction", item: `equal:${eq}` });
     }
     const ans = "Halves.";
-    return test(V.row(V.parts("rect", "halves", { shade: 1, c: "purple", size: "md" }), V.parts("rect", "fourths", { shade: 1, c: "purple", size: "md" })), "Which is bigger, one half or one fourth of the same shape?", "One half.", fix("One half.", "Which is bigger, one half or one fourth?", "When a shape is cut into more equal parts, each part is smaller."), { skill: "fraction", item: "bigger:half" });
+    return test(V.row(V.parts("rect", "halves", { shade: 1, c: "purple", size: "md" }), V.parts("rect", "fourths", { shade: 1, c: "purple", size: "md" })), "Which is bigger, one half or one fourth of the same shape?", "One half.", fix("One half.", "Which is bigger, one half or one fourth of the same shape?", "When a shape is cut into more equal parts, each part is smaller. Fourths are smaller than halves."), { skill: "fraction", item: "bigger:half" });
   },
   newEx(u, ctx) {
     const r = ctx.rand;
@@ -1343,7 +1439,7 @@ const shapes = {
           model(V.row(V.shape("semicircle", { c: "orange", size: "md" }), V.shape("semicircle", { c: "orange", rot: 180, size: "md" })), "Shapes put together make new shapes. My turn. Two half-circles make a circle."),
           model(V.row(V.shape("triangle", { c: "green", size: "md" }), V.shape("triangle", { c: "green", rot: 180, size: "md" })), "Two triangles can make a square, or a rectangle, or a bigger triangle, depending on how they fit."),
           lead(V.row(V.shape("square", { c: "blue", size: "md" }), V.shape("square", { c: "blue", size: "md" })), "Two squares side by side make what shape? Say it with me.", "A rectangle."),
-          test(V.row(V.shape("semicircle", { c: "red", size: "md" }), V.shape("semicircle", { c: "red", rot: 180, size: "md" })), "Two half-circles make what shape?", "A circle.", fix("A circle.", "Two half-circles make what shape?"), { skill: "shape", item: "compose:circle" }),
+          test(V.row(V.shape("semicircle", { c: "red", size: "md" }), V.shape("semicircle", { c: "red", rot: 180, size: "md" })), "Two half-circles make what shape?", "A circle.", fix("A circle.", "Two half-circles make what shape?", "Put the straight sides together, and the curved sides go all the way around."), { skill: "shape", item: "compose:circle" }),
           note(V.say(), "If you have pattern blocks or paper shapes, let the child build a hexagon from triangles: six triangles make a hexagon.", { do: "This is optional, but worth doing once." }),
         ],
       };
@@ -1353,7 +1449,7 @@ const shapes = {
         title: u.label, steps: [
           model(V.parts("circle", "halves", { c: "blue" }), "This circle is cut into two equal parts. Each part is a half. Two halves make the whole circle."),
           model(V.parts("rect", "halves", { shade: 1, c: "orange" }), "This rectangle is cut into halves. One half is shaded."),
-          lead(V.parts("rect", "halves-h", { c: "green" }), "How many equal parts? Say it with me. Two. What is each part called?", "A half."),
+          lead(V.parts("rect", "halves-h", { c: "green" }), "How many equal parts are there, and what is each part called? Say it with me.", "Two. Each part is a half."),
           this.partsItem(r, "count"), this.partsItem(r, "name"),
         ],
       };
@@ -1363,7 +1459,7 @@ const shapes = {
         title: u.label, steps: [
           model(V.parts("circle", "fourths", { c: "purple" }), "This circle is cut into four equal parts. Each part is a fourth. We also say a quarter. Four fourths make the whole."),
           model(V.parts("rect", "fourths-strips", { shade: 1, c: "orange" }), "This rectangle is cut into fourths a different way. One fourth is shaded."),
-          lead(V.parts("rect", "fourths", { c: "green" }), "How many equal parts? What is each part called? Say it with me.", "Four. A fourth."),
+          lead(V.parts("rect", "fourths", { c: "green" }), "How many equal parts are there, and what is each part called? Say it with me.", "Four. Each part is a fourth."),
           this.partsItem(r, "name"), this.partsItem(r, "count"), this.partsItem(r, "name"),
         ],
       };
@@ -1399,7 +1495,7 @@ const shapes = {
     const u = units[units.length - 1];
     if (u.id === "attributes") return [this.attrItem(r)];
     if (u.id === "names") return [this.nameItem(r, ["trapezoid", "semicircle"])];
-    if (u.id === "compose") return [test(V.row(V.shape("square", { c: "blue", size: "md" }), V.shape("square", { c: "blue", size: "md" })), "Two squares side by side make what shape?", "A rectangle.", fix("A rectangle.", "Two squares side by side make what shape?"), { skill: "shape", item: "compose:rect" })];
+    if (u.id === "compose") return [test(V.row(V.shape("square", { c: "blue", size: "md" }), V.shape("square", { c: "blue", size: "md" })), "Two squares side by side make what shape?", "A rectangle.", fix("A rectangle.", "Two squares side by side make what shape?", "Together they have four sides and four square corners, and they are longer than they are tall."), { skill: "shape", item: "compose:rect" })];
     if (u.id === "halves") return [this.partsItem(r, "count")];
     if (u.id === "fourths") return [this.partsItem(r, "name")];
     if (u.id === "equal") return [this.partsItem(r, "equal")];
@@ -1434,13 +1530,15 @@ const money = {
   known(intro) { return intro.filter((u) => u.coin).map((u) => u.coin); },
   nameItem(r, known) {
     const c = r.pick(known);
-    return test(V.coins([c]), "What coin is this? How much is it worth?", `A ${c}. ${Word(COIN[c])} ${COIN[c] === 1 ? "cent" : "cents"}.`, fix(`A ${c}. ${Word(COIN[c])} cents.`, "What coin is this? How much is it worth?", COIN_LOOK[c]), { skill: "money", item: `coin:${c}` });
+    return test(V.coins([c]), "What coin is this? How much is it worth?", `A ${c}. ${Word(COIN[c])} ${COIN[c] === 1 ? "cent" : "cents"}.`, fix(`A ${c}. ${Word(COIN[c])} ${COIN[c] === 1 ? "cent" : "cents"}.`, "What coin is this? How much is it worth?", COIN_LOOK[c]), { skill: "money", item: `coin:${c}` });
   },
   countItem(r, known) {
     const c = r.pick(known.filter((x) => x !== "quarter").length ? known.filter((x) => x !== "quarter") : known);
     const n = r.int(2, c === "penny" ? 9 : 6);
     const total = n * COIN[c];
-    return test(V.coins(Array(n).fill(c)), `Count the ${c === "penny" ? "pennies" : c + "s"}. How many cents in all?`, `${Word(total)} cents.`, fix(`${Word(total)} cents.`, "How many cents in all?", c === "penny" ? "Count by ones." : c === "nickel" ? "Count by fives." : "Count by tens."), { skill: "money", item: `count:${c}:${n}` });
+    const by = COIN[c], byWord = { 1: "ones", 5: "fives", 10: "tens", 25: "twenty-fives" }[by];
+    const ask = `Count the ${c === "penny" ? "pennies" : c + "s"}. How many cents in all?`;
+    return test(V.coins(Array(n).fill(c)), ask, `${Word(total)} cents.`, fix(`${Word(total)} cents.`, ask, `Each ${c} is ${word(by)} ${by === 1 ? "cent" : "cents"}, so I count by ${byWord}: ${chain(by, total, by)}.`), { skill: "money", item: `count:${c}:${n}` });
   },
   newEx(u, ctx, intro) {
     const r = ctx.rand;
@@ -1463,7 +1561,7 @@ const money = {
     ];
     if (known.length > 1) {
       const opts = r.shuffle(known.slice(-3));
-      steps.push(test(V.choices(opts.map((x) => V.coins([x])), opts.indexOf(c)), `Touch the ${c}.`, `(Touches the ${c}.)`, fixPoint(`${COIN_LOOK[c]} (Touch it.)`, `Touch the ${c}.`), { skill: "money", item: `touch:${c}` }));
+      steps.push(test(V.choices(opts.map((x) => V.coins([x])), opts.indexOf(c)), `Touch the ${c}.`, `(Touches the ${c}.)`, fixPoint(`This is the ${c}. ${COIN_LOOK[c]} (Touch it.)`, `Touch the ${c}.`), { skill: "money", item: `touch:${c}` }));
       steps.push(this.nameItem(r, known.filter((x) => x !== c)));
     }
     return { title: u.label, steps, materials: "a real coin of this kind, if you have one" };

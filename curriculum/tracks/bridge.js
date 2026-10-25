@@ -26,21 +26,28 @@ function gen(r, kind) {
   return { a, b, op, ans: op === "+" ? a + b : a - b, regroup: kind.endsWith("R") };
 }
 
+// "one ten", "three tens", "no ones"
+const tens = (k) => (k === 0 ? "no tens" : k === 1 ? "one ten" : `${word(k)} tens`);
+const ones = (k) => (k === 0 ? "no ones" : k === 1 ? "one one" : `${word(k)} ones`);
+
 function script(p) {
   const A = digits(p.a), B = digits(p.b), Ans = digits(p.ans);
   if (p.op === "+") {
-    const ones = A.o + B.o;
-    if (!p.regroup) return `Ones first: ${word(A.o)} plus ${word(B.o)} is ${word(ones)}. Write ${word(ones)} under the ones. Tens: ${word(A.t)} plus ${word(B.t)} is ${word(A.t + B.t)}. Write ${word(A.t + B.t)} under the tens. The answer is ${word(p.ans)}.`;
-    return `Ones first: ${word(A.o)} plus ${word(B.o)} is ${word(ones)}. That is one ten and ${word(ones - 10)} ones. Write ${word(ones - 10)} under the ones and carry the one ten to the top of the tens. Tens: one plus ${word(A.t)} plus ${word(B.t)} is ${word(A.t + B.t + 1)}. The answer is ${word(p.ans)}.`;
+    const sum = A.o + B.o;
+    if (!p.regroup) return `Ones first: ${word(A.o)} plus ${word(B.o)} is ${word(sum)}. Write ${word(sum)} under the ones. Tens: ${word(A.t)} plus ${word(B.t)} is ${word(A.t + B.t)}. Write ${word(A.t + B.t)} under the tens. The answer is ${word(p.ans)}.`;
+    const left = sum - 10;
+    const split = left ? `That is one ten and ${word(left)} more.` : "That is exactly one ten.";
+    return `Ones first: ${word(A.o)} plus ${word(B.o)} is ${word(sum)}. ${split} Write ${word(left)} under the ones and carry the new ten to the top of the tens column. Tens: one plus ${word(A.t)} plus ${word(B.t)} is ${word(A.t + B.t + 1)}. The answer is ${word(p.ans)}.`;
   }
-  if (!p.regroup) return `Ones first: ${word(A.o)} minus ${word(B.o)} is ${word(A.o - B.o)}. Tens: ${word(A.t)} minus ${word(B.t)} is ${word(A.t - B.t)}. The answer is ${word(p.ans)}.`;
-  return `Ones first: ${word(A.o)} minus ${word(B.o)}. We cannot take ${word(B.o)} from ${word(A.o)}. Trade one ten for ten ones. Now there are ${word(A.t - 1)} tens and ${word(A.o + 10)} ones. ${Word(A.o + 10)} minus ${word(B.o)} is ${word(A.o + 10 - B.o)}. Tens: ${word(A.t - 1)} minus ${word(B.t)} is ${word(Ans.t)}. The answer is ${word(p.ans)}.`;
+  if (!p.regroup) return `Ones first: ${word(A.o)} minus ${word(B.o)} is ${word(A.o - B.o)}. Write ${word(A.o - B.o)} under the ones. Tens: ${word(A.t)} minus ${word(B.t)} is ${word(A.t - B.t)}. Write ${word(A.t - B.t)} under the tens. The answer is ${word(p.ans)}.`;
+  return `Ones first: ${word(A.o)} minus ${word(B.o)}. We cannot take ${word(B.o)} from ${word(A.o)}, so we trade one ten for ten ones. Now we have ${tens(A.t - 1)} and ${ones(A.o + 10)}. ${Word(A.o + 10)} minus ${word(B.o)} is ${word(A.o + 10 - B.o)}. Tens: ${word(A.t - 1)} minus ${word(B.t)} is ${word(Ans.t)}. The answer is ${word(p.ans)}.`;
 }
 
 function colItem(r, kind, opts = {}) {
   const p = gen(r, kind);
-  const say = `${Word(p.a)} ${p.op === "+" ? "plus" : "minus"} ${word(p.b)}. Work it in columns, ones first. What is the answer?`;
-  return test(V.col(p.a, p.op, p.b, { ans: p.ans, labels: true }), say, Word(p.ans) + ".", fix(Word(p.ans) + ".", "What is the answer?", script(p)), {
+  const problem = `${Word(p.a)} ${p.op === "+" ? "plus" : "minus"} ${word(p.b)}.`;
+  const say = `${problem} Work it in columns, ones first. What is the answer?`;
+  return test(V.col(p.a, p.op, p.b, { ans: p.ans, labels: true }), say, Word(p.ans) + ".", fix(Word(p.ans) + ".", `${problem} What is the answer?`, script(p)), {
     skill: p.op === "+" ? "add" : "subtract",
     item: `col:${p.a}${p.op}${p.b}`,
     do: opts.paper ? "The child works on paper, then says the answer." : undefined,
@@ -56,7 +63,8 @@ const columns = {
   item(r) {
     const n = r.int(12, 89);
     const { t, o } = digits(n);
-    return test(V.col(n, "+", r.int(11, 89), { labels: true }), `In the top number, ${word(n)}, which digit is in the tens column?`, Word(t) + ".", fix(Word(t) + ".", "Which digit is in the tens column?", `${Word(n)} is ${word(t)} tens and ${word(o)} ones.`), { skill: "place-value", item: `colpv:${n}` });
+    const ask = `In the top number, ${word(n)}, which digit is in the tens column?`;
+    return test(V.col(n, "+", r.int(11, 89), { labels: true }), ask, Word(t) + ".", fix(Word(t) + ".", ask, `${Word(n)} is ${tens(t)} and ${ones(o)}. The tens digit is on the left.`), { skill: "place-value", item: `colpv:${n}` });
   },
   newEx(u, ctx) {
     const r = ctx.rand;
@@ -67,13 +75,13 @@ const columns = {
         model(V.col(34, "+", 25, { labels: true }), "Here is the rule. We always start with the ones column, on the right."),
         lead(V.col(47, "+", 31, { labels: true }), "Which column do we start with? Say it with me.", "The ones column."),
         this.item(r), this.item(r),
-        test(V.say(), "Which column do we start with?", "The ones column.", fix("The ones column.", "Which column do we start with?"), { skill: "place-value", item: "start-ones" }),
+        test(V.say(), "Which column do we start with?", "The ones column.", fix("The ones column.", "Which column do we start with?", "We always start with the ones column, on the right."), { skill: "place-value", item: "start-ones" }),
       ],
     };
   },
   reviewEx(intro, ctx) {
     const r = ctx.rand;
-    return { title: "Columns", steps: [this.item(r), test(V.say(), "Which column do we start with?", "The ones column.", fix("The ones column.", "Which column do we start with?"), { skill: "place-value", item: "start-ones" })] };
+    return { title: "Columns", steps: [this.item(r), test(V.say(), "Which column do we start with?", "The ones column.", fix("The ones column.", "Which column do we start with?", "We always start with the ones column, on the right."), { skill: "place-value", item: "start-ones" })] };
   },
   testItems(units, ctx) { return [this.item(ctx.rand)]; },
 };
@@ -101,8 +109,8 @@ const addCols = {
     }
     return {
       title: u.label, materials: "paper and a pencil", steps: [
-        model([V.col(38, "+", 25, { ans: 63, show: true, labels: true, carry: 1 }), V.row(V.pv(3, 8), V.sign("+"), V.pv(2, 5))], `My turn. ${script({ a: 38, b: 25, op: "+", ans: 63, regroup: true })}`, { do: "Point to the eight ones and five ones; show that ten of them make a new ten." }),
-        model(V.col(47, "+", 36, { ans: 83, show: true, labels: true, carry: 1 }), `Again. ${script({ a: 47, b: 36, op: "+", ans: 83, regroup: true })}`),
+        model([V.col(38, "+", 25, { ans: 63, show: true, labels: true, carry: 1 }), V.row(V.pv(3, 8), V.sign("+"), V.pv(2, 5))], `My turn. Thirty-eight plus twenty-five. ${script({ a: 38, b: 25, op: "+", ans: 63, regroup: true })}`, { do: "Point to the eight ones and five ones; show that ten of them make a new ten." }),
+        model(V.col(47, "+", 36, { ans: 83, show: true, labels: true, carry: 1 }), `Again. Forty-seven plus thirty-six. ${script({ a: 47, b: 36, op: "+", ans: 83, regroup: true })}`),
         lead(V.col(29, "+", 14, { labels: true }), "Work it with me. Ones: nine plus four is thirteen. Write three, carry one ten. Tens: one plus two plus one. What is the answer?", "Forty-three."),
         colItem(r, "addR"), colItem(r, "addR"), colItem(r, "add"), colItem(r, "addR", { paper: true }),
       ],
@@ -150,17 +158,17 @@ const subCols = {
     if (u.id === "subR") {
       return {
         title: u.label, materials: "paper and a pencil", steps: [
-          model([V.col(42, "−", 17, { ans: 25, show: true, labels: true, cross: { tens: 3, ones: 12 } }), V.pv(4, 2)], `My turn. ${script({ a: 42, b: 17, op: "−", ans: 25, regroup: true })}`, { do: "Point to one ten stick and show that it becomes ten ones." }),
+          model([V.col(42, "−", 17, { ans: 25, show: true, labels: true, cross: { tens: 3, ones: 12 } }), V.pv(4, 2)], `My turn. Forty-two minus seventeen. ${script({ a: 42, b: 17, op: "−", ans: 25, regroup: true })}`, { do: "Point to one ten stick and show that it becomes ten ones." }),
           lead(V.col(53, "−", 28, { labels: true }), "Work it with me. Ones: three minus eight. Can we? No. Trade a ten: four tens and thirteen ones. Thirteen minus eight is five. Tens: four minus two. What is the answer?", "Twenty-five."),
-          test(V.col(61, "−", 34, { labels: true }), "Look at the ones: one minus four. Do we need to trade a ten?", "Yes.", fix("Yes.", "Do we need to trade a ten?", "One is less than four, so we cannot take four from one."), { skill: "subtract", item: "trade?:61-34" }),
+          test(V.col(61, "−", 34, { labels: true }), "Look at the ones: one minus four. Do we need to trade a ten?", "Yes.", fix("Yes.", "Look at the ones: one minus four. Do we need to trade a ten?", "One is less than four, so we cannot take four from one."), { skill: "subtract", item: "trade?:61-34" }),
           colItem(r, "subR"), colItem(r, "subR"), colItem(r, "sub"), colItem(r, "subR", { paper: true }),
         ],
       };
     }
     return {
       title: u.label, materials: "paper and a pencil", steps: [
-        model(V.col(56, "+", 27, { labels: true }), "Before we start, we read the sign. Plus means add. Minus means subtract. Then we look at the ones: will we need to carry or trade? My turn. Plus. Six plus seven is thirteen, so I will carry."),
-        lead(V.col(56, "−", 27, { labels: true }), "Read the sign with me. Plus or minus? Do we need to trade?", "Minus. Yes, six minus seven needs a trade."),
+        model(V.col(56, "+", 27, { labels: true }), "Before we start, we read the sign. Plus means add. Minus means subtract. Then we look at the ones: will we need to carry or trade? My turn. The sign is plus, so we add. Six plus seven is thirteen, so I will carry a new ten."),
+        lead(V.col(56, "−", 27, { labels: true }), "Read the sign with me. Plus or minus? Do we need to trade?", "Minus. Yes. We cannot take seven from six, so we trade a ten."),
         colItem(r, "addR"), colItem(r, "subR"), colItem(r, r.pick(["add", "sub"])), colItem(r, r.pick(["addR", "subR"])),
       ],
     };
@@ -182,7 +190,8 @@ const subCols = {
   },
 };
 
-const NAMES = ["Ana", "Ben", "Cora", "Dev", "Eli", "Faye", "Gus", "Hana"];
+// Each name with the word the story uses for that child after the first mention.
+const NAMES = [["Ana", "she"], ["Ben", "he"], ["Cora", "she"], ["Dev", "he"], ["Eli", "he"], ["Faye", "she"], ["Gus", "he"], ["Hana", "she"]];
 const stories2 = {
   id: "stories",
   name: "Two-digit story problems",
@@ -190,19 +199,20 @@ const stories2 = {
   standard: "2.OA.1",
   units: [{ id: "s2", lesson: 14, label: "Story problems with bigger numbers" }],
   item(r) {
-    const name = r.pick(NAMES);
+    const [name, pro] = r.pick(NAMES);
     const add = r() < 0.5;
     const p = gen(r, add ? r.pick(["add", "addR"]) : r.pick(["sub", "subR"]));
+    const ask = add ? `How many apples did ${pro} pick in all?` : `How many stickers does ${pro} have left?`;
     const text = add
-      ? `${name} picked ${word(p.a)} apples in the morning and ${word(p.b)} in the afternoon. How many apples did ${name} pick in all?`
-      : `${name} had ${word(p.a)} stickers. ${name} gave away ${word(p.b)}. How many stickers are left?`;
-    return test(V.say(), text, Word(p.ans) + ".", fix(Word(p.ans) + ".", "What is the answer?", `${add ? "The big number is missing, so we add." : "A small number is missing, so we subtract."} ${script(p)}`), { skill: "story", item: `story2:${p.a}${p.op}${p.b}`, do: "The child may work it on paper in columns." });
+      ? `${name} picked ${word(p.a)} apples in the morning and ${word(p.b)} in the afternoon. ${ask}`
+      : `${name} had ${word(p.a)} stickers and gave away ${word(p.b)}. ${ask}`;
+    return test(V.say(), text, Word(p.ans) + ".", fix(Word(p.ans) + ".", ask, `${add ? "In all is the big number. It is missing, so we add." : `${Word(p.a)} is the big number. A small number is missing, so we subtract.`} ${script(p)}`), { skill: "story", item: `story2:${p.a}${p.op}${p.b}`, do: "The child may work it on paper in columns." });
   },
   newEx(u, ctx) {
     const r = ctx.rand;
     return {
       title: u.label, materials: "paper and a pencil", steps: [
-        model(V.family(36, 25, "?", "c"), "Story problems with big numbers work the same way. Listen. Cora has thirty-six red beads and twenty-five blue beads. How many beads in all? In all is the big number. It is missing, so we add. Thirty-six plus twenty-five. Six plus five is eleven: write one, carry one. One plus three plus two is six. Sixty-one."),
+        model(V.family(36, 25, "?", "c"), "Story problems with big numbers work the same way. Listen. Cora has thirty-six red beads and twenty-five blue beads. How many beads does she have in all? My turn. In all is the big number. It is missing, so we add. Thirty-six plus twenty-five. Six plus five is eleven: write one, and carry the new ten. One plus three plus two is six. Sixty-one."),
         lead(V.family(52, "?", 70, "b"), "Ben had seventy marbles. He gave some away. Now he has fifty-two. How many did he give away? Seventy is the big number. A small number is missing. Do we add or subtract? Say it with me.", "Subtract. Seventy minus fifty-two."),
         this.item(r), this.item(r),
       ],
@@ -231,7 +241,7 @@ const factsReview = {
     }
     if (intro.length === 1 && ctx.lesson === 1) {
       steps.unshift(lead(V.eq(8, "+", 7, "=", "?"), "We start each lesson with quick facts. Eight plus seven? Say it with me.", "Fifteen."));
-      steps.unshift(model(V.eq(9, "+", 6, "=", "?"), "My turn. Nine plus six is fifteen. I know it quickly."));
+      steps.unshift(model(V.eq(9, "+", 6, "=", "?"), "My turn. Nine plus six is fifteen. I know it without counting."));
     }
     return { title: "Quick facts", steps };
   },
