@@ -38,10 +38,9 @@
       html += '<p class="pbar__label">' + done.length + " of " + lv.lessons + " lessons finished</p>";
       var step = P.nextStep(lv.id, lv.lessons, lv.tests, lv.slug);
       if (started || (p.placement && p.placement.level === lv.id)) html += '<p><a class="btn btn--cta btn--sm" href="' + step.url + '">Next: ' + esc(step.label) + "</a></p>";
-      var repeat = Object.keys(p.lessons).filter(function (k) {
-        if (k.indexOf(lv.id + "-") !== 0 || p.completed.indexOf(k) !== -1) return false;
-        var h = p.lessons[k]; return h.length && h[h.length - 1].repeat;
-      });
+      var repeat = Object.keys(p.lessons).concat(p.redo.filter(function (k) { return !p.lessons[k]; })).filter(function (k) {
+        return k.indexOf(lv.id + "-") === 0 && P.lessonStatus(k, p) === "repeat";
+      }).sort();
       if (repeat.length) html += '<p class="dash-small">To repeat: ' + repeat.map(function (k) { var x = parseId(k); return '<a href="' + lessonUrl(lv, x.n) + '">Lesson ' + x.n + "</a>"; }).join(", ") + "</p>";
       var given = lv.tests.filter(function (t) { return p.tests[t.id] && p.tests[t.id].length; });
       if (given.length) {
@@ -49,13 +48,15 @@
         given.forEach(function (t) {
           var r = p.tests[t.id][p.tests[t.id].length - 1];
           var failed = r.parts.filter(function (x) { return !x.passed; });
-          html += '<li class="' + (r.passed ? "is-pass" : "is-fail") + '"><a href="' + t.url + '">' + esc(t.title) + "</a>: " + (r.passed ? "passed" : "reteach " + failed.map(function (x) { return esc(x.trackName); }).join(", ")) + ' <span class="dash-small">' + day(r.date) + "</span></li>";
+          var result = r.manual ? (r.passed ? "marked passed" : "marked to give again") : r.passed ? "passed" : "reteach " + failed.map(function (x) { return esc(x.trackName); }).join(", ");
+          html += '<li class="' + (r.passed ? "is-pass" : "is-fail") + '"><a href="' + t.url + '">' + esc(t.title) + "</a>: " + result + ' <span class="dash-small">' + day(r.date) + "</span></li>";
         });
         html += "</ul>";
       }
       html += "</section>";
     });
     html += "</div>";
+    html += '<p class="dash-small no-print">To mark a lesson finished, mark it to repeat, or reset it, open its level and choose Change marks.</p>';
 
     // Where the errors are, across the last 25 lessons taught.
     var recent = [];

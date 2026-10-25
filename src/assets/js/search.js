@@ -68,7 +68,7 @@
     var shown = matches.slice(0, 20);
     for (var i = 0; i < shown.length; i++) {
       var item = shown[i];
-      var desc = item.description || item.content.substring(0, 120);
+      var desc = item.description || firstSentence(item.content);
       html += '<a href="' + item.url + '" class="search-result">' +
         '<span class="search-result__type">' + item.type + '</span>' +
         '<span class="search-result__title">' + escapeHtml(item.title) + '</span>' +
@@ -76,9 +76,15 @@
         '</a>';
     }
     if (matches.length > 20) {
-      html += '<p class="search-more">' + (matches.length - 20) + ' more results...</p>';
+      html += '<p class="search-more">' + (matches.length - 20) + ' more results are not shown. Type more of a word to narrow the list.</p>';
     }
     results.innerHTML = html;
+  }
+
+  // The first whole sentence of a page, or nothing; never a cut-off fragment.
+  function firstSentence(text) {
+    var m = (text || "").match(/^\s*([^.?!]{1,200}[.?!])(\s|$)/);
+    return m ? m[1] : "";
   }
 
   function escapeHtml(str) {

@@ -15,12 +15,6 @@ export default function (eleventyConfig) {
     return content.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim().substring(0, 500);
   });
 
-  eleventyConfig.addFilter("truncate", (str, len, end) => {
-    if (!str) return "";
-    if (str.length <= len) return str;
-    return str.substring(0, len).replace(/\s+\S*$/, "") + (end || "...");
-  });
-
   // Filter array by key (supports nested keys like "data.phase")
   eleventyConfig.addFilter("where", (arr, key, value) => {
     if (!Array.isArray(arr)) return [];

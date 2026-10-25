@@ -182,14 +182,27 @@
   }
 
   // Keep the teacher's panel on one screen. If the text does not fit, hide
-  // the exercise details, then step the type down a little at a time. The
-  // body scrolls only if the smallest setting still does not fit.
-  var FIT_STEPS = 4;
-  function fitPanel() {
+  // the exercise details, then step the type down a little at a time. Before
+  // Error, a correction that would need more than a small step down is shown
+  // as a short note instead, never cut off; Error shows it in full. The body
+  // scrolls only if the smallest setting still does not fit.
+  var FIT_STEPS = 4, FIT_WITH_CORRECTION = 2;
+  function overflows() { return el.teacher.scrollHeight > el.teacher.clientHeight + 1; }
+  function stepDown(max) {
     var b = el.teacher, n;
     for (n = 1; n <= FIT_STEPS; n++) b.classList.remove("fit-" + n);
-    for (n = 1; n <= FIT_STEPS && b.scrollHeight > b.clientHeight + 1; n++) b.classList.add("fit-" + n);
-    b.scrollTop = 0;
+    for (n = 1; n <= max && overflows(); n++) b.classList.add("fit-" + n);
+  }
+  function fitPanel() {
+    var box = el.correctBox;
+    var waiting = !box.hidden && !box.classList.contains("is-active");
+    box.classList.remove("is-folded");
+    stepDown(waiting ? FIT_WITH_CORRECTION : FIT_STEPS);
+    if (waiting && overflows()) {
+      box.classList.add("is-folded");
+      stepDown(FIT_STEPS);
+    }
+    el.teacher.scrollTop = 0;
   }
 
   // A long counting chain is easier to scan as numerals: "105, 106, 107".
@@ -450,6 +463,16 @@
     el.finish.hidden = false;
     document.body.classList.add("is-finished");
     window.scrollTo(0, 0);
+    var row = el.finish.querySelector("[data-mark-kind]");
+    if (row) row.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-mark]");
+      if (!b || !window.mathProgress) return;
+      var v = b.getAttribute("data-mark"), id = row.getAttribute("data-mark-id");
+      if (row.getAttribute("data-mark-kind") === "lesson") window.mathProgress.setLessonStatus(id, v);
+      else window.mathProgress.setTestStatus(id, v);
+      var all = row.querySelectorAll("[data-mark]");
+      for (var i = 0; i < all.length; i++) all[i].setAttribute("aria-pressed", all[i] === b ? "true" : "false");
+    });
     var noteBtn = $("finish-note-save");
     if (noteBtn) {
       noteBtn.addEventListener("click", function () {
@@ -521,6 +544,7 @@
       html += "<p><strong>Go on to the next lesson.</strong> Every item was firm by the end.</p>";
     }
     html += "</div>";
+    html += markRow("lesson", lesson.id);
     html += '<div class="finish__actions">';
     if (lesson.worksheet && lesson.worksheet.length) html += '<a class="btn btn--outline-dark" href="' + lesson.worksheetUrl + '">' + (lesson.worksheetOptional ? "Worksheet (optional)" : "Worksheet") + "</a>";
     if (lesson.testAfter) html += '<a class="btn btn--cta" href="' + lesson.testAfter.url + '">' + escapeHtml(lesson.testAfter.title) + "</a>";
@@ -531,6 +555,17 @@
     html += noteForm();
     html += "</div>";
     showFinish(html);
+  }
+
+  // The teacher may overrule the advice: mark the lesson finished or to
+  // repeat, or the test passed or to give again.
+  function markRow(kind, id) {
+    var P = window.mathProgress;
+    if (!P) return "";
+    var opts = kind === "lesson" ? [["done", "Finished"], ["repeat", "To repeat"]] : [["passed", "Passed"], ["retake", "To give again"]];
+    var cur = kind === "lesson" ? P.lessonStatus(id) : P.testStatus(id);
+    return '<div class="finish__mark" role="group" aria-label="Mark this ' + kind + '" data-mark-kind="' + kind + '" data-mark-id="' + id + '"><span class="finish__mark-label">Mark this ' + kind + ":</span>" +
+      opts.map(function (o) { return '<button type="button" class="finish__mark-btn" data-mark="' + o[0] + '" aria-pressed="' + (cur === o[0]) + '">' + o[1] + "</button>"; }).join("") + "</div>";
   }
 
   function noteForm() {
@@ -569,6 +604,7 @@
     if (passed.length) {
       html += '<p class="finish__passed"><strong>Passed:</strong> ' + passed.map(function (p) { return escapeHtml(p.trackName) + (p.errors ? " (" + errorsIn(p) + ")" : ""); }).join(", ") + ".</p>";
     }
+    html += markRow("test", t.id);
     html += '<div class="finish__actions">';
     if (t.next) html += '<a class="btn btn--cta" href="' + t.next.url + '">' + escapeHtml(t.next.title) + "</a>";
     html += '<a class="btn btn--outline-dark" href="' + t.url + '">Give the test again</a>';

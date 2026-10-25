@@ -9,6 +9,16 @@ a { color: inherit; text-decoration: none; }
 button { cursor: pointer; border: none; background: none; }
 ul, ol { list-style: none; }
 
+/* A double tap never zooms the page, and each tap registers at once, which
+   matters when a child touches pictures quickly. Pinching still zooms for
+   anyone who needs larger text. */
+* { touch-action: manipulation; }
+
+/* An iPhone zooms in when a form field with text under 16px is tapped. */
+@media (pointer: coarse) {
+  input, select, textarea { font-size: max(1em, 16px) !important; }
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

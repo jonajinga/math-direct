@@ -627,7 +627,7 @@ const SHAPE_INFO = {
   circle: {
     rule: "A circle is round all the way around. It has no corners.",
     yes: [{ s: "circle", c: "red" }, { s: "circle", c: "blue", scale: 0.55, note: "It is small, and it is blue. It is still a circle." }, { s: "circle", c: "green", scale: 1.15 }],
-    no: [{ s: "oval", c: "red", why: "It is stretched out." }, { s: "square", c: "yellow", why: "It has corners." }],
+    no: [{ s: "triangle", c: "red", why: "It has straight sides and corners." }, { s: "square", c: "yellow", why: "It has corners." }],
   },
   square: {
     rule: "A square has four sides that are all the same length, and four square corners.",
@@ -642,7 +642,7 @@ const SHAPE_INFO = {
   rectangle: {
     rule: "A rectangle has four sides and four square corners. Two sides are long, and two sides are short.",
     yes: [{ s: "rectangle", c: "orange" }, { s: "rectangle", c: "blue", rot: 90, note: "This rectangle stands up tall. It is still a rectangle." }, { s: "rectangle", c: "green", thin: true }],
-    no: [{ s: "triangle", c: "orange", why: "It has three sides." }, { s: "oval", c: "blue", why: "It is round. It has no corners." }],
+    no: [{ s: "triangle", c: "orange", why: "It has three sides." }, { s: "circle", c: "blue", why: "It is round. It has no corners." }],
   },
 };
 
@@ -701,7 +701,7 @@ const shapes = {
     for (const [i, it] of isItems.entries()) {
       steps.push(test(it.v, `${i === 0 ? "Your turn. " : ""}Is this a ${s}?`, it.a, fix(it.a, `Is this a ${s}?`, it.a === "Yes." ? info.rule : `It is not a ${s}. ${it.why}`), { skill: "shape", item: `is:${s}` }));
     }
-    const pool = Array.from(new Set([...known, "circle", "square", "triangle", "oval"]));
+    const pool = Array.from(new Set([...known, "circle", "square", "triangle"]));
     steps.push(this.touchTest(r, s, pool));
     if (known.length > 1) steps.push(this.nameTest(r, r.pick(known.filter((x) => x !== s))));
     return { title: u.label, steps };
@@ -710,20 +710,20 @@ const shapes = {
     const r = ctx.rand;
     const known = intro.map((x) => x.s);
     const picks = favorNew(r, known, 4);
-    const steps = picks.map((s, i) => (i === 1 || i === 3 ? this.touchTest(r, s, Array.from(new Set([...known, "circle", "square", "triangle", "oval"]))) : known.length > 1 ? this.nameTest(r, s) : test(this.randomShape(r, s), `Is this a ${s}?`, "Yes.", fix("Yes.", `Is this a ${s}?`, SHAPE_INFO[s].rule), { skill: "shape", item: `is:${s}` })));
+    const steps = picks.map((s, i) => (i === 1 || i === 3 ? this.touchTest(r, s, Array.from(new Set([...known, "circle", "square", "triangle"]))) : known.length > 1 ? this.nameTest(r, s) : test(this.randomShape(r, s), `Is this a ${s}?`, "Yes.", fix("Yes.", `Is this a ${s}?`, SHAPE_INFO[s].rule), { skill: "shape", item: `is:${s}` })));
     return { title: "Shapes", steps };
   },
   testItems(units, ctx) {
     const r = ctx.rand;
     const known = units.map((x) => x.s);
-    const pool = Array.from(new Set([...known, "circle", "square", "triangle", "oval"]));
+    const pool = Array.from(new Set([...known, "circle", "square", "triangle"]));
     return known.slice(-2).flatMap((s) => [this.touchTest(r, s, pool)]).concat(known.length > 1 ? [this.nameTest(r, known[known.length - 1])] : []);
   },
   worksheet(intro, ctx) {
     const r = ctx.rand;
     const known = intro.map((x) => x.s);
     const s = r.pick(known);
-    const pool = ["circle", "square", "triangle", "rectangle", "oval"].filter((x) => x !== s);
+    const pool = ["circle", "square", "triangle", "rectangle"].filter((x) => x !== s);
     const opts = r.shuffle([s, s, ...r.sample(pool, 3)]);
     return {
       kind: "circle",
