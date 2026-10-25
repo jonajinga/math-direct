@@ -1518,7 +1518,7 @@ export default {
   slug: "k",
   name: "Kindergarten",
   longName: "Kindergarten",
-  age: "about 5",
+  age: "about five",
   lessons: 140,
   minutes: "12 to 15",
   minutesBand: [12, 15],

@@ -14,7 +14,7 @@ eleventyComputed:
 ---
 <header class="screen__head">
   <h1 class="screen__title">{{ level.name }}{% if level.optional %} <span class="status status--plain">Optional</span>{% endif %}</h1>
-  <p class="screen__lead">{{ level.lessons }} lessons · {{ level.minutes }} minutes each · for children {{ level.age }}</p>
+  <p class="screen__lead">{{ level.lessons }} lessons · {{ level.minutes }} minutes each · {% if level.optional %}{{ level.age }}{% else %}for a child of {{ level.age }}{% endif %}</p>
 </header>
 
 <div data-child-picker></div>

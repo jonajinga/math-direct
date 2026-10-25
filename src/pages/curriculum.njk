@@ -20,7 +20,7 @@ permalink: /curriculum/
   <details class="fold" id="{{ level.id }}"{% if loop.first %} open{% endif %}>
     <summary><h2 class="fold__h">{{ level.name }}</h2></summary>
     <div class="fold__body">
-      <p class="scope__facts">{{ level.lessons }} lessons · {{ level.minutes }} minutes · {{ level.age }} · <a href="{{ level.url }}">Open the level</a></p>
+      <p class="scope__facts">{{ level.lessons }} lessons · {{ level.minutes }} minutes each · {% if level.optional %}{{ level.age }}{% else %}for a child of {{ level.age }}{% endif %} · <a href="{{ level.url }}">Open the level</a></p>
       <p>{{ level.endsWith }}</p>
       {% for t in level.tracks %}
       <div class="scope__track">

@@ -109,14 +109,14 @@ bodyClass: page-runner
 
 <dialog class="sheet" id="sheet-child" aria-labelledby="sheet-child-title">
   <div class="sheet__head"><h2 class="sheet__title" id="sheet-child-title">Switch child</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
-  <div class="sheet__body"><p id="sheet-child-text">Marks made so far are not saved. The lesson starts again for the child you pick.</p></div>
+  <div class="sheet__body"><p id="sheet-child-text">The marks are saved. The lesson starts again for the child you pick.</p></div>
   <ul class="sheet__list" id="sheet-child-list"></ul>
 </dialog>
 
 <dialog class="sheet" id="sheet-leave" aria-labelledby="sheet-leave-title">
   <form method="dialog" class="sheet__form">
     <div class="sheet__head"><h2 class="sheet__title" id="sheet-leave-title">Leave this lesson?</h2></div>
-    <div class="sheet__body"><p id="sheet-leave-text">Marks made so far are not saved.</p></div>
+    <div class="sheet__body"><p id="sheet-leave-text">The marks are saved. You can continue later from Today.</p></div>
     <div class="sheet__foot"><button type="submit" class="btn btn--secondary" value="stay">Stay</button><a class="btn btn--danger" id="sheet-leave-go" href="{{ exitUrl or '/lessons/' }}">Leave</a></div>
   </form>
 </dialog>

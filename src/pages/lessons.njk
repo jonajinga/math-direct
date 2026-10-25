@@ -18,7 +18,7 @@ bodyClass: page-lessons
     <a class="row level-row" href="{{ level.url }}" data-level-actions data-level="{{ level.id }}" data-total="{{ level.lessons }}" data-slug="{{ level.slug }}" data-tests='{{ level.tests | dump }}'>
       <span class="row__main">
         <span class="row__title level-row__name">{{ level.name }}{% if level.optional %} <span class="status status--plain">Optional</span>{% endif %}</span>
-        <span class="row__sub">{{ level.lessons }} lessons · {{ level.minutes }} minutes each · {{ level.age }}</span>
+        <span class="row__sub">{{ level.lessons }} lessons · {{ level.minutes }} minutes each · {% if level.optional %}{{ level.age }}{% else %}for a child of {{ level.age }}{% endif %}</span>
         <span class="pbar" aria-hidden="true"><span class="pbar__fill" data-progress></span></span>
         <span class="row__sub" data-progress-label>Not started</span>
       </span>

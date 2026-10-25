@@ -63,6 +63,6 @@
     P.clearSession();
     var card = host.querySelector("[data-continue-card]");
     if (card) card.remove();
-    if (window.MD && MD.toast) MD.toast("The sitting was cleared.");
+    if (window.MD && MD.toast) MD.toast("The saved sitting was cleared.");
   });
 })();

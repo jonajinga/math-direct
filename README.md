@@ -34,22 +34,23 @@ The lessons are not stored as files. They are generated at build time from the c
 - `curriculum/tracks/prek.js`, `k.js`, `first.js`, `bridge.js` define the four levels. Each level is a list of **tracks**. A track is one skill taught across many lessons (counting aloud, reading numbers, adding facts, shapes). It lists its **units**, each with the lesson where it begins, and it supplies four kinds of content:
   - `newEx`: the new-teaching exercise for a unit, with a model ("My turn"), a lead ("Together"), and tests ("Your turn").
   - `reviewEx` (and optionally `firmEx`): firming and review exercises.
-  - `testItems`: items for mastery tests, the placement test, and practice.
-  - `worksheet`: items for the printable worksheet.
-- `curriculum/lib/schedule.js` builds each lesson. A unit's first lesson gets new teaching, the next two lessons firm it, and after that the track returns for review at widening intervals. Warm-up tracks appear in every lesson. Lessons are filled to a minimum and capped at a maximum number of exercises.
-- `curriculum/lib/tests.js` builds a mastery test after every tenth lesson, with a reteaching list for each part, and the placement test sections.
-- `curriculum/lib/validate.js` checks every lesson, test, practice item, and worksheet. Among its rules: every new teaching has a model, a lead, and a test; every correction states the answer; no counting step shows a numeral; no reading step shows dots; no number is printed before the child is taught to read it; no exclamation marks or effusive praise; no track goes unreviewed for too long.
+  - `testItems`: items for mastery tests, the placement test, practice, the spare items of review exercises, and the On your own segment.
+- `curriculum/lib/schedule.js` builds each lesson. A unit's first lesson gets new teaching; the next three lessons firm it, with the lead fading out over those days; after that the track returns for review at widening intervals. Warm-up tracks appear in every lesson. Lessons are filled to a minimum and capped at a maximum number of exercises, and most end with an On your own segment of three to eight items answered by one touch.
+- `curriculum/lib/tests.js` builds a mastery test after every tenth lesson (four to eight items a part, drawn from every unit the part covers, with a reteaching list that opens the exercise) and the placement test sections, beginning with a readiness section.
+- `curriculum/lib/validate.js` checks every lesson, test, practice item, spare item, and On your own item. Among its rules: every new teaching has a model, a lead, and a test; every correction states the answer; no counting step shows a numeral; no reading step shows dots; no number is printed before the child is taught to read it; no exclamation marks or effusive praise; no track goes unreviewed for too long; every On your own item is answered by one touch. It warns on lessons outside their level's band of minutes or under three answers a minute.
 - `curriculum/lib/v.js` describes the pictures on the child's screen as plain data. `src/assets/js/visuals.js` draws them as SVG. The two must stay in step.
 
 To change what a lesson teaches, edit the track's units or its exercise functions, then run `npm run check`.
 
 ## The site
 
-- `src/levels/` generates the lesson, test, worksheet, level, and placement pages from `src/_data/program.js`, which calls the builder.
-- `src/assets/js/lesson-engine.js` runs lessons, tests, the placement test, and practice.
-- `src/assets/js/progress.js` keeps each child's records in the browser's localStorage. Nothing is sent to a server.
-- `src/assets/js/dashboard.js` draws the teacher dashboard.
-- `docs/curriculum-plan.md` is the evaluation and plan this version was built from.
+The site is an app for a phone held in one hand: five tabs at the bottom (Today, Lessons, Practice, Records, More), every control at the bottom, one light theme, no audio, no paper. The runner fills one screen and never scrolls while teaching. `docs/design.md` holds the palette, the rules, and the design of the runner, the scoring, and the program's depth.
+
+- `src/levels/` generates the lesson, test, level, and placement pages from `src/_data/program.js`, which calls the builder.
+- `src/assets/js/lesson-engine.js` runs lessons, tests, the placement test, practice, fact review, and the timed check. It scores the first try, asks a missed item again two items later, saves the sitting after every move, and adapts review to items missed recently.
+- `src/assets/js/progress.js` keeps each child's records in the browser's localStorage: lessons, tests by part, facts with response times, per-item results, timed checks, notes, and the saved sitting. Nothing is sent to a server.
+- `src/assets/js/records.js` draws the Records screen; `today.js` the Today screen; `lessons-index.js` the level screens and the mark sheet; `app.js` the sheets, toasts, and install prompt.
+- `docs/curriculum-plan.md` is the evaluation and plan the program was built from; `docs/a11y-checklist.md` lists the accessibility checks done by hand.
 
 ## License
 

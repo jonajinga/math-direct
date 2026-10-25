@@ -1119,7 +1119,7 @@ export default {
   slug: "prek",
   name: "Pre-K",
   longName: "Pre-K",
-  age: "about 4",
+  age: "about four",
   lessons: 100,
   minutes: "8 to 12",
   minutesBand: [8, 12],

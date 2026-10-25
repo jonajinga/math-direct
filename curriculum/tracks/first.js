@@ -1516,7 +1516,7 @@ export default {
   slug: "first",
   name: "First Grade",
   longName: "First Grade",
-  age: "about 6",
+  age: "about six",
   lessons: 150,
   minutes: "12 to 15",
   minutesBand: [12, 15],
