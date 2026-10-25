@@ -82,6 +82,7 @@ export default function (eleventyConfig) {
           "components/buttons.css",
           "components/lesson-card.css",
           "components/number-display.css",
+          "components/visuals.css",
           "pages/home.css",
           "pages/dashboard.css",
           "pages/parent-guide.css",
@@ -90,6 +91,7 @@ export default function (eleventyConfig) {
           "pages/lesson.css",
           "pages/practice.css",
           "pages/flashcards.css",
+          "pages/runner.css",
         ];
         let combined = "";
         for (const file of importOrder) {
@@ -121,6 +123,7 @@ export default function (eleventyConfig) {
 
   // Watch Targets
   eleventyConfig.addWatchTarget("src/assets/css/");
+  eleventyConfig.addWatchTarget("curriculum/");
 
   return {
     dir: {
