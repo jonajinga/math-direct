@@ -44,7 +44,11 @@ so the primary button's box never moves between steps.
 
 The stage is a size container; every picture is sized in `cqh` and `cqw`
 of it, and every rem floor is capped by a share of the stage height, so the
-stage fits whatever the layout gives it. The child's screen shows pictures
+stage fits whatever the layout gives it. Each choice cell is a width
+container of its own, and a numeral inside one is also capped by the cell's
+width (the renderer sets `--chars`, the widest item in characters), so a
+three-digit choice shrinks in a narrow landscape stage instead of crossing
+the cell's border. The child's screen shows pictures
 only: a tap rings the touched part and locks the group, and the panel tells
 the parent what was touched and whether it was right. The parent marks.
 
@@ -54,7 +58,7 @@ line; fold a waiting correction behind one line; step the boxes down to
 panel part of the stage. The panel scrolls only after all of these.
 
 Menus and confirmations are bottom sheets (`<dialog>`): More, Outline,
-Keys, Switch child, Leave. A polite live region announces the cue and
+Keys, Switch child, Teach two children, Leave. A polite live region announces the cue and
 script, the mark, the child's touch, and the end of a flash. `npm run
 check:fit` walks every step of a sample of pages at 375x667, 667x375,
 740x360, and 320x568 and fails on any overflow, clipped text, moved
@@ -81,6 +85,30 @@ step the part covers; a part passes with every item right, or one error in
 five or more. Failed parts can be given again alone, and the record merges.
 The next step stays on the latest due test until it is passed.
 `npm run check:program` exercises all of this in a browser.
+
+## Two children
+
+A lesson can be taught to two children at once: the runner's More sheet
+offers "Teach two children", which reopens the lesson with `?with=<childId>`
+for the second child (the active child is the first). Every step is then
+answered in unison and marked once for both. When the last test step of an
+exercise has been marked, the engine inserts one turn for each child, the
+child with more errors so far first: a clone of the item the pair missed in
+that exercise, or else of the exercise's last item. A turn step carries
+`forChild`, and its uid is the source step's uid plus `:c<childId>`; the cue
+reads "<Name> alone". A turn that is missed is corrected and asked again
+like any other step, for that child. On your own items are shared out, one
+child at a time. Tallies, item results, facts, and the lesson summary are
+computed for each child from the unison steps plus that child's own, and
+recorded with `recordLessonFor`, `recordItemsFor`, and `recordFactFor`; the
+summary carries `group`, `with`, and `turns`. The finish screen shows a card
+for each child with its own advice and mark row. The saved sitting keeps the
+pair (its url carries `?with=`), Today's Continue card restores it, and the
+"Next" link on the finish screen carries the pair to the next lesson. Tests,
+placement, and practice stay one child at a time. "Teach one child" in the
+More sheet drops the marks and starts the lesson over for the child picked.
+`npm run check:program` teaches a lesson to two children and checks the
+turns, the restored sitting, and both records.
 
 ## Program depth
 

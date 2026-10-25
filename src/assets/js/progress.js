@@ -8,6 +8,8 @@
 //     facts: { "3+2": { r: [1,0,1], last } }, last five results for each fact
 //     placement: { level, lesson, url, label, date },
 //     notes: [{ id, text, date, ref }],
+//     items: { itemKey: { r: [1,0,1], last } },   last five first-try results for each item
+//     timed: [{ date, right, errors, goal }],
 //     legacy: { completed: [1, 2, ...] } }      progress from the old 150-lesson program
 (function () {
   var PROFILES_KEY = "math-direct-profiles";
@@ -51,14 +53,19 @@
 
   function getProfiles() { return read().map(normalize); }
 
-  function update(fn) {
+  // Change one child's record. With no id, the active child's.
+  function updateProfile(id, fn) {
     var profiles = getProfiles();
-    var id = getActiveId();
-    var p = profiles.find(function (x) { return x.id === id; }) || profiles[0];
+    id = id || getActiveId();
+    var p = profiles.find(function (x) { return x.id === id; }) || (id ? null : profiles[0]);
     if (!p) return null;
     fn(p);
     write(profiles);
     return p;
+  }
+  function update(fn) { return updateProfile(null, fn); }
+  function getProfile(id) {
+    return getProfiles().find(function (p) { return p.id === id; }) || null;
   }
 
   function getActiveProfile() {
@@ -86,7 +93,8 @@
   }
 
   // A sitting left in the middle: one per child, kept for twelve hours.
-  //   { kind, url, id, title, where, marks, pos, results, delayedAdded, placement, elapsed, childId, savedAt }
+  //   { kind, url, id, title, where, marks, pos, results, delayedAdded, inserted, placement, elapsed, childId, with, savedAt }
+  //   "with" names the second child when a lesson is taught to two at once.
   var SESSION_KEY = "math-direct-sessions";
   var SESSION_HOURS = 12;
   function readSessions() {
@@ -142,8 +150,9 @@
   function markIncomplete(id) {
     update(function (p) { p.completed = p.completed.filter(function (c) { return c !== id; }); });
   }
-  function recordLesson(id, summary) {
-    update(function (p) {
+  // A lesson taught to two children at once is recorded for each of them.
+  function recordLessonFor(childId, id, summary) {
+    updateProfile(childId, function (p) {
       p.lessons[id] = (p.lessons[id] || []).concat([summary]).slice(-5);
       // A new teaching replaces any mark the teacher set by hand.
       p.redo = p.redo.filter(function (c) { return c !== id; });
@@ -151,6 +160,7 @@
       p.lastLesson = { id: id, date: summary.date };
     });
   }
+  function recordLesson(id, summary) { recordLessonFor(null, id, summary); }
   function lessonHistory(id) {
     var p = getActiveProfile();
     return p && p.lessons[id] ? p.lessons[id] : [];
@@ -167,8 +177,8 @@
     return h && h.length && h[h.length - 1].repeat ? "repeat" : "new";
   }
   // The teacher's own mark. "new" resets the lesson: its record is erased.
-  function setLessonStatus(id, status) {
-    update(function (p) {
+  function setLessonStatus(id, status, childId) {
+    updateProfile(childId, function (p) {
       p.completed = p.completed.filter(function (c) { return c !== id; });
       p.redo = p.redo.filter(function (c) { return c !== id; });
       if (status === "done") p.completed.push(id);
@@ -224,9 +234,9 @@
     });
   }
   // Per-item results: the last five first-try results for each item key, as 1 or 0.
-  function recordItems(items, date) {
+  function recordItemsFor(childId, items, date) {
     if (!items) return;
-    update(function (p) {
+    updateProfile(childId, function (p) {
       p.items = p.items || {};
       for (var k in items) {
         var cur = p.items[k] || { r: [] };
@@ -236,6 +246,7 @@
       }
     });
   }
+  function recordItems(items, date) { recordItemsFor(null, items, date); }
   function itemHistory(key, profile) {
     var p = profile || getActiveProfile();
     return p && p.items && p.items[key] ? p.items[key] : null;
@@ -257,8 +268,8 @@
   }
   // Each fact keeps its last five results and, when known, how many seconds
   // the child took to answer.
-  function recordFact(fact, firm, ms) {
-    update(function (p) {
+  function recordFactFor(childId, fact, firm, ms) {
+    updateProfile(childId, function (p) {
       var f = p.facts[fact] || { r: [] };
       f.r = f.r.concat([firm ? 1 : 0]).slice(-5);
       f.t = (f.t || []).concat([typeof ms === "number" ? Math.round(ms / 100) / 10 : null]).slice(-5);
@@ -266,6 +277,7 @@
       p.facts[fact] = f;
     });
   }
+  function recordFact(fact, firm, ms) { recordFactFor(null, fact, firm, ms); }
   // automatic: the last three right and each under three seconds; firm: the
   // last three right; learning: the last one right; shaky: the last one
   // missed; new: no record.
@@ -286,9 +298,10 @@
   }
 
   // ── Notes ──
-  function addNote(text, ref) {
-    update(function (p) { p.notes.push({ id: newId(), text: text, date: new Date().toISOString(), ref: ref || "" }); });
+  function addNoteFor(childId, text, ref) {
+    updateProfile(childId, function (p) { p.notes.push({ id: newId(), text: text, date: new Date().toISOString(), ref: ref || "" }); });
   }
+  function addNote(text, ref) { addNoteFor(null, text, ref); }
   function deleteNote(id) {
     update(function (p) { p.notes = p.notes.filter(function (n) { return n.id !== id; }); });
   }
@@ -451,14 +464,14 @@
   }
 
   window.mathProgress = {
-    getProfiles: getProfiles, getActiveProfile: getActiveProfile, createProfile: createProfile,
+    getProfiles: getProfiles, getActiveProfile: getActiveProfile, getProfile: getProfile, updateProfile: updateProfile, createProfile: createProfile,
     deleteProfile: deleteProfile, renameProfile: renameProfile, switchProfile: switchProfile,
     getCompleted: getCompleted, isComplete: isComplete, markComplete: markComplete, markIncomplete: markIncomplete,
-    recordLesson: recordLesson, lessonHistory: lessonHistory, nextLesson: nextLesson, nextStep: nextStep,
+    recordLesson: recordLesson, recordLessonFor: recordLessonFor, lessonHistory: lessonHistory, nextLesson: nextLesson, nextStep: nextStep,
     lessonStatus: lessonStatus, setLessonStatus: setLessonStatus, testStatus: testStatus, setTestStatus: setTestStatus,
-    recordTest: recordTest, recordPlacement: recordPlacement, recordFact: recordFact, factStatus: factStatus,
-    recordItems: recordItems, itemHistory: itemHistory, recordTimed: recordTimed,
-    addNote: addNote, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
+    recordTest: recordTest, recordPlacement: recordPlacement, recordFact: recordFact, recordFactFor: recordFactFor, factStatus: factStatus,
+    recordItems: recordItems, recordItemsFor: recordItemsFor, itemHistory: itemHistory, recordTimed: recordTimed,
+    addNote: addNote, addNoteFor: addNoteFor, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
     exportAllProfiles: exportAllProfiles, importProfiles: importProfiles,
     confirmDelete: confirmDelete, promptRename: promptRename, promptAdd: promptAdd,
     renderProfileSelector: renderProfileSelector, renderChildChips: renderChildChips,

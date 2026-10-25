@@ -26,13 +26,13 @@
   var sitting = P.loadSession ? P.loadSession() : null;
   if (sitting && sitting.url && sitting.kind !== "practice") {
     html += '<div class="card next-card card--strong" data-continue-card><p class="kicker">Continue</p><h2 class="card__title">' + esc(sitting.title || "Where you left off") + "</h2>" +
-      '<p class="card__text">' + esc(p.name) + " stopped " + (sitting.where ? "at " + esc(sitting.where.replace(/^Ex /, "Exercise ")) : "part way through") + (sitting.marks ? ", with " + sitting.marks + " answer" + (sitting.marks === 1 ? "" : "s") + " marked" : "") + ", " + day(sitting.savedAt).toLowerCase() + ".</p>" +
-      '<div class="btn-row"><a class="btn btn--primary btn--big" href="' + esc(sitting.url) + '?continue=1">Continue</a><button type="button" class="btn btn--quiet" data-discard-sitting>Start it over later</button></div></div>';
+      '<p class="card__text">' + esc(sitting.children && sitting.children.length > 1 ? sitting.children.join(" and ") : p.name) + " stopped " + (sitting.where ? "at " + esc(sitting.where.replace(/^Ex /, "Exercise ")) : "part way through") + (sitting.marks ? ", with " + sitting.marks + " answer" + (sitting.marks === 1 ? "" : "s") + " marked" : "") + ", " + day(sitting.savedAt).toLowerCase() + ".</p>" +
+      '<div class="btn-row"><a class="btn btn--primary btn--big" href="' + esc(sitting.url + (sitting.url.indexOf("?") === -1 ? "?" : "&") + "continue=1") + '">Continue</a><button type="button" class="btn btn--quiet" data-discard-sitting>Start it over later</button></div></div>';
   }
   if (!levelId && !anyProfileStarted) {
     // The welcome above already says where to begin.
   } else if (!levelId) {
-    html = '<div class="card next-card"><p class="kicker">' + esc(p.name) + '</p><h2 class="card__title">Where to begin</h2>' +
+    html += '<div class="card next-card"><p class="kicker">' + esc(p.name) + '</p><h2 class="card__title">Where to begin</h2>' +
       '<p class="card__text">The placement test takes ten to twenty minutes and names the lesson to start with. Or choose a level by age.</p>' +
       '<div class="btn-row"><a class="btn btn--primary" href="/placement/">Take the placement test</a><a class="btn btn--secondary" href="/lessons/">Choose a level</a></div></div>';
   } else {
@@ -43,7 +43,7 @@
     var brief = lv.brief && lv.brief[n - 1];
     var facts = step.test ? "A test of the last ten lessons, one part for each skill. Give it without helping." :
       "About " + (brief && brief[0] ? brief[0] : lv.minutes) + " minutes." + (brief && brief[1] ? " Needs " + esc(brief[1].charAt(0).toLowerCase() + brief[1].slice(1)) + "." : "");
-    html = '<div class="card next-card card--strong"><p class="kicker">' + esc(lv.name) + " · " + esc(p.name) + "</p>" +
+    html += '<div class="card next-card card--strong"><p class="kicker">' + esc(lv.name) + " · " + esc(p.name) + "</p>" +
       '<h2 class="card__title">' + esc(step.label) + "</h2>" +
       '<p class="next-card__facts">' + facts + (done ? " " + done + " of " + lv.lessons + " lessons finished." : "") + "</p>" +
       (!step.test && brief && brief[2] ? '<p class="next-card__new"><strong>New:</strong> ' + esc(brief[2]) + "</p>" : "") +

@@ -165,6 +165,27 @@ for (const [w, h] of SIZES) {
     await page.click("#" + pick);
   }
   await audit(page, `${size} lesson finish`);
+  // Two children: the sheet that offers it, a turn alone, and a finish screen with a card for each.
+  const second = await page.evaluate(() => { const P = window.mathProgress; const a = P.getActiveProfile(); let b = P.getProfiles().find((p) => p.id !== a.id); if (!b) { b = P.createProfile("Second"); P.switchProfile(a.id, true); } return b.id; });
+  await page.goto(BASE + "/prek/lesson-074/", { waitUntil: "load" });
+  await page.waitForTimeout(250);
+  await page.click("#btn-more");
+  await page.waitForTimeout(350);
+  await page.click('[data-act="with"]');
+  await page.waitForTimeout(450);
+  await audit(page, `${size} sheet-with`);
+  await page.keyboard.press("Escape");
+  await page.goto(BASE + "/prek/lesson-002/?with=" + second, { waitUntil: "load" });
+  await page.waitForTimeout(250);
+  let turnAudited = false;
+  for (let i = 0; i < 400; i++) {
+    if (await page.evaluate(() => !document.getElementById("runner-finish").hidden)) break;
+    if (!turnAudited && / alone$/.test(await page.textContent("#tp-cue"))) { turnAudited = true; await audit(page, `${size} runner turn alone`); }
+    const pick = await page.evaluate(() => ["btn-goon", "btn-firm", "btn-next"].map((id) => document.getElementById(id)).find((b) => b && !b.hidden && b.offsetParent !== null).id);
+    await page.click("#" + pick);
+  }
+  if (!turnAudited) { console.log(`FAIL ${size} no turn alone was reached in a lesson for two`); fails.push(`${size} turn alone`); }
+  await audit(page, `${size} lesson finish for two`);
   await page.goto(BASE + "/k/", { waitUntil: "load" });
   await page.waitForTimeout(250);
   await page.click("[data-mark-toggle]");

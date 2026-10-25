@@ -251,7 +251,10 @@
   R.num = function (v, o) {
     var vals = Array.isArray(v.v) ? v.v : [v.v];
     var size = v.size || "lg";
-    var html = '<div class="mdv mdv-num mdv-num--' + size + '">';
+    // The widest item, in characters, so a numeral in a narrow box can be sized to fit it.
+    var chars = 1;
+    for (var c = 0; c < vals.length; c++) chars = Math.max(chars, String(vals[c]).length);
+    var html = '<div class="mdv mdv-num mdv-num--' + size + '" style="--chars:' + chars + '">';
     for (var i = 0; i < vals.length; i++) {
       var val = vals[i];
       html += '<span class="mdv-num__item">';

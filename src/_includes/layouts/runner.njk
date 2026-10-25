@@ -77,6 +77,7 @@ bodyClass: page-runner
     <li><button type="button" class="sheet__row" data-act="big">{% include "partials/icons/expand.njk" %}Big picture<kbd>B</kbd></button></li>
     <li><button type="button" class="sheet__row" data-act="keys">{% include "partials/icons/keyboard.njk" %}Keys<kbd>?</kbd></button></li>
     <li><button type="button" class="sheet__row" data-act="child">{% include "partials/icons/child.njk" %}Switch child</button></li>
+    <li><button type="button" class="sheet__row" data-act="with">{% include "partials/icons/child.njk" %}<span id="more-with-label">Teach two children</span></button></li>
     <li><button type="button" class="sheet__row" data-act="leave">{% include "partials/icons/leave.njk" %}Leave<kbd>Esc</kbd></button></li>
   </ul>
 </dialog>
@@ -111,6 +112,12 @@ bodyClass: page-runner
   <div class="sheet__head"><h2 class="sheet__title" id="sheet-child-title">Switch child</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
   <div class="sheet__body"><p id="sheet-child-text">The marks are saved. The lesson starts again for the child you pick.</p></div>
   <ul class="sheet__list" id="sheet-child-list"></ul>
+</dialog>
+
+<dialog class="sheet" id="sheet-with" aria-labelledby="sheet-with-title">
+  <div class="sheet__head"><h2 class="sheet__title" id="sheet-with-title">Teach two children</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  <div class="sheet__body"><p id="sheet-with-text">Both children answer together, and you mark each answer once for both. Each exercise ends with a turn for each child alone. The marks made so far are dropped, and the lesson starts over.</p></div>
+  <ul class="sheet__list" id="sheet-with-list"></ul>
 </dialog>
 
 <dialog class="sheet" id="sheet-leave" aria-labelledby="sheet-leave-title">

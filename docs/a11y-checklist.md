@@ -9,7 +9,9 @@ text alone).
 Run after `npm run build`:
 
 - `npm run check:a11y`: axe-core over every kind of screen at 390x844 and
-  320x568, in the runner's states and with a child's records in place; every
+  320x568, in the runner's states (a step, a touch, a correction, each sheet,
+  a turn alone in a lesson for two children, and the finish screens for one
+  child and for two) and with a child's records in place; every
   text node at 7:1 against its background (4.5:1 for large text); every
   control at least 44 by 44 px; no sideways overflow except inside the fact
   chart's own region; no clipped text under 200% text spacing.

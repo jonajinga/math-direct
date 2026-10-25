@@ -19,7 +19,7 @@ More checks, each run against a built site (`npm run build` first):
 npm run check:all      # the curriculum, a clean build, the PWA files, and the copy rules
 npm run check:fit      # every step of a sample of runner pages fits one phone screen at four sizes
 npm run check:session  # a sitting is saved, continued, and cleared
-npm run check:program  # first-try scoring, retests, On your own, the test gate, signals, the timed check
+npm run check:program  # first-try scoring, retests, On your own, the test gate, signals, the timed check, two children
 npm run check:a11y     # axe-core over every screen at two sizes, plus contrast, target, reflow, and spacing probes
 npm run check:keys     # a keyboard walk of the runner and the app shell
 npm run check:browser  # all of the browser checks above
@@ -47,7 +47,7 @@ To change what a lesson teaches, edit the track's units or its exercise function
 The site is an app for a phone held in one hand: five tabs at the bottom (Today, Lessons, Practice, Records, More), every control at the bottom, one light theme, no audio, no paper. The runner fills one screen and never scrolls while teaching. `docs/design.md` holds the palette, the rules, and the design of the runner, the scoring, and the program's depth.
 
 - `src/levels/` generates the lesson, test, level, and placement pages from `src/_data/program.js`, which calls the builder.
-- `src/assets/js/lesson-engine.js` runs lessons, tests, the placement test, practice, fact review, and the timed check. It scores the first try, asks a missed item again two items later, saves the sitting after every move, and adapts review to items missed recently.
+- `src/assets/js/lesson-engine.js` runs lessons, tests, the placement test, practice, fact review, and the timed check. It scores the first try, asks a missed item again two items later, saves the sitting after every move, and adapts review to items missed recently. A lesson can be taught to two children at once: they answer together, each takes a turn alone at the end of every exercise, and each child's record stays their own.
 - `src/assets/js/progress.js` keeps each child's records in the browser's localStorage: lessons, tests by part, facts with response times, per-item results, timed checks, notes, and the saved sitting. Nothing is sent to a server.
 - `src/assets/js/records.js` draws the Records screen; `today.js` the Today screen; `lessons-index.js` the level screens and the mark sheet; `app.js` the sheets, toasts, and install prompt.
 - `docs/curriculum-plan.md` is the evaluation and plan the program was built from; `docs/a11y-checklist.md` lists the accessibility checks done by hand.

@@ -150,6 +150,7 @@
 .tp-cue--test { color: var(--firm); }
 .tp-cue--note { color: var(--note); }
 .tp-cue--own { color: var(--ink); }
+.tp-cue--turn { color: var(--note); }
 
 .tp-say {
   margin: 0;
@@ -312,6 +313,11 @@
 .finish__facts dt { font-size: var(--fs-1); color: var(--ink-2); }
 .finish__facts dd { margin: 0; font-size: var(--fs-4); font-weight: 700; }
 .finish__h2 { margin: var(--sp-3) 0 var(--sp-1); font-family: var(--font-ui); font-size: var(--fs-3); }
+/* One card for each child when two were taught together. */
+.finish__child { margin: var(--sp-3) 0 0; padding: var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-1); background: var(--surface-2); }
+.finish__child > .finish__h2 { margin-top: 0; font-size: var(--fs-4); }
+.finish__child .finish__facts { margin-bottom: var(--sp-2); }
+.finish__child .finish__advice { background: var(--surface); }
 .finish__list { margin: 0 0 var(--sp-3); padding-left: 1.25rem; line-height: 1.45; font-size: var(--fs-2); }
 .finish__list li + li { margin-top: 0.125rem; }
 .finish__list a, .finish__passed a { color: var(--primary); text-decoration: underline; }

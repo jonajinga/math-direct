@@ -66,7 +66,7 @@
 .mdv-row .mdv-num--lg, .mdv-row .mdv-sign { font-size: clamp(min(2rem, 12cqh), 15cqh, 4.5rem); }
 .mdv-frames--2 .mdv-frame { max-width: 48%; }
 .child-stage .mdv-frames--2 .mdv-frame { width: min(48%, calc(var(--vis-h) * var(--ar, 1))); }
-.mdv-choice .mdv-digital span { font-size: min(clamp(min(1.1rem, 7.2cqh), 9cqh, 2.25rem), 6.5cqw); border-width: 2px; }
+.mdv-choice .mdv-digital span { font-size: min(clamp(min(1.1rem, 7.2cqh), 9cqh, 2.25rem), 30cqw); border-width: 2px; }
 .child-stage .mdv-col { font-size: min(clamp(min(2.5rem, 16cqh), 20cqh, 6rem), calc(var(--vis-h) / 4.4)); }
 
 /* Numerals */
@@ -167,7 +167,13 @@
 .mdv-choice:hover, .mdv-choice:focus-visible { border-color: var(--v-ink); outline: none; }
 .mdv-choice.is-picked { border-color: var(--v-ink); box-shadow: 0 0 0 4px var(--v-ink); }
 .is-done .mdv-choice { cursor: default; }
-.child-stage .mdv-choice .mdv-num { font-size: clamp(min(2.5rem, 19.2cqh), 24cqh, 6rem); }
+/* A choice is a width container of its own, so a numeral inside it is also
+   capped by the cell's width: Comic Neue digits are about 0.44 em wide, and
+   --chars is the widest item in characters. Heights (cqh) still come from
+   the stage. In a narrow landscape stage a three-digit number thus shrinks
+   instead of crossing the cell's border. */
+.child-stage .mdv-choice { container-type: inline-size; }
+.child-stage .mdv-choice .mdv-num { font-size: min(clamp(min(2.5rem, 19.2cqh), 24cqh, 6rem), calc(92cqw / (var(--chars, 2) * 0.44))); }
 
 /* Rows of visuals */
 .mdv-row { gap: clamp(1rem, 4cqw, 3rem); flex-wrap: wrap; width: 100%; }

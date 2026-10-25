@@ -5,7 +5,10 @@
 //   - the summary records first-try counts, the retests, and per-item results;
 //   - a mastery test has four to eight items in a part; a failed part can be
 //     given again alone, and the record merges; the next step points at the
-//     test until it is passed.
+//     test until it is passed;
+//   - a lesson taught to two children: unison steps marked once for both, a
+//     turn for each child alone at the end of an exercise, On your own shared
+//     out, the sitting restored with the pair, and a record for each child.
 //
 //   node scripts/check-program.mjs
 import { createServer } from "node:http";
@@ -199,8 +202,89 @@ check("the timed check records facts right, errors, and a goal", timedRec && tim
 const factRec = await page.evaluate(() => { const f = window.mathProgress.getActiveProfile().facts; const k = Object.keys(f)[0]; return f[k]; });
 check("facts record a response time", factRec && factRec.t && typeof factRec.t[factRec.t.length - 1] === "number", JSON.stringify(factRec));
 
+// ── Two children ──
+await page.goto(BASE + "/k/lesson-040/", { waitUntil: "load" });
+await page.waitForTimeout(200);
+check("a lesson for one child offers Teach two children once a second child exists", await page.evaluate(() => { const P = window.mathProgress; if (P.getProfiles().length < 2) { const a = P.getActiveProfile(); P.createProfile("Second"); P.switchProfile(a.id, true); } return true; }));
+const kids = await page.evaluate(() => { const P = window.mathProgress; const a = P.getActiveProfile(); const b = P.getProfiles().filter((p) => p.id !== a.id)[0]; return { a: a.id, b: b.id, aName: a.name, bName: b.name }; });
+await page.goto(BASE + "/k/lesson-040/", { waitUntil: "load" });
+await page.waitForTimeout(200);
+check("More offers Teach two children to one child", /Teach two children/.test(await page.textContent("#more-with-label")) && (await page.evaluate(() => !document.querySelector('[data-act="with"]').parentNode.hidden)));
+await page.click("#btn-more");
+await page.waitForTimeout(150);
+await page.click('[data-act="with"]');
+await page.waitForTimeout(350);
+check("the sheet names the pair", new RegExp(kids.aName + " and " + kids.bName).test(await page.textContent("#sheet-with-list")), await page.textContent("#sheet-with-list"));
+await Promise.all([page.waitForNavigation(), page.click('#sheet-with-list [data-with]')]);
+await page.waitForTimeout(300);
+check("picking the pair reopens the lesson for both", new RegExp("with=" + kids.b).test(page.url()), page.url());
+check("the strip names both children", new RegExp(kids.aName + " and " + kids.bName).test(await page.textContent("#rn-where")), await page.textContent("#rn-where"));
+check("More now offers Teach one child, and Switch child is put away", /Teach one child/.test(await page.textContent("#more-with-label")) && (await page.evaluate(() => document.querySelector('[data-act="child"]').parentNode.hidden)));
+const g0 = await state();
+check("the sitting holds two children", await page.evaluate(() => window.mdRunner.sitting().group && window.mdRunner.sitting().children.length === 2));
+// First exercise: the pair misses the first item, then is firm. Each child then takes a turn alone.
+await page.click("#btn-error");
+await page.waitForTimeout(50);
+await page.click("#btn-goon");
+let turnCues = [], turnNotes = [];
+for (let i = 0; i < 60; i++) {
+  const s = await state();
+  if (s.pos.seg > 0) break;
+  const cue = await page.textContent("#tp-cue");
+  if (/ alone$/.test(cue)) { turnCues.push(cue); turnNotes.push(await page.textContent("#tp-test-note")); }
+  const pick = (await visible("#btn-goon")) ? "#btn-goon" : (await visible("#btn-firm")) ? "#btn-firm" : "#btn-next";
+  await page.click(pick);
+}
+check("each child takes one turn alone at the end of the exercise, in order", turnCues.length === 2 && turnCues[0] === kids.aName + " alone" && turnCues[1] === kids.bName + " alone", turnCues.join(" | "));
+check("the turn says who answers and whose answer to mark", /answers alone\. Mark/.test(turnNotes[0] || ""), turnNotes[0]);
+const g1 = await state();
+check("the turns are clones of the item the pair missed", g1.segs[0].uids.indexOf("0:0:c" + kids.a) !== -1 && g1.segs[0].uids.indexOf("0:0:c" + kids.b) !== -1 && g1.segs[0].n === g0.segs[0].n + 3, JSON.stringify(g1.segs[0].uids));
+check("the turns come after the exercise's last unison item", g1.segs[0].uids.indexOf("0:0:c" + kids.a) === g1.segs[0].n - 2);
+const marksBefore = Object.keys(g1.results).length;
+// Leave, and continue from Today with the pair.
+await page.click("#btn-more");
+await page.waitForTimeout(150);
+await page.click('[data-act="leave"]');
+await page.waitForTimeout(350);
+await Promise.all([page.waitForNavigation(), page.click("#sheet-leave-go")]);
+await page.goto(BASE + "/", { waitUntil: "load" });
+await page.waitForSelector("[data-continue-card]", { timeout: 3000 }).catch(() => {});
+const cont = await page.evaluate(() => { const c = document.querySelector("[data-continue-card]"); return c ? { text: c.textContent, href: c.querySelector("a.btn").getAttribute("href") } : null; });
+if (!cont) console.log("      Today without a Continue card. sessions=" + (await page.evaluate(() => localStorage.getItem("math-direct-sessions"))) + " active=" + (await page.evaluate(() => localStorage.getItem("math-direct-active-profile"))) + " errors=" + errors.join(" | "));
+check("Today's Continue card names both children", !!cont && new RegExp(kids.aName + " and " + kids.bName).test(cont.text), cont && cont.text.slice(0, 80));
+check("the Continue link keeps the pair", !!cont && cont.href === "/k/lesson-040/?with=" + kids.b + "&continue=1", cont && cont.href);
+await page.goto(BASE + (cont ? cont.href : "/k/lesson-040/?with=" + kids.b + "&continue=1"), { waitUntil: "load" });
+await page.waitForTimeout(300);
+const g2 = await state();
+check("the sitting comes back with both children, the turns, and the marks", (await page.evaluate(() => window.mdRunner.sitting().group)) && g2.segs[0].uids.indexOf("0:0:c" + kids.b) !== -1 && Object.keys(g2.results).length === marksBefore && g2.pos.seg === 1, JSON.stringify({ pos: g2.pos, marks: Object.keys(g2.results).length, before: marksBefore }));
+// Finish, all firm. On your own is shared out one child at a time.
+let ownCues = [], sawDelayedG = false;
+for (let i = 0; i < 500; i++) {
+  if (await visible("#runner-finish")) break;
+  const cue = await page.textContent("#tp-cue");
+  const title = await page.textContent("#tp-ex-title");
+  if (/Independent work/.test(title)) ownCues.push(cue);
+  if (/Missed items/.test(title)) sawDelayedG = true;
+  const pick = (await visible("#btn-goon")) ? "#btn-goon" : (await visible("#btn-firm")) ? "#btn-firm" : "#btn-next";
+  await page.click(pick);
+}
+check("the lesson for two finished", await visible("#runner-finish"));
+check("On your own items alternate between the children", ownCues.length >= 3 && ownCues.every((c, i) => c === (i % 2 ? kids.bName : kids.aName) + " alone"), ownCues.join(" | "));
+check("the delayed test came for the pair", sawDelayedG);
+const both = await page.evaluate((k) => { const P = window.mathProgress; const a = P.getProfile(k.a), b = P.getProfile(k.b); const la = a.lessons["k-040"], lb = b.lessons["k-040"]; return { a: la && la[la.length - 1], b: lb && lb[lb.length - 1], bItems: Object.keys(b.items || {}).length, aDone: a.completed.indexOf("k-040") !== -1, bDone: b.completed.indexOf("k-040") !== -1 }; }, kids);
+check("the lesson is recorded for both children", !!both.a && !!both.b && both.a.group === true && both.b.group === true && both.aDone && both.bDone);
+check("each record names the other child", both.a && both.a.with === kids.bName && both.b && both.b.with === kids.aName, JSON.stringify([both.a && both.a.with, both.b && both.b.with]));
+const exCount = g2.segs.filter((s) => s.kind !== "delayed" && s.kind !== "independent").length;
+check("each child's record counts the unison error and one turn alone for each exercise", both.a && both.a.errors === 1 && both.a.turns && both.a.turns.firm === exCount && both.b && both.b.errors === 1 && both.b.turns && both.b.turns.firm === exCount, JSON.stringify({ exercises: exCount, a: both.a && [both.a.firm, both.a.errors, both.a.turns], b: both.b && [both.b.firm, both.b.errors, both.b.turns] }));
+check("each child's On your own counts only that child's items", both.a && both.b && both.a.independent && both.b.independent && both.a.independent.firm + both.a.independent.errors + both.b.independent.firm + both.b.independent.errors === ownCues.length, JSON.stringify([both.a && both.a.independent, both.b && both.b.independent]));
+check("per-item results were recorded for the second child", both.bItems > 3, String(both.bItems));
+check("the finish screen shows a card for each child", (await page.evaluate(() => document.querySelectorAll("#runner-finish .finish__child").length)) === 2 && new RegExp(kids.bName).test(await page.textContent("#runner-finish")));
+// Lesson 40 is followed by a mastery test, which is given to one child at a time; the pair rides the lesson links.
+check("the finish screen keeps the pair on the lesson links and sends the test to one child", await page.evaluate((b) => { const again = document.querySelector('#runner-finish .finish__links a[href*="lesson-040"]'); const primary = document.querySelector("#runner-finish .action-bar a.btn--primary"); return !!again && again.getAttribute("href").indexOf("with=" + b) !== -1 && !!primary && /test/.test(primary.getAttribute("href")) && primary.getAttribute("href").indexOf("with=") === -1; }, kids.b));
+check("each child has their own mark row", (await page.evaluate(() => document.querySelectorAll("#runner-finish [data-mark-child]").length)) === 2);
+
 check("no page errors", !errors.length, errors.join(" | "));
 await browser.close();
 server.close();
 if (fails.length) { console.error("check-program: " + fails.length + " check(s) failed."); process.exit(1); }
-console.log("check-program: scoring, retests, On your own, the test gate, signals, pace, adaptive review, and the timed check all hold.");
+console.log("check-program: scoring, retests, On your own, the test gate, signals, pace, adaptive review, the timed check, and a lesson for two children all hold.");

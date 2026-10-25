@@ -124,6 +124,7 @@
         var extra = [];
         if (s.retestFirm + s.retestErrors) extra.push("asked again " + s.retestFirm + " of " + (s.retestFirm + s.retestErrors));
         if (s.independent) extra.push("on your own " + s.independent.firm + " of " + (s.independent.firm + s.independent.errors));
+        if (s.group && s.with) extra.push("taught with " + esc(s.with));
         return '<li class="recent"><span class="recent__date">' + shortDay(s.date) + '</span><a class="recent__name" href="' + lessonUrl(l, id.n) + '">' + esc(l.name) + " " + id.n + '</a><span class="recent__nums">' + s.firm + " firm, " + plural(s.errors, "error") + (extra.length ? "; " + extra.join("; ") : "") + '</span><span class="recent__advice">' + advice + "</span></li>";
       });
       html += card("Recent lessons", '<ul class="recent-list">' + rows.join("") + "</ul>");

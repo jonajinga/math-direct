@@ -21,6 +21,7 @@
     btnNext: $("btn-next"), btnFirm: $("btn-firm"), btnGoOn: $("btn-goon"), btnBigBack: $("btn-big-back"),
     moreList: $("more-list"), outlineList: $("tp-outline-list"), outlineLinks: $("tp-outline-links"),
     childList: $("sheet-child-list"), childText: $("sheet-child-text"), leaveTitle: $("sheet-leave-title"), leaveText: $("sheet-leave-text"), leaveGo: $("sheet-leave-go"),
+    withTitle: $("sheet-with-title"), withText: $("sheet-with-text"), withList: $("sheet-with-list"), withLabel: $("more-with-label"),
     shell: $("runner-shell"), finish: $("runner-finish"), teacher: $("tp-body"),
   };
   var P = window.mathProgress;
@@ -30,7 +31,8 @@
   var segments = [];
   var pos = { seg: 0, step: 0 };
   var results = {}; // step uid -> { first: "firm" | "error", last: "firm" | "error", n: tries }
-  var inserted = []; // retest steps added after corrections: { seg, at, from }
+  var inserted = []; // steps added while teaching: retests after corrections { seg, at, from }, and turns { kind: "turn", seg, at, from, child }
+  var sitting = { children: [], group: false }; // the child, or the two children, being taught: [{ id, name }]
   var moved = false; // the parent moved or marked something in this sitting
   var errorState = false; // showing a correction after an Error
   var delayedAdded = false;
@@ -57,7 +59,27 @@
   function currentStep() { var s = currentSeg(); return s ? s.steps[pos.step] : null; }
   function escapeHtml(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   function escapeAttr(s) { return escapeHtml(s).replace(/"/g, "&quot;"); }
-  function childName() { var p = P && P.getActiveProfile ? P.getActiveProfile() : null; return p ? p.name : ""; }
+  function childName() { return sitting.children.map(function (c) { return c.name; }).join(" and "); }
+  // Two children: the active child and the one named by ?with=<id>, in a lesson only.
+  function setSitting() {
+    sitting = { children: [], group: false };
+    var p = P && P.getActiveProfile ? P.getActiveProfile() : null;
+    if (p) sitting.children.push({ id: p.id, name: p.name });
+    var m = /[?&]with=([^&]+)/.exec(window.location.search);
+    if (!m || !p || MODE !== "lesson" || rehearsing || !P.getProfile) return;
+    var other = P.getProfile(decodeURIComponent(m[1]));
+    if (!other || other.id === p.id) return;
+    sitting.children.push({ id: other.id, name: other.name });
+    sitting.group = true;
+  }
+  function childById(id) { return sitting.children.filter(function (c) { return c.id === id; })[0] || null; }
+  function nameOf(id) { var c = childById(id); return c ? c.name : ""; }
+  function otherChildId() { return sitting.group ? sitting.children[1].id : ""; }
+  // The query that keeps a pair of children together from one lesson to the next.
+  function withQuery() { return sitting.group ? "?with=" + encodeURIComponent(otherChildId()) : ""; }
+  // Does a step count for this child? Unison steps count for both; a turn only for its child.
+  function forChildOk(st, id) { return !id || !st.forChild || st.forChild === id; }
+  function isExercise(seg) { return !!seg && seg.kind !== "delayed" && seg.kind !== "independent"; }
   function thing() { return MODE === "test" ? "test" : MODE === "placement" ? "placement test" : MODE === "practice" || MODE === "timed" ? "practice" : "lesson"; }
 
   // ── Building scripts for each mode ──
@@ -67,6 +89,8 @@
       return { title: ex.title, meta: ex.trackName + " · " + kindName(ex.kind), kind: ex.kind, track: ex.track, n: ex.n, materials: ex.materials, steps: ex.steps };
     });
     if (lesson.independent && lesson.independent.steps.length) {
+      // With two children, the items are shared out one child at a time, so neither can copy.
+      if (sitting.group) lesson.independent.steps.forEach(function (st, i) { st.forChild = sitting.children[i % 2].id; });
       segments.push({ title: "Independent work", meta: "Read each line once, give no help", kind: "independent", steps: lesson.independent.steps });
     }
     if (!rehearsing) adaptReview(lesson);
@@ -272,6 +296,7 @@
     var tries = [
       [where.child, where.level, where.name, where.ex],
       [where.child, where.level, where.name, where.exShort],
+      [where.child, where.name, where.exShort],
       [where.level, where.name, where.exShort],
       [where.name, where.exShort],
       [where.name],
@@ -302,9 +327,10 @@
   }
 
   // ── Rendering a step ──
-  function cueLabel(c, seg) {
+  function cueLabel(c, seg, st) {
     if (MODE === "timed") return "Timed";
     if (MODE === "test" || MODE === "placement") return "Test item";
+    if (st && st.forChild && sitting.group) return nameOf(st.forChild) + " alone";
     if (seg && seg.kind === "independent") return "On your own";
     return { model: "My turn", lead: "Together", test: "Your turn", note: "Set up" }[c] || "";
   }
@@ -357,8 +383,9 @@
     renderSignal(st);
     var testing = MODE === "test" || MODE === "placement" || MODE === "timed";
     var own = seg.kind === "independent";
-    el.cue.textContent = cueLabel(st.cue, seg);
-    el.cue.className = "tp-cue tp-cue--" + (testing ? "test" : own ? "own" : st.cue);
+    var turn = !!(st.forChild && sitting.group);
+    el.cue.textContent = cueLabel(st.cue, seg, st);
+    el.cue.className = "tp-cue tp-cue--" + (testing ? "test" : turn ? "turn" : own ? "own" : st.cue);
     el.say.textContent = st.say || "";
     setBox(el.doBox, el.doText, own ? "" : st["do"] || (seg.materials && pos.step === 0 ? "You will need: " + seg.materials + "." : ""));
     setBox(el.answerBox, el.answerText, numeralChains(st.answer || ""));
@@ -369,7 +396,10 @@
     el.touched.textContent = "";
     el.testNote.textContent = MODE === "timed" ? "Mark each answer at once. The next fact comes up by itself." :
       testing ? "This is a test. Do not correct or help. Mark each answer and go on." :
+      own && turn ? "Read the line once. Give no help. Mark " + nameOf(st.forChild) + "'s answer." :
       own ? "Read the line once. Give no help. Mark the answer." :
+      turn && st.retestOf ? nameOf(st.forChild) + " answers alone, asked again after the correction." :
+      turn ? nameOf(st.forChild) + " answers alone. Mark " + nameOf(st.forChild) + "'s answer." :
       st.retestOf ? "Asked again after the correction. Mark it as before." :
       st.missedNote ? "Missed last time. Watch this one." : "";
     el.testNote.hidden = !el.testNote.textContent;
@@ -387,7 +417,7 @@
     syncBar();
     fitPanel();
     saveSession();
-    announce((cueLabel(st.cue, seg) ? cueLabel(st.cue, seg) + ". " : "") + (st.say || ""));
+    announce((cueLabel(st.cue, seg, st) ? cueLabel(st.cue, seg, st) + ". " : "") + (st.say || ""));
   }
 
   // ── The sitting: saved after every move and mark, cleared when finished ──
@@ -398,18 +428,23 @@
     if (!P || !P.saveSession || MODE === "practice" || MODE === "timed" || !DATA || rehearsing) return;
     if (!markCount() && !moved && MODE !== "placement") return;
     P.saveSession({
-      kind: MODE, url: window.location.pathname + (testParts.length && testParts.length < (DATA.test ? DATA.test.parts.length : 0) ? window.location.search : ""), id: sessionId(),
+      kind: MODE, url: sittingUrl(), id: sessionId(),
       title: (where.level ? where.level + " · " : "") + where.name, where: where.ex, marks: markCount(),
       pos: { seg: pos.seg, step: pos.step }, results: results, delayedAdded: delayedAdded, inserted: inserted,
       placement: MODE === "placement" ? placement : null, elapsed: Date.now() - startTime,
+      with: otherChildId() || null, children: sitting.children.map(function (c) { return c.name; }),
     });
+  }
+  // The page a sitting belongs to: a partial test keeps its parts, a lesson for two keeps the pair.
+  function sittingUrl() {
+    if (MODE === "test") return window.location.pathname + (/[?&]parts=/.test(window.location.search) ? window.location.search.replace(/[?&]continue=1/, "").replace(/^&/, "?") : "");
+    return window.location.pathname + withQuery();
   }
   function clearSession() { if (P && P.clearSession) P.clearSession(); }
   function savedSitting() {
     if (!P || !P.loadSession || MODE === "practice" || MODE === "timed" || rehearsing) return null;
     var s = P.loadSession();
-    var here = window.location.pathname + (MODE === "test" && /[?&]parts=/.test(window.location.search) ? window.location.search : "");
-    if (!s || s.url !== here || s.kind !== MODE) return null;
+    if (!s || s.url !== sittingUrl() || s.kind !== MODE) return null;
     if (!s.marks && !(s.pos && (s.pos.seg || s.pos.step)) && MODE !== "placement") return null;
     return s;
   }
@@ -428,7 +463,9 @@
       var seg = segments[ins.seg];
       if (!seg) return;
       var src = seg.steps.filter(function (st) { return st.uid === ins.from; })[0];
-      if (src) insertRetest(seg, ins.seg, seg.steps.indexOf(src));
+      if (!src) return;
+      if (ins.kind === "turn") { if (sitting.group && childById(ins.child)) { insertTurn(seg, ins.seg, src, ins.child, Math.min(ins.at, seg.steps.length)); seg.turnsAdded = true; } }
+      else insertRetest(seg, ins.seg, seg.steps.indexOf(src));
     });
     moved = true;
     delayedAdded = !!s.delayedAdded;
@@ -467,6 +504,7 @@
     var seg = currentSeg();
     if (!seg || pos.seg !== segments.length - 1 || pos.step !== seg.steps.length - 1) return false;
     if (MODE === "lesson" && !delayedAdded && anyErrors()) return false;
+    if (MODE === "lesson" && sitting.group && isExercise(seg) && !seg.turnsAdded && lastTestIndex(seg) >= 0) return false;
     return MODE !== "placement";
   }
   function syncBar() {
@@ -664,7 +702,11 @@
     if (!cur) results[k] = { first: r, last: r, n: 1 };
     else { cur.last = r; cur.n++; }
     moved = true;
-    if (st.fact && P && P.recordFact && !cur && !rehearsing) P.recordFact(st.fact, r === "firm", Date.now() - stepShown);
+    if (st.fact && P && P.recordFact && !cur && !rehearsing) {
+      var ms = Date.now() - stepShown;
+      if (sitting.group && P.recordFactFor) sitting.children.forEach(function (c) { if (forChildOk(st, c.id)) P.recordFactFor(c.id, st.fact, r === "firm", ms); });
+      else P.recordFact(st.fact, r === "firm", ms);
+    }
     saveSession();
     if (r === "firm" || MODE === "test" || MODE === "placement" || MODE === "timed" || seg.kind === "independent") {
       announce(r === "firm" ? "Marked firm." : "Marked as an error.");
@@ -706,6 +748,39 @@
     inserted.push({ seg: si, at: at, from: st.uid });
   }
 
+  // Two children: when the last test step of an exercise is done, each child
+  // takes one turn alone, as Direct Instruction gives individual turns after
+  // the group is firm. The child with more errors so far goes first. The item
+  // is one the group missed in this exercise, or else the exercise's last.
+  function lastTestIndex(seg) {
+    for (var i = seg.steps.length - 1; i >= 0; i--) if (seg.steps[i].cue === "test") return i;
+    return -1;
+  }
+  function turnOrder() {
+    var errs = {};
+    sitting.children.forEach(function (c) { errs[c.id] = tally(isExercise, null, c.id).errors; });
+    return sitting.children.slice().sort(function (a, b) { return errs[b.id] - errs[a.id]; });
+  }
+  function insertTurns(seg, si) {
+    seg.turnsAdded = true;
+    var tests = seg.steps.filter(function (st) { return st.cue === "test" && !st.forChild; });
+    if (!tests.length) return;
+    var missed = tests.filter(function (st) { return !st.retestOf && firstOf(st.uid) === "error"; });
+    var plain = tests.filter(function (st) { return !st.retestOf; });
+    var pool = missed.length ? missed : [plain.length ? plain[plain.length - 1] : tests[tests.length - 1]];
+    var at = lastTestIndex(seg) + 1;
+    turnOrder().forEach(function (c, i) { insertTurn(seg, si, pool[i % pool.length], c.id, at + i); });
+  }
+  function insertTurn(seg, si, src, childId, at) {
+    var c = asTestStep(src);
+    delete c.retests; delete c.retestOf; delete c.missedNote;
+    c.forChild = childId;
+    c.turnOf = src.uid;
+    c.uid = src.uid + ":c" + childId;
+    seg.steps.splice(at, 0, c);
+    inserted.push({ kind: "turn", seg: si, at: at, from: src.uid, child: childId });
+  }
+
   function startOver() {
     if (MODE !== "lesson") return;
     var seg = currentSeg();
@@ -721,6 +796,7 @@
   function advance() {
     moved = true;
     var seg = currentSeg();
+    if (sitting.group && MODE === "lesson" && isExercise(seg) && !seg.turnsAdded && lastTestIndex(seg) === pos.step) insertTurns(seg, pos.seg);
     if (pos.step < seg.steps.length - 1) { pos.step++; render(); return; }
     if (pos.seg < segments.length - 1) { pos.seg++; pos.step = 0; render(); return; }
     endOfScript();
@@ -777,12 +853,13 @@
 
   // Counts the first-try results of the steps a filter admits; retest
   // steps added after corrections are counted apart.
-  function tally(filter, which) {
+  function tally(filter, which, childId) {
     var firm = 0, errors = 0;
     segments.forEach(function (s) {
       if (filter && !filter(s)) return;
       s.steps.forEach(function (st) {
         if (which === "retest" ? !st.retestOf : !!st.retestOf) return;
+        if (!forChildOk(st, childId)) return;
         var r = firstOf(st.uid);
         if (r === "firm") firm++;
         if (r === "error") errors++;
@@ -790,12 +867,12 @@
     });
     return { firm: firm, errors: errors };
   }
-  function itemResults() {
+  function itemResults(childId) {
     var items = {};
     segments.forEach(function (s) {
       if (s.kind === "delayed") return;
       s.steps.forEach(function (st) {
-        if (!st.item || st.retestOf || !results[st.uid]) return;
+        if (!st.item || st.retestOf || !results[st.uid] || !forChildOk(st, childId)) return;
         var r = results[st.uid];
         if (!items[st.item]) items[st.item] = { first: r.first === "firm", last: r.last === "firm" };
         else items[st.item].last = r.last === "firm";
@@ -804,7 +881,7 @@
     // A retest's result is the item's latest.
     segments.forEach(function (s) {
       s.steps.forEach(function (st) {
-        if (st.item && (st.retestOf || s.kind === "delayed") && results[st.uid] && items[st.item]) items[st.item].last = results[st.uid].last === "firm";
+        if (st.item && (st.retestOf || s.kind === "delayed") && results[st.uid] && items[st.item] && forChildOk(st, childId)) items[st.item].last = results[st.uid].last === "firm";
       });
     });
     return items;
@@ -831,23 +908,28 @@
     window.scrollTo(0, 0);
     var h1 = el.finish.querySelector("h1");
     if (h1) { h1.setAttribute("tabindex", "-1"); h1.focus(); }
-    var row = el.finish.querySelector("[data-mark-kind]");
-    if (row) row.addEventListener("click", function (e) {
-      var b = e.target.closest("[data-mark]");
-      if (!b || !P) return;
-      var v = b.getAttribute("data-mark"), id = row.getAttribute("data-mark-id");
-      if (row.getAttribute("data-mark-kind") === "lesson") P.setLessonStatus(id, v);
-      else P.setTestStatus(id, v);
-      var all = row.querySelectorAll("[data-mark]");
-      for (var i = 0; i < all.length; i++) all[i].setAttribute("aria-pressed", all[i] === b ? "true" : "false");
-      if (window.MD && MD.toast) MD.toast("Marked " + b.textContent.toLowerCase() + ".");
-    });
+    var rows = el.finish.querySelectorAll("[data-mark-kind]");
+    for (var ri = 0; ri < rows.length; ri++) (function (row) {
+      row.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-mark]");
+        if (!b || !P) return;
+        var v = b.getAttribute("data-mark"), id = row.getAttribute("data-mark-id"), child = row.getAttribute("data-mark-child") || null;
+        if (row.getAttribute("data-mark-kind") === "lesson") P.setLessonStatus(id, v, child);
+        else P.setTestStatus(id, v);
+        var all = row.querySelectorAll("[data-mark]");
+        for (var i = 0; i < all.length; i++) all[i].setAttribute("aria-pressed", all[i] === b ? "true" : "false");
+        if (window.MD && MD.toast) MD.toast("Marked " + b.textContent.toLowerCase() + (child ? " for " + nameOf(child) : "") + ".");
+      });
+    })(rows[ri]);
     var noteBtn = $("finish-note-save");
     if (noteBtn) {
       noteBtn.addEventListener("click", function () {
         var t = $("finish-note").value.trim();
         if (t && P) {
-          P.addNote(t, DATA.lesson ? DATA.lesson.id : DATA.test ? DATA.test.id : "");
+          var ref = DATA.lesson ? DATA.lesson.id : DATA.test ? DATA.test.id : "";
+          // A note made after a lesson for two children goes to both records.
+          if (sitting.group && P.addNoteFor) sitting.children.forEach(function (c) { P.addNoteFor(c.id, t, ref); });
+          else P.addNote(t, ref);
           noteBtn.textContent = "Saved";
           noteBtn.disabled = true;
         }
@@ -864,96 +946,142 @@
     if (MODE === "practice") return finishPractice();
   }
 
-  function finishLesson(minutes) {
-    var lesson = DATA.lesson;
-    var isEx = function (s) { return s.kind !== "delayed" && s.kind !== "independent"; };
-    var main = tally(isEx);
-    var retests = tally(isEx, "retest");
-    var own = tally(function (s) { return s.kind === "independent"; });
-    var delayed = tally(function (s) { return s.kind === "delayed"; });
+  // One child's results for the lesson: the unison steps, plus that child's
+  // own turns when two were taught. With one child, every step is theirs.
+  function lessonReport(c, minutes, pace) {
+    var id = sitting.group ? c.id : null;
+    var main = tally(isExercise, null, id);
+    var retests = tally(isExercise, "retest", id);
+    var own = tally(function (s) { return s.kind === "independent"; }, null, id);
+    var delayed = tally(function (s) { return s.kind === "delayed"; }, null, id);
+    var turns = { firm: 0, errors: 0 };
+    if (id) segments.forEach(function (s) {
+      if (!isExercise(s)) return;
+      s.steps.forEach(function (st) {
+        if (st.forChild !== id || st.retestOf) return;
+        var r = firstOf(st.uid);
+        if (r === "firm") turns.firm++;
+        if (r === "error") turns.errors++;
+      });
+    });
     var exErrors = [];
     segments.forEach(function (s, si) {
-      if (!isEx(s)) return;
+      if (!isExercise(s)) return;
       var errs = 0;
-      s.steps.forEach(function (st) { if (!st.retestOf && firstOf(st.uid) === "error") errs++; });
+      s.steps.forEach(function (st) { if (!st.retestOf && forChildOk(st, id) && firstOf(st.uid) === "error") errs++; });
       if (errs) exErrors.push({ n: si + 1, title: s.title, track: s.track, errors: errs });
     });
     var stillMissed = [];
     var del = segments.filter(function (s) { return s.kind === "delayed"; })[0];
     if (del) {
       del.steps.forEach(function (st) {
-        if (lastOf(st.uid) === "error") {
-          var src = segments[st.from.seg];
-          if (stillMissed.indexOf(src.title) === -1) stillMissed.push(src.title);
-        }
+        if (!forChildOk(st, id) || lastOf(st.uid) !== "error") return;
+        var src = segments[st.from.seg];
+        if (stillMissed.indexOf(src.title) === -1) stillMissed.push(src.title);
       });
     }
     var total = main.firm + main.errors;
     var repeat = total > 0 && (main.errors / total > 0.25 || stillMissed.length > 1);
     var ownTotal = own.firm + own.errors;
-    var ownLow = ownTotal > 0 && own.firm / ownTotal < 0.85;
-    if (segIndex >= 0) { segTimes[segIndex] = (segTimes[segIndex] || 0) + (Date.now() - segEntered) / 1000; segEntered = Date.now(); }
-    var teachSeconds = 0;
-    segments.forEach(function (s, i) { if (isEx(s)) teachSeconds += segTimes[i] || 0; });
-    var pace = teachSeconds > 0 ? Math.round(((main.firm + main.errors + retests.firm + retests.errors) / (teachSeconds / 60)) * 10) / 10 : null;
-    var showPace = pace && teachSeconds >= 30;
     var summary = {
       date: new Date().toISOString(), minutes: minutes, firm: main.firm, errors: main.errors, firstTry: true, pace: pace, resumed: resumed,
       retestFirm: retests.firm, retestErrors: retests.errors,
       delayedFirm: delayed.firm, delayedErrors: delayed.errors, exercises: exErrors, stillMissed: stillMissed, repeat: repeat,
       independent: ownTotal ? { firm: own.firm, errors: own.errors } : null,
     };
-    if (P && !rehearsing) { P.recordLesson(lesson.id, summary); if (P.recordItems) P.recordItems(itemResults(), summary.date); }
-
-    var name = rehearsing ? "Rehearsal" : childName();
-    var html = '<article class="finish">';
-    html += '<p class="finish__kicker">' + escapeHtml(lesson.levelName) + (name ? " · " + escapeHtml(name) : "") + "</p>";
-    html += '<h1 class="finish__title">Lesson ' + lesson.number + " is finished</h1>";
-    html += '<dl class="finish__facts"><div><dt>Firm</dt><dd>' + main.firm + "</dd></div><div><dt>Errors</dt><dd>" + main.errors + "</dd></div>";
-    if (retests.firm + retests.errors) html += "<div><dt>Asked again</dt><dd>" + retests.firm + " of " + (retests.firm + retests.errors) + "</dd></div>";
-    if (del) html += "<div><dt>Retest</dt><dd>" + delayed.firm + " of " + (delayed.firm + delayed.errors) + "</dd></div>";
-    if (ownTotal) html += "<div><dt>On your own</dt><dd>" + own.firm + " of " + ownTotal + "</dd></div>";
-    html += "<div><dt>Time</dt><dd>" + minutes + " min</dd></div>";
-    if (showPace) html += "<div><dt>Pace</dt><dd>" + pace + " a minute</dd></div>";
-    html += "</dl>";
-    if (showPace && !rehearsing) html += '<p class="finish__lead">Pace is answers a minute during the exercises. Direct Instruction aims for about ten on firm work; slower is right for new teaching.</p>';
-    if (exErrors.length) {
-      html += '<h2 class="finish__h2">Where the errors were</h2><ul class="finish__list">';
-      exErrors.forEach(function (e) { html += "<li>Exercise " + e.n + ", " + escapeHtml(e.title) + ": " + e.errors + " error" + (e.errors > 1 ? "s" : "") + "</li>"; });
+    if (sitting.group) {
+      summary.group = true;
+      summary.with = sitting.children.filter(function (x) { return x.id !== id; }).map(function (x) { return x.name; }).join(" and ");
+      summary.turns = turns;
+    }
+    return { child: c, id: id, summary: summary, main: main, retests: retests, own: own, delayed: delayed, turns: turns, exErrors: exErrors, stillMissed: stillMissed, repeat: repeat, ownTotal: ownTotal, ownLow: ownTotal > 0 && own.firm / ownTotal < 0.85, hadDelayed: delayed.firm + delayed.errors > 0 };
+  }
+  function reportFacts(r) {
+    var html = "<div><dt>Firm</dt><dd>" + r.main.firm + "</dd></div><div><dt>Errors</dt><dd>" + r.main.errors + "</dd></div>";
+    if (sitting.group && r.turns.firm + r.turns.errors) html += "<div><dt>Alone</dt><dd>" + r.turns.firm + " of " + (r.turns.firm + r.turns.errors) + "</dd></div>";
+    if (r.retests.firm + r.retests.errors) html += "<div><dt>Asked again</dt><dd>" + r.retests.firm + " of " + (r.retests.firm + r.retests.errors) + "</dd></div>";
+    if (r.hadDelayed) html += "<div><dt>Retest</dt><dd>" + r.delayed.firm + " of " + (r.delayed.firm + r.delayed.errors) + "</dd></div>";
+    if (r.ownTotal) html += "<div><dt>On your own</dt><dd>" + r.own.firm + " of " + r.ownTotal + "</dd></div>";
+    return html;
+  }
+  function reportAdvice(r, whom) {
+    var html = "";
+    if (r.exErrors.length) {
+      html += '<h' + (sitting.group ? 3 : 2) + ' class="finish__h2">Where the errors were</h' + (sitting.group ? 3 : 2) + '><ul class="finish__list">';
+      r.exErrors.forEach(function (e) { html += "<li>Exercise " + e.n + ", " + escapeHtml(e.title) + ": " + e.errors + " error" + (e.errors > 1 ? "s" : "") + "</li>"; });
       html += "</ul>";
     }
     html += '<div class="finish__advice">';
     if (rehearsing) {
       html += "<p><strong>This was a rehearsal.</strong> Nothing was recorded.</p>";
-    } else if (repeat) {
-      html += "<p><strong>Repeat this lesson next time.</strong> " + (stillMissed.length > 1 ? "Several items were still missed at the end of the lesson." : "More than one answer in four needed correcting.") + " Repeating a lesson is normal; it makes sure each step is firm before the next is built on it.</p>";
-    } else if (stillMissed.length) {
-      html += "<p><strong>Go on to the next lesson, but first reteach one exercise.</strong> At the start of the next session, teach this exercise again from the beginning: " + escapeHtml(stillMissed.join(", ")) + ".</p>";
+    } else if (r.repeat) {
+      html += "<p><strong>Repeat this lesson" + (whom ? " with " + escapeHtml(whom) : "") + " next time.</strong> " + (r.stillMissed.length > 1 ? "Several items were still missed at the end of the lesson." : "More than one answer in four needed correcting.") + " Repeating a lesson is normal; it makes sure each step is firm before the next is built on it.</p>";
+    } else if (r.stillMissed.length) {
+      html += "<p><strong>Go on to the next lesson, but first reteach one exercise" + (whom ? " with " + escapeHtml(whom) : "") + ".</strong> At the start of the next session, teach this exercise again from the beginning: " + escapeHtml(r.stillMissed.join(", ")) + ".</p>";
     } else {
-      html += "<p><strong>Go on to the next lesson.</strong> Every item was firm by the end.</p>";
+      html += "<p><strong>" + (whom ? escapeHtml(whom) + " can go on to the next lesson." : "Go on to the next lesson.") + "</strong> Every item was firm by the end.</p>";
     }
-    if (ownLow && !rehearsing) html += "<p>On your own, " + own.errors + " of " + ownTotal + " were missed. Before the next lesson, go over those items with the child.</p>";
+    if (r.ownLow && !rehearsing) html += "<p>On your own, " + r.own.errors + " of " + r.ownTotal + " were missed. Before the next lesson, go over those items with " + (whom ? escapeHtml(whom) : "the child") + ".</p>";
     html += "</div>";
+    return html;
+  }
+
+  function finishLesson(minutes) {
+    var lesson = DATA.lesson;
+    if (segIndex >= 0) { segTimes[segIndex] = (segTimes[segIndex] || 0) + (Date.now() - segEntered) / 1000; segEntered = Date.now(); }
+    var teachSeconds = 0;
+    segments.forEach(function (s, i) { if (isExercise(s)) teachSeconds += segTimes[i] || 0; });
+    var all = tally(isExercise), allRetests = tally(isExercise, "retest");
+    var pace = teachSeconds > 0 ? Math.round(((all.firm + all.errors + allRetests.firm + allRetests.errors) / (teachSeconds / 60)) * 10) / 10 : null;
+    var showPace = pace && teachSeconds >= 30;
+    var kids = sitting.children.length ? sitting.children : [{ id: null, name: "" }];
+    var reports = kids.map(function (c) { return lessonReport(c, minutes, pace); });
+    if (P && !rehearsing) reports.forEach(function (r) {
+      if (r.id && P.recordLessonFor) { P.recordLessonFor(r.id, lesson.id, r.summary); if (P.recordItemsFor) P.recordItemsFor(r.id, itemResults(r.id), r.summary.date); }
+      else { P.recordLesson(lesson.id, r.summary); if (P.recordItems) P.recordItems(itemResults(), r.summary.date); }
+    });
+
+    var name = rehearsing ? "Rehearsal" : childName();
+    var html = '<article class="finish">';
+    html += '<p class="finish__kicker">' + escapeHtml(lesson.levelName) + (name ? " · " + escapeHtml(name) : "") + "</p>";
+    html += '<h1 class="finish__title">Lesson ' + lesson.number + " is finished</h1>";
+    html += '<dl class="finish__facts">';
+    if (!sitting.group) html += reportFacts(reports[0]);
+    html += "<div><dt>Time</dt><dd>" + minutes + " min</dd></div>";
+    if (showPace) html += "<div><dt>Pace</dt><dd>" + pace + " a minute</dd></div>";
+    html += "</dl>";
+    if (showPace && !rehearsing) html += '<p class="finish__lead">Pace is answers a minute during the exercises. Direct Instruction aims for about ten on firm work; slower is right for new teaching.</p>';
+    if (sitting.group) {
+      reports.forEach(function (r) {
+        html += '<section class="finish__child"><h2 class="finish__h2">' + escapeHtml(r.child.name) + '</h2><dl class="finish__facts">' + reportFacts(r) + "</dl>" + reportAdvice(r, r.child.name);
+        if (!rehearsing) html += markRow("lesson", lesson.id, r.child);
+        html += "</section>";
+      });
+    } else {
+      html += reportAdvice(reports[0], "");
+      if (!rehearsing) html += markRow("lesson", lesson.id);
+    }
     if (!rehearsing) {
-      html += markRow("lesson", lesson.id);
-      html += '<ul class="finish__links"><li><a href="' + lesson.url + '">Teach this lesson again</a></li><li><a href="/records/">Records</a></li></ul>';
+      html += '<ul class="finish__links"><li><a href="' + lesson.url + withQuery() + '">Teach this lesson again</a></li><li><a href="/records/">Records</a></li></ul>';
       html += noteForm();
     } else {
       html += '<ul class="finish__links"><li><a href="' + lesson.url + '">Teach this lesson</a></li><li><a href="' + lesson.url + '?rehearse=1">Rehearse it again</a></li></ul>';
     }
     html += "</article>";
-    var primary = lesson.testAfter ? { label: lesson.testAfter.title, href: lesson.testAfter.url } : lesson.next ? { label: "Next: " + lesson.next.title, href: lesson.next.url } : null;
+    // A mastery test is given to one child at a time, so the pair is kept only on the next lesson.
+    var primary = lesson.testAfter ? { label: lesson.testAfter.title, href: lesson.testAfter.url } : lesson.next ? { label: "Next: " + lesson.next.title, href: lesson.next.url + withQuery() } : null;
     var secondary = { label: "All lessons", href: "/" + lesson.levelSlug + "/" };
     showFinish(html, actionBar(primary || secondary, primary ? secondary : null));
   }
 
   // The teacher may overrule the advice: mark the lesson finished or to
   // repeat, or the test passed or to give again.
-  function markRow(kind, id) {
+  function markRow(kind, id, child) {
     if (!P) return "";
     var opts = kind === "lesson" ? [["done", "Finished"], ["repeat", "To repeat"]] : [["passed", "Passed"], ["retake", "To give again"]];
-    var cur = kind === "lesson" ? P.lessonStatus(id) : P.testStatus(id);
-    return '<div class="finish__mark" role="group" aria-label="Mark this ' + kind + '" data-mark-kind="' + kind + '" data-mark-id="' + id + '"><span class="finish__mark-label">Mark this ' + kind + ":</span>" +
+    var cur = kind === "lesson" ? P.lessonStatus(id, child && P.getProfile ? P.getProfile(child.id) : undefined) : P.testStatus(id);
+    var label = "Mark this " + kind + (child ? " for " + child.name : "");
+    return '<div class="finish__mark" role="group" aria-label="' + escapeAttr(label) + '" data-mark-kind="' + kind + '" data-mark-id="' + id + '"' + (child ? ' data-mark-child="' + escapeAttr(child.id) + '"' : "") + '><span class="finish__mark-label">' + escapeHtml(label) + ":</span>" +
       opts.map(function (o) { return '<button type="button" class="finish__mark-btn" data-mark="' + o[0] + '" aria-pressed="' + (cur === o[0]) + '">' + o[1] + "</button>"; }).join("") + "</div>";
   }
 
@@ -1135,7 +1263,29 @@
       case "big": bigPicture(true); break;
       case "keys": openAfterClose("sheet-keys"); break;
       case "child": renderChildSheet(); openAfterClose("sheet-child"); break;
+      case "with": renderWithSheet(); openAfterClose("sheet-with"); break;
       case "leave": openAfterClose("sheet-leave"); break;
+    }
+  }
+
+  // Teach two children, or go back to one. Either way the lesson starts over,
+  // since the answers so far were given by a different set of children.
+  function renderWithSheet() {
+    if (!el.withList) return;
+    var a = sitting.children[0];
+    if (sitting.group) {
+      el.withTitle.textContent = "Teach one child";
+      el.withText.textContent = "The marks made so far are dropped. The lesson starts over for the child you pick.";
+      el.withList.innerHTML = sitting.children.map(function (c) {
+        return '<li><button type="button" class="sheet__row" data-with="" data-active="' + escapeAttr(c.id) + '">' + escapeHtml(c.name) + " alone</button></li>";
+      }).join("");
+    } else {
+      var others = (P ? P.getProfiles() : []).filter(function (p) { return !a || p.id !== a.id; });
+      el.withTitle.textContent = "Teach two children";
+      el.withText.textContent = "Both children answer together, and you mark each answer once for both. Each exercise ends with a turn for each child alone. The marks made so far are dropped, and the lesson starts over.";
+      el.withList.innerHTML = others.map(function (p) {
+        return '<li><button type="button" class="sheet__row" data-with="' + escapeAttr(p.id) + '">' + escapeHtml(a ? a.name : "") + " and " + escapeHtml(p.name) + "</button></li>";
+      }).join("");
     }
   }
 
@@ -1184,7 +1334,7 @@
     var b = e.target.closest("[data-act]");
     if (!b || b.disabled) return;
     var a = b.getAttribute("data-act");
-    if (a === "outline" || a === "keys" || a === "child" || a === "leave") { act(a); return; }
+    if (a === "outline" || a === "keys" || a === "child" || a === "with" || a === "leave") { act(a); return; }
     closeSheet("sheet-more");
     act(a);
   });
@@ -1199,6 +1349,15 @@
     if (!b || b.disabled || !P) return;
     leaving = true;
     P.switchProfile(b.getAttribute("data-child"));
+  });
+  if (el.withList) el.withList.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-with]");
+    if (!b || !P) return;
+    leaving = true;
+    var withId = b.getAttribute("data-with"), activeId = b.getAttribute("data-active");
+    if (P.clearSession) P.clearSession();
+    if (activeId && P.switchProfile) P.switchProfile(activeId, true);
+    window.location.href = window.location.pathname + (withId ? "?with=" + encodeURIComponent(withId) : "");
   });
 
   document.addEventListener("keydown", function (e) {
@@ -1275,12 +1434,19 @@
     HOOKS = hooks || {};
     rehearsing = MODE === "lesson" && /[?&]rehearse=1/.test(window.location.search);
     reset();
+    setSitting();
     setLeaveSheet();
     el.finish.hidden = true;
     el.finish.innerHTML = "";
     el.shell.hidden = false;
     var hide = el.moreList.querySelector('[data-act="over"]');
     if (hide) hide.parentNode.hidden = MODE !== "lesson";
+    // Two children: offered in a lesson when there is a second child to teach.
+    var withRow = el.moreList.querySelector('[data-act="with"]');
+    if (withRow) withRow.parentNode.hidden = MODE !== "lesson" || rehearsing || !P || P.getProfiles().length < 2;
+    if (el.withLabel) el.withLabel.textContent = sitting.group ? "Teach one child" : "Teach two children";
+    var childRow = el.moreList.querySelector('[data-act="child"]');
+    if (childRow) childRow.parentNode.hidden = sitting.group;
     var saved = savedSitting();
     var wantsContinue = /[?&]continue=1/.test(window.location.search);
     segTimes = {}; segIndex = -1; resumed = false;
@@ -1340,6 +1506,7 @@
     segments: function () { return segments; },
     pos: function () { return pos; },
     mode: function () { return MODE; },
+    sitting: function () { return sitting; },
   };
 
   var dataEl = document.getElementById("runner-data");
