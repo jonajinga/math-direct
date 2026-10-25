@@ -31,3 +31,31 @@ label, an icon, or a fixed place carries it.
 - No dark mode, no audio, no paper, no numeral writing.
 - Copy follows Strunk and White: plain words, the active voice, no needless
   words, no exclamation marks.
+
+## The runner
+
+One screen, never scrolled while teaching. From the top: a one-line strip
+(child, level, lesson, exercise) that shortens itself rather than clip, a
+progress rail with one hatched segment per exercise with errors, the
+child's stage, the teacher's panel, and a control bar with four fixed slots:
+More, a tool (Show again or Clear marks), Error, and the primary action
+(Next, Firm, Go on, or Finish). Buttons that share a slot toggle `hidden`,
+so the primary button's box never moves between steps.
+
+The stage is a size container; every picture is sized in `cqh` and `cqw`
+of it, and every rem floor is capped by a share of the stage height, so the
+stage fits whatever the layout gives it. The child's screen shows pictures
+only: a tap rings the touched part and locks the group, and the panel tells
+the parent what was touched and whether it was right. The parent marks.
+
+Fit steps, in order, when the panel's text does not fit: hide the meta
+line; fold a waiting correction behind one line; step the boxes down to
+14 px (the script never drops under 16 px); tighten the spacing; give the
+panel part of the stage. The panel scrolls only after all of these.
+
+Menus and confirmations are bottom sheets (`<dialog>`): More, Outline,
+Keys, Switch child, Leave. A polite live region announces the cue and
+script, the mark, the child's touch, and the end of a flash. `npm run
+check:fit` walks every step of a sample of pages at 375x667, 667x375,
+740x360, and 320x568 and fails on any overflow, clipped text, moved
+primary button, or a tap that shows a verdict.

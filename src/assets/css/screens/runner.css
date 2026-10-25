@@ -1,35 +1,59 @@
-/* ===== Lesson, test, placement, and practice runner ===== */
-
-/* The runner, its finish screens, and its start screens each fill one
-   screen. The site header and footer stay hidden; the finish screens carry
-   their own links onward. */
-.page-runner .site-header,
-.page-runner .site-footer { display: none; }
+/* ===== The runner: lessons, tests, placement, practice =====
+   One screen, never scrolled while teaching. From the top: a one-line strip
+   with a progress rail, the child's stage, the teacher's panel, and a control
+   bar with four fixed slots. The primary button is always the last slot and
+   never moves. Every menu and confirmation is a bottom sheet. */
 
 .runner-main { display: contents; }
+.page-runner { overflow: hidden; }
+
 .runner {
-  flex: none;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 40% minmax(0, 1fr) auto;
+  grid-template-areas: "strip" "stage" "panel" "bar";
   height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   height: 100dvh;
   overflow: hidden;
-  position: relative;
+  background: var(--surface);
 }
 .runner[hidden] { display: none; }
+.rn-strip, .rn-stage, .rn-panel, .rn-bar { min-width: 0; }
 
-/* ── Child view ── */
-.child-view {
-  flex: 0 0 50vh;
-  flex: 0 0 50dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-child-view);
-  border-bottom: 1px solid var(--border-color);
-  padding: clamp(0.5rem, 2vw, 1.5rem);
+/* ── Strip: one line, and the rail beneath it ── */
+.rn-strip {
+  grid-area: strip;
+  padding: calc(var(--sp-2) + var(--safe-t)) calc(var(--sp-4) + var(--safe-r)) 0 calc(var(--sp-4) + var(--safe-l));
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+}
+.rn-where {
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-1);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink-2);
+  white-space: nowrap;
   overflow: hidden;
-  --stage-max: 36vh;
+}
+
+/* The rail: one span per exercise. Done is filled; the current one fills to
+   its fraction and carries a ring; errors are hatched, not only colored. */
+.rn-rail { display: flex; gap: 3px; height: 4px; margin: 0 0 -1px; }
+.rn-rail__seg { flex: 1 1 0; position: relative; background: var(--line); overflow: hidden; }
+.rn-rail__seg::after { content: ""; position: absolute; inset: 0; width: calc(var(--p, 0) * 100%); background: var(--primary); }
+.rn-rail__seg.is-done::after { width: 100%; background: var(--firm); }
+.rn-rail__seg.has-errors::after { background: repeating-linear-gradient(135deg, var(--note) 0 3px, var(--note-soft) 3px 5px); }
+.rn-rail__seg.is-current { outline: 1px solid var(--primary); outline-offset: 1px; }
+
+/* ── Stage: a size container; every picture is sized in cqh of it ── */
+.rn-stage {
+  grid-area: stage;
+  container: stage / size;
+  min-height: 0;
+  background: var(--stage-bg);
+  border-bottom: 1px solid var(--line);
 }
 .child-stage {
   width: 100%;
@@ -38,394 +62,302 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(0.75rem, 2vh, 1.5rem);
+  gap: clamp(0.5rem, 3cqh, 1.5rem);
+  padding: clamp(0.5rem, 3cqh, 1.25rem) clamp(0.5rem, 2cqw, 1.5rem);
+  overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
-/* ── Teacher panel ──
-   The panel never scrolls in ordinary use. The exercise title and step share
-   one line, box labels run into their text, and the controls stay on one row.
-   When a long script still does not fit, the engine adds the classes fit-1 to
-   fit-4 to the body: first the exercise details are hidden, then the type is
-   stepped down a little at a time. A correction that would need much smaller
-   type waits behind a short note until Error. Scrolling is the last resort. */
-.teacher {
-  flex: 1 1 48%;
+/* ── Panel ──
+   The script line is the largest text and never drops under 16 px. The
+   engine adds fit-1 to fit-4 to the body when the text does not fit: first
+   the meta line goes, then a waiting correction folds, then the boxes step
+   down to 14 px. The body scrolls only as a last resort. */
+.rn-panel {
+  grid-area: panel;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: var(--bg-surface);
-  border-top: 3px solid var(--blue-600);
+  background: var(--surface);
   container: panel / inline-size;
 }
-
-.tp-head {
-  flex-shrink: 0;
-  background: var(--bg-surface-alt);
-  border-bottom: 1px solid var(--border-color);
-  padding: 0.375rem var(--space-md);
-}
-.tp-head__row { display: flex; align-items: center; gap: var(--space-sm); }
-.tp-where { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
-.tp-where__level { font-size: 0.6875rem; font-weight: 600; color: var(--text-secondary); }
-.tp-where__name { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); }
-.tp-student { flex-shrink: 0; }
-.student-pick { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; color: var(--text-secondary); }
-.student-pick__select {
-  font: inherit;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  padding: 0.25rem 0.375rem;
-  max-width: 9rem;
-}
-
-.tp-icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  min-width: 2.25rem;
-  height: 2.25rem;
-  padding: 0 0.5rem;
-  color: var(--text-secondary);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-.tp-icon-btn:hover { color: var(--blue-700); border-color: var(--blue-500); }
-
-.tp-progress { display: flex; gap: 3px; margin-top: 0.375rem; }
-.tp-seg {
-  flex: 1;
-  height: 0.375rem;
-  background: var(--stone-200);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.tp-seg__bar { position: absolute; inset: 0; width: calc(var(--p) * 100%); background: var(--blue-500); }
-.tp-seg.is-done .tp-seg__bar { background: var(--green-600); }
-.tp-seg.has-errors .tp-seg__bar { background: var(--amber-500); }
-.tp-seg.is-current { outline: 2px solid var(--blue-600); outline-offset: 1px; }
-
 .tp-body {
   --fs: 1;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: 0.625rem var(--space-md);
+  overscroll-behavior: contain;
+  padding: var(--sp-3) var(--sp-4);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--sp-2);
 }
-/* Nothing in the body may shrink, or a box would be squeezed out of sight
-   instead of showing as overflow that fitPanel can deal with. */
 .tp-body > * { flex-shrink: 0; }
 .tp-body.fit-1 .tp-ex__meta { display: none; }
-.tp-body.fit-2 { --fs: 0.93; }
-.tp-body.fit-3 { --fs: 0.86; gap: 0.375rem; padding-top: 0.5rem; padding-bottom: 0.5rem; }
-.tp-body.fit-4 { --fs: 0.8; }
+.tp-body.fit-2 { --fs: 0.95; }
+.tp-body.fit-3 { --fs: 0.9; gap: 0.375rem; padding-top: var(--sp-2); padding-bottom: var(--sp-2); }
+.tp-body.fit-4 { --fs: 0.875; }
+.tp-body.fit-5 { gap: 0.25rem; padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.tp-body.fit-5 .tp-say { padding: 0.25rem 0.5rem; }
+.tp-body.fit-5 .tp-box, .tp-body.fit-5 .tp-touched { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+.tp-body.fit-5 .tp-pair { gap: 0.25rem; }
 
-.tp-stepline { display: flex; align-items: center; gap: var(--space-sm); min-width: 0; }
+.tp-stepline { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
 .tp-ex__title {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
   margin: 0;
   font-family: var(--font-ui);
-  font-size: calc(0.9375rem * var(--fs, 1));
+  font-size: var(--fs-3);
   line-height: 1.25;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--ink);
 }
-.tp-ex__meta { font-size: 0.75rem; color: var(--text-secondary); margin: -0.25rem 0 0; }
+.tp-ex__meta { margin: -0.25rem 0 0; font-size: var(--fs-1); color: var(--ink-2); }
+.tp-step-no { flex-shrink: 0; font-size: var(--fs-1); font-weight: 600; color: var(--ink-2); white-space: nowrap; }
 
+/* The cue names the kind of step; its color is one more cue, never the only one. */
 .tp-cue {
   flex-shrink: 0;
-  font-size: 0.6875rem;
-  font-weight: 800;
+  font-size: var(--fs-1);
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 0.125rem 0.5rem;
-  border: 1px solid currentColor;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  padding: 0.2em 0.5em;
+  border: 2px solid currentColor;
+  border-radius: var(--r-1);
 }
-.tp-cue--model { color: var(--blue-700); }
-.tp-cue--lead { color: #6d28d9; }
-.tp-cue--test { color: var(--green-600); }
-.tp-cue--note { color: var(--amber-600); }
-.tp-step-no { flex-shrink: 0; font-size: 0.75rem; color: var(--text-secondary); white-space: nowrap; }
+.tp-cue:empty { display: none; }
+.tp-cue--model { color: var(--primary); }
+.tp-cue--lead { color: var(--lead); }
+.tp-cue--test { color: var(--firm); }
+.tp-cue--note { color: var(--note); }
 
 .tp-say {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: calc(clamp(1rem, 2.2vw, 1.1875rem) * var(--fs, 1));
-  line-height: 1.45;
   margin: 0;
-  color: var(--text-primary);
-  padding: 0.375rem 0.625rem;
-  border-left: 4px solid var(--blue-500);
-  background: var(--bg-surface-alt);
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 4px solid var(--primary);
+  background: var(--surface-2);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: max(1rem, calc(var(--fs-say) * var(--fs)));
+  line-height: 1.45;
+  color: var(--ink);
 }
 
 /* Each box is one run of text with its label at the start. */
 .tp-box {
-  padding: 0.25rem 0.625rem;
-  border-left: 4px solid var(--border-color);
-  font-size: calc(0.875rem * var(--fs, 1));
+  padding: var(--sp-1) var(--sp-3);
+  border-left: 4px solid var(--line-strong);
+  font-size: max(0.875rem, calc(var(--fs-2) * var(--fs)));
   line-height: 1.4;
+  color: var(--ink);
 }
-.tp-box p { display: inline; margin: 0; color: var(--text-primary); }
-.tp-label { display: inline-block; min-width: 3.25rem; margin-right: 0.375rem; font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
-.tp-do { border-left-color: var(--amber-400); background: var(--amber-50); }
+.tp-box p { display: inline; margin: 0; }
+.tp-label { display: inline-block; min-width: 3.25rem; margin-right: var(--sp-1); font-size: var(--fs-1); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-2); }
+.tp-do { border-left-color: var(--note); background: var(--note-soft); }
 .tp-do p { font-style: italic; }
-.tp-answer { border-left-color: var(--stone-400); }
 .tp-answer p { font-weight: 700; }
-.tp-confirm { border-left-color: var(--green-600); }
-.tp-correct { border-left-color: var(--rose-400); }
-.tp-correct.is-active { background: var(--rose-50); border-left-color: var(--rose-500); }
+.tp-confirm { border-left-color: var(--firm); }
+.tp-correct { border-left-color: var(--error); }
+.tp-correct.is-active { background: var(--error-soft); }
 .tp-correct.is-active p { font-weight: 600; }
-.tp-box[hidden] { display: none; }
 
 /* The child's answer and the confirmation sit side by side when both are short. */
-.tp-pair { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.tp-pair { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
 .tp-pair > .tp-box { flex: 1 1 auto; }
 .tp-pair:not(:has(> :not([hidden]))) { display: none; }
 
-/* Text is never cut short. Before an error the correction shows in full when
-   it fits; when it does not, a short note stands in its place, and pressing
-   Error shows all of it in place of the confirmation. */
-.tp-correct .tp-correct__wait { display: none; color: var(--text-secondary); font-style: italic; }
-.tp-correct.is-folded { padding-top: 0; padding-bottom: 0; }
+/* A long correction waits behind one line until Error is pressed. */
+.tp-correct .tp-correct__wait { display: none; color: var(--ink-2); font-style: italic; }
 .tp-correct.is-folded #tp-correct-text { display: none; }
 .tp-correct.is-folded .tp-correct__wait { display: inline; }
 
-.tp-test-note { margin: 0; font-size: 0.8125rem; color: var(--text-secondary); font-style: italic; }
-
-/* ── Controls: always one row ── */
-.tp-controls {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: 0.5rem var(--space-md);
-  border-top: 1px solid var(--border-color);
-  background: var(--bg-surface-alt);
+/* What the child touched, and whether it was right. The parent still marks. */
+.tp-touched {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-1);
+  font-size: max(0.875rem, calc(var(--fs-2) * var(--fs)));
+  font-weight: 700;
+  line-height: 1.4;
 }
-.tp-controls__main { display: flex; gap: var(--space-sm); flex: 1; min-width: 0; justify-content: center; }
-.tp-controls__aux { display: flex; gap: var(--space-sm); }
-.tp-controls__aux:not(:has(> :not([hidden]))) { display: none; }
-.tp-btn {
+.tp-test-note { margin: 0; font-size: var(--fs-1); color: var(--ink-2); font-style: italic; }
+
+/* ── Control bar: four fixed slots ──
+   More · tool · Error · primary. Buttons that share a slot toggle hidden, so
+   the primary button's box never moves between steps. */
+.rn-bar {
+  grid-area: bar;
+  display: grid;
+  grid-template-columns: 3.25rem 3.25rem 6.5rem minmax(0, 1fr);
+  gap: var(--sp-2);
+  align-items: stretch;
+  min-height: var(--ctrl-h);
+  padding: var(--sp-2) calc(var(--sp-3) + var(--safe-r)) calc(var(--sp-2) + var(--safe-b)) calc(var(--sp-3) + var(--safe-l));
+  background: var(--surface-2);
+  border-top: 1px solid var(--line);
+}
+.rn-slot { display: grid; min-width: 0; }
+.rn-slot > .rn-btn { grid-area: 1 / 1; }
+.rn-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  min-height: 2.75rem;
-  padding: 0 1rem;
+  min-height: 3.5rem;
+  min-width: 0;
+  padding: 0 var(--sp-3);
+  border: 2px solid var(--line-strong);
+  border-radius: var(--r-1);
+  background: var(--surface);
+  color: var(--ink);
   font: inherit;
-  font-size: 0.9375rem;
+  font-size: var(--fs-4);
   font-weight: 700;
+  line-height: 1.1;
   white-space: nowrap;
-  border: 2px solid var(--border-color);
-  background: var(--bg-surface);
-  color: var(--text-primary);
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
-.tp-btn[hidden] { display: none; }
-.tp-btn:disabled { opacity: 0.35; cursor: default; }
-.tp-btn svg { flex-shrink: 0; }
-.tp-btn--icon { padding: 0 0.75rem; }
-.tp-btn__short { display: none; }
-.tp-btn--quiet { font-weight: 600; font-size: 0.8125rem; color: var(--text-secondary); }
-.tp-btn--quiet:hover:not(:disabled) { border-color: var(--blue-500); color: var(--blue-700); }
-.tp-btn--next { background: var(--blue-600); border-color: var(--blue-600); color: #fff; min-width: 7rem; }
-.tp-btn--next:hover { background: var(--blue-700); border-color: var(--blue-700); }
-.tp-btn--firm { background: var(--green-600); border-color: var(--green-600); color: #fff; min-width: 7rem; }
-.tp-btn--firm:hover { background: #166534; border-color: #166534; }
-.tp-btn--error { background: var(--bg-surface); border-color: var(--rose-500); color: var(--rose-600); min-width: 6rem; }
-.tp-btn--error:hover { background: var(--rose-50); }
-.tp-btn.is-chosen { box-shadow: 0 0 0 3px var(--bg-surface), 0 0 0 5px currentColor; }
+.rn-btn:disabled { opacity: 0.4; cursor: default; }
+.rn-btn--icon { flex-direction: column; gap: 0.125rem; padding: 0; font-size: var(--fs-1); font-weight: 600; color: var(--ink-2); border-color: var(--line); background: transparent; }
+.rn-btn--icon svg { width: 1.375rem; height: 1.375rem; color: var(--ink); }
+.rn-btn--next { background: var(--primary); border-color: var(--primary); color: #fff; }
+.rn-btn--next:hover:not(:disabled) { background: var(--primary-strong); border-color: var(--primary-strong); }
+.rn-btn--firm { background: var(--firm); border-color: var(--firm); color: #fff; }
+.rn-btn--error { border-color: var(--error); color: var(--error); }
+.rn-btn--error:hover:not(:disabled) { background: var(--error-soft); }
+.rn-btn--over { border-color: var(--ink-2); color: var(--ink); font-size: var(--fs-2); padding: 0 var(--sp-1); }
+/* A mark already made on this step */
+.rn-btn[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 5px currentColor; }
+.rn-btn--firm[aria-pressed="true"], .rn-btn--next[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 5px var(--ink); }
+/* The child's touch suggests a mark; a dot marks the suggested button. */
+.rn-btn.is-suggested { position: relative; }
+.rn-btn.is-suggested::after { content: ""; position: absolute; top: -0.45rem; right: -0.45rem; width: 1rem; height: 1rem; border-radius: 50%; background: var(--ink); border: 2px solid var(--surface); }
 
-/* A narrow panel (phones, and the side panel on smaller tablets) keeps the
-   same controls but drops the words from the small buttons. */
-@container panel (max-width: 30rem) {
-  .student-pick__label, .tp-icon-btn__label, .tp-btn__label, .tp-btn__long, .tp-head__gone { display: none; }
-  .tp-btn__short { display: inline; }
-  .tp-head, .tp-body, .tp-controls { padding-left: 0.75rem; padding-right: 0.75rem; }
-  .tp-btn { padding: 0 0.75rem; font-size: 0.875rem; }
-  .tp-controls__main > .tp-btn { flex: 1 1 0; max-width: 9rem; min-width: 0; }
-  .student-pick__select { max-width: 6.5rem; }
-}
-/* The word labels in the header return only when the panel has room. */
-@container panel (max-width: 38rem) {
-  .student-pick__label, .tp-icon-btn__label { display: none; }
-}
-@container panel (min-width: 40rem) {
-  .tp-body { padding-left: var(--space-xl); padding-right: var(--space-xl); }
+/* Tight: when the panel's text would not fit even at the smallest step,
+   the stage gives up some room before the panel is allowed to scroll. */
+.runner.is-tight { grid-template-rows: auto 30% minmax(0, 1fr) auto; }
+.runner.is-tight-2 { grid-template-rows: auto 24% minmax(0, 1fr) auto; }
+
+/* Narrow phones: the same four slots, a little closer together. */
+@media (max-width: 22.5em) {
+  .rn-bar { gap: var(--sp-1); padding-left: calc(var(--sp-2) + var(--safe-l)); padding-right: calc(var(--sp-2) + var(--safe-r)); grid-template-columns: 2.75rem 2.75rem 5.75rem minmax(0, 1fr); }
+  .rn-btn { padding: 0 var(--sp-2); font-size: var(--fs-3); }
+  .rn-btn--over { font-size: 0.875rem; }
+  .tp-body { padding-left: var(--sp-3); padding-right: var(--sp-3); }
+  .rn-strip { padding-left: calc(var(--sp-3) + var(--safe-l)); padding-right: calc(var(--sp-3) + var(--safe-r)); }
+  .runner.is-tight { grid-template-rows: auto 26% minmax(0, 1fr) auto; }
+  .runner.is-tight-2 { grid-template-rows: auto 21% minmax(0, 1fr) auto; }
 }
 
-/* ── Outline drawer ── */
-.tp-outline {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: min(24rem, 92vw);
-  background: var(--bg-surface);
-  border-left: 1px solid var(--border-color);
-  box-shadow: var(--shadow-xl);
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-md);
+/* Big picture: the stage fills the screen; one button comes back. */
+.runner.is-big { grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "stage" "bar"; }
+.runner.is-big .rn-strip, .runner.is-big .rn-panel { display: none; }
+.runner.is-big .rn-bar { grid-template-columns: 1fr; }
+.runner.is-big .rn-bar > :not(.rn-btn--big-back) { display: none; }
+.runner.is-big .rn-btn--big-back { display: inline-flex; }
+
+/* ── Sheets used by the runner ── */
+.sheet__note { margin: 0; padding: var(--sp-3) var(--sp-4) var(--sp-4); font-size: var(--fs-2); color: var(--ink-2); }
+.sheet__note:empty { display: none; }
+.sheet__note a { color: var(--primary); text-decoration: underline; }
+.rn-outline .sheet__row { align-items: flex-start; }
+.rn-outline .sheet__row[aria-current="true"] { background: var(--primary-soft); }
+.rn-outline__n { flex-shrink: 0; min-width: 1.5rem; color: var(--primary); font-weight: 700; }
+.rn-outline small { display: block; font-weight: 400; color: var(--ink-2); font-size: var(--fs-1); }
+.keys { margin: 0; display: grid; gap: var(--sp-2); }
+.keys div { display: flex; align-items: center; gap: var(--sp-3); }
+.keys dt { flex: 0 0 6.5rem; }
+.keys dd { margin: 0; }
+.keys kbd, .sheet__row kbd { font-family: var(--font-ui); font-size: var(--fs-1); font-weight: 700; color: var(--ink-2); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.05em 0.45em; background: var(--surface); }
+
+/* ── Finish and start screens ──
+   A scrolling article with its main action in a fixed bar at the bottom. */
+.runner-finish, .runner-start {
+  min-height: 100dvh;
+  padding: var(--sp-4) calc(var(--sp-4) + var(--safe-r)) calc(var(--actionbar-h) + var(--safe-b) + var(--sp-5)) calc(var(--sp-4) + var(--safe-l));
+  background: var(--page);
   overflow-y: auto;
 }
-.tp-outline[hidden] { display: none; }
-.tp-outline__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm); }
-.tp-outline__head { gap: var(--space-sm); }
-.tp-outline__head h2 { flex: 1; font-size: 1rem; margin: 0; }
-.tp-outline__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; }
-.tp-outline__list button {
-  width: 100%;
-  display: flex;
-  gap: 0.625rem;
-  text-align: left;
-  padding: 0.5rem;
-  background: none;
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  font: inherit;
-  cursor: pointer;
-}
-.tp-outline__list li.is-current button { border-color: var(--blue-600); background: var(--blue-50); }
-.tp-outline__list strong { display: block; font-size: 0.875rem; }
-.tp-outline__list small { display: block; font-size: 0.75rem; color: var(--text-secondary); }
-.tp-outline__n { font-weight: 800; color: var(--blue-600); min-width: 1.25rem; }
-.tp-outline__links { margin: var(--space-md) 0 0; font-size: 0.875rem; }
-.tp-outline__links a { color: var(--blue-600); font-weight: 600; }
-.tp-outline__keys { margin-top: auto; padding-top: var(--space-md); font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; }
-
-/* ── Finish and start screens ── */
-.runner-finish,
-.placement-start {
-  flex: none;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(0.5rem, 2vw, var(--space-md));
-  background: var(--bg-page);
-}
-.runner-finish[hidden],
-.placement-start[hidden] { display: none; }
-.finish { width: 100%; max-width: 44rem; margin: 0 auto; background: var(--bg-surface); border: 1px solid var(--border-color); padding: clamp(1rem, 3vw, 2rem); }
-.finish__kicker { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--blue-600); margin: 0 0 0.25rem; }
-.finish__title { font-family: var(--font-heading); font-size: clamp(1.375rem, 3.5vw, 1.75rem); line-height: 1.2; margin: 0 0 0.75rem; }
-.finish__lead { color: var(--text-secondary); margin: 0 0 0.75rem; line-height: 1.5; font-size: 0.9375rem; }
-.finish__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(4.25rem, 1fr)); gap: var(--space-sm); margin: 0 0 0.75rem; }
-.finish__facts div { border: 1px solid var(--border-color); padding: 0.375rem 0.625rem; }
-.finish__facts dt { font-size: 0.75rem; color: var(--text-secondary); white-space: nowrap; }
-.finish__facts dd { margin: 0; font-size: 1.25rem; font-weight: 700; white-space: nowrap; }
-.finish__h2 { font-size: 0.9375rem; margin: 0.75rem 0 0.25rem; }
-.finish__list { margin: 0 0 0.75rem; padding-left: 1.25rem; line-height: 1.4; font-size: 0.875rem; }
+.runner-finish[hidden], .runner-start[hidden] { display: none; }
+.page-runner:has(.runner-finish:not([hidden])), .page-runner:has(.runner-start:not([hidden])) { overflow: auto; }
+.finish { max-width: var(--content-max); margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-2); padding: var(--sp-4); }
+.finish__kicker { margin: 0 0 var(--sp-1); font-size: var(--fs-1); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--primary); }
+.finish__title { margin: 0 0 var(--sp-3); font-size: var(--fs-6); line-height: 1.2; }
+.finish__lead { margin: 0 0 var(--sp-3); color: var(--ink-2); line-height: 1.5; font-size: var(--fs-2); }
+.finish__lead a { color: var(--primary); text-decoration: underline; }
+.finish__facts { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin: 0 0 var(--sp-3); }
+.finish__facts div { display: flex; align-items: baseline; gap: 0.3rem; }
+.finish__facts dt { font-size: var(--fs-1); color: var(--ink-2); }
+.finish__facts dd { margin: 0; font-size: var(--fs-4); font-weight: 700; }
+.finish__h2 { margin: var(--sp-3) 0 var(--sp-1); font-family: var(--font-ui); font-size: var(--fs-3); }
+.finish__list { margin: 0 0 var(--sp-3); padding-left: 1.25rem; line-height: 1.45; font-size: var(--fs-2); }
 .finish__list li + li { margin-top: 0.125rem; }
-.finish__list a, .finish__passed a { color: var(--blue-600); }
-.finish__passed { margin: 0 0 0.75rem; font-size: 0.875rem; line-height: 1.4; }
-.finish__advice { border-left: 4px solid var(--blue-500); background: var(--bg-surface-alt); padding: 0.625rem 0.875rem; margin: 0.75rem 0; line-height: 1.5; font-size: 0.9375rem; }
+.finish__list a, .finish__passed a { color: var(--primary); text-decoration: underline; }
+.finish__passed { margin: 0 0 var(--sp-3); font-size: var(--fs-2); line-height: 1.45; }
+.finish__advice { margin: var(--sp-3) 0; padding: var(--sp-3) var(--sp-4); border-left: 4px solid var(--primary); background: var(--surface-2); line-height: 1.5; font-size: var(--fs-2); border-radius: 0 var(--r-1) var(--r-1) 0; }
 .finish__advice p { margin: 0; }
-.finish__table { width: 100%; border-collapse: collapse; font-size: 0.875rem; margin: var(--space-md) 0; }
-.finish__table th, .finish__table td { border: 1px solid var(--border-color); padding: 0.5rem; text-align: left; vertical-align: top; }
-.finish__table th { background: var(--bg-surface-alt); font-size: 0.75rem; }
-.finish__table a { color: var(--blue-600); }
-.finish__mark { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; margin: 0.5rem 0 0; font-size: 0.875rem; }
-.finish__mark-label { color: var(--text-secondary); margin-right: 0.125rem; }
-.finish__mark-btn { padding: 0.25rem 0.75rem; min-height: 2.25rem; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-primary); font-size: 0.875rem; font-weight: 600; }
-.finish__mark-btn[aria-pressed="true"] { border-color: var(--blue-600); background: var(--blue-50); color: var(--blue-700); }
-.finish__actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin: 0.875rem 0 0; }
-.finish__actions .btn--cta { padding: 0.5rem 1.125rem; min-height: 2.5rem; }
-.finish__actions .btn--outline-dark { padding: 0.375rem 0.875rem; min-height: 2.5rem; font-size: 0.875rem; }
-.finish__actions + .finish__lead { margin: 0.75rem 0 0; }
-.finish__lead a { color: var(--blue-600); font-weight: 600; }
-.finish__note { margin-top: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 0.625rem; }
-.finish__note summary { font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
-.finish__note-body { display: flex; flex-direction: column; gap: 0.375rem; margin-top: 0.5rem; }
-.finish__note textarea { font: inherit; padding: 0.5rem; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-primary); }
+.finish__mark { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin: var(--sp-3) 0 0; font-size: var(--fs-2); }
+.finish__mark-label { color: var(--ink-2); }
+.finish__mark-btn { min-height: var(--tap); padding: 0 var(--sp-3); border: 2px solid var(--line-strong); border-radius: var(--r-1); background: var(--surface); color: var(--ink); font: inherit; font-size: var(--fs-2); font-weight: 600; cursor: pointer; }
+.finish__mark-btn[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-strong); }
+.finish__links { margin: var(--sp-3) 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); font-size: var(--fs-2); }
+.finish__links a { color: var(--primary); text-decoration: underline; min-height: var(--tap); display: inline-flex; align-items: center; }
+.finish__note { margin-top: var(--sp-3); border-top: 1px solid var(--line); padding-top: var(--sp-3); }
+.finish__note summary { min-height: var(--tap); display: flex; align-items: center; font-size: var(--fs-2); font-weight: 600; color: var(--primary); cursor: pointer; }
+.finish__note-body { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-2); }
+.finish__note textarea { font: inherit; font-size: var(--fs-3); padding: var(--sp-2) var(--sp-3); border: 2px solid var(--line-strong); border-radius: var(--r-1); background: var(--surface); color: var(--ink); }
 .finish__note .btn { align-self: flex-start; }
+.finish .btn-row { margin-top: var(--sp-3); }
 
-/* Narrow screens, and the two columns below: the figures run on one line,
-   label then number. */
-@media (max-width: 30rem), (min-width: 34rem) and (max-height: 520px) {
-  .finish__facts { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; }
-  .finish__facts div { display: flex; align-items: baseline; gap: 0.25rem; border: 0; padding: 0; }
-  .finish__facts dt { font-size: 0.75rem; }
-  .finish__facts dd { font-size: 1rem; }
+/* ── Phones held sideways: two columns, the bar under the panel ── */
+@media (orientation: landscape) and (max-height: 32.5em) {
+  .runner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "strip strip" "stage panel" "stage bar";
+  }
+  .rn-stage { border-bottom: 0; border-right: 1px solid var(--line); }
+  .rn-strip { padding-top: calc(var(--sp-1) + var(--safe-t)); }
+  .rn-where { margin-bottom: var(--sp-1); }
+  .tp-body { padding: var(--sp-2) var(--sp-3); gap: 0.375rem; }
+  .rn-bar { min-height: 3.5rem; padding-top: var(--sp-1); padding-bottom: calc(var(--sp-1) + var(--safe-b)); grid-template-columns: 2.75rem 2.75rem 6rem minmax(0, 1fr); }
+  .rn-btn { min-height: 2.75rem; font-size: var(--fs-3); }
+  .rn-btn--over { font-size: 0.875rem; }
+  .rn-btn--icon { font-size: 0.8125rem; }
+  .rn-btn--icon .rn-btn__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .runner.is-tight { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); grid-template-rows: auto minmax(0, 1fr) auto; }
+  .runner.is-tight-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+  .runner.is-big { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "stage" "bar"; }
 }
 
-/* Phones held sideways: the summary flows into two columns. */
-@media (min-width: 34rem) and (max-height: 520px) {
-  .finish { columns: 2; column-gap: 1.5rem; max-width: 60rem; }
-  .finish > :not(.finish__list), .finish__list li { break-inside: avoid; }
-  .finish__h2 { break-after: avoid; }
-  .finish > :first-child { margin-top: 0; }
-  .finish__facts { column-gap: 0.5rem; }
-  .finish__actions { gap: 0.375rem; }
-  .finish__actions .btn--cta, .finish__actions .btn--outline-dark { padding-left: 0.625rem; padding-right: 0.625rem; }
+/* ── Tablets upright: a taller stage, the panel capped and centred ── */
+@media (min-width: 40em) and (orientation: portrait) {
+  .runner { grid-template-rows: auto 45% minmax(0, 1fr) auto; }
+  .tp-body { padding-left: max(var(--sp-4), calc((100% - 44rem) / 2)); padding-right: max(var(--sp-4), calc((100% - 44rem) / 2)); }
+  .rn-bar { grid-template-columns: 3.5rem 3.5rem 7rem minmax(0, 14rem); justify-content: end; }
 }
 
-/* Short screens: phones held upright or sideways */
-@media (max-height: 700px) {
-  .finish__mark { margin-top: 0.375rem; gap: 0.25rem; }
-  .finish__mark-btn { min-height: 2rem; padding: 0.125rem 0.5rem; font-size: 0.8125rem; }
-  .finish__list { margin-bottom: 0.5rem; }
-  .finish__h2 { margin-top: 0.5rem; }
-}
-@media (max-height: 700px) {
-  .finish { padding: 0.625rem 1rem; }
-  .finish__title { margin-bottom: 0.5rem; }
-  .finish__lead, .finish__advice { font-size: 0.875rem; margin-bottom: 0.5rem; }
-  .finish__actions { margin-top: 0.625rem; }
-  .finish__actions .btn--cta, .finish__actions .btn--outline-dark { min-height: 2.25rem; padding-top: 0.25rem; padding-bottom: 0.25rem; }
+/* ── Wide screens: stage left, panel and bar right ── */
+@media (min-width: 64em) and (min-aspect-ratio: 4/3) {
+  .runner {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "strip strip" "stage panel" "stage bar";
+  }
+  .rn-stage { border-bottom: 0; border-right: 1px solid var(--line); }
+  .tp-body { padding: var(--sp-4) var(--sp-5); }
+  .rn-bar { grid-template-columns: 3.5rem 3.5rem 7rem minmax(0, 14rem); justify-content: end; }
+  .runner.is-big { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "stage" "bar"; }
 }
 
-.btn--outline-dark {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.625rem 1.125rem;
-  border: 2px solid var(--border-color);
-  color: var(--text-primary);
-  font-weight: 600;
-  font-size: 0.9375rem;
-  background: var(--bg-surface);
-  text-decoration: none;
-  cursor: pointer;
+/* Reduced motion: no transitions anywhere in the runner. */
+@media (prefers-reduced-motion: reduce) {
+  .runner *, .runner *::before, .runner *::after { transition: none !important; animation: none !important; }
 }
-.btn--outline-dark:hover { border-color: var(--blue-500); color: var(--blue-700); }
-
-/* ── Wide screens: side by side ── */
-@media (min-width: 960px) and (min-aspect-ratio: 4/3) {
-  .runner { flex-direction: row; }
-  .child-view { flex: 0 0 60%; height: auto; border-bottom: none; border-right: 1px solid var(--border-color); --stage-max: 56vh; }
-  .teacher { flex: 1 1 40%; border-top: none; border-left: 3px solid var(--blue-600); }
-}
-
-/* Short phones held upright: give the panel a little more of the screen. */
-@media (orientation: portrait) and (max-height: 760px) and (max-width: 959px) {
-  .child-view { flex-basis: 44vh; flex-basis: 44dvh; --stage-max: 32vh; }
-}
-
-/* Phones held sideways */
-@media (orientation: landscape) and (max-height: 520px) {
-  .runner { flex-direction: row; }
-  .child-view { flex: 0 0 50%; height: auto; border-bottom: none; border-right: 1px solid var(--border-color); --stage-max: 62vh; }
-  .teacher { flex: 1 1 50%; border-top: none; }
-  .tp-head { padding-top: 0.25rem; padding-bottom: 0.25rem; }
-  .tp-body { gap: 0.375rem; padding-top: 0.375rem; padding-bottom: 0.375rem; }
-  .tp-controls { padding-top: 0.375rem; padding-bottom: 0.375rem; }
-}
-

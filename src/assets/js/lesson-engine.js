@@ -1,31 +1,32 @@
 // Math Direct lesson engine.
 // Runs a lesson, a mastery test, the placement test, or a practice set. The
-// child's screen shows only the visual; the parent's panel shows what to say,
-// what the child should answer, and the correction. The parent marks each
-// test step Firm or Error. Missed items return at the end of a lesson.
+// child's screen shows only the picture; the parent's panel shows what to
+// say, what the child should answer, and the correction. The parent marks
+// each test step Firm or Error. A child's touch on the screen only rings the
+// touched part and tells the parent what was touched; it never marks.
+// Missed items return at the end of a lesson.
 (function () {
   "use strict";
 
-  var dataEl = document.getElementById("runner-data");
-  if (!dataEl) return;
-  var DATA = JSON.parse(dataEl.textContent);
-  var MODE = DATA.mode;
-
-  // ── DOM ──
   var $ = function (id) { return document.getElementById(id); };
   var stage = $("child-stage");
+  if (!stage) return;
   var el = {
-    whereLevel: $("tp-where-level"), whereName: $("tp-where-name"), exTitle: $("tp-ex-title"), exMeta: $("tp-ex-meta"), stepNo: $("tp-step-no"),
-    progress: $("tp-progress"), cue: $("tp-cue"), say: $("tp-say"), doBox: $("tp-do"), doText: $("tp-do-text"),
-    answerBox: $("tp-answer"), answerText: $("tp-answer-text"), confirmBox: $("tp-confirm"), confirmText: $("tp-confirm-text"),
-    correctBox: $("tp-correct"), correctText: $("tp-correct-text"), testNote: $("tp-test-note"),
-    btnBack: $("btn-back"), btnNext: $("btn-next"), btnFirm: $("btn-firm"), btnError: $("btn-error"),
-    btnOver: $("btn-over"), btnGoOn: $("btn-goon"), btnShow: $("btn-show"), btnClear: $("btn-clear"),
-    outline: $("tp-outline"), outlineList: $("tp-outline-list"), btnOutline: $("btn-outline"),
+    where: $("rn-where"), rail: $("rn-rail"), stageAlt: $("stage-alt"), live: $("rn-live"),
+    exTitle: $("tp-ex-title"), exMeta: $("tp-ex-meta"), stepNo: $("tp-step-no"), cue: $("tp-cue"), say: $("tp-say"),
+    doBox: $("tp-do"), doText: $("tp-do-text"), answerBox: $("tp-answer"), answerText: $("tp-answer-text"),
+    confirmBox: $("tp-confirm"), confirmText: $("tp-confirm-text"), correctBox: $("tp-correct"), correctText: $("tp-correct-text"),
+    touched: $("tp-touched"), testNote: $("tp-test-note"),
+    btnMore: $("btn-more"), btnShow: $("btn-show"), btnClear: $("btn-clear"), btnError: $("btn-error"), btnOver: $("btn-over"),
+    btnNext: $("btn-next"), btnFirm: $("btn-firm"), btnGoOn: $("btn-goon"), btnBigBack: $("btn-big-back"),
+    moreList: $("more-list"), outlineList: $("tp-outline-list"), outlineLinks: $("tp-outline-links"),
+    childList: $("sheet-child-list"), childText: $("sheet-child-text"), leaveTitle: $("sheet-leave-title"), leaveText: $("sheet-leave-text"), leaveGo: $("sheet-leave-go"),
     shell: $("runner-shell"), finish: $("runner-finish"), teacher: $("tp-body"),
   };
+  var P = window.mathProgress;
 
-  // ── Script: a list of segments (exercises, test parts, sections) ──
+  // ── State ──
+  var DATA = null, MODE = "", HOOKS = {};
   var segments = [];
   var pos = { seg: 0, step: 0 };
   var results = {}; // "seg:step" -> "firm" | "error"
@@ -33,34 +34,31 @@
   var delayedAdded = false;
   var flashTimer = null;
   var startTime = Date.now();
+  var touched = null; // what the child touched on this step: { idx, right }
+  var placement = { idx: 0, startIdx: 0, passed: {}, failed: {}, direction: 1 };
+  var where = { child: "", level: "", name: "", ex: "", exShort: "" };
 
   function key(s, i) { return s + ":" + i; }
-
   function currentSeg() { return segments[pos.seg]; }
   function currentStep() { var s = currentSeg(); return s ? s.steps[pos.step] : null; }
+  function escapeHtml(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function escapeAttr(s) { return escapeHtml(s).replace(/"/g, "&quot;"); }
+  function childName() { var p = P && P.getActiveProfile ? P.getActiveProfile() : null; return p ? p.name : ""; }
+  function thing() { return MODE === "test" ? "test" : MODE === "placement" ? "placement test" : MODE === "practice" ? "practice" : "lesson"; }
 
   // ── Building scripts for each mode ──
   function initLesson() {
     var lesson = DATA.lesson;
-    lesson.exercises.forEach(function (ex) {
-      segments.push({ title: ex.title, meta: ex.trackName + " · " + kindName(ex.kind), kind: ex.kind, track: ex.track, n: ex.n, materials: ex.materials, steps: ex.steps });
+    segments = lesson.exercises.map(function (ex) {
+      return { title: ex.title, meta: ex.trackName + " · " + kindName(ex.kind), kind: ex.kind, track: ex.track, n: ex.n, materials: ex.materials, steps: ex.steps };
     });
     setWhere(lesson.levelName, "Lesson " + lesson.number);
-    // The level link in the outline.
-    var keys = el.outline && el.outline.querySelector(".tp-outline__keys");
-    if (keys) {
-      var links = document.createElement("p");
-      links.className = "tp-outline__links";
-      links.innerHTML = '<a href="/' + lesson.levelSlug + '/">All ' + escapeHtml(lesson.levelName) + " lessons</a>";
-      keys.parentNode.insertBefore(links, keys);
-    }
+    el.outlineLinks.innerHTML = '<a href="/' + lesson.levelSlug + '/">All ' + escapeHtml(lesson.levelName) + " lessons</a>";
   }
 
-  // The header names the level on a small line and the lesson, test, or set
-  // below it in full.
   function setWhere(level, name) {
-    el.whereLevel.textContent = level;
-    el.whereName.textContent = name;
+    where.level = level;
+    where.name = name;
   }
 
   function kindName(k) {
@@ -69,10 +67,11 @@
 
   function initTest() {
     var t = DATA.test;
-    t.parts.forEach(function (p, i) {
-      segments.push({ title: p.trackName, meta: "Part " + (i + 1) + " of " + t.parts.length, kind: "test", part: i, steps: p.items.map(function (s) { return asTestStep(s); }) });
+    segments = t.parts.map(function (p, i) {
+      return { title: p.trackName, meta: "Part " + (i + 1) + " of " + t.parts.length, kind: "test", part: i, steps: p.items.map(asTestStep) };
     });
     setWhere(t.levelName + (t.final ? ", end of level" : ""), "Mastery Test " + t.number);
+    el.outlineLinks.innerHTML = '<a href="/' + t.levelSlug + '/">All ' + escapeHtml(t.levelName) + " lessons</a>";
   }
 
   function asTestStep(s) {
@@ -83,10 +82,8 @@
   }
 
   // Placement: sections are run one at a time.
-  var placement = { order: [], idx: 0, startIdx: 0, passed: {}, failed: {}, direction: 1 };
   function initPlacement(startIdx) {
-    placement.startIdx = startIdx;
-    placement.idx = startIdx;
+    placement = { idx: startIdx, startIdx: startIdx, passed: {}, failed: {}, direction: 1 };
     loadPlacementSection();
   }
   function loadPlacementSection() {
@@ -95,6 +92,7 @@
     pos = { seg: 0, step: 0 };
     results = {};
     setWhere("Placement test", sec.title);
+    el.outlineLinks.innerHTML = "";
   }
 
   function initPractice() {
@@ -103,28 +101,72 @@
     // Use only what the selected child has been taught, unless ?upto= says otherwise.
     var upto = Number(new URLSearchParams(window.location.search).get("upto"));
     if (upto) limit = upto;
-    else if (DATA.useProgress && window.mathProgress && set.total) {
-      limit = Math.max(set.startsAt, window.mathProgress.nextLesson(set.level, set.total) - 1);
-    }
+    else if (DATA.useProgress && P && set.total) limit = Math.max(set.startsAt, P.nextLesson(set.level, set.total) - 1);
     var pool = set.items.filter(function (it) { return it.lesson <= limit; });
     if (!pool.length) pool = set.items.slice(0, 10);
-    // Prefer recent items, avoid repeats.
     var chosen = [];
-    var seen = {};
-    var tries = 0;
-    var count = Math.min(DATA.count || 10, pool.length);
-    while (chosen.length < count && tries < 500) {
-      tries++;
-      var recent = pool.filter(function (it) { return it.lesson >= limit - 15; });
-      var src = recent.length && Math.random() < 0.6 ? recent : pool;
-      var it = src[Math.floor(Math.random() * src.length)];
-      var k2 = (it.item || "") + "|" + it.say + "|" + JSON.stringify(it.screen);
-      if (seen[k2]) continue;
-      seen[k2] = 1;
-      chosen.push(asTestStep(it));
+    if (DATA.ordered) {
+      chosen = pool.slice(0, DATA.count || pool.length).map(asTestStep);
+    } else {
+      // Prefer recent items, avoid repeats.
+      var seen = {}, tries = 0, count = Math.min(DATA.count || 10, pool.length);
+      while (chosen.length < count && tries < 500) {
+        tries++;
+        var recent = pool.filter(function (it) { return it.lesson >= limit - 15; });
+        var src = recent.length && Math.random() < 0.6 ? recent : pool;
+        var it = src[Math.floor(Math.random() * src.length)];
+        var k2 = (it.item || "") + "|" + it.say + "|" + JSON.stringify(it.screen);
+        if (seen[k2]) continue;
+        seen[k2] = 1;
+        chosen.push(asTestStep(it));
+      }
     }
     segments = [{ title: set.title, meta: set.levelName + " practice", kind: "practice", steps: chosen }];
     setWhere(set.levelName + " practice", set.title);
+    el.outlineLinks.innerHTML = '<a href="/practice/">All practice</a>';
+  }
+
+  // ── The strip: one line that shortens itself rather than clip ──
+  function renderStrip() {
+    var seg = currentSeg();
+    where.child = childName();
+    if (MODE === "lesson") { where.ex = "Exercise " + (pos.seg + 1) + " of " + segments.length; where.exShort = "Ex " + (pos.seg + 1) + " of " + segments.length; }
+    else if (MODE === "test") { where.ex = "Part " + (pos.seg + 1) + " of " + segments.length; where.exShort = where.ex; }
+    else if (MODE === "placement") { where.ex = "Section " + (placement.idx + 1) + " of " + DATA.sections.length; where.exShort = where.ex; }
+    else { where.ex = seg ? (pos.step + 1) + " of " + seg.steps.length : ""; where.exShort = where.ex; }
+    fitStrip();
+  }
+  function fitStrip() {
+    var tries = [
+      [where.child, where.level, where.name, where.ex],
+      [where.child, where.level, where.name, where.exShort],
+      [where.level, where.name, where.exShort],
+      [where.name, where.exShort],
+      [where.name],
+    ];
+    for (var i = 0; i < tries.length; i++) {
+      el.where.textContent = tries[i].filter(Boolean).join(" · ");
+      if (el.where.scrollWidth <= el.where.clientWidth + 1) return;
+    }
+  }
+
+  // ── The rail ──
+  function renderRail() {
+    var html = "", total = 0, done = 0;
+    segments.forEach(function (s, si) {
+      var errs = 0;
+      s.steps.forEach(function (st, i) {
+        total++;
+        if (si < pos.seg || (si === pos.seg && i < pos.step)) done++;
+        if (results[key(si, i)] === "error") errs++;
+      });
+      var cls = "rn-rail__seg" + (si === pos.seg ? " is-current" : "") + (si < pos.seg ? " is-done" : "") + (errs ? " has-errors" : "");
+      html += '<span class="' + cls + '" style="--p:' + (si < pos.seg ? 1 : si === pos.seg ? (pos.step + 1) / s.steps.length : 0) + '"></span>';
+    });
+    el.rail.innerHTML = html;
+    var seg = currentSeg();
+    el.rail.setAttribute("aria-valuenow", total ? Math.round((done / total) * 100) : 0);
+    el.rail.setAttribute("aria-valuetext", (where.ex ? where.ex + ", " : "") + "step " + (pos.step + 1) + " of " + (seg ? seg.steps.length : 0));
   }
 
   // ── Rendering a step ──
@@ -133,75 +175,131 @@
     return { model: "My turn", lead: "Together", test: "Your turn", note: "Set up" }[c] || "";
   }
 
+  function announce(text) {
+    if (!el.live) return;
+    el.live.textContent = "";
+    setTimeout(function () { el.live.textContent = text; }, 40);
+  }
+
   function render() {
     clearTimeout(flashTimer);
     var seg = currentSeg(), st = currentStep();
     if (!seg || !st) return;
     errorState = false;
+    touched = null;
 
     stage.classList.remove("is-flashed");
     stage.innerHTML = window.MDV.render(st.screen || []);
+    el.stageAlt.textContent = window.MDV.describe(st.screen || []);
     fitStage();
-    window.MDV.bind(stage, onChoose);
+    // A teacher's demonstration touch on a model step rings the picture
+    // and nothing more; the child's answer on a test step also locks the group.
+    window.MDV.bind(stage, onChoose, { feedback: false, lockAfterPick: st.cue === "test" });
     if (st.flash) startFlash(st.flash);
 
     el.exTitle.textContent = seg.title;
-    var meta = seg.meta || "";
-    if (MODE === "lesson") meta = "Exercise " + (pos.seg + 1) + " of " + segments.length + " · " + meta;
-    el.exMeta.textContent = meta;
+    el.exMeta.textContent = seg.meta || "";
     el.stepNo.textContent = (pos.step + 1) + " of " + seg.steps.length;
-    el.stepNo.title = "Step " + (pos.step + 1) + " of " + seg.steps.length;
-    el.exTitle.title = seg.title;
+    el.stepNo.setAttribute("aria-label", "Step " + (pos.step + 1) + " of " + seg.steps.length);
+    var testing = MODE === "test" || MODE === "placement";
     el.cue.textContent = cueLabel(st.cue);
-    el.cue.className = "tp-cue tp-cue--" + (MODE === "test" || MODE === "placement" ? "test" : st.cue);
+    el.cue.className = "tp-cue tp-cue--" + (testing ? "test" : st.cue);
     el.say.textContent = st.say || "";
     setBox(el.doBox, el.doText, st["do"] || (seg.materials && pos.step === 0 ? "You will need: " + seg.materials + "." : ""));
-    var testing = MODE === "test" || MODE === "placement";
     setBox(el.answerBox, el.answerText, numeralChains(st.answer || ""));
     setBox(el.confirmBox, el.confirmText, !testing && st.cue === "test" ? st.confirm : "");
     setBox(el.correctBox, el.correctText, !testing && st.cue === "test" ? numeralChains(st.correct) : "");
     el.correctBox.classList.remove("is-active");
+    el.touched.hidden = true;
+    el.touched.textContent = "";
     el.testNote.hidden = !testing;
 
-    var isTest = st.cue === "test";
-    el.btnFirm.hidden = !isTest;
-    el.btnError.hidden = !isTest;
-    el.btnNext.hidden = isTest;
-    el.btnOver.hidden = true;
-    el.btnGoOn.hidden = true;
-    el.btnBack.disabled = pos.seg === 0 && pos.step === 0;
-    el.btnShow.hidden = !st.flash;
-    el.btnClear.hidden = !hasMarks(st.screen);
-    var r = results[key(pos.seg, pos.step)];
-    el.btnFirm.classList.toggle("is-chosen", r === "firm");
-    el.btnError.classList.toggle("is-chosen", r === "error");
-    renderProgress();
+    renderStrip();
+    renderRail();
     renderOutline();
+    syncBar();
     fitPanel();
+    announce((cueLabel(st.cue) ? cueLabel(st.cue) + ". " : "") + (st.say || ""));
+  }
+
+  // The control bar: four fixed slots. More · tool · Error · primary.
+  function anyErrors() {
+    for (var k in results) if (results[k] === "error") return true;
+    return false;
+  }
+  function isLastStep() {
+    var seg = currentSeg();
+    if (!seg || pos.seg !== segments.length - 1 || pos.step !== seg.steps.length - 1) return false;
+    if (MODE === "lesson" && !delayedAdded && anyErrors()) return false;
+    return MODE !== "placement";
+  }
+  function syncBar() {
+    var st = currentStep(), seg = currentSeg();
+    var isTest = !!(st && st.cue === "test");
+    var canOver = MODE === "lesson" && !!seg && seg.kind !== "delayed";
+    var marks = st ? hasMarks(st.screen) : false;
+    var showAgain = !!(st && (st.flash || touched));
+    el.btnShow.hidden = !showAgain;
+    el.btnClear.hidden = showAgain || !marks;
+    var overNow = errorState && canOver;
+    el.btnOver.hidden = !overNow;
+    el.btnError.hidden = overNow;
+    el.btnError.disabled = !isTest || errorState;
+    el.btnGoOn.hidden = !errorState;
+    el.btnFirm.hidden = errorState || !isTest;
+    el.btnNext.hidden = errorState || isTest;
+    el.btnNext.textContent = isLastStep() ? "Finish" : "Next";
+    var r = results[key(pos.seg, pos.step)];
+    el.btnFirm.setAttribute("aria-pressed", r === "firm" ? "true" : "false");
+    el.btnError.setAttribute("aria-pressed", r === "error" ? "true" : "false");
+    el.btnFirm.classList.toggle("is-suggested", !!(touched && touched.right));
+    el.btnError.classList.toggle("is-suggested", !!(touched && !touched.right));
+    // Rows in the More sheet
+    var rows = el.moreList.querySelectorAll("[data-act]");
+    for (var i = 0; i < rows.length; i++) {
+      var a = rows[i].getAttribute("data-act");
+      rows[i].disabled = a === "back" ? (pos.seg === 0 && pos.step === 0) : a === "over" ? !canOver : a === "clear" ? !marks : a === "show" ? !st : false;
+    }
   }
 
   // Keep the teacher's panel on one screen. If the text does not fit, hide
-  // the exercise details, then step the type down a little at a time. Before
-  // Error, a correction that would need more than a small step down is shown
-  // as a short note instead, never cut off; Error shows it in full. The body
-  // scrolls only if the smallest setting still does not fit.
-  var FIT_STEPS = 4, FIT_WITH_CORRECTION = 2;
+  // the exercise details, then step the box type down a little at a time;
+  // the script line never drops under 16 px. Before Error, a correction that
+  // would need more than a small step down waits behind a short note, never
+  // cut off; Error shows it in full. The body scrolls only if the smallest
+  // setting still does not fit.
+  var FIT_STEPS = 5, FIT_WITH_CORRECTION = 2;
   function overflows() { return el.teacher.scrollHeight > el.teacher.clientHeight + 1; }
   function stepDown(max) {
     var b = el.teacher, n;
     for (n = 1; n <= FIT_STEPS; n++) b.classList.remove("fit-" + n);
     for (n = 1; n <= max && overflows(); n++) b.classList.add("fit-" + n);
   }
+  var lastHeight = 0;
   function fitPanel() {
     var box = el.correctBox;
     var waiting = !box.hidden && !box.classList.contains("is-active");
     box.classList.remove("is-folded");
+    el.shell.classList.remove("is-tight");
     stepDown(waiting ? FIT_WITH_CORRECTION : FIT_STEPS);
     if (waiting && overflows()) {
       box.classList.add("is-folded");
       stepDown(FIT_STEPS);
     }
+    // Last resort before scrolling: the stage gives the panel more room.
+    el.shell.classList.remove("is-tight-2");
+    if (overflows()) {
+      el.shell.classList.add("is-tight");
+      stepDown(FIT_STEPS);
+    }
+    if (overflows()) {
+      el.shell.classList.add("is-tight-2");
+      stepDown(FIT_STEPS);
+    }
     el.teacher.scrollTop = 0;
+    lastHeight = el.teacher.clientHeight;
+    // The stage's size is settled now; wide equations shrink to it last.
+    fitStage();
   }
 
   // A long counting chain is easier to scan as numerals: "105, 106, 107".
@@ -241,17 +339,6 @@
     else { textEl.textContent = ""; box.hidden = true; }
   }
 
-  function hasType(screen, t) {
-    var found = false;
-    (function walk(v) {
-      if (!v || found) return;
-      if (Array.isArray(v)) return v.forEach(walk);
-      if (v.t === t) found = true;
-      if (v.items && v.t !== "pattern" && v.t !== "size") walk(v.items);
-      if (v.opts) walk(v.opts);
-    })(screen);
-    return found;
-  }
   function hasMarks(screen) {
     var found = false;
     (function walk(v) {
@@ -281,36 +368,29 @@
   function startFlash(ms) {
     stage.classList.remove("is-flashed");
     clearTimeout(flashTimer);
-    flashTimer = setTimeout(function () { stage.classList.add("is-flashed"); }, ms);
+    flashTimer = setTimeout(function () { stage.classList.add("is-flashed"); announce("The dots are hidden."); }, ms);
   }
 
+  // Show again draws the picture afresh: the flash returns, and a locked
+  // group opens for another try before the mark is made.
   function showAgain() {
     var st = currentStep();
     if (!st) return;
     stage.innerHTML = window.MDV.render(st.screen || []);
     fitStage();
-    window.MDV.bind(stage, onChoose);
+    window.MDV.bind(stage, onChoose, { feedback: false, lockAfterPick: st.cue === "test" });
+    touched = null;
+    el.touched.hidden = true;
+    el.touched.textContent = "";
     if (st.flash && !errorState) startFlash(st.flash);
     else stage.classList.remove("is-flashed");
+    syncBar();
+    fitPanel();
   }
 
-  function renderProgress() {
-    var html = "";
-    segments.forEach(function (s, si) {
-      var errs = 0, done = 0, tests = 0;
-      s.steps.forEach(function (st, i) {
-        if (st.cue !== "test") return;
-        tests++;
-        var r = results[key(si, i)];
-        if (r) done++;
-        if (r === "error") errs++;
-      });
-      var cls = "tp-seg" + (si === pos.seg ? " is-current" : "") + (si < pos.seg ? " is-done" : "") + (errs ? " has-errors" : "");
-      html += '<button type="button" class="' + cls + '" data-seg="' + si + '" title="' + escapeAttr(s.title) + '"><span class="tp-seg__bar" style="--p:' + (si < pos.seg ? 1 : si === pos.seg ? (pos.step + 1) / s.steps.length : 0) + '"></span></button>';
-    });
-    el.progress.innerHTML = html;
-    var btns = el.progress.querySelectorAll(".tp-seg");
-    for (var i = 0; i < btns.length; i++) btns[i].addEventListener("click", function () { jump(Number(this.getAttribute("data-seg")), 0); });
+  function clearMarks() {
+    window.MDV.clearMarks(stage);
+    announce("Marks cleared.");
   }
 
   function renderOutline() {
@@ -319,81 +399,65 @@
     segments.forEach(function (s, si) {
       var errs = 0;
       s.steps.forEach(function (st, i) { if (results[key(si, i)] === "error") errs++; });
-      html += '<li class="' + (si === pos.seg ? "is-current" : "") + '"><button type="button" data-seg="' + si + '"><span class="tp-outline__n">' + (si + 1) + "</span><span><strong>" + escapeHtml(s.title) + "</strong><small>" + escapeHtml(s.meta || "") + (s.materials ? " · needs " + escapeHtml(s.materials) : "") + (errs ? " · " + errs + " error" + (errs > 1 ? "s" : "") : "") + "</small></span></button></li>";
+      html += '<li><button type="button" class="sheet__row" data-seg="' + si + '"' + (si === pos.seg ? ' aria-current="true"' : "") + '><span class="rn-outline__n">' + (si + 1) + "</span><span>" + escapeHtml(s.title) +
+        "<small>" + escapeHtml(s.meta || "") + (s.materials ? " · needs " + escapeHtml(s.materials) : "") + (errs ? " · " + errs + " error" + (errs > 1 ? "s" : "") : "") + (si === pos.seg ? " · now" : "") + "</small></span></button></li>";
     });
     el.outlineList.innerHTML = html;
-    var btns = el.outlineList.querySelectorAll("button");
-    for (var i = 0; i < btns.length; i++) btns[i].addEventListener("click", function () { jump(Number(this.getAttribute("data-seg")), 0); toggleOutline(false); });
   }
-
-  function escapeHtml(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-  function escapeAttr(s) { return escapeHtml(s).replace(/"/g, "&quot;"); }
 
   // ── Responses ──
+  // The child's touch rings the touched part and locks the group. The panel
+  // tells the parent what was touched and whether it was right; the parent
+  // still presses Firm or Error.
   function onChoose(idx, right) {
     var st = currentStep();
-    if (!st || st.cue !== "test") return;
-    mark(right ? "firm" : "error", true);
+    if (!st || st.cue !== "test" || errorState) return;
+    touched = { idx: idx, right: right };
+    var text = "Child touched " + window.MDV.describeChoice(st.screen, idx) + ". That is " + (right ? "right." : "not right.");
+    el.touched.textContent = text;
+    el.touched.hidden = false;
+    syncBar();
+    fitPanel();
+    announce(text);
   }
 
-  function mark(r, fromChild) {
+  function mark(r) {
     var st = currentStep();
-    if (!st || st.cue !== "test") return;
+    if (!st || st.cue !== "test" || errorState) return;
     results[key(pos.seg, pos.step)] = r;
-    if (st.fact && window.mathProgress && window.mathProgress.recordFact) window.mathProgress.recordFact(st.fact, r === "firm");
-    if (r === "firm") {
-      el.btnFirm.classList.add("is-chosen");
-      el.btnError.classList.remove("is-chosen");
-      if (fromChild) {
-        // Let the parent see the child's choice, then confirm.
-        el.btnFirm.hidden = true; el.btnError.hidden = true; el.btnNext.hidden = false;
-        setBox(el.confirmBox, el.confirmText, MODE === "test" || MODE === "placement" ? "Marked firm." : st.confirm);
-        renderProgress();
-        fitPanel();
-        return;
-      }
+    if (st.fact && P && P.recordFact) P.recordFact(st.fact, r === "firm");
+    if (r === "firm" || MODE === "test" || MODE === "placement") {
+      announce(r === "firm" ? "Marked firm." : "Marked as an error.");
       advance();
       return;
     }
-    // Error
-    el.btnError.classList.add("is-chosen");
-    el.btnFirm.classList.remove("is-chosen");
-    if (MODE === "test" || MODE === "placement") {
-      if (fromChild) {
-        el.btnFirm.hidden = true; el.btnError.hidden = true; el.btnNext.hidden = false;
-        setBox(el.confirmBox, el.confirmText, "Marked as an error. Do not correct during a test.");
-        renderProgress();
-        fitPanel();
-        return;
-      }
-      advance();
-      return;
-    }
+    // Error in a lesson or practice set: show the correction in full.
     errorState = true;
+    touched = null;
+    el.touched.hidden = true;
     el.correctBox.hidden = false;
     el.correctBox.classList.add("is-active");
     // The correction states the answer, so the other boxes can give way to it.
     el.confirmBox.hidden = true;
     el.answerBox.hidden = true;
     el.doBox.hidden = true;
-    el.btnFirm.hidden = true;
-    el.btnError.hidden = true;
-    el.btnNext.hidden = true;
-    el.btnOver.hidden = currentSeg().kind === "delayed" || MODE === "practice";
-    el.btnGoOn.hidden = false;
-    if (currentStep().flash) { clearTimeout(flashTimer); stage.classList.remove("is-flashed"); }
-    renderProgress();
+    if (st.flash) { clearTimeout(flashTimer); stage.classList.remove("is-flashed"); }
+    renderRail();
     renderOutline();
+    syncBar();
     fitPanel();
-    if (el.teacher.scrollHeight > el.teacher.clientHeight + 1) el.teacher.scrollTop = el.correctBox.offsetTop - el.teacher.offsetTop;
+    if (overflows()) el.teacher.scrollTop = el.correctBox.offsetTop - el.teacher.offsetTop;
+    announce("Marked as an error. Correction: " + (st.correct || ""));
   }
 
   function startOver() {
-    // Direct Instruction correction: after correcting, start the exercise over.
+    if (MODE !== "lesson") return;
     var seg = currentSeg();
+    if (!seg || seg.kind === "delayed") return;
+    // Direct Instruction correction: after correcting, start the exercise
+    // over, from the model if there is one so the child hears it again.
     var first = 0;
     for (var i = 0; i < seg.steps.length; i++) { if (seg.steps[i].cue === "test") { first = i; break; } }
-    // Begin at the first step so the child hears the model again if there is one.
     pos.step = seg.steps[0].cue === "model" ? 0 : first;
     render();
   }
@@ -408,6 +472,7 @@
   function back() {
     if (pos.step > 0) pos.step--;
     else if (pos.seg > 0) { pos.seg--; pos.step = segments[pos.seg].steps.length - 1; }
+    else return;
     render();
   }
 
@@ -456,33 +521,49 @@
     return { firm: firm, errors: errors };
   }
 
-  function showFinish(html) {
+  // ── Finish screens: an article with its main action in a fixed bar ──
+  function actionBar(primary, secondary) {
+    function b(a, cls) {
+      if (!a) return "";
+      if (a.href !== undefined) return '<a class="btn ' + cls + '" href="' + escapeAttr(a.href) + '"' + (a.id ? ' id="' + a.id + '"' : "") + ">" + escapeHtml(a.label) + "</a>";
+      return '<button type="button" class="btn ' + cls + '"' + (a.id ? ' id="' + a.id + '"' : "") + (a.act ? ' data-act="' + a.act + '"' : "") + ">" + escapeHtml(a.label) + "</button>";
+    }
+    return '<div class="action-bar"><div class="action-bar__inner">' + b(secondary, "btn--secondary") + b(primary, "btn--primary") + "</div></div>";
+  }
+
+  function showFinish(html, bar) {
+    clearTimeout(flashTimer);
+    bigPicture(false);
     el.shell.hidden = true;
-    el.finish.innerHTML = html;
+    el.finish.innerHTML = html + (bar || "");
     el.finish.hidden = false;
-    document.body.classList.add("is-finished");
     window.scrollTo(0, 0);
+    var h1 = el.finish.querySelector("h1");
+    if (h1) { h1.setAttribute("tabindex", "-1"); h1.focus(); }
     var row = el.finish.querySelector("[data-mark-kind]");
     if (row) row.addEventListener("click", function (e) {
       var b = e.target.closest("[data-mark]");
-      if (!b || !window.mathProgress) return;
+      if (!b || !P) return;
       var v = b.getAttribute("data-mark"), id = row.getAttribute("data-mark-id");
-      if (row.getAttribute("data-mark-kind") === "lesson") window.mathProgress.setLessonStatus(id, v);
-      else window.mathProgress.setTestStatus(id, v);
+      if (row.getAttribute("data-mark-kind") === "lesson") P.setLessonStatus(id, v);
+      else P.setTestStatus(id, v);
       var all = row.querySelectorAll("[data-mark]");
       for (var i = 0; i < all.length; i++) all[i].setAttribute("aria-pressed", all[i] === b ? "true" : "false");
+      if (window.MD && MD.toast) MD.toast("Marked " + b.textContent.toLowerCase() + ".");
     });
     var noteBtn = $("finish-note-save");
     if (noteBtn) {
       noteBtn.addEventListener("click", function () {
         var t = $("finish-note").value.trim();
-        if (t && window.mathProgress) {
-          window.mathProgress.addNote(t, DATA.lesson ? DATA.lesson.id : DATA.test ? DATA.test.id : "");
+        if (t && P) {
+          P.addNote(t, DATA.lesson ? DATA.lesson.id : DATA.test ? DATA.test.id : "");
           noteBtn.textContent = "Saved";
           noteBtn.disabled = true;
         }
       });
     }
+    var again = el.finish.querySelector('[data-act="again"]');
+    if (again) again.addEventListener("click", restartPractice);
   }
 
   function finish() {
@@ -520,14 +601,14 @@
       date: new Date().toISOString(), minutes: minutes, firm: main.firm, errors: main.errors,
       delayedFirm: delayed.firm, delayedErrors: delayed.errors, exercises: exErrors, stillMissed: stillMissed, repeat: repeat,
     };
-    if (window.mathProgress) window.mathProgress.recordLesson(lesson.id, summary);
+    if (P) P.recordLesson(lesson.id, summary);
 
-    var name = window.mathProgress && window.mathProgress.getActiveProfile() ? window.mathProgress.getActiveProfile().name : "";
-    var html = '<div class="finish">';
+    var name = childName();
+    var html = '<article class="finish">';
     html += '<p class="finish__kicker">' + escapeHtml(lesson.levelName) + (name ? " · " + escapeHtml(name) : "") + "</p>";
     html += '<h1 class="finish__title">Lesson ' + lesson.number + " is finished</h1>";
     html += '<dl class="finish__facts"><div><dt>Firm</dt><dd>' + main.firm + "</dd></div><div><dt>Errors</dt><dd>" + main.errors + "</dd></div>";
-    if (del) html += '<div title="Missed items asked again at the end of the lesson, and how many were firm"><dt>Retest</dt><dd>' + delayed.firm + " of " + (delayed.firm + delayed.errors) + "</dd></div>";
+    if (del) html += "<div><dt>Retest</dt><dd>" + delayed.firm + " of " + (delayed.firm + delayed.errors) + "</dd></div>";
     html += "<div><dt>Time</dt><dd>" + minutes + " min</dd></div></dl>";
     if (exErrors.length) {
       html += '<h2 class="finish__h2">Where the errors were</h2><ul class="finish__list">';
@@ -544,21 +625,17 @@
     }
     html += "</div>";
     html += markRow("lesson", lesson.id);
-    html += '<div class="finish__actions">';
-    if (lesson.testAfter) html += '<a class="btn btn--cta" href="' + lesson.testAfter.url + '">' + escapeHtml(lesson.testAfter.title) + "</a>";
-    else if (lesson.next) html += '<a class="btn btn--cta" href="' + lesson.next.url + '">Next: ' + escapeHtml(lesson.next.title) + "</a>";
-    html += '<a class="btn btn--outline-dark" href="' + lesson.url + '">Teach again</a>';
-    html += '<a class="btn btn--outline-dark" href="/' + lesson.levelSlug + '/">All ' + escapeHtml(lesson.levelName) + " lessons</a>";
-    html += "</div>";
+    html += '<ul class="finish__links"><li><a href="' + lesson.url + '">Teach this lesson again</a></li><li><a href="/records/">Records</a></li></ul>';
     html += noteForm();
-    html += "</div>";
-    showFinish(html);
+    html += "</article>";
+    var primary = lesson.testAfter ? { label: lesson.testAfter.title, href: lesson.testAfter.url } : lesson.next ? { label: "Next: " + lesson.next.title, href: lesson.next.url } : null;
+    var secondary = { label: "All lessons", href: "/" + lesson.levelSlug + "/" };
+    showFinish(html, actionBar(primary || secondary, primary ? secondary : null));
   }
 
   // The teacher may overrule the advice: mark the lesson finished or to
   // repeat, or the test passed or to give again.
   function markRow(kind, id) {
-    var P = window.mathProgress;
     if (!P) return "";
     var opts = kind === "lesson" ? [["done", "Finished"], ["repeat", "To repeat"]] : [["passed", "Passed"], ["retake", "To give again"]];
     var cur = kind === "lesson" ? P.lessonStatus(id) : P.testStatus(id);
@@ -567,7 +644,7 @@
   }
 
   function noteForm() {
-    return '<details class="finish__note"><summary>Add a note for your records</summary><div class="finish__note-body"><label class="sr-only" for="finish-note">Note</label><textarea id="finish-note" rows="2" placeholder="For example: confused six and nine; tired today."></textarea><button type="button" class="btn btn--outline-dark" id="finish-note-save">Save note</button></div></details>';
+    return '<details class="finish__note"><summary>Add a note for your records</summary><div class="finish__note-body"><label class="sr-only" for="finish-note">Note</label><textarea id="finish-note" rows="2" placeholder="For example: confused six and nine; tired today."></textarea><button type="button" class="btn btn--secondary" id="finish-note-save">Save note</button></div></details>';
   }
 
   function finishTest(minutes) {
@@ -579,17 +656,16 @@
     });
     var failed = parts.filter(function (p) { return !p.passed; });
     var summary = { date: new Date().toISOString(), minutes: minutes, parts: parts.map(function (p) { return { track: p.track, trackName: p.trackName, items: p.items, errors: p.errors, passed: p.passed }; }), passed: !failed.length };
-    if (window.mathProgress) window.mathProgress.recordTest(t.id, summary);
+    if (P) P.recordTest(t.id, summary);
 
-    var html = '<div class="finish">';
-    html += '<p class="finish__kicker">' + escapeHtml(t.levelName) + "</p>";
+    var html = '<article class="finish">';
+    html += '<p class="finish__kicker">' + escapeHtml(t.levelName) + (childName() ? " · " + escapeHtml(childName()) : "") + "</p>";
     html += '<h1 class="finish__title">' + escapeHtml(t.title) + ": results</h1>";
     if (!failed.length) {
       html += '<div class="finish__advice"><p><strong>Every part was passed.</strong> Go on to the next lesson.</p></div>';
     } else {
       html += '<div class="finish__advice"><p><strong>' + failed.length + " part" + (failed.length > 1 ? "s need" : " needs") + " reteaching.</strong> Teach the exercises listed below, then give only those parts of the test again before going on.</p></div>";
     }
-    // Parts to reteach, each with its lessons; then the passed parts on one line.
     if (failed.length) {
       html += '<h2 class="finish__h2">Reteach</h2><ul class="finish__list">';
       failed.forEach(function (p) {
@@ -603,12 +679,10 @@
       html += '<p class="finish__passed"><strong>Passed:</strong> ' + passed.map(function (p) { return escapeHtml(p.trackName) + (p.errors ? " (" + errorsIn(p) + ")" : ""); }).join(", ") + ".</p>";
     }
     html += markRow("test", t.id);
-    html += '<div class="finish__actions">';
-    if (t.next) html += '<a class="btn btn--cta" href="' + t.next.url + '">' + escapeHtml(t.next.title) + "</a>";
-    html += '<a class="btn btn--outline-dark" href="' + t.url + '">Give the test again</a>';
-    html += '<a class="btn btn--outline-dark" href="/records/">Teacher dashboard</a>';
-    html += "</div>" + noteForm() + "</div>";
-    showFinish(html);
+    html += '<ul class="finish__links"><li><a href="' + t.url + '">Give the test again</a></li><li><a href="/' + t.levelSlug + '/">All ' + escapeHtml(t.levelName) + " lessons</a></li></ul>";
+    html += noteForm() + "</article>";
+    var primary = t.next ? { label: t.next.title, href: t.next.url } : { label: "Records", href: "/records/" };
+    showFinish(html, actionBar(primary, t.next ? { label: "Records", href: "/records/" } : null));
   }
 
   function errorsIn(p) {
@@ -620,17 +694,33 @@
     var seg = segments[0];
     seg.steps.forEach(function (st, i) { if (results[key(0, i)] === "error") missed.push(st); });
     var tl = tally();
-    var html = '<div class="finish">';
-    html += '<p class="finish__kicker">' + escapeHtml(DATA.set.levelName) + " practice</p>";
+    var html = '<article class="finish">';
+    html += '<p class="finish__kicker">' + escapeHtml(DATA.set.levelName) + " practice" + (childName() ? " · " + escapeHtml(childName()) : "") + "</p>";
     html += '<h1 class="finish__title">' + escapeHtml(DATA.set.title) + "</h1>";
     html += '<dl class="finish__facts"><div><dt>Firm</dt><dd>' + tl.firm + "</dd></div><div><dt>Errors</dt><dd>" + tl.errors + "</dd></div></dl>";
     if (missed.length) {
       html += '<h2 class="finish__h2">Items to go over again</h2><ul class="finish__list">';
       missed.forEach(function (m) { html += "<li>" + escapeHtml(m.say) + " (" + escapeHtml(m.answer) + ")</li>"; });
       html += "</ul>";
+    } else {
+      html += '<div class="finish__advice"><p><strong>Every item was firm.</strong></p></div>';
     }
-    html += '<div class="finish__actions"><a class="btn btn--cta" href="">Another set</a><a class="btn btn--outline-dark" href="/practice/">All practice</a></div></div>';
-    showFinish(html);
+    html += "</article>";
+    showFinish(html, actionBar({ label: "Another set", act: "again" }, { label: "All practice", href: DATA.exitUrl || "/practice/" }));
+  }
+
+  // Another set starts in place: new items, no page load.
+  function restartPractice() {
+    if (HOOKS.again) { HOOKS.again(); return; }
+    results = {};
+    pos = { seg: 0, step: 0 };
+    startTime = Date.now();
+    initPractice();
+    el.finish.hidden = true;
+    el.finish.innerHTML = "";
+    el.shell.hidden = false;
+    render();
+    el.btnMore.focus();
   }
 
   function placementSectionDone() {
@@ -658,16 +748,16 @@
     }
     placement.idx = next;
     loadPlacementSection();
-    el.shell.hidden = true;
     var s2 = DATA.sections[next];
-    el.finish.innerHTML = '<div class="finish"><p class="finish__kicker">Placement test</p><h1 class="finish__title">Section ' + (passed ? "passed" : "not passed") + '</h1><p class="finish__lead">' +
-      (passed ? "The child knows this part of the program. The next section checks the next span of lessons." : "This span of lessons is not yet firm. The next section checks the span before it.") +
-      '</p><div class="finish__actions"><button type="button" class="btn btn--cta" id="placement-continue">Begin: ' + escapeHtml(s2.title) + "</button></div></div>";
-    el.finish.hidden = false;
+    var html = '<article class="finish"><p class="finish__kicker">Placement test</p><h1 class="finish__title">Section ' + (passed ? "passed" : "not passed") + '</h1><p class="finish__lead">' +
+      (passed ? "The child knows this part of the program. The next section checks the next span of lessons." : "This span of lessons is not yet firm. The next section checks the span before it.") + "</p></article>";
+    showFinish(html, actionBar({ label: "Begin: " + s2.title, id: "placement-continue" }));
     $("placement-continue").addEventListener("click", function () {
       el.finish.hidden = true;
+      el.finish.innerHTML = "";
       el.shell.hidden = false;
       render();
+      el.btnMore.focus();
     });
   }
 
@@ -677,71 +767,139 @@
     else rec = DATA.sections[startIdx].start;
     var sec = startIdx < DATA.sections.length ? DATA.sections[startIdx] : null;
     var label = rec.label || (sec ? sec.levelName + ", Lesson " + rec.lesson : "");
-    if (window.mathProgress) window.mathProgress.recordPlacement({ date: new Date().toISOString(), level: rec.level, lesson: rec.lesson, url: rec.url, label: label });
-    var html = '<div class="finish"><p class="finish__kicker">Placement test</p><h1 class="finish__title">Start at ' + escapeHtml(label) + "</h1>";
-    html += '<p class="finish__lead">The child passed the sections before this point. Begin here, and the lessons will review what came before as they go. If the first few lessons are too easy, move ahead five lessons at a time; if they are too hard, move back.</p>';
-    html += '<div class="finish__actions"><a class="btn btn--cta" href="' + rec.url + '">Go to ' + escapeHtml(label) + '</a><a class="btn btn--outline-dark" href="/records/">Teacher dashboard</a></div></div>';
-    el.shell.hidden = true;
-    el.finish.innerHTML = html;
-    el.finish.hidden = false;
+    if (P) P.recordPlacement({ date: new Date().toISOString(), level: rec.level, lesson: rec.lesson, url: rec.url, label: label });
+    var html = '<article class="finish"><p class="finish__kicker">Placement test' + (childName() ? " · " + escapeHtml(childName()) : "") + '</p><h1 class="finish__title">Start at ' + escapeHtml(label) + "</h1>";
+    html += '<p class="finish__lead">The child passed the sections before this point. Begin here, and the lessons will review what came before as they go. If the first few lessons are too easy, move ahead five lessons at a time; if they are too hard, move back.</p></article>';
+    showFinish(html, actionBar({ label: "Go to " + label, href: rec.url }, { label: "Records", href: "/records/" }));
   }
 
-  // ── Outline drawer ──
-  function toggleOutline(force) {
-    if (!el.outline) return;
-    var open = force !== undefined ? force : el.outline.hidden;
-    el.outline.hidden = !open;
-    if (el.btnOutline) el.btnOutline.setAttribute("aria-expanded", open ? "true" : "false");
+  // ── Sheets ──
+  function openSheet(id) {
+    if (window.MD && MD.openSheet) MD.openSheet(id, el.btnMore);
+    else { var d = $(id); if (d && d.showModal) d.showModal(); }
+  }
+  function closeSheet(id) {
+    if (window.MD && MD.closeSheet) MD.closeSheet(id);
+    else { var d = $(id); if (d && d.open) d.close(); }
+  }
+  function anySheetOpen() { return !!document.querySelector("dialog[open]"); }
+  function openAfterClose(id) {
+    closeSheet("sheet-more");
+    setTimeout(function () { openSheet(id); }, 0);
+  }
+
+  function act(a) {
+    switch (a) {
+      case "back": back(); break;
+      case "over": startOver(); break;
+      case "show": showAgain(); break;
+      case "clear": clearMarks(); break;
+      case "outline": openAfterClose("sheet-outline"); break;
+      case "big": bigPicture(true); break;
+      case "keys": openAfterClose("sheet-keys"); break;
+      case "child": renderChildSheet(); openAfterClose("sheet-child"); break;
+      case "leave": openAfterClose("sheet-leave"); break;
+    }
+  }
+
+  function renderChildSheet() {
+    if (!el.childList) return;
+    var profiles = P ? P.getProfiles() : [], active = P ? P.getActiveProfile() : null;
+    el.childText.textContent = "Marks made so far are not saved. The " + thing() + " starts again for the child you pick.";
+    el.childList.innerHTML = profiles.map(function (p) {
+      var on = active && active.id === p.id;
+      return '<li><button type="button" class="sheet__row" data-child="' + escapeAttr(p.id) + '"' + (on ? " disabled" : "") + ">" + escapeHtml(p.name) + (on ? "<small>Teaching now</small>" : "") + "</button></li>";
+    }).join("");
+  }
+
+  function setLeaveSheet() {
+    var t = thing();
+    el.leaveTitle.textContent = "Leave " + (t === "placement test" ? "the placement test" : "this " + t) + "?";
+    el.leaveText.textContent = "Marks made so far are not saved.";
+    el.leaveGo.href = DATA.exitUrl || "/lessons/";
+  }
+
+  // Big picture: the stage fills the screen; one button comes back.
+  function bigPicture(on) {
+    var was = el.shell.classList.contains("is-big");
+    if (on === undefined) on = !was;
+    if (on === was) return;
+    el.shell.classList.toggle("is-big", on);
+    el.btnBigBack.hidden = !on;
+    fitStage();
+    if (on) el.btnBigBack.focus();
+    else el.btnMore.focus();
   }
 
   // ── Wire up ──
   el.btnNext.addEventListener("click", function () { advance(); });
-  el.btnBack.addEventListener("click", back);
   el.btnFirm.addEventListener("click", function () { mark("firm"); });
   el.btnError.addEventListener("click", function () { mark("error"); });
   el.btnOver.addEventListener("click", startOver);
   el.btnGoOn.addEventListener("click", function () { advance(); });
   el.btnShow.addEventListener("click", showAgain);
-  el.btnClear.addEventListener("click", function () { window.MDV.clearMarks(stage); });
-  if (el.btnOutline) el.btnOutline.addEventListener("click", function () { toggleOutline(); });
-  var closeOutline = $("tp-outline-close");
-  if (closeOutline) closeOutline.addEventListener("click", function () { toggleOutline(false); });
+  el.btnClear.addEventListener("click", clearMarks);
+  el.btnMore.addEventListener("click", function () { syncBar(); openSheet("sheet-more"); });
+  el.btnBigBack.addEventListener("click", function () { bigPicture(false); });
+  el.moreList.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]");
+    if (!b || b.disabled) return;
+    var a = b.getAttribute("data-act");
+    if (a === "outline" || a === "keys" || a === "child" || a === "leave") { act(a); return; }
+    closeSheet("sheet-more");
+    act(a);
+  });
+  el.outlineList.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-seg]");
+    if (!b) return;
+    closeSheet("sheet-outline");
+    jump(Number(b.getAttribute("data-seg")), 0);
+  });
+  if (el.childList) el.childList.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-child]");
+    if (!b || b.disabled || !P) return;
+    P.switchProfile(b.getAttribute("data-child"));
+  });
 
   document.addEventListener("keydown", function (e) {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.ctrlKey || e.metaKey || e.altKey) return;
-    if (!el.finish.hidden) return;
+    if (!el.finish.hidden || el.shell.hidden) return;
+    if (anySheetOpen()) return; // Escape closes it; the rest waits.
     var st = currentStep();
     var isTest = st && st.cue === "test";
+    if (el.shell.classList.contains("is-big")) {
+      if (e.key === "b" || e.key === "B" || e.key === "Escape") { e.preventDefault(); bigPicture(false); }
+      return;
+    }
     switch (e.key) {
       case "ArrowRight":
       case "Enter":
+        if (e.target.tagName === "BUTTON" && e.key === "Enter") return;
         e.preventDefault();
         if (errorState) advance();
-        else if (isTest && !el.btnFirm.hidden) mark("firm");
+        else if (isTest) mark("firm");
         else advance();
         break;
-      case "f": case "F":
-        if (isTest && !errorState) { e.preventDefault(); mark("firm"); }
-        break;
-      case "x": case "X": case "e": case "E":
-        if (isTest && !errorState) { e.preventDefault(); mark("error"); }
-        break;
+      case "f": case "F": if (isTest && !errorState) { e.preventDefault(); mark("firm"); } break;
+      case "x": case "X": case "e": case "E": if (isTest && !errorState) { e.preventDefault(); mark("error"); } break;
       case "ArrowLeft": e.preventDefault(); back(); break;
-      case "s": case "S": if (MODE === "lesson") { e.preventDefault(); startOver(); } break;
+      case "s": case "S": e.preventDefault(); startOver(); break;
       case " ": e.preventDefault(); showAgain(); break;
-      case "o": case "O": e.preventDefault(); toggleOutline(); break;
-      case "Escape":
-        if (el.outline && !el.outline.hidden) { toggleOutline(false); break; }
-        if (DATA.exitUrl && confirm("Leave this " + (MODE === "test" ? "test" : "lesson") + "? Marks made so far will not be saved.")) window.location.href = DATA.exitUrl;
-        break;
+      case "c": case "C": e.preventDefault(); clearMarks(); break;
+      case "o": case "O": e.preventDefault(); openSheet("sheet-outline"); break;
+      case "b": case "B": e.preventDefault(); bigPicture(true); break;
+      case "m": case "M": e.preventDefault(); syncBar(); openSheet("sheet-more"); break;
+      case "?": e.preventDefault(); openSheet("sheet-keys"); break;
+      case "Escape": e.preventDefault(); openSheet("sheet-leave"); break;
     }
   });
 
-  window.addEventListener("resize", function () { fitStage(); });
+  window.addEventListener("resize", function () { fitStage(); fitStrip(); });
+  // Web fonts can arrive after the first step is laid out; fit again then.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!el.shell.hidden && currentStep()) { fitPanel(); fitStrip(); fitStage(); } });
   // Refit the panel whenever its body changes size: a turned screen, or a
-  // header that grows a line when the child's name picker appears.
+  // keyboard that takes part of it.
   if (window.ResizeObserver) {
-    var lastHeight = 0;
     new ResizeObserver(function () {
       if (el.teacher.clientHeight === lastHeight || el.shell.hidden || !currentStep()) return;
       lastHeight = el.teacher.clientHeight;
@@ -751,7 +909,29 @@
     window.addEventListener("resize", function () { if (!el.shell.hidden) fitPanel(); });
   }
 
-  function start() {
+  // ── Start ──
+  function reset() {
+    segments = [];
+    pos = { seg: 0, step: 0 };
+    results = {};
+    errorState = false;
+    delayedAdded = false;
+    touched = null;
+    startTime = Date.now();
+    clearTimeout(flashTimer);
+  }
+
+  function start(data, hooks) {
+    DATA = data;
+    MODE = data.mode;
+    HOOKS = hooks || {};
+    reset();
+    setLeaveSheet();
+    el.finish.hidden = true;
+    el.finish.innerHTML = "";
+    el.shell.hidden = false;
+    var hide = el.moreList.querySelector('[data-act="over"]');
+    if (hide) hide.parentNode.hidden = MODE !== "lesson";
     if (MODE === "lesson") initLesson();
     else if (MODE === "test") initTest();
     else if (MODE === "practice") initPractice();
@@ -767,6 +947,7 @@
             el.shell.hidden = false;
             initPlacement(Number(this.getAttribute("data-start")));
             render();
+            el.btnMore.focus();
           });
         }
         return;
@@ -777,11 +958,19 @@
   }
 
   window.mdRunner = {
+    start: start,
     results: function () { return results; },
     segments: function () { return segments; },
     pos: function () { return pos; },
+    mode: function () { return MODE; },
   };
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
-  else start();
+  var dataEl = document.getElementById("runner-data");
+  if (dataEl) {
+    var boot = function () { start(JSON.parse(dataEl.textContent)); };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+    else boot();
+  } else {
+    el.shell.hidden = true;
+  }
 })();

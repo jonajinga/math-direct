@@ -42,6 +42,8 @@
 /* A row of buttons that wrap on a phone */
 .btn-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
 .btn-row .btn { flex: 1 1 auto; }
+.btn-row--stack { flex-direction: column; }
+.btn-row--stack .btn { flex: none; }
 
 /* A pressed toggle */
 .btn[aria-pressed="true"] { background: var(--primary-soft); border-color: var(--primary); color: var(--primary-strong); }

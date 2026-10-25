@@ -298,23 +298,6 @@
     });
   }
 
-  // A compact child picker for the lesson screen: a select plus Add.
-  function renderStudentSelect(container) {
-    if (!container) return;
-    var profiles = getProfiles(), active = getActiveProfile();
-    var html = '<label class="student-pick"><span class="student-pick__label">Child</span><select class="student-pick__select" aria-label="Child">';
-    profiles.forEach(function (p) {
-      html += '<option value="' + p.id + '"' + (active && active.id === p.id ? " selected" : "") + ">" + escapeHtml(p.name) + "</option>";
-    });
-    html += '<option value="__add">Add a child</option></select></label>';
-    container.innerHTML = html;
-    var sel = container.querySelector("select");
-    sel.addEventListener("change", function () {
-      if (sel.value === "__add") { sel.value = active ? active.id : ""; promptAdd(); return; }
-      switchProfile(sel.value);
-    });
-  }
-
   // Child chips: one radio per child and an Add chip. Changing the child
   // reloads the screen so everything on it shows that child.
   function renderChildChips(container) {
@@ -394,7 +377,7 @@
     addNote: addNote, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
     exportAllProfiles: exportAllProfiles, importProfiles: importProfiles,
     confirmDelete: confirmDelete, promptRename: promptRename, promptAdd: promptAdd,
-    renderStudentSelect: renderStudentSelect, renderProfileSelector: renderProfileSelector, renderChildChips: renderChildChips,
+    renderProfileSelector: renderProfileSelector, renderChildChips: renderChildChips,
     currentLevel: currentLevel, lastResult: lastResult,
   };
 
@@ -403,8 +386,6 @@
 
   function onReady() {
     renderProfileSelector();
-    var picks = document.querySelectorAll("[data-student-select]");
-    for (var i = 0; i < picks.length; i++) renderStudentSelect(picks[i]);
     var chips = document.querySelectorAll("[data-child-picker]");
     for (var c = 0; c < chips.length; c++) renderChildChips(chips[c]);
 

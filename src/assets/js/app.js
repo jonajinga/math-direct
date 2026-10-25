@@ -36,7 +36,7 @@
   });
   document.addEventListener("close", function (e) {
     var d = e.target;
-    if (d && d.tagName === "DIALOG" && d._opener && typeof d._opener.focus === "function" && document.contains(d._opener)) d._opener.focus();
+    if (d && d.tagName === "DIALOG" && d._opener && typeof d._opener.focus === "function" && document.contains(d._opener) && !document.querySelector("dialog[open]")) d._opener.focus();
   }, true);
 
   // A sheet built on the spot. Both return a promise.

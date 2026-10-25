@@ -10,6 +10,8 @@
     "clean": "node -e \"require('fs').rmSync('_site',{recursive:true,force:true})\"",
     "check:pwa": "node scripts/check-pwa.mjs",
     "check:copy": "node scripts/check-copy.mjs",
+    "check:fit": "node scripts/check-fit.mjs",
+    "check:fit:all": "node scripts/check-fit.mjs --all",
     "check:all": "npm run check && npm run clean && npm run build && npm run check:pwa && npm run check:copy"
   },
   "keywords": [

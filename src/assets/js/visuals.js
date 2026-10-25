@@ -3,7 +3,9 @@
 // inline SVG. Used by lessons, tests, practice, and placement.
 //
 //   MDV.render(spec or [specs], { print: true }) -> HTML string
-//   MDV.bind(container, onChoose)                -> wires up touchable parts
+//   MDV.bind(container, onChoose, opts)          -> wires up touchable parts
+//   MDV.describe(spec)                           -> text alternative for the stage
+//   MDV.describeChoice(spec, idx)                -> names a touched part
 (function () {
   "use strict";
 
@@ -296,7 +298,7 @@
     var crossFrom = v.cross ? v.n - v.cross : v.n;
     for (var i = 0; i < l.pts.length; i++) {
       var cx = l.pts[i][0] * cell, cy = l.pts[i][1] * cell;
-      var tapAttr = v.tap ? 'class="mdv-tap mdv-mark" data-mark="' + i + '" tabindex="0"' : "";
+      var tapAttr = v.tap ? 'class="mdv-tap mdv-mark" data-mark="' + i + '" tabindex="-1"' : "";
       body += "<g " + tapAttr + ">";
       if (v.tap) body += '<circle class="mdv-mark__ring" cx="' + cx + '" cy="' + cy + '" r="48" fill="transparent"/>';
       body += icon(v.icon, cx - s / 2, cy - s / 2, s);
@@ -371,7 +373,7 @@
     var ans = Array.isArray(v.ans) ? v.ans : [v.ans];
     var html = '<div class="mdv mdv-choices mdv-choices--' + v.opts.length + '" data-ans="' + ans.join(",") + '">';
     for (var i = 0; i < v.opts.length; i++) {
-      html += '<button type="button" class="mdv-choice mdv-tap" data-choice="' + i + '">' + render(v.opts[i], { inChoice: true }) + "</button>";
+      html += '<button type="button" class="mdv-choice mdv-tap" data-choice="' + i + '" aria-label="' + esc(describeOne(v.opts[i]) || "choice " + (i + 1)) + '">' + render(v.opts[i], { inChoice: true }) + "</button>";
     }
     return html + "</div>";
   };
@@ -396,7 +398,7 @@
     var w = Math.max(a * topStep, b * botStep, maxN * cell);
     var body = "";
     function rowAt(n, y, step, idx) {
-      var g = "<g " + (v.tap ? 'class="mdv-tap mdv-rowpick" data-choice="' + idx + '" tabindex="0"' : "") + ">";
+      var g = "<g " + (v.tap ? 'class="mdv-tap mdv-rowpick" data-choice="' + idx + '" tabindex="-1"' : "") + ">";
       if (v.tap) g += '<rect class="mdv-rowpick__bg" x="0" y="' + (y - 50) + '" width="' + w + '" height="100" rx="10" fill="transparent"/>';
       for (var i = 0; i < n; i++) g += icon(v.icon, i * step + (cell - s) / 2, y - s / 2, s);
       return g + "</g>";
@@ -527,7 +529,7 @@
     body += '<path d="M18 30 L18 96" stroke="var(--v-ink)" stroke-width="4"/><path d="M18 30 L52 40 L18 52 Z" fill="var(--v-red)"/>';
     for (var i = 0; i < v.icons.length; i++) {
       var x = 70 + i * cell;
-      var tap = v.tap ? 'class="mdv-tap mdv-linepick" data-choice="' + i + '" tabindex="0"' : "";
+      var tap = v.tap ? 'class="mdv-tap mdv-linepick" data-choice="' + i + '" tabindex="-1"' : "";
       body += "<g " + tap + ">" + (v.tap ? '<rect class="mdv-rowpick__bg" x="' + (x - 6) + '" y="6" width="' + (cell - 4) + '" height="96" rx="10" fill="transparent"/>' : "") +
         '<g transform="translate(' + (x + s) + ' 0) scale(-1 1)">' + icon(v.icons[i], 0, 18, s) + "</g></g>";
     }
@@ -538,7 +540,7 @@
     var kind = v.kind, items = v.items, body = "", w, h, i;
     var tapWrap = function (idx, inner, x, y, bw, bh) {
       if (!v.tap) return inner;
-      return '<g class="mdv-tap mdv-sizepick" data-choice="' + idx + '" tabindex="0"><rect class="mdv-rowpick__bg" x="' + x + '" y="' + y + '" width="' + bw + '" height="' + bh + '" rx="10" fill="transparent"/>' + inner + "</g>";
+      return '<g class="mdv-tap mdv-sizepick" data-choice="' + idx + '" tabindex="-1"><rect class="mdv-rowpick__bg" x="' + x + '" y="' + y + '" width="' + bw + '" height="' + bh + '" rx="10" fill="transparent"/>' + inner + "</g>";
     };
     if (kind === "big") {
       w = items.length * 180; h = 180;
@@ -824,15 +826,22 @@
     return fn(spec, o || {});
   }
 
-  // Wire up touchable parts. onChoose(index, correct) is called for answers;
-  // marks on countable pictures simply toggle.
-  function bind(container, onChoose) {
+  // Wire up touchable parts. onChoose(index, correct, group) is called when
+  // the child picks an answer; marks on countable pictures simply toggle.
+  // Options: feedback (default false) adds is-right or is-wrong to the pick;
+  // the child's screen never shows a verdict, so the runner leaves it off.
+  // lockAfterPick (default true) lets a group take one pick until it is
+  // rendered again.
+  function bind(container, onChoose, opts) {
+    opts = opts || {};
+    var feedback = !!opts.feedback;
+    var lock = opts.lockAfterPick !== false;
     var marks = container.querySelectorAll(".mdv-mark");
     for (var i = 0; i < marks.length; i++) {
       (function (el) {
         function toggle() { el.classList.toggle("is-marked"); }
         el.addEventListener("click", toggle);
-        el.addEventListener("keydown", function (e) { if (e.key === "Enter") toggle(); });
+        el.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
       })(marks[i]);
     }
     var groups = container.querySelectorAll("[data-ans]");
@@ -841,21 +850,23 @@
         var raw = group.getAttribute("data-ans");
         if (raw === "") return;
         var ans = raw.split(",").map(Number);
-        var opts = group.querySelectorAll(":scope > .mdv-tap, :scope svg .mdv-tap, :scope > svg > .mdv-tap");
-        if (!opts.length) opts = group.querySelectorAll(".mdv-tap");
-        for (var k = 0; k < opts.length; k++) {
+        var opts2 = group.querySelectorAll(":scope > .mdv-tap, :scope svg .mdv-tap, :scope > svg > .mdv-tap");
+        if (!opts2.length) opts2 = group.querySelectorAll(".mdv-tap");
+        for (var k = 0; k < opts2.length; k++) {
           (function (opt) {
             function pick() {
               if (group.classList.contains("is-done")) return;
               var idx = Number(opt.getAttribute("data-choice"));
               var right = ans.indexOf(idx) !== -1;
-              for (var m = 0; m < opts.length; m++) opts[m].classList.remove("is-picked", "is-right", "is-wrong");
-              opt.classList.add("is-picked", right ? "is-right" : "is-wrong");
+              for (var m = 0; m < opts2.length; m++) opts2[m].classList.remove("is-picked", "is-right", "is-wrong");
+              opt.classList.add("is-picked");
+              if (feedback) opt.classList.add(right ? "is-right" : "is-wrong");
+              if (lock) group.classList.add("is-done");
               if (onChoose) onChoose(idx, right, group);
             }
             opt.addEventListener("click", pick);
-            opt.addEventListener("keydown", function (e) { if (e.key === "Enter") pick(); });
-          })(opts[k]);
+            opt.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+          })(opts2[k]);
         }
       })(groups[g]);
     }
@@ -866,5 +877,101 @@
     for (var i = 0; i < m.length; i++) m[i].classList.remove("is-marked", "is-picked", "is-right", "is-wrong");
   }
 
-  window.MDV = { render: render, bind: bind, clearMarks: clearMarks, icons: ICON_NAMES };
+  // ── Text alternatives ──
+  // describe(screen) says what the stage shows, for the hidden text beside
+  // it. describeChoice(screen, idx) names the part the child touched.
+  var ICON_WORD = { ladybug: "ladybug", ball: "ball", duck: "duck", fish: "fish", apple: "apple", star: "star", bird: "bird", flower: "flower", stick: "stick", heart: "heart" };
+  function plural(n, word) {
+    var w = ICON_WORD[word] || word || "thing";
+    if (n === 1) return "one " + w;
+    return n + " " + (/(s|x|ch|sh)$/.test(w) ? w + "es" : w + "s");
+  }
+  function list(items) {
+    if (items.length <= 1) return items.join("");
+    return items.slice(0, -1).join(", ") + ", and " + items[items.length - 1];
+  }
+  function numWord(v) { return v === "?" || v === "_" ? "a blank" : String(v); }
+  function opWord(p) { return { "+": "plus", "−": "minus", "-": "minus", "=": "equals", "<": "is less than", ">": "is more than" }[p] || p; }
+  function arrWord(arr) { return { row: "in a row", scatter: "scattered", dice: "in a dice pattern", col: "in a column", grid: "in rows", five: "in a five frame", circle: "in a circle" }[arr] || ""; }
+  function clockWord(h, m) {
+    if (m === 0) return h + " o'clock";
+    if (m === 30) return "half past " + h;
+    if (m === 15) return "a quarter past " + h;
+    if (m === 45) return "a quarter to " + (h % 12 + 1);
+    return h + ":" + (m < 10 ? "0" + m : m);
+  }
+  function describeOne(v) {
+    if (!v) return "";
+    switch (v.t) {
+      case "say": return "a speech bubble";
+      case "num": {
+        var vals = Array.isArray(v.v) ? v.v : [v.v];
+        return (vals.length > 1 ? "the numbers " : "the number ") + list(vals.map(numWord)) + (v.dots ? ", with dots under each" : "");
+      }
+      case "sign": return "a " + opWord(v.s) + " sign";
+      case "seq": return "the numbers " + v.items.map(numWord).join(", ") + (v.hl !== undefined && v.hl !== null ? ", with " + numWord(v.items[v.hl]) + " marked" : "");
+      case "dots": return plural(v.n, "dot") + (v.arr ? " " + arrWord(v.arr) : "");
+      case "obj": return plural(v.n, v.icon) + (v.arr ? " " + arrWord(v.arr) : "") + (v.cross ? ", " + v.cross + " crossed out" : "") + (v.tap ? ", each can be touched" : "");
+      case "frame": return (v.frames > 1 || v.n + (v.n2 || 0) > (v.size || 10) ? "ten frames" : "a " + (v.size === 5 ? "five" : "ten") + " frame") + " with " + plural(v.n, "dot") + (v.n2 ? " and " + plural(v.n2, "red dot") : "");
+      case "eq": return v.parts.map(function (p) { return typeof p === "number" ? String(p) : p === "?" || p === "_" ? "blank" : opWord(p); }).join(" ");
+      case "col": return v.a + " " + opWord(v.op) + " " + v.b + ", written in columns" + (v.show ? ", with the answer " + v.ans : "");
+      case "choices": return v.opts.length + " choices: " + list(v.opts.map(describeOne));
+      case "row": case "stack": return list(v.items.map(describeOne));
+      case "match": return "a row of " + plural(v.a, v.icon) + " over a row of " + plural(v.b, v.icon) + (v.lines ? ", paired with lines" : "");
+      case "shape": return "a " + (v.c ? v.c + " " : "") + v.s.replace("-open", " with an opening");
+      case "solid": return "a " + (v.c ? v.c + " " : "") + v.s;
+      case "scene": return "a " + (ICON_WORD[v.obj] || v.obj || "ball") + " " + ({ on: "on", under: "under", next: "next to", above: "above", behind: "behind", in: "in", front: "in front of", beside: "beside" }[v.rel] || v.rel) + " a " + (v.ref || "table");
+      case "lineup": return v.icons.length + " in a line, facing the arrow: " + list(v.icons.map(function (i) { return "a " + (ICON_WORD[i] || i); }));
+      case "size": {
+        if (v.kind === "heavy") return "a balance with a " + (v.names ? v.names[0] : "block") + " and a " + (v.names ? v.names[1] : "leaf");
+        var sizes = v.items.map(function (x, i) { return i === 0 ? "one" : x > v.items[i - 1] ? "a bigger one" : "a smaller one"; });
+        return v.items.length + " " + (v.icon || "ball") + (v.items.length > 1 ? "s" : "") + " of different " + ({ big: "sizes", long: "lengths", tall: "heights" }[v.kind] || "sizes") + ": " + list(sizes);
+      }
+      case "pattern": return "a pattern: " + v.items.map(function (it) { return it.icon ? (ICON_WORD[it.icon] || it.icon) : (it.c ? it.c + " " : "") + it.s; }).join(", ") + (v.blanks ? ", then " + v.blanks + " blank" + (v.blanks > 1 ? "s" : "") : "");
+      case "story": return plural(v.start || 0, v.icon) + (v.add ? ", then " + plural(v.add, v.icon) + " more arriving" : "") + (v.take ? ", with " + v.take + " crossed out" : "");
+      case "family": return "a number family with " + (v.miss === "a" ? "a blank" : v.a) + " and " + (v.miss === "b" ? "a blank" : v.b) + " on the arrow and " + (v.miss === "c" ? "a blank" : v.c) + " at the end";
+      case "pv": return (v.tens ? plural(v.tens, "ten") + (v.ones ? " and " : "") : "") + (v.ones || !v.tens ? plural(v.ones || 0, "one") : "") + " in blocks";
+      case "nl": return "a number line from " + v.from + " to " + v.to + (v.hl !== undefined && v.hl !== null ? ", with " + v.hl + " marked" : "") + (v.hops ? ", with hops from " + v.hops[0] + " to " + v.hops[1] : "");
+      case "clock": return v.digital ? "a digital clock showing " + v.h + ":" + (v.m < 10 ? "0" + v.m : v.m) : v.noHands ? "a clock face with no hands" : "a clock showing " + clockWord(v.h, v.m);
+      case "tally": return "tally marks for " + v.n;
+      case "graph": return "a " + (v.kind === "tally" ? "tally chart" : "picture graph") + ": " + list(v.cats.map(function (c) { return plural(c.n, c.icon); }));
+      case "parts": return "a " + v.s + " cut into " + (v.cut || "halves").replace(/-.*/, "") + (v.shade ? ", " + v.shade + " part" + (v.shade > 1 ? "s" : "") + " shaded" : "");
+      case "coins": return list((v.list || []).map(function (c) { return "a " + c; }));
+      case "measure": return "a " + (v.icon || "stick") + " " + v.len + " units long";
+      case "blank": return "";
+      default: return "";
+    }
+  }
+  function describe(screen) {
+    if (!screen) return "The screen is empty.";
+    var parts = (Array.isArray(screen) ? screen : [screen]).map(describeOne).filter(Boolean);
+    if (!parts.length) return "The screen is empty.";
+    var s = parts.join("; ");
+    return "The child's screen shows " + s + ".";
+  }
+  function ordinal(i) { return ["first", "second", "third", "fourth", "fifth", "sixth"][i] || (i + 1) + "th"; }
+  function findGroup(screen) {
+    var found = null;
+    (function walk(v) {
+      if (!v || found) return;
+      if (Array.isArray(v)) return v.forEach(walk);
+      if (v.tap && v.t !== "obj") { found = v; return; }
+      if (v.t === "choices") { found = v; return; }
+      if (v.items && v.t !== "pattern" && v.t !== "size") walk(v.items);
+    })(screen);
+    return found;
+  }
+  function describeChoice(screen, idx) {
+    var g = findGroup(screen);
+    if (!g) return "the " + ordinal(idx) + " one";
+    switch (g.t) {
+      case "choices": return g.opts[idx] ? describeOne(g.opts[idx]) : "the " + ordinal(idx) + " choice";
+      case "match": return idx === 0 ? "the top row" : "the bottom row";
+      case "lineup": return "the " + ordinal(idx) + " in line, the " + (ICON_WORD[g.icons[idx]] || g.icons[idx]);
+      case "size": return g.kind === "heavy" && g.names ? "the " + g.names[idx] : "the " + ordinal(idx) + " one";
+      default: return "the " + ordinal(idx) + " one";
+    }
+  }
+
+  window.MDV = { render: render, bind: bind, clearMarks: clearMarks, describe: describe, describeChoice: describeChoice, icons: ICON_NAMES };
 })();
