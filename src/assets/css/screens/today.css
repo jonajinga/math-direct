@@ -2,7 +2,8 @@
 .today-welcome { margin-bottom: var(--sp-5); }
 .today-welcome p { font-size: var(--fs-4); line-height: 1.5; margin: 0 0 var(--sp-3); }
 .next-card .card__title { font-size: var(--fs-6); }
-.next-card__facts { margin: 0 0 var(--sp-3); color: var(--ink-2); font-size: var(--fs-2); line-height: 1.5; }
+.next-card__facts { margin: 0 0 var(--sp-2); color: var(--ink-2); font-size: var(--fs-2); line-height: 1.5; }
+.next-card__new { margin: 0 0 var(--sp-2); font-size: var(--fs-2); line-height: 1.5; }
 .next-card .btn--primary { margin-top: var(--sp-2); }
 .today-last { margin: var(--sp-4) 0 0; color: var(--ink-2); font-size: var(--fs-2); }
 .today-links { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin: var(--sp-4) 0 0; padding: 0; list-style: none; }

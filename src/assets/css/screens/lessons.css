@@ -2,6 +2,9 @@
 .level-row__name { display: flex; align-items: center; gap: var(--sp-2); }
 .level-row .pbar { margin-top: var(--sp-2); }
 
+.level-needs { margin: 0 0 var(--sp-4); font-size: var(--fs-2); color: var(--ink-2); }
+.level-needs strong { color: var(--ink); }
+
 /* The level screen's lesson grid. Each chip is a lesson. */
 .lesson-group { margin-bottom: var(--sp-4); }
 .lesson-group__title { font-family: var(--font-ui); font-size: var(--fs-1); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); margin: 0 0 var(--sp-2); }

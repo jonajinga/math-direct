@@ -116,6 +116,7 @@ export function buildProgram({ strict = true } = {}) {
         minutes: l.minutes,
         newUnits: l.newUnits,
         tracks: l.exercises.map((e) => e.trackName),
+        materials: [...new Set(l.exercises.map((e) => e.materials).filter(Boolean))],
         independent: l.independent ? l.independent.steps.length : 0,
         testAfter: l.testAfter || null,
       })),
@@ -148,6 +149,9 @@ export function buildProgram({ strict = true } = {}) {
     tests: lv.tests,
     tracks: Object.fromEntries(lv.tracks.map((t) => [t.id, t.name])),
     facts: (facts[lv.id] || []).map((f) => ({ key: f.key, lesson: f.lesson })),
+    minutes: lv.minutes,
+    // One short row per lesson: minutes, the real objects it needs, what is new.
+    brief: lv.lessonList.map((l) => [l.minutes, l.materials.join("; "), l.newUnits.map((u) => u.label).join(", ")]),
   }));
   return { levels, lessons, tests, practice, placement, facts, summary, errors, warnings };
 }

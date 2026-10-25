@@ -40,6 +40,7 @@
   var placement = { idx: 0, startIdx: 0, passed: {}, failed: {}, direction: 1 };
   var where = { child: "", level: "", name: "", ex: "", exShort: "" };
   var leaving = false; // set when the parent leaves through a sheet, so the browser does not ask again
+  var rehearsing = false; // a run without a child: nothing is recorded or saved
 
   function key(s, i) { var st = segments[s] && segments[s].steps[i]; return st ? st.uid : s + ":" + i; }
   function firstOf(k) { var r = results[k]; return r ? r.first : null; }
@@ -149,7 +150,7 @@
   // ── The strip: one line that shortens itself rather than clip ──
   function renderStrip() {
     var seg = currentSeg();
-    where.child = childName();
+    where.child = rehearsing ? "Rehearsal" : childName();
     if (MODE === "lesson") { where.ex = "Exercise " + (pos.seg + 1) + " of " + segments.length; where.exShort = "Ex " + (pos.seg + 1) + " of " + segments.length; }
     else if (MODE === "test") { where.ex = "Part " + (pos.seg + 1) + " of " + segments.length; where.exShort = where.ex; }
     else if (MODE === "placement") { where.ex = "Section " + (placement.idx + 1) + " of " + DATA.sections.length; where.exShort = where.ex; }
@@ -254,7 +255,7 @@
   function sessionId() { return DATA.lesson ? DATA.lesson.id : DATA.test ? DATA.test.id : MODE; }
   function markCount() { var n = 0; for (var k in results) n++; return n; }
   function saveSession() {
-    if (!P || !P.saveSession || MODE === "practice" || !DATA) return;
+    if (!P || !P.saveSession || MODE === "practice" || !DATA || rehearsing) return;
     if (!markCount() && !moved && MODE !== "placement") return;
     P.saveSession({
       kind: MODE, url: window.location.pathname + (testParts.length && testParts.length < (DATA.test ? DATA.test.parts.length : 0) ? window.location.search : ""), id: sessionId(),
@@ -265,7 +266,7 @@
   }
   function clearSession() { if (P && P.clearSession) P.clearSession(); }
   function savedSitting() {
-    if (!P || !P.loadSession || MODE === "practice") return null;
+    if (!P || !P.loadSession || MODE === "practice" || rehearsing) return null;
     var s = P.loadSession();
     var here = window.location.pathname + (MODE === "test" && /[?&]parts=/.test(window.location.search) ? window.location.search : "");
     if (!s || s.url !== here || s.kind !== MODE) return null;
@@ -522,7 +523,7 @@
     if (!cur) results[k] = { first: r, last: r, n: 1 };
     else { cur.last = r; cur.n++; }
     moved = true;
-    if (st.fact && P && P.recordFact && !cur) P.recordFact(st.fact, r === "firm");
+    if (st.fact && P && P.recordFact && !cur && !rehearsing) P.recordFact(st.fact, r === "firm");
     saveSession();
     if (r === "firm" || MODE === "test" || MODE === "placement" || seg.kind === "independent") {
       announce(r === "firm" ? "Marked firm." : "Marked as an error.");
@@ -754,9 +755,9 @@
       delayedFirm: delayed.firm, delayedErrors: delayed.errors, exercises: exErrors, stillMissed: stillMissed, repeat: repeat,
       independent: ownTotal ? { firm: own.firm, errors: own.errors } : null,
     };
-    if (P) { P.recordLesson(lesson.id, summary); if (P.recordItems) P.recordItems(itemResults(), summary.date); }
+    if (P && !rehearsing) { P.recordLesson(lesson.id, summary); if (P.recordItems) P.recordItems(itemResults(), summary.date); }
 
-    var name = childName();
+    var name = rehearsing ? "Rehearsal" : childName();
     var html = '<article class="finish">';
     html += '<p class="finish__kicker">' + escapeHtml(lesson.levelName) + (name ? " · " + escapeHtml(name) : "") + "</p>";
     html += '<h1 class="finish__title">Lesson ' + lesson.number + " is finished</h1>";
@@ -771,18 +772,24 @@
       html += "</ul>";
     }
     html += '<div class="finish__advice">';
-    if (repeat) {
+    if (rehearsing) {
+      html += "<p><strong>This was a rehearsal.</strong> Nothing was recorded.</p>";
+    } else if (repeat) {
       html += "<p><strong>Repeat this lesson next time.</strong> " + (stillMissed.length > 1 ? "Several items were still missed at the end of the lesson." : "More than one answer in four needed correcting.") + " Repeating a lesson is normal; it makes sure each step is firm before the next is built on it.</p>";
     } else if (stillMissed.length) {
       html += "<p><strong>Go on to the next lesson, but first reteach one exercise.</strong> At the start of the next session, teach this exercise again from the beginning: " + escapeHtml(stillMissed.join(", ")) + ".</p>";
     } else {
       html += "<p><strong>Go on to the next lesson.</strong> Every item was firm by the end.</p>";
     }
-    if (ownLow) html += "<p>On your own, " + own.errors + " of " + ownTotal + " were missed. Before the next lesson, go over those items with the child.</p>";
+    if (ownLow && !rehearsing) html += "<p>On your own, " + own.errors + " of " + ownTotal + " were missed. Before the next lesson, go over those items with the child.</p>";
     html += "</div>";
-    html += markRow("lesson", lesson.id);
-    html += '<ul class="finish__links"><li><a href="' + lesson.url + '">Teach this lesson again</a></li><li><a href="/records/">Records</a></li></ul>';
-    html += noteForm();
+    if (!rehearsing) {
+      html += markRow("lesson", lesson.id);
+      html += '<ul class="finish__links"><li><a href="' + lesson.url + '">Teach this lesson again</a></li><li><a href="/records/">Records</a></li></ul>';
+      html += noteForm();
+    } else {
+      html += '<ul class="finish__links"><li><a href="' + lesson.url + '">Teach this lesson</a></li><li><a href="' + lesson.url + '?rehearse=1">Rehearse it again</a></li></ul>';
+    }
     html += "</article>";
     var primary = lesson.testAfter ? { label: lesson.testAfter.title, href: lesson.testAfter.url } : lesson.next ? { label: "Next: " + lesson.next.title, href: lesson.next.url } : null;
     var secondary = { label: "All lessons", href: "/" + lesson.levelSlug + "/" };
@@ -994,7 +1001,7 @@
   function setLeaveSheet() {
     var t = thing();
     el.leaveTitle.textContent = "Leave " + (t === "placement test" ? "the placement test" : "this " + t) + "?";
-    el.leaveText.textContent = MODE === "practice" ? "Marks made in a practice set are not kept." : "The marks are saved. You can continue later from Today.";
+    el.leaveText.textContent = rehearsing ? "Nothing is recorded in a rehearsal." : MODE === "practice" ? "Marks made in a practice set are not kept." : "The marks are saved. You can continue later from Today.";
     el.leaveGo.href = DATA.exitUrl || "/lessons/";
     el.leaveGo.addEventListener("click", function () { leaving = true; });
   }
@@ -1114,6 +1121,7 @@
     DATA = data;
     MODE = data.mode;
     HOOKS = hooks || {};
+    rehearsing = MODE === "lesson" && /[?&]rehearse=1/.test(window.location.search);
     reset();
     setLeaveSheet();
     el.finish.hidden = true;

@@ -149,10 +149,12 @@
     });
     document.getElementById("mark-help").textContent = isTest
       ? "Resetting erases this test's results for " + P.getActiveProfile().name + "."
-      : "Resetting erases this lesson's record for " + P.getActiveProfile().name + ", so it shows as never taught.";
+      : "Resetting erases this lesson's record for " + P.getActiveProfile().name + ", so it shows as never taught. Rehearse runs the lesson without a child and records nothing.";
     var link = document.getElementById("mark-open");
     link.href = card.getAttribute("href");
     link.textContent = isTest ? "Open the test" : "Open the lesson";
+    var reh = document.getElementById("mark-rehearse");
+    if (reh) { reh.hidden = isTest; reh.href = card.getAttribute("href") + "?rehearse=1"; }
     dlg.returnValue = "";
     if (window.MD) MD.openSheet(dlg, card); else dlg.showModal();
   }

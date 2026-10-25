@@ -40,10 +40,13 @@
     var step = P.nextStep(lv.id, lv.lessons, lv.tests, lv.slug);
     var n = P.nextLesson(lv.id, lv.lessons);
     var done = p.completed.filter(function (c) { return c.indexOf(lv.id + "-") === 0; }).length;
+    var brief = lv.brief && lv.brief[n - 1];
+    var facts = step.test ? "A test of the last ten lessons, one part for each skill. Give it without helping." :
+      "About " + (brief && brief[0] ? brief[0] : lv.minutes) + " minutes." + (brief && brief[1] ? " Needs " + esc(brief[1].charAt(0).toLowerCase() + brief[1].slice(1)) + "." : "");
     html = '<div class="card next-card card--strong"><p class="kicker">' + esc(lv.name) + " · " + esc(p.name) + "</p>" +
       '<h2 class="card__title">' + esc(step.label) + "</h2>" +
-      '<p class="next-card__facts">' + (step.test ? "A short test of the last ten lessons. Give it without helping." : "About " + esc(lv.minutes) + " minutes.") +
-      (done ? " " + done + " of " + lv.lessons + " lessons finished." : "") + "</p>" +
+      '<p class="next-card__facts">' + facts + (done ? " " + done + " of " + lv.lessons + " lessons finished." : "") + "</p>" +
+      (!step.test && brief && brief[2] ? '<p class="next-card__new"><strong>New:</strong> ' + esc(brief[2]) + "</p>" : "") +
       '<a class="btn btn--primary btn--big btn--block" href="' + esc(step.url) + '">Start</a></div>';
     var last = P.lastResult();
     if (last) {

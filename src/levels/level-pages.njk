@@ -24,7 +24,8 @@ eleventyComputed:
   <p class="pbar__label" data-progress-label>Not started</p>
 </div>
 
-<p class="muted small" id="mark-note" hidden>Tap a lesson or test to mark it finished, mark it to repeat, or reset it. Choose Done when you have finished.</p>
+{% if level.materials.length %}<p class="level-needs"><strong>You need:</strong> {{ level.materials | join("; ") | lower }}.</p>{% endif %}
+<p class="muted small" id="mark-note" hidden>Tap a lesson or test to mark it finished, mark it to repeat, reset it, or rehearse it. Choose Done when you have finished.</p>
 
 {% for lesson in level.lessonList %}
 {% if loop.index0 % 10 == 0 %}
@@ -85,6 +86,7 @@ eleventyComputed:
       <p class="mark-help" id="mark-help"></p>
     </div>
     <div class="sheet__foot">
+      <a class="btn btn--quiet" id="mark-rehearse" href="#" hidden>Rehearse</a>
       <a class="btn btn--quiet" id="mark-open" href="#"></a>
       <button type="submit" class="btn btn--secondary" value="">Cancel</button>
     </div>
