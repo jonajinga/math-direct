@@ -10,46 +10,20 @@
   --v-gray: #9a948e;
   --v-brown: #9a6a3c;
   --v-pink: #ec7bb0;
-  --v-ink: #1c1917;
-  --v-line: #a8a29e;
-  --v-soft: #f5f5f4;
+  --v-ink: #14212b;
+  --v-line: #6b7684;
+  --v-soft: #f7f8fa;
   --v-paper: #ffffff;
   --v-dot: #2f74d0;
   --v-dot2: #e0453a;
-  --v-accent: #ea580c;
+  --v-accent: #c2410c;
   --v-ten: #f2c230;
   --v-one: #3a9a4a;
-  --v-hour: #1e3a5f;
+  --v-hour: #0b4f8a;
   --v-minute: #e0453a;
   --v-box: #d4a373;
 }
 
-[data-theme="dark"] {
-  --v-ink: #f5f5f4;
-  --v-line: #78716c;
-  --v-soft: #292524;
-  --v-paper: #1c1917;
-  --v-dot: #60a5fa;
-  --v-dot2: #f87171;
-  --v-accent: #fb923c;
-  --v-hour: #93c5fd;
-  --v-minute: #fca5a5;
-  --v-box: #a16207;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --v-ink: #f5f5f4;
-    --v-line: #78716c;
-    --v-soft: #292524;
-    --v-paper: #1c1917;
-    --v-dot: #60a5fa;
-    --v-dot2: #f87171;
-    --v-accent: #fb923c;
-    --v-hour: #93c5fd;
-    --v-minute: #fca5a5;
-    --v-box: #a16207;
-  }
-}
 
 .mdv {
   display: flex;
@@ -157,7 +131,7 @@
 .mdv-col__op { width: 0.8em; color: var(--v-accent); text-align: left; }
 .mdv-col__d { width: 0.8em; text-align: center; display: inline-block; }
 .mdv-col__line { border-bottom: 0.08em solid var(--v-ink); }
-.mdv-col__labels { font-size: 0.3em; color: var(--text-secondary); }
+.mdv-col__labels { font-size: 0.3em; color: var(--ink-2); }
 .mdv-col__labels .mdv-col__d { width: 2.67em; }
 .mdv-col__carry { font-size: 0.45em; color: var(--v-accent); }
 .mdv-col__carry .mdv-col__op { width: 1.78em; }
@@ -189,8 +163,6 @@
   transition: border-color 0.15s, background-color 0.15s;
 }
 .mdv-choice:hover, .mdv-choice:focus-visible { border-color: var(--v-blue); outline: none; }
-.mdv-choice.is-right { border-color: var(--green-600); background: rgba(22, 163, 74, 0.08); }
-.mdv-choice.is-wrong { border-color: var(--rose-500); background: rgba(197, 48, 48, 0.08); }
 .child-stage .mdv-choice .mdv-num { font-size: clamp(2.5rem, 12vh, 6rem); }
 
 /* Rows of visuals */
@@ -215,8 +187,6 @@
 .mdv-pickable .mdv-tap { cursor: pointer; }
 .mdv-rowpick__bg { stroke: transparent; stroke-width: 5; }
 .mdv-tap:hover .mdv-rowpick__bg, .mdv-tap:focus .mdv-rowpick__bg { stroke: var(--v-line); }
-.mdv-tap.is-right .mdv-rowpick__bg { stroke: var(--green-600); fill: rgba(22, 163, 74, 0.08); }
-.mdv-tap.is-wrong .mdv-rowpick__bg { stroke: var(--rose-500); fill: rgba(197, 48, 48, 0.08); }
 .mdv-tap:focus { outline: none; }
 
 /* Arriving objects in stories */
@@ -238,26 +208,7 @@
 .mdv-row__item > .mdv-digital span { font-size: min(clamp(3rem, 14vh, 7rem), 9vw); }
 .mdv-row__item:has(> .mdv-digital) { flex-shrink: 0; }
 
-/* Writing */
-.mdv-write__guide { fill: none; stroke: var(--v-line); stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; opacity: 0.35; }
-.mdv-write__ink {
-  fill: none;
-  stroke: var(--v-blue);
-  stroke-width: 9;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 400;
-  stroke-dashoffset: 400;
-  animation: mdvWrite 1.6s ease forwards;
-  animation-delay: calc(var(--i) * 1.7s + 0.3s);
-}
-@keyframes mdvWrite { to { stroke-dashoffset: 0; } }
-.child-stage .mdv-write { --vis-h: calc(var(--stage-max, 36vh) * 0.8); }
-.mdv-trace__path { fill: none; stroke: #9a9a9a; stroke-width: 5; stroke-dasharray: 3 7; stroke-linecap: round; }
 
 /* Flash: dots shown briefly */
 .child-stage.is-flashed .mdv { visibility: hidden; }
 
-@media (prefers-reduced-motion: reduce) {
-  .mdv-write__ink { animation-duration: 0.01s; animation-delay: 0s; }
-}

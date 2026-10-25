@@ -7,7 +7,10 @@
     "dev": "npx @11ty/eleventy --serve --port=8080",
     "build": "npx @11ty/eleventy",
     "check": "node scripts/check-curriculum.js",
-    "clean": "npx rimraf _site"
+    "clean": "node -e \"require('fs').rmSync('_site',{recursive:true,force:true})\"",
+    "check:pwa": "node scripts/check-pwa.mjs",
+    "check:copy": "node scripts/check-copy.mjs",
+    "check:all": "npm run check && npm run clean && npm run build && npm run check:pwa && npm run check:copy"
   },
   "keywords": [
     "math",

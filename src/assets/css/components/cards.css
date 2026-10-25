@@ -1,0 +1,60 @@
+/* ===== Cards, rows, status, progress ===== */
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-2);
+  padding: var(--sp-4); margin-bottom: var(--sp-3);
+}
+.card--quiet { background: var(--surface-2); }
+.card--strong { border-color: var(--primary); border-width: 2px; }
+.card__title { margin: 0 0 var(--sp-1); font-size: var(--fs-5); }
+.card__text { margin: 0 0 var(--sp-2); color: var(--ink-2); font-size: var(--fs-2); }
+.card__text:last-child { margin-bottom: 0; }
+.card .btn-row { margin-top: var(--sp-3); }
+
+/* Rows: a list of links or buttons, each at least 56 px tall */
+.rows { list-style: none; margin: 0 0 var(--sp-4); padding: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-2); overflow: hidden; }
+.rows li + li { border-top: 1px solid var(--line); }
+.row {
+  display: flex; align-items: center; gap: var(--sp-3); width: 100%;
+  min-height: 3.5rem; padding: var(--sp-3) var(--sp-4);
+  border: 0; background: none; color: var(--ink); font: inherit; text-align: left; text-decoration: none; cursor: pointer;
+}
+.row:hover { background: var(--surface-2); }
+.row__main { flex: 1 1 auto; min-width: 0; }
+.row__title { display: block; font-weight: 700; font-size: var(--fs-3); }
+.row__sub { display: block; color: var(--ink-2); font-size: var(--fs-1); margin-top: 2px; }
+.row__aside { flex-shrink: 0; color: var(--ink-2); font-size: var(--fs-1); font-weight: 600; text-align: right; }
+.row > svg, .row__chev { flex-shrink: 0; width: 1.25rem; height: 1.25rem; color: var(--ink-3); }
+.row svg.row__icon { flex-shrink: 0; width: 1.375rem; height: 1.375rem; color: var(--ink-3); }
+.row .pbar { display: block; margin-top: var(--sp-2); }
+
+/* Status marks: a glyph with text, never color alone */
+.status { display: inline-flex; align-items: center; gap: 0.3em; font-size: var(--fs-1); font-weight: 700; padding: 0.1em 0.5em; border-radius: var(--r-full); }
+.status svg { width: 1em; height: 1em; }
+.status--done { background: var(--firm-soft); color: var(--firm); }
+.status--repeat { background: var(--note-soft); color: var(--note); }
+.status--next { background: var(--primary-soft); color: var(--primary-strong); }
+.status--plain { background: var(--surface-2); color: var(--ink-2); }
+
+/* Progress bar: a rail with a fill, labelled by the text beside it */
+.pbar { display: block; position: relative; height: 0.5rem; background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: var(--r-full); overflow: hidden; }
+.pbar__fill { position: absolute; inset: 0; width: calc(var(--p, 0) * 100%); background: var(--primary); }
+.pbar__label { margin: var(--sp-1) 0 0; color: var(--ink-2); font-size: var(--fs-1); font-weight: 600; }
+
+/* Figures: label over number */
+.figures { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin: 0 0 var(--sp-3); }
+.figures div { display: flex; align-items: baseline; gap: 0.3rem; }
+.figures dt { font-size: var(--fs-1); color: var(--ink-2); }
+.figures dd { margin: 0; font-weight: 700; font-size: var(--fs-4); }
+
+/* Advice box */
+.advice { border-left: 4px solid var(--primary); background: var(--surface-2); padding: var(--sp-3) var(--sp-4); margin: 0 0 var(--sp-3); border-radius: 0 var(--r-1) var(--r-1) 0; }
+.advice p { margin: 0; }
+
+/* Details used as collapsible sections */
+.fold { border: 1px solid var(--line); border-radius: var(--r-2); background: var(--surface); margin-bottom: var(--sp-3); }
+.fold > summary { min-height: 3.25rem; display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); font-weight: 700; cursor: pointer; list-style: none; }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold__h { font: inherit; margin: 0; }
+.fold > summary::after { content: ""; margin-left: auto; width: 0.6rem; height: 0.6rem; border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(45deg); transition: transform 0.15s; }
+.fold[open] > summary::after { transform: rotate(-135deg); }
+.fold__body { padding: 0 var(--sp-4) var(--sp-4); }

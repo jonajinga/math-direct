@@ -171,17 +171,6 @@ export function validateLevel(level, built) {
   return { errors, warnings };
 }
 
-export function validateWorksheet(items, where, errors) {
-  items.forEach((it, i) => {
-    const w = `${where}, worksheet item ${i + 1}`;
-    if (!it.prompt) errors.push(`${w}: no direction`);
-    if (/!/.test(it.prompt || "")) errors.push(`${w}: exclamation mark in the direction`);
-    if (it.kind === "circle" && (!it.opts || !it.ans || !it.ans.length || it.ans.some((a) => a < 0 || a >= it.opts.length))) errors.push(`${w}: circle item without a valid answer`);
-    if ((it.kind === "write" || it.kind === "mark") && !it.answer) errors.push(`${w}: no answer for the key`);
-    validateStep({ cue: "note", say: it.prompt, screen: [].concat(it.show || [], it.opts || []) }, w, errors);
-  });
-}
-
 export function validateItems(items, where, errors) {
   items.forEach((st, i) => validateStep(st, `${where}, item ${i + 1}`, errors));
 }

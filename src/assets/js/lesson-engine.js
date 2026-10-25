@@ -46,13 +46,12 @@
       segments.push({ title: ex.title, meta: ex.trackName + " · " + kindName(ex.kind), kind: ex.kind, track: ex.track, n: ex.n, materials: ex.materials, steps: ex.steps });
     });
     setWhere(lesson.levelName, "Lesson " + lesson.number);
-    // Worksheet and level links in the outline.
+    // The level link in the outline.
     var keys = el.outline && el.outline.querySelector(".tp-outline__keys");
     if (keys) {
       var links = document.createElement("p");
       links.className = "tp-outline__links";
-      links.innerHTML = (lesson.worksheet && lesson.worksheet.length ? '<a href="' + lesson.worksheetUrl + '">' + (lesson.worksheetOptional ? "Worksheet (optional)" : "Worksheet") + "</a> · " : "") +
-        '<a href="/' + lesson.levelSlug + '/">All ' + escapeHtml(lesson.levelName) + " lessons</a>";
+      links.innerHTML = '<a href="/' + lesson.levelSlug + '/">All ' + escapeHtml(lesson.levelName) + " lessons</a>";
       keys.parentNode.insertBefore(links, keys);
     }
   }
@@ -171,7 +170,7 @@
     el.btnOver.hidden = true;
     el.btnGoOn.hidden = true;
     el.btnBack.disabled = pos.seg === 0 && pos.step === 0;
-    el.btnShow.hidden = !(st.flash || hasType(st.screen, "write"));
+    el.btnShow.hidden = !st.flash;
     el.btnClear.hidden = !hasMarks(st.screen);
     var r = results[key(pos.seg, pos.step)];
     el.btnFirm.classList.toggle("is-chosen", r === "firm");
@@ -546,7 +545,6 @@
     html += "</div>";
     html += markRow("lesson", lesson.id);
     html += '<div class="finish__actions">';
-    if (lesson.worksheet && lesson.worksheet.length) html += '<a class="btn btn--outline-dark" href="' + lesson.worksheetUrl + '">' + (lesson.worksheetOptional ? "Worksheet (optional)" : "Worksheet") + "</a>";
     if (lesson.testAfter) html += '<a class="btn btn--cta" href="' + lesson.testAfter.url + '">' + escapeHtml(lesson.testAfter.title) + "</a>";
     else if (lesson.next) html += '<a class="btn btn--cta" href="' + lesson.next.url + '">Next: ' + escapeHtml(lesson.next.title) + "</a>";
     html += '<a class="btn btn--outline-dark" href="' + lesson.url + '">Teach again</a>';
@@ -608,7 +606,7 @@
     html += '<div class="finish__actions">';
     if (t.next) html += '<a class="btn btn--cta" href="' + t.next.url + '">' + escapeHtml(t.next.title) + "</a>";
     html += '<a class="btn btn--outline-dark" href="' + t.url + '">Give the test again</a>';
-    html += '<a class="btn btn--outline-dark" href="/teacher/">Teacher dashboard</a>';
+    html += '<a class="btn btn--outline-dark" href="/records/">Teacher dashboard</a>';
     html += "</div>" + noteForm() + "</div>";
     showFinish(html);
   }
@@ -682,7 +680,7 @@
     if (window.mathProgress) window.mathProgress.recordPlacement({ date: new Date().toISOString(), level: rec.level, lesson: rec.lesson, url: rec.url, label: label });
     var html = '<div class="finish"><p class="finish__kicker">Placement test</p><h1 class="finish__title">Start at ' + escapeHtml(label) + "</h1>";
     html += '<p class="finish__lead">The child passed the sections before this point. Begin here, and the lessons will review what came before as they go. If the first few lessons are too easy, move ahead five lessons at a time; if they are too hard, move back.</p>';
-    html += '<div class="finish__actions"><a class="btn btn--cta" href="' + rec.url + '">Go to ' + escapeHtml(label) + '</a><a class="btn btn--outline-dark" href="/teacher/">Teacher dashboard</a></div></div>';
+    html += '<div class="finish__actions"><a class="btn btn--cta" href="' + rec.url + '">Go to ' + escapeHtml(label) + '</a><a class="btn btn--outline-dark" href="/records/">Teacher dashboard</a></div></div>';
     el.shell.hidden = true;
     el.finish.innerHTML = html;
     el.finish.hidden = false;

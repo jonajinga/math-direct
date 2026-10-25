@@ -1,55 +1,38 @@
 ---
-layout: layouts/base.njk
+layout: layouts/app.njk
 title: Lessons
-description: Math Direct lessons for Pre-K, Kindergarten, and First Grade, with an optional bridge to second grade. Pick a level, or take the placement test to find where to begin.
+description: Four levels of scripted lessons, from Pre-K to a bridge into second grade. Choose a level, or let the placement test choose.
 permalink: /lessons/
-bodyClass: page-level
+bodyClass: page-lessons
 ---
-<div class="level-page">
-  <div class="level-page__inner">
-    <header class="level-head">
-      <div>
-        <h1 class="level-head__title">Lessons</h1>
-        <p class="level-head__facts">{{ program.lessons.length }} scripted lessons in four levels</p>
-      </div>
-      <div class="level-head__student" data-student-select></div>
-    </header>
-    <p class="level-lead">Choose the level that fits the child, or let the placement test choose. Within a level, teach the lessons in order, one a day, and give each mastery test when you reach it. Progress is saved for each child in this browser.</p>
+<header class="screen__head">
+  <h1 class="screen__title">Lessons</h1>
+  <p class="screen__lead">Choose the level that fits the child, or let the placement test choose. Teach the lessons in order, one a day.</p>
+</header>
 
-    <div class="placement-cta">
-      <div>
-        <h2>Not sure where to start?</h2>
-        <p>The placement test takes ten to twenty minutes and names the lesson to begin with.</p>
-      </div>
-      <a class="btn btn--cta" href="/placement/">Take the placement test</a>
-    </div>
+<div data-child-picker></div>
 
-    <div class="level-cards">
-      {% for level in program.levels %}
-      <section class="level-card{% if level.optional %} level-card--optional{% endif %}" id="{{ level.id }}">
-        <h2 class="level-card__title"><a href="{{ level.url }}">{{ level.name }}</a></h2>
-        <p class="level-card__facts">{{ level.lessons }} lessons &middot; {{ level.minutes }} minutes &middot; {{ level.age }}{% if level.optional %} &middot; optional{% endif %}</p>
-        <p class="level-card__desc">{{ level.description }}</p>
-        <div data-level-actions data-level="{{ level.id }}" data-total="{{ level.lessons }}" data-slug="{{ level.slug }}" data-tests='{{ level.tests | dump }}'>
-          <div class="pbar"><span class="pbar__fill" data-progress></span></div>
-          <p class="pbar__label" data-progress-label>Not started</p>
-          <div class="level-card__actions">
-            <a class="btn btn--cta" href="{{ level.firstLesson }}" data-continue>Start Lesson 1</a>
-            <a class="btn btn--outline-dark" href="{{ level.url }}">All {{ level.lessons }} lessons</a>
-          </div>
-        </div>
-      </section>
-      {% endfor %}
-    </div>
+<ul class="rows">
+  {% for level in program.levels %}
+  <li>
+    <a class="row level-row" href="{{ level.url }}" data-level-actions data-level="{{ level.id }}" data-total="{{ level.lessons }}" data-slug="{{ level.slug }}" data-tests='{{ level.tests | dump }}'>
+      <span class="row__main">
+        <span class="row__title level-row__name">{{ level.name }}{% if level.optional %} <span class="status status--plain">Optional</span>{% endif %}</span>
+        <span class="row__sub">{{ level.lessons }} lessons · {{ level.minutes }} minutes each · {{ level.age }}</span>
+        <span class="pbar" aria-hidden="true"><span class="pbar__fill" data-progress></span></span>
+        <span class="row__sub" data-progress-label>Not started</span>
+      </span>
+      {% include "partials/icons/chevron-right.njk" %}
+    </a>
+  </li>
+  {% endfor %}
+  <li>
+    <a class="row" href="/placement/">
+      <span class="row__main"><span class="row__title">Placement test</span><span class="row__sub">Ten to twenty minutes. It names the lesson to begin with.</span></span>
+      {% include "partials/icons/chevron-right.njk" %}
+    </a>
+  </li>
+</ul>
 
-    <div class="progress-actions">
-      <span class="progress-actions__title">Records</span>
-      <a class="btn btn--outline-dark" href="/teacher/">Teacher dashboard</a>
-      <button class="btn btn--outline-dark" id="btn-export-progress" type="button">Save a backup</button>
-      <button class="btn btn--outline-dark" id="btn-import-progress" type="button">Load a backup</button>
-      <input type="file" id="import-progress-input" class="progress-import-input" accept=".json" hidden>
-    </div>
-  </div>
-</div>
 <script src="/assets/js/progress.js?v={{ build.version }}"></script>
 <script src="/assets/js/lessons-index.js?v={{ build.version }}" defer></script>

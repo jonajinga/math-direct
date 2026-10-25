@@ -5,100 +5,98 @@ pagination:
   addAllPagesToCollections: true
   alias: level
 permalink: "{{ level.url }}"
-layout: layouts/base.njk
+layout: layouts/app.njk
 bodyClass: page-level
+actionBar: true
 eleventyComputed:
   title: "{{ level.name }}"
   description: "{{ level.description }}"
 ---
-<div class="level-page">
-  <div class="level-page__inner">
-    <nav class="crumbs" aria-label="Breadcrumb"><a href="/lessons/">Lessons</a> <span aria-hidden="true">/</span> {{ level.name }}</nav>
-    <header class="level-head">
-      <div>
-        <h1 class="level-head__title">{{ level.name }}{% if level.optional %} <span class="level-head__tag">Optional</span>{% endif %}</h1>
-        <p class="level-head__facts">{{ level.lessons }} lessons &middot; {{ level.minutes }} minutes each &middot; for children {{ level.age }}</p>
-      </div>
-      <div class="level-head__student" data-student-select></div>
-    </header>
-    <p class="level-lead">{{ level.description }}</p>
+<header class="screen__head">
+  <h1 class="screen__title">{{ level.name }}{% if level.optional %} <span class="status status--plain">Optional</span>{% endif %}</h1>
+  <p class="screen__lead">{{ level.lessons }} lessons · {{ level.minutes }} minutes each · for children {{ level.age }}</p>
+</header>
 
-    <div class="level-actions" data-level-actions data-level="{{ level.id }}" data-total="{{ level.lessons }}" data-slug="{{ level.slug }}" data-tests='{{ level.tests | dump }}'>
-      <a class="btn btn--cta" href="{{ level.firstLesson }}" data-continue>Start Lesson 1</a>
-      <a class="btn btn--outline-dark" href="/placement/">Placement test</a>
-      <a class="btn btn--outline-dark" href="/curriculum/#{{ level.id }}">Scope and sequence</a>
-      <a class="btn btn--outline-dark" href="/practice/#{{ level.id }}">Practice</a>
-    </div>
+<div data-child-picker></div>
 
-    <div class="level-grid-info">
-      <section class="level-box">
-        <h2>What the child will learn</h2>
-        <p>{{ level.endsWith }}</p>
-      </section>
-      <section class="level-box">
-        <h2>What you need</h2>
-        <ul>
-          <li>A phone, tablet, or computer for the lesson screen</li>
-          {% for m in level.materials %}<li>{{ m }}</li>{% endfor %}
-        </ul>
-        <p class="level-box__note">Printable number cards, dot cards, and ten-frames are on the <a href="/materials/">materials page</a>.</p>
-      </section>
-    </div>
+<div data-level-actions data-level="{{ level.id }}" data-total="{{ level.lessons }}" data-slug="{{ level.slug }}" data-tests='{{ level.tests | dump }}'>
+  <p class="pbar" aria-hidden="true"><span class="pbar__fill" data-progress></span></p>
+  <p class="pbar__label" data-progress-label>Not started</p>
+</div>
 
-    <div class="level-section-head">
-      <h2 class="level-section-title">Lessons</h2>
-      <button type="button" class="btn btn--outline-dark btn--sm" data-mark-toggle aria-pressed="false">Change marks</button>
+<p class="muted small" id="mark-note" hidden>Tap a lesson or test to mark it finished, mark it to repeat, or reset it. Choose Done when you have finished.</p>
+
+{% for lesson in level.lessonList %}
+{% if loop.index0 % 10 == 0 %}
+<section class="lesson-group" aria-labelledby="group-{{ lesson.number }}">
+  <h2 class="lesson-group__title" id="group-{{ lesson.number }}">Lessons {{ lesson.number }} to {{ [lesson.number + 9, level.lessons] | min }}</h2>
+  <ul class="lgrid">
+{% endif %}
+    <li><a href="{{ lesson.url }}" class="lchip" data-lesson-id="{{ lesson.id }}" data-n="{{ lesson.number }}" aria-label="Lesson {{ lesson.number }}">{{ lesson.number }}<span class="lchip__mark lchip__mark--done">{% include "partials/icons/check.njk" %}</span><span class="lchip__mark lchip__mark--repeat">{% include "partials/icons/repeat.njk" %}</span></a></li>
+{% if loop.index0 % 10 == 9 or loop.last %}
+  </ul>
+  {% if lesson.testAfter %}
+  <a href="{{ lesson.testAfter.url }}" class="test-row" data-test-id="{{ level.id }}-test-{{ ((lesson.number / 10) | round(0, 'floor')) | pad }}" data-name="{{ lesson.testAfter.title }}">
+    {{ lesson.testAfter.title }}
+    <span class="status status--plain" data-test-status>Not given</span>
+  </a>
+  {% endif %}
+</section>
+{% endif %}
+{% endfor %}
+
+<h2 class="section-title">What the child will learn</h2>
+<p>{{ level.endsWith }}</p>
+
+<h2 class="section-title">What you need</h2>
+<ul class="prose">
+  <li>A phone, tablet, or computer for the lesson screen</li>
+  {% for m in level.materials %}<li>{{ m }}</li>{% endfor %}
+</ul>
+
+<h2 class="section-title">Skill tracks</h2>
+<p class="muted small">A track is one skill taught across many lessons. Each lesson practices a little of several tracks.</p>
+<details class="fold">
+  <summary>All {{ level.tracks.length }} tracks</summary>
+  <div class="fold__body">
+    {% for t in level.tracks %}
+    <div class="track">
+      <span class="track__name">{{ t.name }}</span>
+      <span class="track__std">{{ t.standard }}</span>
+      <p>{{ t.summary }}</p>
+      <ol class="track__units">
+        {% for u in t.units %}<li><a href="/{{ level.slug }}/lesson-{{ u.lesson | pad(3) }}/">Lesson {{ u.lesson }}</a>: {{ u.label }}</li>{% endfor %}
+      </ol>
     </div>
-    <p class="level-section-note">Each lesson begins with a short warm-up, teaches something new, and reviews earlier skills. A mastery test follows every tenth lesson. A check mark shows a lesson the selected child has finished; a lesson to repeat is marked in amber. To change a mark yourself, choose Change marks.</p>
-    <p class="level-mark-note" data-mark-note hidden>Tap a lesson or test to mark it finished, mark it to repeat, or reset it. Choose Done when you have finished.</p>
-    {% for lesson in level.lessonList %}
-    {% if loop.index0 % 10 == 0 %}<div class="lesson-block"><h3 class="lesson-block__title">Lessons {{ lesson.number }} to {{ [lesson.number + 9, level.lessons] | min }}</h3><div class="lesson-grid2">{% endif %}
-      <a href="{{ lesson.url }}" class="lcard" data-lesson-id="{{ lesson.id }}">
-        <span class="lcard__n">{{ lesson.number }}</span>
-        <span class="lcard__new">{% if lesson.newUnits.length %}{{ lesson.newUnits[0].label }}{% if lesson.newUnits.length > 1 %} and more{% endif %}{% else %}Review{% endif %}</span>
-        <span class="lcard__mark" aria-hidden="true"></span>
-      </a>
-      {% if lesson.testAfter %}
-      <a href="{{ lesson.testAfter.url }}" class="lcard lcard--test" data-test-id="{{ level.id }}-test-{{ ((lesson.number / 10) | round(0, 'floor')) | pad }}">
-        <span class="lcard__n">Test</span>
-        <span class="lcard__new">{{ lesson.testAfter.title }}</span>
-        <span class="lcard__mark" aria-hidden="true"></span>
-      </a>
-      {% endif %}
-    {% if loop.index0 % 10 == 9 or loop.last %}</div></div>{% endif %}
     {% endfor %}
+  </div>
+</details>
 
-    <dialog class="mark-dialog" id="mark-dialog" aria-labelledby="mark-title">
-      <form method="dialog" class="mark-dialog__form">
-        <h2 class="mark-dialog__title" id="mark-title"></h2>
-        <p class="mark-dialog__status" id="mark-status"></p>
-        <div class="mark-dialog__choices">
-          <button type="submit" class="btn btn--outline-dark" value="done" id="mark-done"></button>
-          <button type="submit" class="btn btn--outline-dark" value="repeat" id="mark-repeat"></button>
-          <button type="submit" class="btn btn--outline-dark" value="new" id="mark-new"></button>
-        </div>
-        <p class="mark-dialog__help" id="mark-help"></p>
-        <div class="mark-dialog__foot">
-          <a class="mark-dialog__open" id="mark-open" href="#"></a>
-          <button type="submit" class="btn btn--outline-dark btn--sm" value="">Cancel</button>
-        </div>
-      </form>
-    </dialog>
-
-    <h2 class="level-section-title">Skill tracks</h2>
-    <p class="level-section-note">A track is one skill taught across many lessons. Several tracks run side by side, so each lesson practices a little of each.</p>
-    <div class="track-list">
-      {% for t in level.tracks %}
-      <details class="track">
-        <summary><span class="track__name">{{ t.name }}</span> <span class="track__std">{{ t.standard }}</span></summary>
-        <p>{{ t.summary }}</p>
-        <ol class="track__units">
-          {% for u in t.units %}<li><a href="/{{ level.slug }}/lesson-{{ u.lesson | pad(3) }}/">Lesson {{ u.lesson }}</a>: {{ u.label }}</li>{% endfor %}
-        </ol>
-      </details>
-      {% endfor %}
+<dialog class="sheet" id="mark-dialog" aria-labelledby="mark-title">
+  <form method="dialog" class="sheet__form">
+    <div class="sheet__head"><h2 class="sheet__title" id="mark-title"></h2></div>
+    <div class="sheet__body">
+      <p id="mark-status"></p>
+      <div class="mark-choices">
+        <button type="submit" class="btn btn--secondary" value="done" id="mark-done"></button>
+        <button type="submit" class="btn btn--secondary" value="repeat" id="mark-repeat"></button>
+        <button type="submit" class="btn btn--danger" value="new" id="mark-new"></button>
+      </div>
+      <p class="mark-help" id="mark-help"></p>
     </div>
+    <div class="sheet__foot">
+      <a class="btn btn--quiet" id="mark-open" href="#"></a>
+      <button type="submit" class="btn btn--secondary" value="">Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="action-bar">
+  <div class="action-bar__inner">
+    <button type="button" class="btn btn--secondary" data-mark-toggle aria-pressed="false">Change marks</button>
+    <a class="btn btn--primary" href="{{ level.firstLesson }}" data-continue>Start Lesson 1</a>
   </div>
 </div>
+
 <script src="/assets/js/progress.js?v={{ build.version }}"></script>
 <script src="/assets/js/lessons-index.js?v={{ build.version }}" defer></script>

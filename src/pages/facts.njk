@@ -16,7 +16,7 @@ exitUrl: /practice/
       <button type="button" class="btn btn--cta" data-facts="{{ level.id }}">{{ level.name }} facts</button>
       {% endif %}{% endfor %}
     </div>
-    <p class="finish__lead"><a href="/teacher/">See the fact chart on the teacher dashboard</a></p>
+    <p class="finish__lead"><a href="/records/">See the fact chart on the Records screen</a></p>
   </div>
 </div>
 <script id="facts-data" type="application/json">{"levels":{{ program.summary | dump | safe }},"facts":{{ program.facts | dump | safe }}}</script>

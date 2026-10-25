@@ -1,29 +1,39 @@
-// Math Direct Service Worker — Offline Support
-var STATIC_CACHE = "math-direct-static-v5";
+// Math Direct service worker: the app works offline once it has been opened.
+var STATIC_CACHE = "math-direct-static-v6";
 
-// Core assets cached on install
+// Cached on install. scripts/check-pwa.mjs confirms every path exists in the
+// build, since one missing file would fail the whole install.
 var CORE_ASSETS = [
   "/",
   "/lessons/",
   "/practice/",
+  "/records/",
+  "/more/",
   "/guide/",
-  "/curriculum/",
-  "/teacher/",
   "/placement/",
+  "/search/",
   "/offline/",
+  "/search-index.json",
   "/assets/css/global.css",
-  "/assets/js/theme.js",
-  "/assets/js/nav.js",
+  "/assets/js/app.js",
+  "/assets/js/progress.js",
   "/assets/js/visuals.js",
   "/assets/js/lesson-engine.js",
-  "/assets/js/progress.js",
   "/assets/js/lessons-index.js",
-  "/assets/js/dashboard.js",
-  "/assets/js/worksheet.js",
+  "/assets/js/records.js",
+  "/assets/js/search.js",
+  "/assets/fonts/source-sans-3-latin-400-normal.woff2",
+  "/assets/fonts/source-sans-3-latin-600-normal.woff2",
+  "/assets/fonts/source-sans-3-latin-700-normal.woff2",
+  "/assets/fonts/lora-latin-600-normal.woff2",
+  "/assets/fonts/lora-latin-700-normal.woff2",
+  "/assets/fonts/comic-neue-latin-700-normal.woff2",
+  "/assets/img/favicon.svg",
+  "/assets/img/icon-192.png",
+  "/assets/img/icon-512.png",
   "/manifest.json",
 ];
 
-// Install: cache core assets
 self.addEventListener("install", function (event) {
   event.waitUntil(
     caches.open(STATIC_CACHE).then(function (cache) {
@@ -33,7 +43,6 @@ self.addEventListener("install", function (event) {
   self.skipWaiting();
 });
 
-// Activate: clean old caches
 self.addEventListener("activate", function (event) {
   var keep = [STATIC_CACHE];
   event.waitUntil(
@@ -48,17 +57,13 @@ self.addEventListener("activate", function (event) {
   self.clients.claim();
 });
 
-// Fetch strategy
 self.addEventListener("fetch", function (event) {
   var url = new URL(event.request.url);
-
-  // Only handle same-origin GET requests
   if (event.request.method !== "GET" || url.origin !== self.location.origin) return;
 
-  // Static assets (CSS, JS, images): stale-while-revalidate. Pages ask for
-  // styles and scripts with a version tag, so a new build's files are
-  // fetched at once. Only the newest copy of each file is kept, and when
-  // offline any saved copy of the file will do.
+  // Assets: serve the saved copy and refresh it. Pages ask for styles and
+  // scripts with a version tag, so a new build's files are fetched at once.
+  // Only the newest copy of each file is kept; offline, any saved copy will do.
   if (url.pathname.match(/^\/assets\//)) {
     event.respondWith(
       caches.open(STATIC_CACHE).then(function (cache) {
@@ -79,14 +84,12 @@ self.addEventListener("fetch", function (event) {
     return;
   }
 
-  // Pages: network-first, cache fallback, offline fallback
+  // Pages: the network first, then the saved copy, then the offline page.
   event.respondWith(
     fetch(event.request).then(function (response) {
       if (response.status === 200) {
         var clone = response.clone();
-        caches.open(STATIC_CACHE).then(function (cache) {
-          cache.put(event.request, clone);
-        });
+        caches.open(STATIC_CACHE).then(function (cache) { cache.put(event.request, clone); });
       }
       return response;
     }).catch(function () {

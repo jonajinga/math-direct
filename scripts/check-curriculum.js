@@ -25,10 +25,6 @@ if (args[0] === "--show") {
       if (st.correct) console.log(`           if wrong: ${st.correct}`);
     }
   }
-  if (lesson.worksheet.length) {
-    console.log("\n  Worksheet:");
-    for (const w of lesson.worksheet) console.log(`     ${w.kind}: ${w.prompt}`);
-  }
   process.exit(0);
 }
 

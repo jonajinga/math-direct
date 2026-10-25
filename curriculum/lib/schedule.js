@@ -177,24 +177,3 @@ export function trackItems(level, track, units, n, salt, count) {
   return items.map((s) => ({ ...s, cue: "test", track: track.id, trackName: track.name }));
 }
 
-export function worksheetFor(level, lesson) {
-  const n = lesson.number;
-  const used = new Set(lesson.exercises.map((e) => e.track));
-  const candidates = level.tracks.filter((t) => t.worksheet && introduced(t, n).length);
-  // Prefer tracks taught today, newest first, then other known tracks.
-  const today = candidates.filter((t) => used.has(t.id));
-  const others = candidates.filter((t) => !used.has(t.id));
-  const r = rng(`${level.id}:${n}:worksheet`);
-  const ordered = today.concat(r.shuffle(others));
-  const items = [];
-  for (const t of ordered) {
-    if (items.length >= (level.worksheetItems || 4)) break;
-    const ctx = makeCtx(level, n, t.id, "worksheet");
-    const got = asList(t.worksheet(introduced(t, n), ctx));
-    for (const it of got) {
-      if (items.length >= (level.worksheetItems || 4)) break;
-      items.push({ ...it, track: t.id });
-    }
-  }
-  return items;
-}

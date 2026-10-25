@@ -1,43 +1,31 @@
 ---
-layout: layouts/base.njk
+layout: layouts/app.njk
 title: About
-description: Math Direct is a free, open-source Direct Instruction math program for Pre-K, Kindergarten, and First Grade, with an optional bridge to second grade.
+description: Math Direct is a free, open-source Direct Instruction math program for children of four to seven, taught by a parent from a phone.
 permalink: /about/
 ---
-<div class="content-page">
-  <div class="content-page__inner">
-    <h1 class="content-page__title">About Math Direct</h1>
-    <p class="content-page__intro">Math Direct is a free, open-source math program for children in Pre-K, Kindergarten, and First Grade. Every lesson is scripted, so a parent with no teaching background can teach it well.</p>
+<div class="content prose">
+  <h1>About Math Direct</h1>
+  <p class="content__intro">Math Direct is a free, open-source math program for children of four to seven. Every lesson is scripted, so a parent with no training can teach it well.</p>
 
-    <div class="guide-section">
-      <h2 class="guide-section__title">What it is</h2>
-      <p>The program has {{ program.lessons.length }} lessons in three levels and an optional bridge to second grade, with a mastery test after every tenth lesson and a placement test to find where a child should begin. It covers the number, operations, measurement, data, and geometry skills of the Common Core standards for Kindergarten and First Grade, and the mathematics of the Head Start Early Learning Outcomes Framework for Pre-K.</p>
-      <p>It is built on <strong>Direct Instruction</strong>, the method developed by Siegfried Engelmann. Each new step is shown, done together, and then done alone. Errors are corrected the same way every time. Skills are taught in tracks that run side by side, and each one is reviewed at widening intervals until it is permanent.</p>
-    </div>
-
-    <div class="guide-section">
-      <h2 class="guide-section__title">Why it was built</h2>
-      <p>Many children struggle with early math not because it is hard, but because it was taught unclearly or out of order. Direct Instruction removes the guesswork. Math Direct was built so that a parent teaching at home has the same careful sequence, scripts, and checks that a well-run classroom program provides.</p>
-      <p>It has no games, points, or prizes. The aim is for the child to learn the mathematics, and to feel the quiet confidence that comes from knowing it.</p>
-    </div>
-
-    <div class="guide-section">
-      <h2 class="guide-section__title">Who made it</h2>
-      <p>Math Direct is built and maintained by <a href="https://www.pikespeakwebdesigns.com">Pikes Peak Web Designs</a>. The source code is open and available on <a href="https://github.com/jonajinga/math-direct">GitHub</a>. Corrections and suggestions are welcome.</p>
-    </div>
-
-    <div class="guide-section">
-      <h2 class="guide-section__title">The program at a glance</h2>
-      <div class="curriculum-stats">
-        {% for level in program.levels %}
-        <div class="curriculum-stat"><span class="curriculum-stat__number">{{ level.lessons }}</span><span class="curriculum-stat__label">{{ level.name }} lessons</span></div>
-        {% endfor %}
-        <div class="curriculum-stat"><span class="curriculum-stat__number">{{ program.tests.length }}</span><span class="curriculum-stat__label">Mastery tests</span></div>
-      </div>
-    </div>
-
-    <div class="content-page__cta">
-      <a href="/lessons/" class="btn btn--cta">See the lessons</a>
-    </div>
+  <div class="stats">
+    {% for level in program.levels %}
+    <div class="stat"><span class="stat__number">{{ level.lessons }}</span><span class="stat__label">{{ level.name }} lessons</span></div>
+    {% endfor %}
+    <div class="stat"><span class="stat__number">{{ program.tests.length }}</span><span class="stat__label">Mastery tests</span></div>
   </div>
+
+  <h2>What it is</h2>
+  <p>The program has {{ program.lessons.length }} lessons in three levels and a bridge into second grade, with a mastery test after every tenth lesson and a placement test to find where a child should begin. It covers the number, operations, measurement, data, and geometry skills of the Common Core standards for Kindergarten and First Grade, and the mathematics of the Head Start Early Learning Outcomes Framework for Pre-K.</p>
+  <p>It is built on Direct Instruction, the method developed by Siegfried Engelmann. Each new step is shown, done together, and then done alone. Errors are corrected the same way every time. Skills are taught in tracks that run side by side, and each is reviewed at widening intervals until it is permanent.</p>
+
+  <h2>Why it was built</h2>
+  <p>Many children struggle with early math not because it is hard but because it was taught unclearly or out of order. Direct Instruction removes the guesswork. Math Direct gives a parent at home the same careful sequence, scripts, and checks that a well-run classroom program provides.</p>
+  <p>It has no games, points, or prizes. The aim is for the child to learn the mathematics and to feel the quiet confidence that comes from knowing it. The child sees only pictures and numbers on the screen; you read every word.</p>
+
+  <h2>Who made it</h2>
+  <p>Math Direct is built and maintained by <a href="https://www.pikespeakwebdesigns.com">Pikes Peak Web Designs</a>. The source code is on <a href="https://github.com/jonajinga/math-direct">GitHub</a>, under the MIT License. Corrections and suggestions are welcome.</p>
+
+  <h2>Questions</h2>
+  <p>Email <a href="mailto:{{ meta.email }}">{{ meta.email }}</a>, or open an issue on GitHub. For how to teach, start with the <a href="/guide/">teaching guide</a>.</p>
 </div>

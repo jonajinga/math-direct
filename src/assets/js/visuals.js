@@ -1,6 +1,6 @@
 // Math Direct visual renderer.
 // Draws the visual specifications produced by curriculum/lib/v.js as HTML and
-// inline SVG. Used by lessons, tests, practice, and printed worksheets.
+// inline SVG. Used by lessons, tests, practice, and placement.
 //
 //   MDV.render(spec or [specs], { print: true }) -> HTML string
 //   MDV.bind(container, onChoose)                -> wires up touchable parts
@@ -550,10 +550,9 @@
       w = 320; h = items.length * 70;
       for (i = 0; i < items.length; i++) {
         var L = 300 * items[i], y = i * 70 + 20, inner;
-        if (v.icon === "pencil") {
-          inner = '<rect x="10" y="' + y + '" width="' + (L - 30) + '" height="26" fill="var(--v-yellow)" stroke="var(--v-ink)" stroke-width="2"/>' +
-            '<path d="M' + (L - 20) + " " + y + " L" + (L + 6) + " " + (y + 13) + " L" + (L - 20) + " " + (y + 26) + ' Z" fill="#f5d0a9" stroke="var(--v-ink)" stroke-width="2"/>' +
-            '<rect x="10" y="' + y + '" width="14" height="26" fill="var(--v-pink)" stroke="var(--v-ink)" stroke-width="2"/>';
+        if (v.icon === "stick") {
+          inner = '<rect x="10" y="' + y + '" width="' + L + '" height="24" rx="12" fill="var(--v-brown)" stroke="var(--v-ink)" stroke-width="2"/>' +
+            '<rect x="' + (10 + L * 0.3) + '" y="' + (y + 6) + '" width="' + (L * 0.5) + '" height="4" rx="2" fill="#fff" opacity="0.35"/>';
         } else if (v.icon === "snake") {
           var d = "M10 " + (y + 13);
           for (var x = 10; x < L; x += 30) d += " q 15 -14 30 0 t 0 0";
@@ -646,15 +645,6 @@
   };
 
   R.pv = function (v) {
-    if (v.mat) {
-      // An empty tens-and-ones mat to print and lay sticks and counters on.
-      var mb = '<rect x="2" y="2" width="596" height="396" fill="none" stroke="var(--v-ink)" stroke-width="3"/>' +
-        '<line x1="360" y1="2" x2="360" y2="398" stroke="var(--v-ink)" stroke-width="3"/>' +
-        '<line x1="2" y1="56" x2="598" y2="56" stroke="var(--v-ink)" stroke-width="2"/>' +
-        '<text x="181" y="40" text-anchor="middle" font-size="30" font-weight="700" fill="var(--v-ink)">Tens</text>' +
-        '<text x="479" y="40" text-anchor="middle" font-size="30" font-weight="700" fill="var(--v-ink)">Ones</text>';
-      return '<div class="mdv mdv-pv">' + svg(600, 400, mb) + "</div>";
-    }
     var tens = v.tens || 0, ones = v.ones || 0, body = "", x = 10;
     var stickW = 22, gap = 12, cellH = 20;
     for (var t = 0; t < tens; t++) {
@@ -809,65 +799,15 @@
 
   R.measure = function (v) {
     var unit = 40, len = v.len, body = "";
-    body += '<rect x="10" y="20" width="' + (len * unit - 20) + '" height="26" fill="var(--v-yellow)" stroke="var(--v-ink)" stroke-width="2"/>' +
-      '<path d="M' + (len * unit - 10) + " 20 L" + (len * unit + 14) + " 33 L" + (len * unit - 10) + ' 46 Z" fill="#f5d0a9" stroke="var(--v-ink)" stroke-width="2"/>';
+    // A stick as long as the units beneath it.
+    body += '<rect x="10" y="20" width="' + (len * unit) + '" height="26" rx="13" fill="var(--v-brown)" stroke="var(--v-ink)" stroke-width="2"/>' +
+      '<rect x="' + (10 + len * unit * 0.25) + '" y="26" width="' + (len * unit * 0.5) + '" height="4" rx="2" fill="#fff" opacity="0.35"/>';
     if (v.units !== false) {
       for (var i = 0; i < len; i++) {
         body += '<rect x="' + (10 + i * unit) + '" y="62" width="' + (unit - 2) + '" height="18" rx="9" fill="none" stroke="var(--v-blue)" stroke-width="4"/>';
       }
     }
     return '<div class="mdv mdv-measure">' + svg(len * unit + 30, 90, body) + "</div>";
-  };
-
-  // Single-stroke numerals in a 60 x 100 box, for "watch me write" and tracing.
-  var DIGIT = {
-    0: ["M30 8 C 10 8, 6 32, 6 50 C 6 72, 12 92, 30 92 C 48 92, 54 72, 54 50 C 54 30, 50 8, 30 8"],
-    1: ["M30 8 L30 92"],
-    2: ["M10 26 C 12 12, 22 8, 30 8 C 42 8, 52 16, 52 28 C 52 44, 36 58, 10 92 L54 92"],
-    3: ["M10 18 C 16 10, 24 8, 30 8 C 44 8, 50 18, 50 28 C 50 40, 40 48, 28 48 C 42 48, 54 58, 54 70 C 54 84, 42 92, 30 92 C 20 92, 12 88, 8 82"],
-    4: ["M14 8 L10 62 L54 62", "M44 8 L44 92"],
-    5: ["M16 8 L13 46 C 20 40, 28 38, 34 38 C 48 38, 54 50, 54 64 C 54 80, 42 92, 28 92 C 20 92, 12 88, 8 84", "M16 8 L50 8"],
-    6: ["M48 12 C 42 8, 36 8, 30 8 C 14 8, 8 32, 8 58 C 8 80, 16 92, 30 92 C 44 92, 52 82, 52 68 C 52 54, 44 46, 31 46 C 18 46, 10 54, 8 62"],
-    7: ["M8 8 L54 8 L24 92"],
-    8: ["M44 16 C 40 10, 36 8, 30 8 C 18 8, 12 16, 12 26 C 12 38, 22 44, 30 48 C 40 52, 52 60, 52 72 C 52 84, 42 92, 30 92 C 18 92, 8 84, 8 72 C 8 60, 20 52, 30 48 C 38 44, 48 38, 48 26 C 48 20, 46 18, 44 16"],
-    9: ["M50 30 C 50 16, 42 8, 30 8 C 18 8, 10 16, 10 28 C 10 40, 18 48, 30 48 C 42 48, 50 40, 50 30 L50 92"],
-  };
-
-  function digitPaths(str, cls, x0) {
-    var out = "", x = x0 || 0;
-    for (var i = 0; i < str.length; i++) {
-      var p = DIGIT[str[i]] || [];
-      for (var j = 0; j < p.length; j++) {
-        out += '<path class="' + cls + '" d="' + p[j] + '" transform="translate(' + x + ' 0)" style="--i:' + (i * 2 + j) + '"/>';
-      }
-      x += 70;
-    }
-    return out;
-  }
-
-  R.write = function (v) {
-    var d = String(v.d), w = d.length * 70 - 10;
-    var body = digitPaths(d, "mdv-write__guide", 0) + digitPaths(d, "mdv-write__ink", 0);
-    // starting dots
-    for (var i = 0; i < d.length; i++) {
-      var p = DIGIT[d[i]];
-      if (p && p[0]) {
-        var m = /M\s*([\d.]+)\s+([\d.]+)/.exec(p[0]);
-        if (m) body += '<circle cx="' + (Number(m[1]) + i * 70) + '" cy="' + m[2] + '" r="5" fill="var(--v-accent)"/>';
-      }
-    }
-    return '<div class="mdv mdv-write">' + svg(w + 20, 104, '<g transform="translate(10 2)">' + body + "</g>") + "</div>";
-  };
-
-  // Tracing row for worksheets.
-  R.trace = function (v) {
-    var d = String(v.d), n = v.count || 4, body = "", x = 0;
-    for (var i = 0; i < n; i++) {
-      body += digitPaths(d, "mdv-trace__path", x);
-      x += d.length * 70 + 30;
-    }
-    body += '<rect x="' + x + '" y="0" width="' + (d.length * 70) + '" height="100" fill="none" stroke="#bbb" stroke-width="2" stroke-dasharray="6 6"/>';
-    return '<div class="mdv mdv-trace">' + svg(x + d.length * 70 + 10, 104, '<g transform="translate(6 2)">' + body + "</g>") + "</div>";
   };
 
   R.blank = function () { return '<div class="mdv"></div>'; };

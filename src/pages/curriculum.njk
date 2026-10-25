@@ -1,44 +1,36 @@
 ---
-layout: layouts/base.njk
-title: Scope and Sequence
-description: Every skill track in Math Direct, the lesson where each step is taught, and the standard it meets, for Pre-K, Kindergarten, First Grade, and the Bridge to Second Grade.
+layout: layouts/app.njk
+title: Scope and sequence
+description: Every skill track in Math Direct, the lesson where each step is taught, and the standard it meets.
 permalink: /curriculum/
-bodyClass: page-level
 ---
-<div class="level-page">
-  <div class="level-page__inner">
-    <h1 class="level-head__title">Scope and sequence</h1>
-    <p class="level-lead">This page lists every skill the program teaches and the lesson where each step begins. Skills are taught in tracks: each track runs across many lessons, and each lesson draws short exercises from several tracks. Once a step is taught, it is practiced for the next two lessons and then reviewed at widening intervals for the rest of the level. Standards are from the Common Core for Kindergarten and First Grade, and from the Head Start Early Learning Outcomes Framework (ELOF) for Pre-K.</p>
-    <nav class="toc" aria-label="Levels">
-      {% for level in program.levels %}<a href="#{{ level.id }}">{{ level.name }}</a>{% endfor %}
-    </nav>
-    <div class="curriculum-stats">
-      <div class="curriculum-stat"><span class="curriculum-stat__number">{{ program.lessons.length }}</span><span class="curriculum-stat__label">Lessons</span></div>
-      <div class="curriculum-stat"><span class="curriculum-stat__number">{{ program.tests.length }}</span><span class="curriculum-stat__label">Mastery tests</span></div>
-      <div class="curriculum-stat"><span class="curriculum-stat__number">4</span><span class="curriculum-stat__label">Levels</span></div>
-      <div class="curriculum-stat"><span class="curriculum-stat__number">Pre-K&ndash;1</span><span class="curriculum-stat__label">Grades</span></div>
-    </div>
+<div class="content">
+  <h1>Scope and sequence</h1>
+  <p class="content__intro">Every skill the program teaches, and the lesson where each step begins. Skills are taught in tracks; each lesson draws short exercises from several. A step is taught, practiced for the next lessons, and then reviewed at widening intervals for the rest of the level.</p>
+  <p class="muted small">Standards are from the Common Core for Kindergarten and First Grade and from the Head Start Early Learning Outcomes Framework (ELOF) for Pre-K.</p>
 
-    {% for level in program.levels %}
-    <section class="scope" id="{{ level.id }}">
-      <h2 class="scope__title"><a href="{{ level.url }}">{{ level.name }}</a></h2>
-      <p class="scope__facts">{{ level.lessons }} lessons &middot; {{ level.minutes }} minutes &middot; {{ level.age }}</p>
-      <p>{{ level.endsWith }}</p>
-      <div class="scope__table-wrap">
-        <table class="scope__table">
-          <thead><tr><th scope="col">Track</th><th scope="col">Standard</th><th scope="col">Steps, with the lesson where each begins</th></tr></thead>
-          <tbody>
-            {% for t in level.tracks %}
-            <tr>
-              <th scope="row">{{ t.name }}<span class="scope__sum">{{ t.summary }}</span></th>
-              <td>{{ t.standard }}</td>
-              <td><ul class="scope__units">{% for u in t.units %}<li><a href="/{{ level.slug }}/lesson-{{ u.lesson | pad(3) }}/">{{ u.lesson }}</a> {{ u.label }}</li>{% endfor %}</ul></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </section>
-    {% endfor %}
+  <div class="stats">
+    <div class="stat"><span class="stat__number">{{ program.lessons.length }}</span><span class="stat__label">Lessons</span></div>
+    <div class="stat"><span class="stat__number">{{ program.tests.length }}</span><span class="stat__label">Mastery tests</span></div>
+    <div class="stat"><span class="stat__number">{{ program.levels.length }}</span><span class="stat__label">Levels</span></div>
+    <div class="stat"><span class="stat__number">4&ndash;7</span><span class="stat__label">Ages</span></div>
   </div>
+
+  {% for level in program.levels %}
+  <details class="fold" id="{{ level.id }}"{% if loop.first %} open{% endif %}>
+    <summary><h2 class="fold__h">{{ level.name }}</h2></summary>
+    <div class="fold__body">
+      <p class="scope__facts">{{ level.lessons }} lessons · {{ level.minutes }} minutes · {{ level.age }} · <a href="{{ level.url }}">Open the level</a></p>
+      <p>{{ level.endsWith }}</p>
+      {% for t in level.tracks %}
+      <div class="scope__track">
+        <h3>{{ t.name }}</h3>
+        <p class="scope__std">{{ t.standard }}</p>
+        <p class="scope__sum">{{ t.summary }}</p>
+        <ul class="scope__units">{% for u in t.units %}<li><a href="/{{ level.slug }}/lesson-{{ u.lesson | pad(3) }}/">{{ u.lesson }}</a> {{ u.label }}</li>{% endfor %}</ul>
+      </div>
+      {% endfor %}
+    </div>
+  </details>
+  {% endfor %}
 </div>

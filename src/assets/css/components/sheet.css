@@ -1,0 +1,55 @@
+/* ===== Sheets and toasts =====
+   A sheet is a native dialog that rises from the bottom. The browser makes
+   the page behind it inert and brings focus back when it closes. */
+.sheet {
+  position: fixed; inset: auto 0 0 0; margin: 0 auto; z-index: 60;
+  width: 100%; max-width: 36rem;
+  max-height: 85dvh;
+  padding: 0 0 var(--safe-b);
+  border: 1px solid var(--line); border-bottom: 0;
+  border-radius: var(--r-3) var(--r-3) 0 0;
+  background: var(--surface); color: var(--ink);
+  box-shadow: var(--shadow-2);
+  overflow: auto;
+}
+.sheet::backdrop { background: rgba(20, 33, 43, 0.45); }
+.sheet[open] { display: flex; flex-direction: column; }
+.sheet__form { display: contents; }
+.sheet__head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); padding: var(--sp-4) var(--sp-4) var(--sp-2); }
+.sheet__title { margin: 0; font-size: var(--fs-5); }
+.sheet__body { padding: 0 var(--sp-4) var(--sp-4); flex: 1 1 auto; }
+.sheet__body p { margin: 0 0 var(--sp-3); line-height: 1.5; }
+.sheet__foot { display: flex; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4) var(--sp-4); border-top: 1px solid var(--line); }
+.sheet__foot .btn { flex: 1 1 0; }
+.sheet__close { margin-right: calc(var(--sp-2) * -1); }
+
+/* Menu rows inside a sheet */
+.sheet__list { list-style: none; margin: 0; padding: 0; }
+.sheet__list li + li { border-top: 1px solid var(--line); }
+.sheet__row {
+  display: flex; align-items: center; gap: var(--sp-3); width: 100%;
+  min-height: 3.5rem; padding: var(--sp-2) var(--sp-4);
+  border: 0; background: none; color: var(--ink); font: inherit; font-size: var(--fs-3); font-weight: 600; text-align: left; text-decoration: none; cursor: pointer;
+}
+.sheet__row:hover { background: var(--surface-2); }
+.sheet__row:disabled { opacity: 0.45; cursor: not-allowed; }
+.sheet__row > svg { width: 1.375rem; height: 1.375rem; flex-shrink: 0; color: var(--ink-3); }
+.sheet__row kbd { margin-left: auto; font-family: var(--font-ui); font-size: var(--fs-1); color: var(--ink-2); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0 0.4em; }
+.sheet__row small { display: block; font-weight: 400; color: var(--ink-2); font-size: var(--fs-1); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .sheet[open] { animation: sheetUp 0.2s ease-out; }
+  @keyframes sheetUp { from { transform: translateY(1.5rem); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+
+/* A toast sits above the tab bar for a few seconds. */
+.toast {
+  position: fixed; left: 50%; z-index: 70; transform: translateX(-50%);
+  bottom: calc(var(--tabbar-h) + var(--safe-b) + var(--sp-3));
+  display: flex; align-items: center; gap: var(--sp-3);
+  max-width: calc(100% - 2rem); min-height: var(--tap); padding: var(--sp-2) var(--sp-4);
+  background: var(--ink); color: #fff; border-radius: var(--r-2); font-weight: 600;
+  box-shadow: var(--shadow-1);
+}
+.toast .btn { min-height: 2.25rem; padding: 0 var(--sp-3); background: transparent; border-color: rgba(255, 255, 255, 0.6); color: #fff; }
+.page-runner .toast { bottom: calc(var(--ctrl-h) + var(--safe-b) + var(--sp-3)); }
