@@ -640,11 +640,39 @@ function addScreen(a, b, icon, ans) {
   return [V.eq(a, "+", b, "=", ans === undefined ? "?" : ans), V.row(V.obj(icon, a, { size: "md" }), V.sign("+"), V.obj(icon, b, { size: "md" }))];
 }
 
+// The rule a child uses to work out a fact, said as part of the correction.
+export function factHint(a, op, b) {
+  if (op === "+") {
+    const big = Math.max(a, b), small = Math.min(a, b);
+    if (small === 0) return "Plus zero: the number stays the same.";
+    if (small === 1) return `Plus one is the next number. ${Word(big)}, ${word(big + 1)}.`;
+    if (small === 2) return `Start with ${word(big)} and count on two: ${word(big + 1)}, ${word(big + 2)}.`;
+    if (a === b) return `It is a double. ${Word(a)} plus ${word(a)} is ${word(2 * a)}.`;
+    if (Math.abs(a - b) === 1) return `It is a double plus one. ${Word(small)} plus ${word(small)} is ${word(2 * small)}, and one more is ${word(2 * small + 1)}.`;
+    if (big === 10) return `Ten plus ${word(small)} is ${word(10 + small)}.`;
+    if (a + b > 10 && big >= 7) {
+      const need = 10 - big, left = small - need;
+      return `${Word(big)} needs ${word(need)} more to make ten. Take ${word(need)} from the ${word(small)}. ${Word(left)} ${left === 1 ? "is" : "are"} left. Ten plus ${word(left)} is ${word(10 + left)}.`;
+    }
+    if (a < b) return `Turn it around: ${word(b)} plus ${word(a)}.`;
+    return `Start with ${word(big)} and count on ${word(small)}.`;
+  }
+  const ans = a - b;
+  if (b === 0) return "Minus zero: the number stays the same.";
+  if (b === a) return "A number minus itself is zero.";
+  if (b === 1) return `Minus one is the number before. ${Word(a - 1)}, ${word(a)}.`;
+  if (b === 2) return `Start at ${word(a)} and count back two: ${word(a - 1)}, ${word(a - 2)}.`;
+  if (b === 10) return `Take away the ten. ${Word(ans)} ${ans === 1 ? "is" : "are"} left.`;
+  if (b === 9) return `Take away ten, then give one back. ${Word(a)} minus ten is ${word(a - 10)}, and one more is ${word(ans)}.`;
+  if (a === 10) return `${Word(b)} and ${word(ans)} make ten.`;
+  return `Think of the family: ${word(b)} and what make ${word(a)}? ${Word(b)} and ${word(ans)}.`;
+}
+
 export function factStep(a, op, b, opts = {}) {
   const ans = op === "+" ? a + b : a - b;
   const opWord = op === "+" ? "plus" : "minus";
   return test(V.eq(a, op, b, "=", "?"), opts.say || `${Word(a)} ${opWord} ${word(b)} is how many?`, Word(ans) + ".",
-    fix(Word(ans) + ".", `${Word(a)} ${opWord} ${word(b)} is how many?`, opts.preface || ""), {
+    fix(Word(ans) + ".", `${Word(a)} ${opWord} ${word(b)} is how many?`, opts.preface !== undefined ? opts.preface : factHint(a, op === "+" ? "+" : "−", b)), {
       skill: op === "+" ? "add" : "subtract",
       item: `fact:${a}${op}${b}`,
       fact: `${a}${op === "+" ? "+" : "-"}${b}`,
