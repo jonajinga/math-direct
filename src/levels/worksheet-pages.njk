@@ -1,0 +1,14 @@
+---
+pagination:
+  data: program.worksheetLessons
+  size: 1
+  alias: lesson
+permalink: "{{ lesson.worksheetUrl }}"
+layout: layouts/worksheet.njk
+excludeFromSitemap: true
+eleventyComputed:
+  title: "{{ lesson.levelName }} Lesson {{ lesson.number }} Worksheet"
+  description: "Printable independent work for {{ lesson.levelName }} lesson {{ lesson.number }}."
+  backUrl: "{{ lesson.url }}"
+---
+<script id="ws-data" type="application/json">{"level":{{ lesson.levelName | dump | safe }},"number":{{ lesson.number }},"optional":{{ lesson.worksheetOptional | dump | safe }},"items":{{ lesson.worksheet | dump | safe }}}</script>

@@ -125,6 +125,20 @@
     return Math.min(hi + 1, total);
   }
 
+  // The next thing to teach: a mastery test that is due and not yet passed,
+  // or else the next lesson. tests: [{ id, url, title, afterLesson }]
+  function nextStep(levelId, total, tests, slug) {
+    var n = nextLesson(levelId, total);
+    var p = getActiveProfile();
+    var due = (tests || []).filter(function (t) { return t.afterLesson === n - 1; })[0];
+    if (due && p) {
+      var h = p.tests[due.id];
+      var passed = h && h.length && h[h.length - 1].passed;
+      if (!passed) return { url: due.url, label: due.title, test: true };
+    }
+    return { url: "/" + slug + "/lesson-" + String(n).padStart(3, "0") + "/", label: "Lesson " + n, test: false };
+  }
+
   // ── Tests, placement, facts ──
   function recordTest(id, summary) {
     update(function (p) { p.tests[id] = (p.tests[id] || []).concat([summary]).slice(-5); });
@@ -296,7 +310,7 @@
     getProfiles: getProfiles, getActiveProfile: getActiveProfile, createProfile: createProfile,
     deleteProfile: deleteProfile, renameProfile: renameProfile, switchProfile: switchProfile,
     getCompleted: getCompleted, isComplete: isComplete, markComplete: markComplete, markIncomplete: markIncomplete,
-    recordLesson: recordLesson, lessonHistory: lessonHistory, nextLesson: nextLesson,
+    recordLesson: recordLesson, lessonHistory: lessonHistory, nextLesson: nextLesson, nextStep: nextStep,
     recordTest: recordTest, recordPlacement: recordPlacement, recordFact: recordFact, factStatus: factStatus,
     addNote: addNote, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
     exportAllProfiles: exportAllProfiles, importProfiles: importProfiles,

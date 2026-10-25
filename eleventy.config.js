@@ -31,6 +31,8 @@ export default function (eleventyConfig) {
   });
 
   // Pad number with leading zero
+  eleventyConfig.addFilter("min", (arr) => Math.min(...arr));
+
   eleventyConfig.addFilter("pad", (num, size) => {
     let s = String(num);
     while (s.length < (size || 2)) s = "0" + s;
@@ -92,6 +94,8 @@ export default function (eleventyConfig) {
           "pages/practice.css",
           "pages/flashcards.css",
           "pages/runner.css",
+          "pages/worksheet.css",
+          "pages/levels.css",
         ];
         let combined = "";
         for (const file of importOrder) {

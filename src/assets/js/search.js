@@ -49,7 +49,7 @@
     });
 
     // Sort: title matches first, then by type priority
-    var typePriority = { lesson: 1, phase: 2, practice: 3, page: 4 };
+    var typePriority = { level: 1, page: 2, lesson: 3, test: 4, practice: 5 };
     matches.sort(function (a, b) {
       var aTitle = a.title.toLowerCase().indexOf(q) !== -1 ? 0 : 1;
       var bTitle = b.title.toLowerCase().indexOf(q) !== -1 ? 0 : 1;

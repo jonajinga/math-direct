@@ -25,6 +25,14 @@ export function buildMasteryTests(level, built) {
       const inBlock = track.units.filter((u) => u.lesson >= start && u.lesson <= end);
       if (!final && !inBlock.length) continue;
       const items = trackItems(level, track, upTo, end, `test${t}`);
+      // At least two items per part, so one slip does not decide it.
+      for (let salt = 2; items.length < 2 && salt < 6; salt++) {
+        const seen = new Set(items.map((x) => x.say + JSON.stringify(x.screen)));
+        for (const extra of trackItems(level, track, upTo, end, `test${t}-${salt}`)) {
+          if (items.length >= 3) break;
+          if (!seen.has(extra.say + JSON.stringify(extra.screen))) items.push(extra);
+        }
+      }
       if (!items.length) continue;
       const remedyUnits = inBlock.length ? inBlock : upTo.slice(-2);
       const remedy = remedyUnits

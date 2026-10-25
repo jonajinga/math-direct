@@ -46,6 +46,15 @@
       segments.push({ title: ex.title, meta: ex.trackName + " · " + kindName(ex.kind), kind: ex.kind, track: ex.track, n: ex.n, materials: ex.materials, steps: ex.steps });
     });
     el.where.textContent = lesson.levelName + " · Lesson " + lesson.number;
+    // Worksheet and level links in the outline.
+    var keys = el.outline && el.outline.querySelector(".tp-outline__keys");
+    if (keys) {
+      var links = document.createElement("p");
+      links.className = "tp-outline__links";
+      links.innerHTML = (lesson.worksheet && lesson.worksheet.length ? '<a href="' + lesson.worksheetUrl + '">' + (lesson.worksheetOptional ? "Worksheet (optional)" : "Worksheet") + "</a> · " : "") +
+        '<a href="/' + lesson.levelSlug + '/">All ' + escapeHtml(lesson.levelName) + " lessons</a>";
+      keys.parentNode.insertBefore(links, keys);
+    }
   }
 
   function kindName(k) {
@@ -85,6 +94,12 @@
   function initPractice() {
     var set = DATA.set;
     var limit = DATA.limitLesson || 9999;
+    // Use only what the selected child has been taught, unless ?upto= says otherwise.
+    var upto = Number(new URLSearchParams(window.location.search).get("upto"));
+    if (upto) limit = upto;
+    else if (DATA.useProgress && window.mathProgress && set.total) {
+      limit = Math.max(set.startsAt, window.mathProgress.nextLesson(set.level, set.total) - 1);
+    }
     var pool = set.items.filter(function (it) { return it.lesson <= limit; });
     if (!pool.length) pool = set.items.slice(0, 10);
     // Prefer recent items, avoid repeats.

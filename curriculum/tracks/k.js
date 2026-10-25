@@ -451,7 +451,7 @@ const frames = {
   worksheet(intro, ctx) {
     const r = ctx.rand;
     const n = r.int(intro.some((u) => u.id === "fivemore") ? 6 : 1, intro.some((u) => u.id === "ten") ? 10 : 5);
-    return { kind: "write", prompt: "How many dots? Write the number.", show: V.frame(n > 5 ? 10 : 5, n, { size: "sm" }), answer: String(n) };
+    return { kind: "write", prompt: "How many dots? Write the number.", show: V.frame(n > 5 ? 10 : 5, n), answer: String(n) };
   },
 };
 
@@ -628,7 +628,7 @@ const teens = {
   worksheet(intro, ctx) {
     const r = ctx.rand;
     const n = r.pick(this.pool(intro));
-    return { kind: "write", prompt: "Ten and how many more? Write the number.", show: V.frame(10, n, { frames: 2, size: "sm" }), answer: String(n) };
+    return { kind: "write", prompt: "Ten and how many more? Write the number.", show: V.frame(10, n, { frames: 2 }), answer: String(n) };
   },
 };
 

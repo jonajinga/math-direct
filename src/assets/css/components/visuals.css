@@ -82,6 +82,17 @@
 .child-stage .mdv-row__item > .mdv { --vis-h: calc(var(--stage-max, 36vh) * 0.5); --cell: min(8vh, 4.5rem); }
 .child-stage .mdv-frame { width: min(100%, calc(var(--vis-h) * var(--ar, 1)), 30rem); }
 
+/* When the screen holds more than one visual, each gets a share of the height. */
+.child-stage:has(> .mdv + .mdv) { --vis-h: calc(var(--stage-max, 36vh) * 0.42); --cell: min(9vh, 5rem); }
+.child-stage:has(> .mdv + .mdv) .mdv-eq { font-size: clamp(2rem, 9vh, 5rem); }
+.child-stage:has(> .mdv + .mdv) .mdv-num--lg { font-size: clamp(2.5rem, 11vh, 6rem); }
+.child-stage:has(> .mdv + .mdv) .mdv-col { font-size: clamp(1.5rem, 6vh, 3rem); }
+.mdv-row .mdv-num--lg, .mdv-row .mdv-sign { font-size: clamp(2rem, 8vh, 4.5rem); }
+.mdv-frames--2 .mdv-frame { max-width: 48%; }
+.child-stage .mdv-frames--2 .mdv-frame { width: min(48%, calc(var(--vis-h) * var(--ar, 1))); }
+.mdv-choice .mdv-digital span { font-size: clamp(1.1rem, 5vh, 2.25rem); border-width: 2px; }
+.child-stage .mdv-col { font-size: min(clamp(2.5rem, 11vh, 6rem), calc(var(--vis-h) / 4.4)); }
+
 /* Numerals */
 .mdv-num {
   gap: clamp(1.5rem, 8vw, 5rem);

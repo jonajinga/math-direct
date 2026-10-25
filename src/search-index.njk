@@ -4,13 +4,16 @@ eleventyExcludeFromCollections: true
 ---
 {% set items = [] %}
 {%- for page in collections.all %}
-{%- if not page.url | startsWith("/assets/") and page.data.excludeFromSitemap != true and page.url != false and page.url != "/search-index.json" and page.url != "/sitemap.xml" and page.url != "/feed.xml" %}
+{%- set isRunner = page.data.layout == "layouts/runner.njk" %}
+{%- if not page.url | startsWith("/assets/") and page.data.excludeFromSitemap != true and page.data.layout != "layouts/worksheet.njk" and page.url != false and page.url != "/search-index.json" and page.url != "/sitemap.xml" and page.url != "/feed.xml" %}
+{%- set type = "page" %}
+{%- if "/lesson-" in page.url %}{% set type = "lesson" %}{% elif "/test-" in page.url %}{% set type = "test" %}{% elif page.url | startsWith("/practice/") %}{% set type = "practice" %}{% elif page.data.bodyClass == "page-level" and page.url != "/lessons/" %}{% set type = "level" %}{% endif %}
 {%- set items = (items.push({
   title: page.data.title or "Math Direct",
   url: page.url,
   description: page.data.description or "",
-  type: "lesson" if page.url | startsWith("/lessons/lesson-") else ("phase" if page.url | startsWith("/phases/") else ("practice" if page.url | startsWith("/practice/") else "page")),
-  content: page.templateContent | striptags
+  type: type,
+  content: "" if isRunner else (page.templateContent | striptags)
 }), items) %}
 {%- endif %}
 {%- endfor %}

@@ -1,0 +1,23 @@
+---
+permalink: /placement/
+layout: layouts/runner.njk
+title: Placement Test
+description: A short spoken test that finds where in Math Direct a child should begin, from Pre-K through First Grade.
+exitUrl: /lessons/
+---
+{% set starts = { prek: -1, k: -1, first: -1 } %}
+<div class="placement-start" id="placement-start" hidden>
+  <div class="finish">
+    <p class="finish__kicker">Placement test</p>
+    <h1 class="finish__title">Where should we begin?</h1>
+    <p class="finish__lead">The placement test is a set of short sections. Each section checks the skills taught in one span of lessons. The child keeps going until a section is not passed, and the test then names the lesson to start with. Most children finish in ten to twenty minutes.</p>
+    <p class="finish__lead">Read each question aloud, let the child answer, and mark Firm or Error. Do not correct or help during the test. Choose a starting point by age. If the first section is too hard, the test moves back on its own.</p>
+    <div class="finish__actions">
+      {% for sec in program.placement %}{% if sec.from == 1 and sec.level != "bridge" %}
+      <button type="button" class="btn btn--cta" data-start="{{ loop.index0 }}">Start with {{ sec.levelName }}{% if sec.level == "prek" %} (about age 4){% elif sec.level == "k" %} (about age 5){% else %} (about age 6){% endif %}</button>
+      {% endif %}{% endfor %}
+    </div>
+    <p class="finish__lead"><a href="/lessons/">Back to the lessons</a></p>
+  </div>
+</div>
+<script id="runner-data" type="application/json">{"mode":"placement","exitUrl":"/lessons/","sections":{{ program.placement | dump | safe }},"afterAll":{"level":"done","lesson":0,"url":"/lessons/","label":"second-grade work (every section was passed)"}}</script>

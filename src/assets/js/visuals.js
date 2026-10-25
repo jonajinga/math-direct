@@ -314,7 +314,7 @@
     if (v.n + (v.n2 || 0) <= size) frames = 1;
     var cols = 5, rows = size / 5, cell = 50, body;
     var left = v.n, left2 = v.n2 || 0;
-    html += '<div class="mdv mdv-frames">';
+    html += '<div class="mdv mdv-frames mdv-frames--' + frames + '">';
     for (var f = 0; f < frames; f++) {
       body = "";
       for (var r2 = 0; r2 < rows; r2++) {

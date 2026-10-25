@@ -20,6 +20,11 @@ export function yes(answer) {
   if (!answer) return "Yes.";
   if (answer.startsWith("(")) return "Yes.";
   if (answer === "Yes." || answer === "No.") return "Right.";
+  // "Six... seven, eight, nine. Nine." -> "Yes, nine."
+  const sentences = answer.split(/(?<=\.)\s+/).filter(Boolean);
+  if (sentences.length > 1) return "Yes, " + lowerFirst(sentences[sentences.length - 1]);
+  // A counting chain: "One, two, three." -> "Yes."
+  if ((answer.match(/,/g) || []).length >= 2) return "Yes.";
   return "Yes, " + lowerFirst(answer);
 }
 

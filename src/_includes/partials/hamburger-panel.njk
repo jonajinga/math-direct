@@ -16,11 +16,14 @@
     </ul>
   </nav>
   <div class="hamburger-panel__dashboards">
-    <span class="hamburger-panel__section-label">Dashboards</span>
-    <a href="/teacher/" class="hamburger-panel__link{% if page.url == '/teacher/' %} is-active{% endif %}">Teacher Dashboard</a>
-    <a href="/student/" class="hamburger-panel__link{% if page.url == '/student/' %} is-active{% endif %}">Student Dashboard</a>
+    <span class="hamburger-panel__section-label">Levels</span>
+    {% for level in program.levels %}<a href="{{ level.url }}" class="hamburger-panel__link{% if page.url == level.url %} is-active{% endif %}">{{ level.name }}</a>{% endfor %}
+    <span class="hamburger-panel__section-label">More</span>
+    <a href="/facts/" class="hamburger-panel__link{% if page.url == '/facts/' %} is-active{% endif %}">Fact review</a>
+    <a href="/materials/" class="hamburger-panel__link{% if page.url == '/materials/' %} is-active{% endif %}">Printable materials</a>
+    <a href="/curriculum/" class="hamburger-panel__link{% if page.url == '/curriculum/' %} is-active{% endif %}">Scope and sequence</a>
   </div>
   <div class="hamburger-panel__footer">
-    <a href="/lessons/" class="btn btn--cta hamburger-panel__cta">Start Learning</a>
+    <a href="/lessons/" class="btn btn--cta hamburger-panel__cta">Go to the lessons</a>
   </div>
 </div>

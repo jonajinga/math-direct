@@ -99,6 +99,7 @@ export function validateStep(st, where, errors) {
       // optional arithmetic check supplied by formats
     }
     if ((v.t === "dots" || v.t === "obj") && (!(v.n >= 0) || v.n > 30)) errors.push(`${where}: bad count ${v.n}`);
+    if (v.t === "frame" && v.size !== 5 && v.size !== 10) errors.push(`${where}: a frame must have 5 or 10 boxes, not "${v.size}"`);
   }
   if (typeof st.check === "function") {
     const msg = st.check();
@@ -168,6 +169,17 @@ export function validateLevel(level, built) {
     }
   }
   return { errors, warnings };
+}
+
+export function validateWorksheet(items, where, errors) {
+  items.forEach((it, i) => {
+    const w = `${where}, worksheet item ${i + 1}`;
+    if (!it.prompt) errors.push(`${w}: no direction`);
+    if (/!/.test(it.prompt || "")) errors.push(`${w}: exclamation mark in the direction`);
+    if (it.kind === "circle" && (!it.opts || !it.ans || !it.ans.length || it.ans.some((a) => a < 0 || a >= it.opts.length))) errors.push(`${w}: circle item without a valid answer`);
+    if ((it.kind === "write" || it.kind === "mark") && !it.answer) errors.push(`${w}: no answer for the key`);
+    validateStep({ cue: "note", say: it.prompt, screen: [].concat(it.show || [], it.opts || []) }, w, errors);
+  });
 }
 
 export function validateItems(items, where, errors) {

@@ -5,11 +5,12 @@
 
 import { buildLevel, worksheetFor, trackItems } from "./lib/schedule.js";
 import { buildMasteryTests, buildPlacement } from "./lib/tests.js";
-import { validateLevel, validateItems, checkReadable } from "./lib/validate.js";
+import { validateLevel, validateItems, validateWorksheet, checkReadable } from "./lib/validate.js";
 import prek from "./tracks/prek.js";
 import k from "./tracks/k.js";
 import first from "./tracks/first.js";
 import bridge from "./tracks/bridge.js";
+import { factStep } from "./tracks/k.js";
 
 export const LEVELS = [prek, k, first, bridge].filter(Boolean);
 
@@ -35,6 +36,7 @@ function practiceFor(level) {
       title: track.name,
       summary: track.summary,
       startsAt: track.units[0].lesson,
+      total: level.lessons,
       url: `/practice/${level.slug}/${track.id}/`,
       items,
     });
@@ -56,6 +58,8 @@ export function buildProgram({ strict = true } = {}) {
       lesson.worksheet = worksheetFor(level, lesson);
       lesson.worksheetOptional = !!level.worksheetOptional;
       lesson.worksheetUrl = lesson.url + "worksheet/";
+      validateWorksheet(lesson.worksheet, lesson.id, errors);
+      lesson.worksheet.forEach((it, i) => checkReadable(level, lesson.number, { screen: [].concat(it.show || [], it.opts || []) }, `${lesson.id} worksheet item ${i + 1}`, errors));
       lesson.totalLessons = level.lessons;
     }
     const v = validateLevel(level, built);
@@ -69,10 +73,13 @@ export function buildProgram({ strict = true } = {}) {
         p.items.forEach((st, i) => checkReadable(level, t.afterLesson, st, `${t.id} ${p.trackName} item ${i + 1}`, errors));
       });
     }
-    // Tell each lesson which test, if any, follows it.
+    // Tell each lesson which test, if any, follows it, and each test what comes next.
     for (const t of mt) {
       const l = built.lessons[t.afterLesson - 1];
       if (l) l.testAfter = { url: t.url, title: t.title };
+      const next = built.lessons[t.afterLesson];
+      t.next = next ? { url: next.url, title: `Next: ${next.title}` } : null;
+      t.exitUrl = `/${level.slug}/`;
     }
     built.lessons.forEach((l, i) => {
       const next = built.lessons[i + 1];
@@ -127,12 +134,26 @@ export function buildProgram({ strict = true } = {}) {
   const placement = buildPlacement(LEVELS);
   placement.forEach((s) => validateItems(s.items, `placement ${s.id}`, errors));
 
+  // Fact review: one ready-made step for every fact, tagged with the lesson
+  // after which it is fair game.
   const facts = {};
-  for (const level of LEVELS) if (level.facts) facts[level.id] = level.facts;
+  for (const level of LEVELS) {
+    if (!level.facts) continue;
+    facts[level.id] = level.facts.map((f) => ({ ...factStep(f.a, f.op, f.b), key: f.key, lesson: f.lesson }));
+    facts[level.id].forEach((st) => validateItems([st], `fact ${st.key}`, errors));
+  }
 
   if (strict && errors.length) {
     const head = errors.slice(0, 40).join("\n  ");
     throw new Error(`Curriculum check failed with ${errors.length} error(s):\n  ${head}${errors.length > 40 ? "\n  ..." : ""}`);
   }
-  return { levels, lessons, tests, practice, placement, facts, errors, warnings };
+  // The dashboard needs a compact map of every level, lesson, test, and track.
+  const summary = levels.map((lv) => ({
+    id: lv.id, slug: lv.slug, name: lv.name, lessons: lv.lessons, url: lv.url,
+    tests: lv.tests,
+    tracks: Object.fromEntries(lv.tracks.map((t) => [t.id, t.name])),
+    facts: (facts[lv.id] || []).map((f) => ({ key: f.key, lesson: f.lesson })),
+  }));
+  const worksheetLessons = lessons.filter((l) => l.worksheet && l.worksheet.length);
+  return { levels, lessons, worksheetLessons, tests, practice, placement, facts, summary, errors, warnings };
 }

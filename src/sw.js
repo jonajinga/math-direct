@@ -1,6 +1,5 @@
 // Math Direct Service Worker — Offline Support
-var STATIC_CACHE = "math-direct-static-v2";
-var LESSON_CACHE = "math-direct-lessons-v1";
+var STATIC_CACHE = "math-direct-static-v3";
 
 // Core assets cached on install
 var CORE_ASSETS = [
@@ -9,14 +8,18 @@ var CORE_ASSETS = [
   "/practice/",
   "/guide/",
   "/curriculum/",
-  "/about/",
+  "/teacher/",
+  "/placement/",
   "/offline/",
   "/assets/css/global.css",
   "/assets/js/theme.js",
   "/assets/js/nav.js",
+  "/assets/js/visuals.js",
   "/assets/js/lesson-engine.js",
   "/assets/js/progress.js",
-  "/assets/js/practice-engine.js",
+  "/assets/js/lessons-index.js",
+  "/assets/js/dashboard.js",
+  "/assets/js/worksheet.js",
   "/manifest.json",
 ];
 
@@ -32,7 +35,7 @@ self.addEventListener("install", function (event) {
 
 // Activate: clean old caches
 self.addEventListener("activate", function (event) {
-  var keep = [STATIC_CACHE, LESSON_CACHE];
+  var keep = [STATIC_CACHE];
   event.waitUntil(
     caches.keys().then(function (names) {
       return Promise.all(
@@ -51,24 +54,6 @@ self.addEventListener("fetch", function (event) {
 
   // Only handle same-origin GET requests
   if (event.request.method !== "GET" || url.origin !== self.location.origin) return;
-
-  // Lesson pages: cache-first after first visit (they rarely change)
-  if (url.pathname.match(/^\/lessons\/lesson-/)) {
-    event.respondWith(
-      caches.open(LESSON_CACHE).then(function (cache) {
-        return cache.match(event.request).then(function (cached) {
-          if (cached) return cached;
-          return fetch(event.request).then(function (response) {
-            if (response.status === 200) cache.put(event.request, response.clone());
-            return response;
-          });
-        });
-      }).catch(function () {
-        return caches.match("/offline/");
-      })
-    );
-    return;
-  }
 
   // Static assets (CSS, JS, images): stale-while-revalidate
   if (url.pathname.match(/^\/assets\//)) {
