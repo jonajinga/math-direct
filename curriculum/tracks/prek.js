@@ -1,4 +1,4 @@
-// Pre-K: 100 lessons, about ten minutes each, for children of about four.
+// Pre-K: 100 lessons, 8 to 12 minutes each, for children of about four.
 
 import {
   V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural, capFirst,
@@ -6,6 +6,7 @@ import {
   favorNew, others,
 } from "./common.js";
 import { tok } from "../lib/v.js";
+import readiness, { readinessItems } from "./readiness.js";
 
 // ─────────────────────────────────────────────────────────────
 // Counting aloud
@@ -1120,11 +1121,12 @@ export default {
   longName: "Pre-K",
   age: "about 4",
   lessons: 100,
-  minutes: "10 to 12",
-  minExercises: 4,
-  minReviewSteps: 3,
-  maxExercises: 6,
-  maxSteps: 46,
+  minutes: "8 to 12",
+  minutesBand: [8, 12],
+  minExercises: 6,
+  minReviewSteps: 5,
+  maxExercises: 8,
+  maxSteps: 70,
   placementPoints: [1, 35, 70],
   maxGap: 9,
   reviewIntervals: [2, 3, 4],
@@ -1135,7 +1137,8 @@ export default {
   readable(n) {
     return new Set(NUM_ORDER.filter(([, lesson]) => lesson <= n).map(([d]) => d));
   },
-  tracks: [countAloud, countObjects, subitize, numerals, compare, shapes, position, size, countOut, matchTrack, sorting, patterns, stories],
+  readiness: readinessItems,
+  tracks: [readiness, countAloud, countObjects, subitize, numerals, compare, shapes, position, size, countOut, matchTrack, sorting, patterns, stories],
 };
 
 // Formats reused by later levels.

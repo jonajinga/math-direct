@@ -118,6 +118,20 @@
 .tp-ex__meta { margin: -0.25rem 0 0; font-size: var(--fs-1); color: var(--ink-2); }
 .tp-step-no { flex-shrink: 0; font-size: var(--fs-1); font-weight: 600; color: var(--ink-2); white-space: nowrap; }
 
+/* The signal for a response: a small drawn glyph and its word. */
+.tp-signal { flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.3rem; font-size: var(--fs-1); font-weight: 700; color: var(--ink-2); white-space: nowrap; }
+.tp-signal__glyph { position: relative; width: 1.1rem; height: 1.1rem; border: 2px solid var(--ink-2); border-radius: 50%; flex-shrink: 0; }
+.tp-signal__glyph--touch::after { content: ""; position: absolute; left: 50%; top: 50%; width: 0.4rem; height: 0.4rem; margin: -0.2rem 0 0 -0.2rem; border-radius: 50%; background: var(--ink-2); }
+.tp-signal__glyph--drop::after { content: ""; position: absolute; left: 50%; top: 0.1rem; width: 0; height: 0; margin-left: -0.25rem; border: 0.25rem solid transparent; border-top: 0.4rem solid var(--ink-2); }
+.tp-signal__glyph--rhythm::after { content: ""; position: absolute; left: 0.15rem; right: 0.15rem; top: 50%; height: 0; margin-top: -1px; border-top: 2px dotted var(--ink-2); }
+.tp-signal__glyph--watch { border-radius: 50% / 40%; }
+.tp-signal__glyph--watch::after { content: ""; position: absolute; left: 50%; top: 50%; width: 0.35rem; height: 0.35rem; margin: -0.175rem 0 0 -0.175rem; border-radius: 50%; border: 2px solid var(--ink-2); }
+.tp-signal__pause { font-weight: 600; }
+.tp-body.fit-1 .tp-signal__pause { display: none; }
+.tp-body.fit-3 .tp-signal__word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+.tp-body.fit-3 .tp-signal { gap: 0; }
+.tp-cue--timed { color: var(--note); }
+
 /* The cue names the kind of step; its color is one more cue, never the only one. */
 .tp-cue {
   flex-shrink: 0;

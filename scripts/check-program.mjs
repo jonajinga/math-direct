@@ -145,8 +145,62 @@ check("the finish screen says every part was passed", /Every part was passed/.te
 const gate2 = await page.evaluate((lv) => window.mathProgress.nextStep("k", lv.lessons, lv.tests, "k"), program.summary.find((l) => l.id === "k"));
 check("the next step moves on once the test is passed", gate2.test === false, JSON.stringify(gate2));
 
+// ── Signals, pace, missed-last-time, the timed check, readiness ──
+check("every placement section has three items a track or more", program.placement.every((s) => s.readiness || s.items.length >= 6), program.placement.map((s) => s.items.length).join(","));
+check("the placement test begins with a readiness section", program.placement[0].readiness === true && program.placement[0].items.length === 3);
+check("firming fades: most firming exercises carry a lead", program.lessons.flatMap((l) => l.exercises.filter((e) => e.kind === "firm")).filter((e) => e.steps.some((s) => s.cue === "lead")).length > 400);
+check("review exercises carry spare items", program.lessons.flatMap((l) => l.exercises.filter((e) => e.kind !== "new")).filter((e) => e.spare && e.spare.length).length > 2000);
+check("First Grade facts are released in sets", program.facts.first.some((f) => f.set === 2));
+await page.goto(BASE + "/k/lesson-040/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+check("a test step shows its signal", await visible("#tp-signal") && /Touch|Drop|Rhythm|Watch/.test(await page.textContent("#tp-signal")), await page.textContent("#tp-signal"));
+// Finish the lesson to record its pace.
+for (let i = 0; i < 400; i++) {
+  if (await visible("#runner-finish")) break;
+  const pick = (await visible("#btn-goon")) ? "#btn-goon" : (await visible("#btn-firm")) ? "#btn-firm" : "#btn-next";
+  await page.click(pick);
+}
+const paced = await page.evaluate(() => { const h = window.mathProgress.getActiveProfile().lessons["k-040"]; return h[h.length - 1]; });
+check("the summary records a pace", typeof paced.pace === "number" && paced.pace > 0, String(paced.pace));
+// Adaptive review: mark an item missed in two sittings, then see it come first with a note.
+const swap = await page.evaluate(() => {
+  const P = window.mathProgress;
+  const p = P.getActiveProfile();
+  // The first review exercise of lesson 41 and one of its spare items.
+  return null;
+});
+await page.goto(BASE + "/k/lesson-041/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+const ex = await page.evaluate(() => { const segs = window.mdRunner.segments(); const i = segs.findIndex((s) => s.kind !== "new" && s.steps.some((st) => st.item)); const seg = segs[i]; return { i, items: seg.steps.filter((st) => st.cue === "test").map((st) => st.item) }; });
+await page.evaluate((ex) => { const P = window.mathProgress; const items = {}; items[ex.items[ex.items.length - 1]] = { first: false, last: false }; P.recordItems(items); P.recordItems(items); }, ex);
+await page.goto(BASE + "/k/lesson-041/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+const after = await page.evaluate((i) => { const seg = window.mdRunner.segments()[i]; const tests = seg.steps.filter((st) => st.cue === "test"); return tests.map((st) => ({ item: st.item, note: !!st.missedNote })); }, ex.i);
+const target = ex.items[ex.items.length - 1];
+const firstPlain = after.findIndex((x) => !x.note);
+const lastNoted = after.map((x) => x.note).lastIndexOf(true);
+check("items missed recently come first in their review exercise, with a note", after.some((x) => x.item === target && x.note) && (firstPlain === -1 || lastNoted < firstPlain), JSON.stringify({ was: ex.items, now: after }));
+await page.evaluate(() => window.mathProgress.clearSession());
+// The timed check.
+await page.evaluate(() => window.mathProgress.setLessonStatus("first-003", "done"));
+await page.goto(BASE + "/practice/", { waitUntil: "load" });
+await page.waitForTimeout(200);
+check("Practice offers the timed check once the child is in First Grade", await visible("[data-timed-row]"));
+await page.goto(BASE + "/timed/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+await page.click("[data-start-timed]");
+await page.waitForTimeout(200);
+check("the timed check runs with a clock in the strip", /s left/.test(await page.textContent("#rn-where")), await page.textContent("#rn-where"));
+for (let i = 0; i < 12; i++) { await page.click(i % 4 === 3 ? "#btn-error" : "#btn-firm"); await page.waitForTimeout(30); }
+await page.evaluate(() => { /* end the minute now */ window.dispatchEvent(new Event("md-end-timed")); });
+await page.waitForFunction(() => !document.getElementById("runner-finish").hidden, null, { timeout: 70000 }).catch(() => {});
+const timedRec = await page.evaluate(() => { const t = window.mathProgress.getActiveProfile().timed; return t[t.length - 1]; });
+check("the timed check records facts right, errors, and a goal", timedRec && timedRec.right === 9 && timedRec.errors === 3 && timedRec.goal >= 8, JSON.stringify(timedRec));
+const factRec = await page.evaluate(() => { const f = window.mathProgress.getActiveProfile().facts; const k = Object.keys(f)[0]; return f[k]; });
+check("facts record a response time", factRec && factRec.t && typeof factRec.t[factRec.t.length - 1] === "number", JSON.stringify(factRec));
+
 check("no page errors", !errors.length, errors.join(" | "));
 await browser.close();
 server.close();
 if (fails.length) { console.error("check-program: " + fails.length + " check(s) failed."); process.exit(1); }
-console.log("check-program: first-try scoring, retests, On your own, and the mastery test gate all hold.");
+console.log("check-program: scoring, retests, On your own, the test gate, signals, pace, adaptive review, and the timed check all hold.");

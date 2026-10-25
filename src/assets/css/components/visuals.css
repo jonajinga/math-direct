@@ -199,7 +199,7 @@
 .mdv-arrive { opacity: 0.92; }
 
 /* Frames */
-.mdv-frames { gap: 1rem; flex-wrap: wrap; }
+.mdv-frames { gap: 0.5rem 2%; flex-wrap: wrap; }
 
 /* Digital clock */
 .mdv-digital span {

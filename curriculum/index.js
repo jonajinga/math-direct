@@ -135,7 +135,7 @@ export function buildProgram({ strict = true } = {}) {
   const facts = {};
   for (const level of LEVELS) {
     if (!level.facts) continue;
-    facts[level.id] = level.facts.map((f) => ({ ...factStep(f.a, f.op, f.b), key: f.key, lesson: f.lesson }));
+    facts[level.id] = level.facts.map((f) => ({ ...factStep(f.a, f.op, f.b), key: f.key, lesson: f.lesson, set: f.set || 1 }));
     facts[level.id].forEach((st) => validateItems([st], `fact ${st.key}`, errors));
   }
 

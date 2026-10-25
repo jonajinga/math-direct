@@ -117,10 +117,28 @@ export function buildPlacement(levels) {
       const items = [];
       for (const track of ranked) {
         const upTo = track.units.filter((u) => u.lesson <= to);
-        const got = trackItems(level, track, upTo, to, `placement${from}`).slice(0, 2);
+        const got = trackItems(level, track, upTo, to, `placement${from}`).slice(0, 3);
         items.push(...got);
       }
       if (!items.length) continue;
+      if (i === 0 && level.readiness && level.readiness.length) {
+        // Before the first lessons: can the child repeat a word, answer on a
+        // signal, and touch a named picture? If not, the readiness exercises
+        // in the first lessons come first.
+        sections.push({
+          id: `${level.id}-ready`,
+          level: level.id,
+          levelName: level.name,
+          levelSlug: level.slug,
+          from: 0,
+          to: 0,
+          readiness: true,
+          start: { level: level.id, lesson: 1, url: `/${level.slug}/lesson-001/`, label: `${level.name}, Lesson 1, with the readiness exercises` },
+          title: `${level.name}, readiness`,
+          items: level.readiness.map((s) => ({ ...s, cue: "test", track: "readiness", trackName: "Readiness" })),
+          allowed: 0,
+        });
+      }
       sections.push({
         id: `${level.id}-${from}`,
         level: level.id,
@@ -131,7 +149,7 @@ export function buildPlacement(levels) {
         start: { level: level.id, lesson: from, url: `/${level.slug}/lesson-${String(from).padStart(3, "0")}/` },
         title: `${level.name}, lessons ${from} to ${to}`,
         items,
-        allowed: items.length >= 8 ? 1 : 0,
+        allowed: Math.floor(items.length / 7),
       });
     }
   }

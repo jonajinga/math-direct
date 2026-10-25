@@ -34,6 +34,7 @@
     if (!p.tests) p.tests = {};
     if (!p.facts) p.facts = {};
     if (!p.items) p.items = {};
+    if (!p.timed) p.timed = [];
     if (!Array.isArray(p.completed)) p.completed = [];
     if (!Array.isArray(p.redo)) p.redo = [];
     // Old program: completed held lesson numbers 1 to 150.
@@ -254,20 +255,34 @@
   function recordPlacement(rec) {
     update(function (p) { p.placement = rec; });
   }
-  function recordFact(fact, firm) {
+  // Each fact keeps its last five results and, when known, how many seconds
+  // the child took to answer.
+  function recordFact(fact, firm, ms) {
     update(function (p) {
       var f = p.facts[fact] || { r: [] };
       f.r = f.r.concat([firm ? 1 : 0]).slice(-5);
+      f.t = (f.t || []).concat([typeof ms === "number" ? Math.round(ms / 100) / 10 : null]).slice(-5);
       f.last = new Date().toISOString();
       p.facts[fact] = f;
     });
   }
-  // firm: last three results correct; shaky: any recent error; new: no record.
+  // automatic: the last three right and each under three seconds; firm: the
+  // last three right; learning: the last one right; shaky: the last one
+  // missed; new: no record.
+  var AUTOMATIC_SECONDS = 3;
   function factStatus(f) {
     if (!f || !f.r || !f.r.length) return "new";
     var last3 = f.r.slice(-3);
-    if (last3.length >= 3 && last3.every(function (x) { return x === 1; })) return "firm";
+    if (last3.length >= 3 && last3.every(function (x) { return x === 1; })) {
+      var t3 = (f.t || []).slice(-3);
+      if (t3.length >= 3 && t3.every(function (x) { return typeof x === "number" && x <= AUTOMATIC_SECONDS; })) return "automatic";
+      return "firm";
+    }
     return last3[last3.length - 1] === 1 ? "learning" : "shaky";
+  }
+  // One-minute timed checks: { date, level, right, errors, goal }
+  function recordTimed(rec) {
+    update(function (p) { p.timed = (p.timed || []).concat([rec]).slice(-20); });
   }
 
   // ── Notes ──
@@ -283,7 +298,7 @@
   }
 
   function resetProgress() {
-    update(function (p) { p.completed = []; p.redo = []; p.lessons = {}; p.tests = {}; p.facts = {}; p.items = {}; p.placement = null; });
+    update(function (p) { p.completed = []; p.redo = []; p.lessons = {}; p.tests = {}; p.facts = {}; p.items = {}; p.timed = []; p.placement = null; });
   }
 
   // ── Export and import ──
@@ -442,7 +457,7 @@
     recordLesson: recordLesson, lessonHistory: lessonHistory, nextLesson: nextLesson, nextStep: nextStep,
     lessonStatus: lessonStatus, setLessonStatus: setLessonStatus, testStatus: testStatus, setTestStatus: setTestStatus,
     recordTest: recordTest, recordPlacement: recordPlacement, recordFact: recordFact, factStatus: factStatus,
-    recordItems: recordItems, itemHistory: itemHistory,
+    recordItems: recordItems, itemHistory: itemHistory, recordTimed: recordTimed,
     addNote: addNote, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
     exportAllProfiles: exportAllProfiles, importProfiles: importProfiles,
     confirmDelete: confirmDelete, promptRename: promptRename, promptAdd: promptAdd,

@@ -76,8 +76,8 @@ export function buildLevel(level) {
       const order = level.tracks.indexOf(track);
       if (today.length) {
         must.push({ track, kind: "new", units: today, intro, pri: 0, order });
-      } else if (since <= (track.firmLessons ?? 2)) {
-        must.push({ track, kind: "firm", units: [latest], intro, pri: 1, order });
+      } else if (since <= (track.firmLessons ?? 3)) {
+        must.push({ track, kind: "firm", units: [latest], intro, pri: 1, order, stage: since });
       } else if (track.warmup) {
         must.push({ track, kind: "review", units: intro, intro, pri: 1, order });
       } else if (!track.retired || n <= track.retired) {
@@ -112,7 +112,16 @@ export function buildLevel(level) {
       if (w.kind === "new") {
         made = w.units.flatMap((u) => asList(w.track.newEx(u, ctx, w.intro)));
       } else if (w.kind === "firm") {
+        ctx.stage = w.stage;
         made = asList((w.track.firmEx || w.track.reviewEx).call(w.track, w.intro, ctx, w.units[0]));
+        // The format fades: the day after new teaching the lead comes back
+        // before the tests, the next day one brief lead, and then tests only.
+        if (!w.track.firmEx && made[0] && !made[0].steps.some((s) => s.cue === "lead" || s.cue === "model")) {
+          const fresh = asList(w.track.newEx(w.units[0], makeCtx(level, n, w.track.id, "fade"), w.intro))[0];
+          const leads = fresh ? fresh.steps.filter((s) => s.cue === "lead") : [];
+          if (w.stage === 1 && leads.length) made[0].steps = leads.concat(made[0].steps);
+          else if (w.stage === 2 && leads.length) made[0].steps = [leads[0]].concat(made[0].steps);
+        }
       } else {
         made = asList(w.track.reviewEx(w.units, ctx));
         // Lengthen short reviews with more items from the same track.
@@ -136,6 +145,23 @@ export function buildLevel(level) {
         ex.trackName = w.track.name;
         ex.kind = ex.kind || w.kind;
         ex.units = ex.units || w.units.map((u) => u.id);
+        // Spare items let the runner put an item the child missed recently in
+        // place of one that is firm, and give a repeated lesson fresh items.
+        if (ex.kind !== "new" && w.track.testItems) {
+          const have = new Set(ex.steps.map((s) => s.say + JSON.stringify(s.screen)));
+          const spare = [];
+          for (const salt of ["spare", "spare2"]) {
+            for (const it of trackItems(level, w.track, w.intro, n, salt)) {
+              const k = it.say + JSON.stringify(it.screen);
+              if (have.has(k)) continue;
+              have.add(k);
+              spare.push(it);
+              if (spare.length >= 3) break;
+            }
+            if (spare.length >= 3) break;
+          }
+          if (spare.length) ex.spare = spare;
+        }
         exercises.push(ex);
       }
       lastSeen[w.track.id] = n;

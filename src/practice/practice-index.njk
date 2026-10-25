@@ -19,6 +19,12 @@ bodyClass: page-practice
       {% include "partials/icons/chevron-right.njk" %}
     </a>
   </li>
+  <li data-timed-row hidden>
+    <a class="row" href="/timed/">
+      <span class="row__main"><span class="row__title">Timed facts</span><span class="row__sub">One minute of First Grade facts. How many right against the goal.</span></span>
+      {% include "partials/icons/chevron-right.njk" %}
+    </a>
+  </li>
 </ul>
 
 {% for level in program.levels %}
@@ -41,5 +47,8 @@ bodyClass: page-practice
   var level = P && P.currentLevel && P.currentLevel();
   var open = document.querySelector(level ? '[data-practice-level="' + level + '"]' : "[data-practice-level]");
   if (open) open.open = true;
+  // The timed check appears once the child is in First Grade.
+  var timed = document.querySelector("[data-timed-row]");
+  if (timed && P && (level === "first" || level === "bridge" || P.nextLesson("first", 150) > 1)) timed.hidden = false;
 })();
 </script>

@@ -28,6 +28,7 @@
 .fact-grid th { padding: 0.125rem 0.25rem; color: var(--ink-2); font-weight: 700; min-width: 1.5rem; text-align: center; }
 .fact-grid td { width: 1.5rem; height: 1.5rem; border: 1px solid var(--surface); text-align: center; font-weight: 700; font-size: 0.75rem; line-height: 1; }
 .fc-firm, .fk--firm { background: var(--firm-soft); color: var(--firm); }
+.fc-automatic, .fk--automatic { background: var(--firm); color: #fff; letter-spacing: -0.15em; }
 .fc-learning, .fk--learning { background: var(--primary-soft); color: var(--primary-strong); }
 .fc-shaky, .fk--shaky { background: var(--note-soft); color: var(--note); }
 .fc-new, .fk--new { background: var(--surface-2); color: var(--ink-2); }

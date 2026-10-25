@@ -168,6 +168,10 @@ export function validateLevel(level, built) {
         validateStep(st, `${E}, step ${i + 1}`, errors);
         checkReadable(level, lesson.number, st, `${E}, step ${i + 1}`, errors);
       });
+      (ex.spare || []).forEach((st, i) => {
+        validateStep(st, `${E}, spare item ${i + 1}`, errors);
+        checkReadable(level, lesson.number, st, `${E}, spare item ${i + 1}`, errors);
+      });
       steps += ex.steps.length;
       seen[ex.track] = seen[ex.track] || [];
       seen[ex.track].push(lesson.number);
@@ -175,7 +179,15 @@ export function validateLevel(level, built) {
     lesson.steps = steps;
     validateIndependent(level, lesson, errors);
     lesson.minutes = estimateMinutes(lesson);
+    const responses = lesson.exercises.reduce((a, e) => a + e.steps.filter((st) => st.cue === "test").length, 0) + (lesson.independent ? lesson.independent.steps.length : 0);
+    lesson.responses = responses;
     if (steps > (level.maxSteps || 80)) errors.push(`${L}: ${steps} steps, more than the ${level.maxSteps} allowed`);
+    // Direct Instruction density: a band of minutes, and several answers a minute.
+    if (level.minutesBand && lesson.number > 3) {
+      const [lo, hi] = level.minutesBand;
+      if (lesson.minutes < lo - 2 || lesson.minutes > hi + 2) warnings.push(`${L}: about ${lesson.minutes} minutes, outside ${lo} to ${hi}`);
+    }
+    if (lesson.minutes >= 4 && responses / lesson.minutes < 2.5) warnings.push(`${L}: ${responses} answers in about ${lesson.minutes} minutes, fewer than three a minute`);
   }
   // Gaps: once a track has begun, it must come back often.
   for (const t of level.tracks) {

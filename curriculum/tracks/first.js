@@ -1,4 +1,4 @@
-// First Grade: 150 lessons, 20 to 30 minutes each, for children of about six.
+// First Grade: 150 lessons, 12 to 15 minutes each, for children of about six.
 
 import {
   V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural, countTest, readNum, touchNum, touchChoice, iconSeq, favorNew, others,
@@ -602,19 +602,26 @@ const fluency = {
   },
   reviewEx(intro, ctx) {
     const r = ctx.rand;
-    const add = addFacts.pool(ctx.known("add-facts"));
-    const sub = subFacts.pool(ctx.known("sub-facts"));
-    const steps = [];
-    for (let i = 0; i < 6; i++) {
-      if (sub.length && i % 2 === 1) { const [a, b] = r.pick(sub); steps.push(factStep(a, "−", b, { say: `${Word(a)} minus ${word(b)}?` })); }
-      else { const [a, b] = r.pick(add); steps.push(factStep(a, "+", b, { say: `${Word(a)} plus ${word(b)}?` })); }
-    }
+    const n = ctx.lesson;
+    const released = releasedFacts(n);
+    const newest = released.filter((f) => f.lesson >= n - 1);
+    const known = released.filter((f) => f.lesson < n - 1);
+    // Half from the newest set, half from facts already known.
+    const picks = [];
+    const take = (pool, k) => { const bag = pool.slice(); while (picks.length < 8 && bag.length && k-- > 0) picks.push(bag.splice(Math.floor(r() * bag.length), 1)[0]); };
+    take(newest, 4);
+    take(known, 8 - picks.length);
+    take(newest, 8 - picks.length);
+    const steps = picks.map((f) => factStep(f.a, f.op === "+" ? "+" : "−", f.b, { say: `${Word(f.a)} ${f.op === "+" ? "plus" : "minus"} ${word(f.b)}?` }));
     return { title: "Quick facts", steps };
   },
   testItems(units, ctx) {
     const r = ctx.rand;
-    const add = addFacts.pool(ctx.known("add-facts"));
-    return r.sample(add, 4).map(([a, b]) => factStep(a, "+", b));
+    const released = releasedFacts(ctx.lesson);
+    const bag = released.slice();
+    const out = [];
+    while (out.length < 4 && bag.length) { const f = bag.splice(Math.floor(r() * bag.length), 1)[0]; out.push(factStep(f.a, f.op === "+" ? "+" : "−", f.b)); }
+    return out;
   },
 };
 
@@ -1470,25 +1477,36 @@ const money = {
   },
 };
 
-// Facts the First Grade fact review may draw on.
+// Facts the First Grade fact review may draw on. A unit's facts are released
+// in sets of six, one set a lesson from the lesson the unit begins, so a new
+// strategy opens a few facts at a time, mixed with the facts already known.
+const SET_SIZE = 6;
 const firstFacts = [];
 const seenFact = new Set();
 for (const u of ADD_UNITS) {
   if (u.id === "three") continue;
+  let i = 0;
   for (const [a, b] of addFactsFor(u.id)) {
     const key = `${a}+${b}`;
     if (seenFact.has(key)) continue;
     seenFact.add(key);
-    firstFacts.push({ key, a, op: "+", b, ans: a + b, lesson: u.lesson });
+    firstFacts.push({ key, a, op: "+", b, ans: a + b, lesson: u.lesson + Math.floor(i / SET_SIZE), set: Math.floor(i / SET_SIZE) + 1, unit: u.id });
+    i++;
   }
 }
 for (const u of SUB_UNITS) {
+  let i = 0;
   for (const [a, b] of subFactsFor(u.id)) {
     const key = `${a}-${b}`;
     if (seenFact.has(key)) continue;
     seenFact.add(key);
-    firstFacts.push({ key, a, op: "−", b, ans: a - b, lesson: u.lesson });
+    firstFacts.push({ key, a, op: "−", b, ans: a - b, lesson: u.lesson + Math.floor(i / SET_SIZE), set: Math.floor(i / SET_SIZE) + 1, unit: u.id });
+    i++;
   }
+}
+// The facts released by a lesson, for the daily drill and the timed check.
+export function releasedFacts(n, op) {
+  return firstFacts.filter((f) => f.lesson <= n && (!op || f.op === op));
 }
 
 export { addFacts, subFacts, stories as firstStories, placeValue, numMax as firstNumMax };
@@ -1500,11 +1518,12 @@ export default {
   longName: "First Grade",
   age: "about 6",
   lessons: 150,
-  minutes: "20 to 30",
-  minExercises: 7,
-  maxExercises: 8,
-  minReviewSteps: 4,
-  maxSteps: 70,
+  minutes: "12 to 15",
+  minutesBand: [12, 15],
+  minExercises: 8,
+  maxExercises: 10,
+  minReviewSteps: 6,
+  maxSteps: 100,
   maxGap: 12,
   reviewIntervals: [2, 4, 6],
   placementPoints: [1, 40, 80, 115],

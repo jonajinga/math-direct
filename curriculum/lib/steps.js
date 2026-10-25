@@ -79,6 +79,7 @@ export function test(screen, say, answer, correct, opts = {}) {
     confirm: opts.confirm || yes(answer),
     correct,
     signal: inferSignal(scr, say, answer),
+    ...(opts.skill === "story" ? { pause: 3 } : {}),
     ...opts,
   };
 }

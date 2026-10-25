@@ -135,6 +135,9 @@ for (const [w, h] of SIZES) {
     const start = await page.$("[data-start], [data-facts]");
     if (start) await start.click();
     await page.waitForFunction(() => { const s = document.getElementById("tp-say"); return s && s.textContent.length > 0; }, null, { timeout: 8000 }).catch(() => {});
+    // Let the fonts arrive and the panel refit before the first measurement.
+    await page.evaluate(() => document.fonts && document.fonts.ready).catch(() => {});
+    await page.waitForTimeout(80);
     const r = await page.evaluate(walk, url);
     tot.pages++;
     for (const x of r.out) {

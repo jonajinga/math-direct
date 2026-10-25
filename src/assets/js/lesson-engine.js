@@ -16,7 +16,7 @@
     exTitle: $("tp-ex-title"), exMeta: $("tp-ex-meta"), stepNo: $("tp-step-no"), cue: $("tp-cue"), say: $("tp-say"),
     doBox: $("tp-do"), doText: $("tp-do-text"), answerBox: $("tp-answer"), answerText: $("tp-answer-text"),
     confirmBox: $("tp-confirm"), confirmText: $("tp-confirm-text"), correctBox: $("tp-correct"), correctText: $("tp-correct-text"),
-    touched: $("tp-touched"), testNote: $("tp-test-note"),
+    touched: $("tp-touched"), testNote: $("tp-test-note"), signal: $("tp-signal"),
     btnMore: $("btn-more"), btnShow: $("btn-show"), btnClear: $("btn-clear"), btnError: $("btn-error"), btnOver: $("btn-over"),
     btnNext: $("btn-next"), btnFirm: $("btn-firm"), btnGoOn: $("btn-goon"), btnBigBack: $("btn-big-back"),
     moreList: $("more-list"), outlineList: $("tp-outline-list"), outlineLinks: $("tp-outline-links"),
@@ -41,6 +41,11 @@
   var where = { child: "", level: "", name: "", ex: "", exShort: "" };
   var leaving = false; // set when the parent leaves through a sheet, so the browser does not ask again
   var rehearsing = false; // a run without a child: nothing is recorded or saved
+  var stepShown = 0; // when the current step was drawn, for response times
+  var segTimes = {}; // seconds spent in each segment
+  var segEntered = 0, segIndex = -1;
+  var resumed = false;
+  var timed = null; // the one-minute check: { ends, timer }
 
   function key(s, i) { var st = segments[s] && segments[s].steps[i]; return st ? st.uid : s + ":" + i; }
   function firstOf(k) { var r = results[k]; return r ? r.first : null; }
@@ -53,7 +58,7 @@
   function escapeHtml(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   function escapeAttr(s) { return escapeHtml(s).replace(/"/g, "&quot;"); }
   function childName() { var p = P && P.getActiveProfile ? P.getActiveProfile() : null; return p ? p.name : ""; }
-  function thing() { return MODE === "test" ? "test" : MODE === "placement" ? "placement test" : MODE === "practice" ? "practice" : "lesson"; }
+  function thing() { return MODE === "test" ? "test" : MODE === "placement" ? "placement test" : MODE === "practice" || MODE === "timed" ? "practice" : "lesson"; }
 
   // ── Building scripts for each mode ──
   function initLesson() {
@@ -64,9 +69,61 @@
     if (lesson.independent && lesson.independent.steps.length) {
       segments.push({ title: "Independent work", meta: "Read each line once, give no help", kind: "independent", steps: lesson.independent.steps });
     }
+    if (!rehearsing) adaptReview(lesson);
     assignUids();
     setWhere(lesson.levelName, "Lesson " + lesson.number);
     el.outlineLinks.innerHTML = '<a href="/' + lesson.levelSlug + '/">All ' + escapeHtml(lesson.levelName) + " lessons</a>";
+  }
+
+  // Review draws first from items the child missed in recent sittings: a
+  // spare item missed recently takes the place of one that is firm, and
+  // comes first. A lesson taught before draws the spare items in instead,
+  // so a repeat is not the same lesson twice.
+  function missedRecently(item) {
+    var h = P && P.itemHistory ? P.itemHistory(item) : null;
+    return !!(h && h.r && h.r.slice(-3).indexOf(0) !== -1);
+  }
+  function firmRecently(item) {
+    var h = P && P.itemHistory ? P.itemHistory(item) : null;
+    return !!(h && h.r && h.r.length >= 3 && h.r.slice(-3).every(function (x) { return x === 1; }));
+  }
+  function adaptReview(lesson) {
+    if (!P || !P.itemHistory) return;
+    var taughtBefore = P.lessonHistory ? P.lessonHistory(lesson.id).length : 0;
+    lesson.exercises.forEach(function (ex, i) {
+      var seg = segments[i];
+      if (!seg || !ex.spare || !ex.spare.length || ex.kind === "new") return;
+      var tests = seg.steps.filter(function (st) { return st.cue === "test" && st.item; });
+      if (!tests.length) return;
+      var spares = ex.spare.slice();
+      // Spare items the child missed recently replace firm items.
+      spares.filter(function (sp) { return sp.item && missedRecently(sp.item); }).forEach(function (sp) {
+        var victim = tests.filter(function (st) { return firmRecently(st.item) && !st.missedNote; })[0];
+        if (!victim) return;
+        var at = seg.steps.indexOf(victim);
+        var c = asTestStep(sp);
+        c.missedNote = true;
+        seg.steps[at] = c;
+        tests[tests.indexOf(victim)] = c;
+        spares.splice(spares.indexOf(sp), 1);
+      });
+      // A repeated lesson swaps in fresh items for the ones still firm.
+      if (taughtBefore > 0) {
+        var k = taughtBefore;
+        tests.forEach(function (st) {
+          if (!spares.length || st.missedNote || missedRecently(st.item)) return;
+          if ((k++ % 2) === 0) { var at2 = seg.steps.indexOf(st); var fresh = asTestStep(spares.shift()); seg.steps[at2] = fresh; }
+        });
+      }
+      // Items missed recently come first in the exercise.
+      seg.steps.forEach(function (st) { if (st.cue === "test" && st.item && missedRecently(st.item)) st.missedNote = true; });
+      var head = seg.steps.filter(function (st) { return st.cue !== "test"; });
+      var firstTest = seg.steps.findIndex(function (st) { return st.cue === "test"; });
+      if (firstTest > 0) head = seg.steps.slice(0, firstTest); else head = [];
+      var rest = seg.steps.slice(head.length);
+      rest.sort(function (a, b) { return (b.missedNote ? 1 : 0) - (a.missedNote ? 1 : 0); });
+      seg.steps = head.concat(rest);
+    });
   }
 
   function setWhere(level, name) {
@@ -115,6 +172,59 @@
     el.outlineLinks.innerHTML = "";
   }
 
+  // The one-minute fact check: facts released so far, newest set favored,
+  // shuffled. The parent marks each answer; the next fact comes up at once.
+  function initTimed() {
+    var facts = DATA.facts || [];
+    var next = P && DATA.level ? P.nextLesson(DATA.level.id, DATA.level.lessons) : 9999;
+    var released = facts.filter(function (f) { return f.lesson < next; });
+    if (!released.length) released = facts.slice(0, 12);
+    var sets = 0;
+    released.forEach(function (f) { if (f.set) sets = Math.max(sets, f.lesson); });
+    var newest = released.filter(function (f) { return f.lesson >= next - 3; }), known = released.filter(function (f) { return f.lesson < next - 3; });
+    function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+    var order = [], ns = shuffle(newest), ks = shuffle(known);
+    while (order.length < 60 && (ns.length || ks.length)) {
+      if (ns.length && (order.length % 2 === 0 || !ks.length)) order.push(ns.shift()); else order.push(ks.shift());
+      if (!ns.length && !ks.length) { ns = shuffle(newest); ks = shuffle(known); }
+    }
+    segments = [{ title: "Timed facts", meta: "One minute", kind: "timed", steps: order.map(function (f) { var st = asTestStep(f); delete st.lesson; return st; }) }];
+    assignUids();
+    var released2 = released.length;
+    DATA.goal = Math.min(25, 8 + Math.floor(released2 / 12) * 2);
+    setWhere(DATA.level ? DATA.level.name + " facts" : "Facts", "Timed check");
+    el.outlineLinks.innerHTML = '<a href="/practice/">All practice</a>';
+  }
+  function startTimed() {
+    timed = { ends: Date.now() + (DATA.seconds || 60) * 1000, timer: null };
+    where.ex = (DATA.seconds || 60) + " s left";
+    where.exShort = where.ex;
+    fitStrip();
+    timed.timer = setInterval(function () {
+      var left = Math.max(0, Math.round((timed.ends - Date.now()) / 1000));
+      where.ex = left + " s left";
+      where.exShort = where.ex;
+      fitStrip();
+      if (left <= 10 && left > 0 && left % 5 === 0) announce(left + " seconds left.");
+      if (left <= 0) finishTimed();
+    }, 250);
+  }
+  window.addEventListener("md-end-timed", function () { if (timed) timed.ends = Date.now(); });
+  function finishTimed() {
+    if (!timed) return;
+    clearInterval(timed.timer);
+    timed = null;
+    var tl = tally();
+    var goal = DATA.goal || 10;
+    if (P && P.recordTimed && !rehearsing) P.recordTimed({ date: new Date().toISOString(), level: DATA.level ? DATA.level.id : "", right: tl.firm, errors: tl.errors, goal: goal });
+    var html = '<article class="finish"><p class="finish__kicker">Timed facts' + (childName() ? " · " + escapeHtml(childName()) : "") + "</p>";
+    html += '<h1 class="finish__title">' + tl.firm + " right in one minute</h1>";
+    html += '<dl class="finish__facts"><div><dt>Right</dt><dd>' + tl.firm + "</dd></div><div><dt>Errors</dt><dd>" + tl.errors + "</dd></div><div><dt>Goal</dt><dd>" + goal + "</dd></div></dl>";
+    html += '<div class="finish__advice"><p>' + (tl.firm >= goal ? "<strong>At the goal.</strong> The goal rises as more facts are released." : "<strong>Below the goal of " + goal + ".</strong> Keep the daily Quick facts going, and give this check again in a week.") + "</p></div>";
+    html += '<ul class="finish__links"><li><a href="/records/">Records</a></li></ul></article>';
+    showFinish(html, actionBar({ label: "Again", act: "again" }, { label: "All practice", href: DATA.exitUrl || "/practice/" }));
+  }
+
   function initPractice() {
     var set = DATA.set;
     var limit = DATA.limitLesson || 9999;
@@ -154,6 +264,7 @@
     if (MODE === "lesson") { where.ex = "Exercise " + (pos.seg + 1) + " of " + segments.length; where.exShort = "Ex " + (pos.seg + 1) + " of " + segments.length; }
     else if (MODE === "test") { where.ex = "Part " + (pos.seg + 1) + " of " + segments.length; where.exShort = where.ex; }
     else if (MODE === "placement") { where.ex = "Section " + (placement.idx + 1) + " of " + DATA.sections.length; where.exShort = where.ex; }
+    else if (MODE === "timed") { where.ex = timed ? Math.max(0, Math.round((timed.ends - Date.now()) / 1000)) + " s left" : ""; where.exShort = where.ex; }
     else { where.ex = seg ? (pos.step + 1) + " of " + seg.steps.length : ""; where.exShort = where.ex; }
     fitStrip();
   }
@@ -192,11 +303,30 @@
 
   // ── Rendering a step ──
   function cueLabel(c, seg) {
+    if (MODE === "timed") return "Timed";
     if (MODE === "test" || MODE === "placement") return "Test item";
     if (seg && seg.kind === "independent") return "On your own";
     return { model: "My turn", lead: "Together", test: "Your turn", note: "Set up" }[c] || "";
   }
   function isOwn() { var seg = currentSeg(); return !!seg && seg.kind === "independent"; }
+
+  // The signal for a test step: touch, a hand drop, a rhythm, or a watch.
+  var SIGNALS = {
+    touch: ["Touch", "The child touches the screen."],
+    drop: ["Drop", "Pause, then drop your hand or nod. The child answers on the signal."],
+    rhythm: ["Rhythm", "Tap a steady beat. The child says one number on each tap."],
+    watch: ["Watch", "Watch and listen for the whole answer."],
+  };
+  function renderSignal(st) {
+    var box = el.signal;
+    if (!box) return;
+    if (!st || st.cue !== "test" || !st.signal || !SIGNALS[st.signal] || MODE === "timed") { box.hidden = true; box.textContent = ""; return; }
+    var sig = SIGNALS[st.signal];
+    box.innerHTML = '<span class="tp-signal__glyph tp-signal__glyph--' + st.signal + '" aria-hidden="true"></span><span class="tp-signal__word">' + sig[0] + "</span>" + (st.pause ? '<span class="tp-signal__pause"> · pause ' + st.pause + " seconds</span>" : "");
+    box.setAttribute("title", sig[1]);
+    box.setAttribute("aria-label", "Signal: " + sig[0].toLowerCase() + ". " + sig[1] + (st.pause ? " Pause " + st.pause + " seconds first." : ""));
+    box.hidden = false;
+  }
 
   function announce(text) {
     if (!el.live) return;
@@ -224,7 +354,8 @@
     el.exMeta.textContent = seg.meta || "";
     el.stepNo.textContent = (pos.step + 1) + " of " + seg.steps.length;
     el.stepNo.setAttribute("aria-label", "Step " + (pos.step + 1) + " of " + seg.steps.length);
-    var testing = MODE === "test" || MODE === "placement";
+    renderSignal(st);
+    var testing = MODE === "test" || MODE === "placement" || MODE === "timed";
     var own = seg.kind === "independent";
     el.cue.textContent = cueLabel(st.cue, seg);
     el.cue.className = "tp-cue tp-cue--" + (testing ? "test" : own ? "own" : st.cue);
@@ -236,10 +367,19 @@
     el.correctBox.classList.remove("is-active");
     el.touched.hidden = true;
     el.touched.textContent = "";
-    el.testNote.textContent = testing ? "This is a test. Do not correct or help. Mark each answer and go on." :
+    el.testNote.textContent = MODE === "timed" ? "Mark each answer at once. The next fact comes up by itself." :
+      testing ? "This is a test. Do not correct or help. Mark each answer and go on." :
       own ? "Read the line once. Give no help. Mark the answer." :
-      st.retestOf ? "Asked again after the correction. Mark it as before." : "";
+      st.retestOf ? "Asked again after the correction. Mark it as before." :
+      st.missedNote ? "Missed last time. Watch this one." : "";
     el.testNote.hidden = !el.testNote.textContent;
+    stepShown = Date.now();
+    if (segIndex !== pos.seg) {
+      var now = Date.now();
+      if (segIndex >= 0) segTimes[segIndex] = (segTimes[segIndex] || 0) + (now - segEntered) / 1000;
+      segIndex = pos.seg;
+      segEntered = now;
+    }
 
     renderStrip();
     renderRail();
@@ -255,7 +395,7 @@
   function sessionId() { return DATA.lesson ? DATA.lesson.id : DATA.test ? DATA.test.id : MODE; }
   function markCount() { var n = 0; for (var k in results) n++; return n; }
   function saveSession() {
-    if (!P || !P.saveSession || MODE === "practice" || !DATA || rehearsing) return;
+    if (!P || !P.saveSession || MODE === "practice" || MODE === "timed" || !DATA || rehearsing) return;
     if (!markCount() && !moved && MODE !== "placement") return;
     P.saveSession({
       kind: MODE, url: window.location.pathname + (testParts.length && testParts.length < (DATA.test ? DATA.test.parts.length : 0) ? window.location.search : ""), id: sessionId(),
@@ -266,7 +406,7 @@
   }
   function clearSession() { if (P && P.clearSession) P.clearSession(); }
   function savedSitting() {
-    if (!P || !P.loadSession || MODE === "practice" || rehearsing) return null;
+    if (!P || !P.loadSession || MODE === "practice" || MODE === "timed" || rehearsing) return null;
     var s = P.loadSession();
     var here = window.location.pathname + (MODE === "test" && /[?&]parts=/.test(window.location.search) ? window.location.search : "");
     if (!s || s.url !== here || s.kind !== MODE) return null;
@@ -299,6 +439,7 @@
     pos = { seg: Math.min(s.pos.seg, segments.length - 1), step: 0 };
     pos.step = Math.min(s.pos.step, segments[pos.seg].steps.length - 1);
     startTime = Date.now() - (s.elapsed || 0);
+    resumed = true;
     render();
   }
   function offerContinue(s) {
@@ -523,9 +664,9 @@
     if (!cur) results[k] = { first: r, last: r, n: 1 };
     else { cur.last = r; cur.n++; }
     moved = true;
-    if (st.fact && P && P.recordFact && !cur && !rehearsing) P.recordFact(st.fact, r === "firm");
+    if (st.fact && P && P.recordFact && !cur && !rehearsing) P.recordFact(st.fact, r === "firm", Date.now() - stepShown);
     saveSession();
-    if (r === "firm" || MODE === "test" || MODE === "placement" || seg.kind === "independent") {
+    if (r === "firm" || MODE === "test" || MODE === "placement" || MODE === "timed" || seg.kind === "independent") {
       announce(r === "firm" ? "Marked firm." : "Marked as an error.");
       advance();
       return;
@@ -618,6 +759,7 @@
     return missed.length ? { title: "Missed items, once more", meta: "Delayed test", kind: "delayed", steps: missed } : null;
   }
   function endOfScript() {
+    if (MODE === "timed") return finishTimed();
     if (MODE === "lesson" && !delayedAdded) {
       delayedAdded = true;
       var del = buildDelayed();
@@ -680,6 +822,7 @@
 
   function showFinish(html, bar) {
     clearTimeout(flashTimer);
+    if (timed) { clearInterval(timed.timer); timed = null; }
     bigPicture(false);
     clearSession();
     el.shell.hidden = true;
@@ -749,8 +892,13 @@
     var repeat = total > 0 && (main.errors / total > 0.25 || stillMissed.length > 1);
     var ownTotal = own.firm + own.errors;
     var ownLow = ownTotal > 0 && own.firm / ownTotal < 0.85;
+    if (segIndex >= 0) { segTimes[segIndex] = (segTimes[segIndex] || 0) + (Date.now() - segEntered) / 1000; segEntered = Date.now(); }
+    var teachSeconds = 0;
+    segments.forEach(function (s, i) { if (isEx(s)) teachSeconds += segTimes[i] || 0; });
+    var pace = teachSeconds > 0 ? Math.round(((main.firm + main.errors + retests.firm + retests.errors) / (teachSeconds / 60)) * 10) / 10 : null;
+    var showPace = pace && teachSeconds >= 30;
     var summary = {
-      date: new Date().toISOString(), minutes: minutes, firm: main.firm, errors: main.errors, firstTry: true,
+      date: new Date().toISOString(), minutes: minutes, firm: main.firm, errors: main.errors, firstTry: true, pace: pace, resumed: resumed,
       retestFirm: retests.firm, retestErrors: retests.errors,
       delayedFirm: delayed.firm, delayedErrors: delayed.errors, exercises: exErrors, stillMissed: stillMissed, repeat: repeat,
       independent: ownTotal ? { firm: own.firm, errors: own.errors } : null,
@@ -765,7 +913,10 @@
     if (retests.firm + retests.errors) html += "<div><dt>Asked again</dt><dd>" + retests.firm + " of " + (retests.firm + retests.errors) + "</dd></div>";
     if (del) html += "<div><dt>Retest</dt><dd>" + delayed.firm + " of " + (delayed.firm + delayed.errors) + "</dd></div>";
     if (ownTotal) html += "<div><dt>On your own</dt><dd>" + own.firm + " of " + ownTotal + "</dd></div>";
-    html += "<div><dt>Time</dt><dd>" + minutes + " min</dd></div></dl>";
+    html += "<div><dt>Time</dt><dd>" + minutes + " min</dd></div>";
+    if (showPace) html += "<div><dt>Pace</dt><dd>" + pace + " a minute</dd></div>";
+    html += "</dl>";
+    if (showPace && !rehearsing) html += '<p class="finish__lead">Pace is answers a minute during the exercises. Direct Instruction aims for about ten on firm work; slower is right for new teaching.</p>';
     if (exErrors.length) {
       html += '<h2 class="finish__h2">Where the errors were</h2><ul class="finish__list">';
       exErrors.forEach(function (e) { html += "<li>Exercise " + e.n + ", " + escapeHtml(e.title) + ": " + e.errors + " error" + (e.errors > 1 ? "s" : "") + "</li>"; });
@@ -898,6 +1049,7 @@
     results = {};
     pos = { seg: 0, step: 0 };
     startTime = Date.now();
+    if (MODE === "timed") { initTimed(); el.finish.hidden = true; el.finish.innerHTML = ""; el.shell.hidden = false; render(); startTimed(); el.btnMore.focus(); return; }
     initPractice();
     el.finish.hidden = true;
     el.finish.innerHTML = "";
@@ -1131,9 +1283,25 @@
     if (hide) hide.parentNode.hidden = MODE !== "lesson";
     var saved = savedSitting();
     var wantsContinue = /[?&]continue=1/.test(window.location.search);
+    segTimes = {}; segIndex = -1; resumed = false;
+    if (timed) { clearInterval(timed.timer); timed = null; }
     if (MODE === "lesson") initLesson();
     else if (MODE === "test") initTest();
     else if (MODE === "practice") initPractice();
+    else if (MODE === "timed") {
+      var tstart = $("timed-start");
+      initTimed();
+      if (tstart) {
+        el.shell.hidden = true;
+        tstart.hidden = false;
+        var go = tstart.querySelector("[data-start-timed]");
+        if (go) go.addEventListener("click", function () { tstart.hidden = true; el.shell.hidden = false; render(); startTimed(); el.btnMore.focus(); });
+        return;
+      }
+      render();
+      startTimed();
+      return;
+    }
     else if (MODE === "placement") {
       var chooser = $("placement-start");
       if (saved && saved.placement) {

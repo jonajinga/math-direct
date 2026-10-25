@@ -81,3 +81,38 @@ step the part covers; a part passes with every item right, or one error in
 five or more. Failed parts can be given again alone, and the record merges.
 The next step stays on the latest due test until it is passed.
 `npm run check:program` exercises all of this in a browser.
+
+## Program depth
+
+Lessons are denser than before: six to nine exercises, five or six review
+items each, and thirty to fifty answers a lesson. The estimate is twelve
+seconds an answer, so the claimed minutes (Pre-K 8 to 12, Kindergarten and
+First Grade 12 to 15) come from that estimate until real sittings
+calibrate it; the validator warns on lessons outside the band and on fewer
+than three answers a minute. The finish screen shows the pace of a sitting
+in answers a minute, and the summary keeps it.
+
+A firming format fades over three lessons: the day after new teaching the
+lead returns before the tests, the next day one brief lead, then tests
+only. Every test step carries a signal (touch, drop, rhythm, or watch),
+shown beside the step count and taught in the guide with a drawing; story
+problems add three seconds of think time.
+
+Every review exercise carries spare items. At the start of a lesson the
+runner puts a spare item the child missed in a recent sitting in place of
+one that is firm, moves items missed recently to the front with the note
+"Missed last time", and, when a lesson is taught again, swaps in fresh
+items for the ones still firm.
+
+First Grade facts are released six to a set, one set a lesson from the
+lesson a strategy begins, and the daily drill mixes the newest set with
+facts already known. Each fact keeps its last five response times; a fact
+is automatic when its last three answers were right and under three
+seconds. The timed check gives one minute of released facts, marks at
+once, and records facts right against a goal that rises with the sets
+released.
+
+Pre-K begins with a readiness track (say what I say, answer on the signal,
+touch the one I name) over its first three lessons, and the placement test
+opens with a readiness section that a child who fails the first Pre-K
+section is given. Every other placement section has three items a track.

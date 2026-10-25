@@ -136,7 +136,7 @@
       var anyTaught = l.facts.some(function (f) { return f.lesson < next; });
       var levelStarted = started.indexOf(l) !== -1;
       if (!anyTaught && !levelStarted) return;
-      var body = '<p class="card__text"><span class="fk fk--firm" aria-hidden="true">&#10003;</span> firm (three right in a row) <span class="fk fk--learning" aria-hidden="true">&middot;</span> learning <span class="fk fk--shaky" aria-hidden="true">!</span> missed recently <span class="fk fk--new" aria-hidden="true"></span> taught, not yet tried. Dashed squares are facts not taught yet.</p>';
+      var body = '<p class="card__text"><span class="fk fk--automatic" aria-hidden="true">&#10003;&#10003;</span> automatic (three right in a row, each under three seconds) <span class="fk fk--firm" aria-hidden="true">&#10003;</span> firm (three right in a row) <span class="fk fk--learning" aria-hidden="true">&middot;</span> learning <span class="fk fk--shaky" aria-hidden="true">!</span> missed recently <span class="fk fk--new" aria-hidden="true"></span> taught, not yet tried. Dashed squares are facts not taught yet.</p>';
       ["+", "-"].forEach(function (op) {
         var facts = l.facts.filter(function (f) { return f.key.indexOf(op) !== -1; });
         if (!facts.length) return;
@@ -157,7 +157,7 @@
             if (!f) { body += '<td class="fc-none"></td>'; continue; }
             var st = P.factStatus(p.facts[f.key]);
             var cls = f.lesson >= next && st === "new" ? "fc-later" : "fc-" + st;
-            var glyph = st === "firm" ? "&#10003;" : st === "learning" ? "&middot;" : st === "shaky" ? "!" : "";
+            var glyph = st === "automatic" ? "&#10003;&#10003;" : st === "firm" ? "&#10003;" : st === "learning" ? "&middot;" : st === "shaky" ? "!" : "";
             body += '<td class="' + cls + '"><span aria-hidden="true">' + (cls === "fc-later" ? "" : glyph) + '</span><span class="sr-only">' + a + (op === "+" ? " plus " : " minus ") + b3 + ", " + (cls === "fc-later" ? "not taught yet" : st === "new" ? "not tried" : st) + "</span></td>";
           }
           body += "</tr>";
@@ -166,6 +166,14 @@
       });
       html += card(esc(l.name) + " facts", body);
     });
+
+    // ── Timed checks ──
+    if (p.timed && p.timed.length) {
+      var tl = p.timed.slice().reverse().slice(0, 10);
+      html += card("Timed fact checks", '<p class="card__text">Facts right in one minute, against the goal for the sets released so far.</p><ul class="recent-list">' + tl.map(function (t) {
+        return '<li class="recent"><span class="recent__date">' + shortDay(t.date) + '</span><span class="recent__name">' + t.right + " right, " + plural(t.errors, "error") + '</span><span class="recent__advice">' + (t.right >= t.goal ? "At the goal of " + t.goal : "Goal " + t.goal) + "</span></li>";
+      }).join("") + "</ul>");
+    }
 
     // ── Notes ──
     var notes = (p.notes || []).slice().reverse();
