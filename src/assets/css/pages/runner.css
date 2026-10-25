@@ -406,8 +406,10 @@
 /* Phones held sideways */
 @media (orientation: landscape) and (max-height: 520px) {
   .runner { flex-direction: row; }
-  .child-view { flex: 0 0 55%; height: auto; border-bottom: none; border-right: 1px solid var(--border-color); --stage-max: 62vh; }
-  .teacher { flex: 1 1 45%; border-top: none; }
-  .tp-body { gap: 0.375rem; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  .child-view { flex: 0 0 50%; height: auto; border-bottom: none; border-right: 1px solid var(--border-color); --stage-max: 62vh; }
+  .teacher { flex: 1 1 50%; border-top: none; }
+  .tp-head { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+  .tp-body { gap: 0.375rem; padding-top: 0.375rem; padding-bottom: 0.375rem; }
+  .tp-controls { padding-top: 0.375rem; padding-bottom: 0.375rem; }
 }
 
