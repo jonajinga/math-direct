@@ -1,0 +1,255 @@
+/* ===== Visual aids (rendered by assets/js/visuals.js) ===== */
+
+:root {
+  --v-red: #e0453a;
+  --v-blue: #2f74d0;
+  --v-yellow: #f2c230;
+  --v-green: #3a9a4a;
+  --v-purple: #8b5cc8;
+  --v-orange: #ef8a25;
+  --v-gray: #9a948e;
+  --v-brown: #9a6a3c;
+  --v-pink: #ec7bb0;
+  --v-ink: #1c1917;
+  --v-line: #a8a29e;
+  --v-soft: #f5f5f4;
+  --v-paper: #ffffff;
+  --v-dot: #2f74d0;
+  --v-dot2: #e0453a;
+  --v-accent: #ea580c;
+  --v-ten: #f2c230;
+  --v-one: #3a9a4a;
+  --v-hour: #1e3a5f;
+  --v-minute: #e0453a;
+  --v-box: #d4a373;
+}
+
+[data-theme="dark"] {
+  --v-ink: #f5f5f4;
+  --v-line: #78716c;
+  --v-soft: #292524;
+  --v-paper: #1c1917;
+  --v-dot: #60a5fa;
+  --v-dot2: #f87171;
+  --v-accent: #fb923c;
+  --v-hour: #93c5fd;
+  --v-minute: #fca5a5;
+  --v-box: #a16207;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --v-ink: #f5f5f4;
+    --v-line: #78716c;
+    --v-soft: #292524;
+    --v-paper: #1c1917;
+    --v-dot: #60a5fa;
+    --v-dot2: #f87171;
+    --v-accent: #fb923c;
+    --v-hour: #93c5fd;
+    --v-minute: #fca5a5;
+    --v-box: #a16207;
+  }
+}
+
+.mdv {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.mdv-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Sizes inside the child view.
+   --vis-h: the tallest a drawing may be. --cell: the size of one counted object.
+   Each SVG carries --ar (width / height) and, for countable things, --cw (cells wide). */
+.child-stage { --vis-h: calc(var(--stage-max, 36vh) * 0.85); --cell: min(18vh, 10rem); }
+.child-stage .mdv-svg { width: min(100%, calc(var(--vis-h) * var(--ar, 1))); height: auto; }
+.child-stage .mdv-cells { width: min(100%, calc(var(--cell) * var(--cw, 1)), calc(var(--vis-h) * var(--ar, 1))); }
+.child-stage .mdv--md { --vis-h: calc(var(--stage-max, 36vh) * 0.7); }
+.child-stage .mdv--sm { --vis-h: calc(var(--stage-max, 36vh) * 0.45); --cell: min(8vh, 4.5rem); }
+.child-stage .mdv-dots { --cell: min(10vh, 5rem); }
+.child-stage .mdv-shape { --vis-h: calc(var(--stage-max, 36vh) * 0.7); }
+.child-stage .mdv-say { --vis-h: calc(var(--stage-max, 36vh) * 0.35); }
+.child-stage .mdv-scene { --vis-h: calc(var(--stage-max, 36vh) * 0.8); }
+.child-stage .mdv-choice { --vis-h: calc(var(--stage-max, 36vh) * 0.42); --cell: min(11vh, 6rem); }
+.child-stage .mdv-choice .mdv-shape { --vis-h: calc(var(--stage-max, 36vh) * 0.32); }
+.child-stage .mdv-row__item > .mdv { --vis-h: calc(var(--stage-max, 36vh) * 0.5); --cell: min(8vh, 4.5rem); }
+.child-stage .mdv-frame { width: min(100%, calc(var(--vis-h) * var(--ar, 1)), 30rem); }
+
+/* When the screen holds more than one visual, each gets a share of the height. */
+.child-stage:has(> .mdv + .mdv) { --vis-h: calc(var(--stage-max, 36vh) * 0.42); --cell: min(9vh, 5rem); }
+.child-stage:has(> .mdv + .mdv) .mdv-eq { font-size: clamp(2rem, 9vh, 5rem); }
+.child-stage:has(> .mdv + .mdv) .mdv-num--lg { font-size: clamp(2.5rem, 11vh, 6rem); }
+.child-stage:has(> .mdv + .mdv) .mdv-col { font-size: clamp(1.5rem, 6vh, 3rem); }
+.mdv-row .mdv-num--lg, .mdv-row .mdv-sign { font-size: clamp(2rem, 8vh, 4.5rem); }
+.mdv-frames--2 .mdv-frame { max-width: 48%; }
+.child-stage .mdv-frames--2 .mdv-frame { width: min(48%, calc(var(--vis-h) * var(--ar, 1))); }
+.mdv-choice .mdv-digital span { font-size: clamp(1.1rem, 5vh, 2.25rem); border-width: 2px; }
+.child-stage .mdv-col { font-size: min(clamp(2.5rem, 11vh, 6rem), calc(var(--vis-h) / 4.4)); }
+
+/* Numerals */
+.mdv-num {
+  gap: clamp(1.5rem, 8vw, 5rem);
+  font-family: var(--font-child);
+  font-weight: 700;
+  color: var(--child-text-color, var(--v-ink));
+  line-height: 1;
+}
+.mdv-num__item { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.mdv-num--lg { font-size: clamp(5rem, 22vh, 12rem); }
+.mdv-num--md { font-size: clamp(3rem, 12vh, 6rem); }
+.mdv-num--sm { font-size: clamp(2rem, 7vh, 3.5rem); }
+.mdv-num .mdv-numdots { width: auto; height: 1.6rem; }
+.mdv-sign { color: var(--v-accent); }
+
+.mdv-blank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1em;
+  height: 1.1em;
+  padding: 0 0.1em;
+  border: 0.06em dashed var(--v-ink);
+  color: var(--v-accent);
+  font-family: var(--font-child);
+  font-weight: 700;
+  line-height: 1;
+}
+.mdv-blank--write { color: transparent; }
+
+/* Sequences */
+.mdv-seq { gap: 0.5rem; flex-wrap: wrap; font-family: var(--font-child); font-weight: 700; font-size: clamp(2rem, 8vh, 4rem); color: var(--v-ink); }
+.mdv-seq__box { min-width: 1.6em; padding: 0.15em 0.2em; border: 3px solid var(--v-line); text-align: center; line-height: 1.1; }
+.mdv-seq__box.is-hl { border-color: var(--v-accent); color: var(--v-accent); }
+.mdv-seq__box.is-blank { border-style: dashed; color: var(--v-accent); }
+
+/* Equations */
+.mdv-eq {
+  gap: 0.25em;
+  font-family: var(--font-child);
+  font-weight: 700;
+  font-size: clamp(3rem, 16vh, 8rem);
+  color: var(--v-ink);
+  line-height: 1;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.mdv-eq__op { color: var(--v-accent); padding: 0 0.05em; }
+.child-stage .mdv-eq { font-size: var(--eq-size, clamp(3rem, 16vh, 8rem)); }
+
+/* Column problems */
+.mdv-col {
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: var(--font-child);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 11vh, 6rem);
+  color: var(--v-ink);
+  line-height: 1.1;
+}
+.mdv-col__row { display: flex; align-items: center; }
+.mdv-col__op { width: 0.8em; color: var(--v-accent); text-align: left; }
+.mdv-col__d { width: 0.8em; text-align: center; display: inline-block; }
+.mdv-col__line { border-bottom: 0.08em solid var(--v-ink); }
+.mdv-col__labels { font-size: 0.3em; color: var(--text-secondary); }
+.mdv-col__labels .mdv-col__d { width: 2.67em; }
+.mdv-col__carry { font-size: 0.45em; color: var(--v-accent); }
+.mdv-col__carry .mdv-col__op { width: 1.78em; }
+.mdv-col__carry .mdv-col__d { width: 1.78em; }
+.mdv-col__d.is-struck { text-decoration: line-through; text-decoration-color: var(--v-accent); text-decoration-thickness: 0.06em; }
+.mdv-col__d.is-blank { color: var(--v-accent); }
+
+/* Choices: big touch targets */
+.mdv-choices {
+  display: grid;
+  gap: clamp(0.5rem, 2vw, 1.25rem);
+  width: 100%;
+  max-width: 54rem;
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+}
+.mdv-choices--2 { --cols: 2; max-width: 40rem; }
+.mdv-choices--3 { --cols: 3; }
+.mdv-choices--4 { --cols: 4; }
+.mdv-choices--5, .mdv-choices--6 { --cols: 3; }
+.mdv-choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.4rem, 1.5vw, 1rem);
+  background: var(--v-paper);
+  border: 3px solid var(--v-line);
+  min-height: 5rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.mdv-choice:hover, .mdv-choice:focus-visible { border-color: var(--v-blue); outline: none; }
+.mdv-choice.is-right { border-color: var(--green-600); background: rgba(22, 163, 74, 0.08); }
+.mdv-choice.is-wrong { border-color: var(--rose-500); background: rgba(197, 48, 48, 0.08); }
+.child-stage .mdv-choice .mdv-num { font-size: clamp(2.5rem, 12vh, 6rem); }
+
+/* Rows of visuals */
+.mdv-row { gap: clamp(1rem, 4vw, 3rem); flex-wrap: wrap; width: 100%; }
+.mdv-row__item { display: flex; justify-content: center; }
+.mdv-row .mdv-choices { flex: 1 1 22rem; }
+.mdv-stack { flex-direction: column; gap: 1rem; width: 100%; }
+
+/* Marking objects as they are counted */
+.mdv-mark { cursor: pointer; }
+.mdv-mark__ring { stroke: transparent; stroke-width: 6; }
+.mdv-mark.is-marked .mdv-mark__ring { stroke: var(--v-accent); fill: rgba(234, 88, 12, 0.08); }
+.mdv-markable { touch-action: manipulation; }
+
+/* Picking a row, a line position, or a size */
+.mdv-pickable .mdv-tap { cursor: pointer; }
+.mdv-rowpick__bg { stroke: transparent; stroke-width: 5; }
+.mdv-tap:hover .mdv-rowpick__bg, .mdv-tap:focus .mdv-rowpick__bg { stroke: var(--v-line); }
+.mdv-tap.is-right .mdv-rowpick__bg { stroke: var(--green-600); fill: rgba(22, 163, 74, 0.08); }
+.mdv-tap.is-wrong .mdv-rowpick__bg { stroke: var(--rose-500); fill: rgba(197, 48, 48, 0.08); }
+.mdv-tap:focus { outline: none; }
+
+/* Arriving objects in stories */
+.mdv-arrive { opacity: 0.92; }
+
+/* Frames */
+.mdv-frames { gap: 1rem; flex-wrap: wrap; }
+
+/* Digital clock */
+.mdv-digital span {
+  font-family: var(--font-child);
+  font-weight: 700;
+  font-size: clamp(3rem, 14vh, 7rem);
+  padding: 0.1em 0.4em;
+  border: 4px solid var(--v-ink);
+  color: var(--v-ink);
+  letter-spacing: 0.05em;
+}
+
+/* Writing */
+.mdv-write__guide { fill: none; stroke: var(--v-line); stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; opacity: 0.35; }
+.mdv-write__ink {
+  fill: none;
+  stroke: var(--v-blue);
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: mdvWrite 1.6s ease forwards;
+  animation-delay: calc(var(--i) * 1.7s + 0.3s);
+}
+@keyframes mdvWrite { to { stroke-dashoffset: 0; } }
+.child-stage .mdv-write { --vis-h: calc(var(--stage-max, 36vh) * 0.8); }
+.mdv-trace__path { fill: none; stroke: #9a9a9a; stroke-width: 5; stroke-dasharray: 3 7; stroke-linecap: round; }
+
+/* Flash: dots shown briefly */
+.child-stage.is-flashed .mdv { visibility: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mdv-write__ink { animation-duration: 0.01s; animation-delay: 0s; }
+}

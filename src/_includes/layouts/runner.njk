@@ -1,0 +1,80 @@
+---
+layout: layouts/base.njk
+bodyClass: page-runner
+---
+{{ content | safe }}
+<div class="runner" id="runner-shell">
+  <section class="child-view" aria-label="Child's screen">
+    <div class="child-stage" id="child-stage" aria-live="polite"></div>
+  </section>
+
+  <section class="teacher" aria-label="Teacher's panel">
+    <header class="tp-head">
+      <div class="tp-head__row">
+        <a class="tp-icon-btn tp-exit" href="{{ exitUrl or '/lessons/' }}" title="Leave" aria-label="Leave">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </a>
+        <span class="tp-where" id="tp-where"></span>
+        <div class="tp-student" data-student-select></div>
+        <button type="button" class="tp-icon-btn" id="btn-outline" aria-expanded="false" aria-controls="tp-outline" title="Lesson outline (O)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <span class="tp-icon-btn__label">Outline</span>
+        </button>
+        <button type="button" class="tp-icon-btn theme-toggle" aria-label="Switch to dark mode" onclick="this.blur()">
+          <span class="theme-toggle__light">{% include "partials/icons/moon.njk" %}</span>
+          <span class="theme-toggle__dark">{% include "partials/icons/sun.njk" %}</span>
+        </button>
+      </div>
+      <div class="tp-progress" id="tp-progress" aria-label="Exercises"></div>
+    </header>
+
+    <div class="tp-body" id="tp-body">
+      <div class="tp-ex">
+        <h1 class="tp-ex__title" id="tp-ex-title"></h1>
+        <p class="tp-ex__meta" id="tp-ex-meta"></p>
+      </div>
+      <div class="tp-stepline">
+        <span class="tp-cue" id="tp-cue"></span>
+        <span class="tp-step-no" id="tp-step-no"></span>
+      </div>
+      <p class="tp-say" id="tp-say"></p>
+      <div class="tp-box tp-do" id="tp-do" hidden><span class="tp-label">Do</span><p id="tp-do-text"></p></div>
+      <div class="tp-box tp-answer" id="tp-answer" hidden><span class="tp-label">Child</span><p id="tp-answer-text"></p></div>
+      <div class="tp-box tp-confirm" id="tp-confirm" hidden><span class="tp-label">If right</span><p id="tp-confirm-text"></p></div>
+      <div class="tp-box tp-correct" id="tp-correct" hidden><span class="tp-label">If wrong</span><p id="tp-correct-text"></p></div>
+      <p class="tp-test-note" id="tp-test-note" hidden>This is a test. Do not correct or help. Mark each answer and go on.</p>
+    </div>
+
+    <footer class="tp-controls">
+      <button type="button" class="tp-btn tp-btn--quiet" id="btn-back" title="Back (Left arrow)">Back</button>
+      <div class="tp-controls__main">
+        <button type="button" class="tp-btn tp-btn--error" id="btn-error" title="Error (X)" hidden>Error</button>
+        <button type="button" class="tp-btn tp-btn--firm" id="btn-firm" title="Firm (F or Right arrow)" hidden>Firm</button>
+        <button type="button" class="tp-btn tp-btn--next" id="btn-next" title="Next (Right arrow)">Next</button>
+        <button type="button" class="tp-btn tp-btn--quiet" id="btn-over" title="Start the exercise over (S)" hidden>Start exercise over</button>
+        <button type="button" class="tp-btn tp-btn--next" id="btn-goon" title="Go on (Right arrow)" hidden>Go on</button>
+      </div>
+      <div class="tp-controls__aux">
+        <button type="button" class="tp-btn tp-btn--quiet" id="btn-show" title="Show again (Space)" hidden>Show again</button>
+        <button type="button" class="tp-btn tp-btn--quiet" id="btn-clear" title="Clear the marks" hidden>Clear marks</button>
+      </div>
+    </footer>
+  </section>
+
+  <aside class="tp-outline" id="tp-outline" hidden aria-label="Outline">
+    <div class="tp-outline__head">
+      <h2>Outline</h2>
+      <button type="button" class="tp-icon-btn" id="tp-outline-close" aria-label="Close outline">&times;</button>
+    </div>
+    <ol class="tp-outline__list" id="tp-outline-list"></ol>
+    <p class="tp-outline__keys">Keys: Right arrow or F, Firm and next. X, Error. Left arrow, back. S, start the exercise over. Space, show again. O, outline.</p>
+  </aside>
+</div>
+
+<div class="runner-finish" id="runner-finish" hidden></div>
+
+{% block scripts %}
+<script src="/assets/js/progress.js"></script>
+<script src="/assets/js/visuals.js"></script>
+<script src="/assets/js/lesson-engine.js" defer></script>
+{% endblock %}

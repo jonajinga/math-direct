@@ -1,674 +1,676 @@
+// Math Direct lesson engine.
+// Runs a lesson, a mastery test, the placement test, or a practice set. The
+// child's screen shows only the visual; the parent's panel shows what to say,
+// what the child should answer, and the correction. The parent marks each
+// test step Firm or Error. Missed items return at the end of a lesson.
 (function () {
-  var lessonDataEl = document.getElementById("lesson-data");
-  if (!lessonDataEl) return;
+  "use strict";
 
-  var lesson = JSON.parse(lessonDataEl.textContent);
-  var steps = lesson.steps;
-  var currentStep = 0;
-  var visualHidden = false;
+  var dataEl = document.getElementById("runner-data");
+  if (!dataEl) return;
+  var DATA = JSON.parse(dataEl.textContent);
+  var MODE = DATA.mode;
 
-  // DOM
-  var childText = document.getElementById("child-text");
-  var visualContainer = document.getElementById("visual-container");
-  var stepDots = document.querySelectorAll(".step-dot");
-  var stepNumber = document.getElementById("step-number");
-  var stepSay = document.getElementById("step-say");
-  var stepDo = document.getElementById("step-do");
-  var praiseBox = document.getElementById("praise-box");
-  var praiseText = document.getElementById("praise-text");
-  var correctBox = document.getElementById("correct-box");
-  var correctText = document.getElementById("correct-text");
-  var prevBtn = document.getElementById("prev-btn");
-  var nextBtn = document.getElementById("next-btn");
-  var visualRemote = document.getElementById("visual-remote");
+  // ── DOM ──
+  var $ = function (id) { return document.getElementById(id); };
+  var stage = $("child-stage");
+  var el = {
+    where: $("tp-where"), exTitle: $("tp-ex-title"), exMeta: $("tp-ex-meta"), stepNo: $("tp-step-no"),
+    progress: $("tp-progress"), cue: $("tp-cue"), say: $("tp-say"), doBox: $("tp-do"), doText: $("tp-do-text"),
+    answerBox: $("tp-answer"), answerText: $("tp-answer-text"), confirmBox: $("tp-confirm"), confirmText: $("tp-confirm-text"),
+    correctBox: $("tp-correct"), correctText: $("tp-correct-text"), testNote: $("tp-test-note"),
+    btnBack: $("btn-back"), btnNext: $("btn-next"), btnFirm: $("btn-firm"), btnError: $("btn-error"),
+    btnOver: $("btn-over"), btnGoOn: $("btn-goon"), btnShow: $("btn-show"), btnClear: $("btn-clear"),
+    outline: $("tp-outline"), outlineList: $("tp-outline-list"), btnOutline: $("btn-outline"),
+    shell: $("runner-shell"), finish: $("runner-finish"), teacher: $("tp-body"),
+  };
 
-  // ─── Auto-fit: shrink child text to fit on one line ───
-  function fitChildText() {
-    if (!childText) return;
-    // Reset to CSS default
-    childText.style.fontSize = "";
-    // Allow a frame for layout
-    requestAnimationFrame(function () {
-      var parent = childText.parentElement;
-      if (!parent) return;
-      var maxW = parent.clientWidth - 16; // small padding
+  // ── Script: a list of segments (exercises, test parts, sections) ──
+  var segments = [];
+  var pos = { seg: 0, step: 0 };
+  var results = {}; // "seg:step" -> "firm" | "error"
+  var errorState = false; // showing a correction after an Error
+  var delayedAdded = false;
+  var flashTimer = null;
+  var startTime = Date.now();
+
+  function key(s, i) { return s + ":" + i; }
+
+  function currentSeg() { return segments[pos.seg]; }
+  function currentStep() { var s = currentSeg(); return s ? s.steps[pos.step] : null; }
+
+  // ── Building scripts for each mode ──
+  function initLesson() {
+    var lesson = DATA.lesson;
+    lesson.exercises.forEach(function (ex) {
+      segments.push({ title: ex.title, meta: ex.trackName + " · " + kindName(ex.kind), kind: ex.kind, track: ex.track, n: ex.n, materials: ex.materials, steps: ex.steps });
+    });
+    el.where.textContent = lesson.levelName + " · Lesson " + lesson.number;
+    // Worksheet and level links in the outline.
+    var keys = el.outline && el.outline.querySelector(".tp-outline__keys");
+    if (keys) {
+      var links = document.createElement("p");
+      links.className = "tp-outline__links";
+      links.innerHTML = (lesson.worksheet && lesson.worksheet.length ? '<a href="' + lesson.worksheetUrl + '">' + (lesson.worksheetOptional ? "Worksheet (optional)" : "Worksheet") + "</a> · " : "") +
+        '<a href="/' + lesson.levelSlug + '/">All ' + escapeHtml(lesson.levelName) + " lessons</a>";
+      keys.parentNode.insertBefore(links, keys);
+    }
+  }
+
+  function kindName(k) {
+    return { "new": "new teaching", firm: "firming", review: "review", delayed: "delayed test", test: "test", practice: "practice", placement: "placement" }[k] || k;
+  }
+
+  function initTest() {
+    var t = DATA.test;
+    t.parts.forEach(function (p, i) {
+      segments.push({ title: p.trackName, meta: "Part " + (i + 1) + " of " + t.parts.length, kind: "test", part: i, steps: p.items.map(function (s) { return asTestStep(s); }) });
+    });
+    el.where.textContent = t.levelName + " · " + t.title;
+  }
+
+  function asTestStep(s) {
+    var c = {};
+    for (var k in s) c[k] = s[k];
+    c.cue = "test";
+    return c;
+  }
+
+  // Placement: sections are run one at a time.
+  var placement = { order: [], idx: 0, startIdx: 0, passed: {}, failed: {}, direction: 1 };
+  function initPlacement(startIdx) {
+    placement.startIdx = startIdx;
+    placement.idx = startIdx;
+    loadPlacementSection();
+  }
+  function loadPlacementSection() {
+    var sec = DATA.sections[placement.idx];
+    segments = [{ title: sec.title, meta: "Placement section", kind: "placement", section: placement.idx, steps: sec.items.map(asTestStep) }];
+    pos = { seg: 0, step: 0 };
+    results = {};
+    el.where.textContent = "Placement test · " + sec.title;
+  }
+
+  function initPractice() {
+    var set = DATA.set;
+    var limit = DATA.limitLesson || 9999;
+    // Use only what the selected child has been taught, unless ?upto= says otherwise.
+    var upto = Number(new URLSearchParams(window.location.search).get("upto"));
+    if (upto) limit = upto;
+    else if (DATA.useProgress && window.mathProgress && set.total) {
+      limit = Math.max(set.startsAt, window.mathProgress.nextLesson(set.level, set.total) - 1);
+    }
+    var pool = set.items.filter(function (it) { return it.lesson <= limit; });
+    if (!pool.length) pool = set.items.slice(0, 10);
+    // Prefer recent items, avoid repeats.
+    var chosen = [];
+    var seen = {};
+    var tries = 0;
+    var count = Math.min(DATA.count || 10, pool.length);
+    while (chosen.length < count && tries < 500) {
+      tries++;
+      var recent = pool.filter(function (it) { return it.lesson >= limit - 15; });
+      var src = recent.length && Math.random() < 0.6 ? recent : pool;
+      var it = src[Math.floor(Math.random() * src.length)];
+      var k2 = (it.item || "") + "|" + it.say + "|" + JSON.stringify(it.screen);
+      if (seen[k2]) continue;
+      seen[k2] = 1;
+      chosen.push(asTestStep(it));
+    }
+    segments = [{ title: set.title, meta: set.levelName + " practice", kind: "practice", steps: chosen }];
+    el.where.textContent = set.levelName + " · Practice";
+  }
+
+  // ── Rendering a step ──
+  function cueLabel(c) {
+    if (MODE === "test" || MODE === "placement") return "Test item";
+    return { model: "My turn", lead: "Together", test: "Your turn", note: "Set up" }[c] || "";
+  }
+
+  function render() {
+    clearTimeout(flashTimer);
+    var seg = currentSeg(), st = currentStep();
+    if (!seg || !st) return;
+    errorState = false;
+
+    stage.classList.remove("is-flashed");
+    stage.innerHTML = window.MDV.render(st.screen || []);
+    fitStage();
+    window.MDV.bind(stage, onChoose);
+    if (st.flash) startFlash(st.flash);
+
+    el.exTitle.textContent = seg.title;
+    var meta = seg.meta || "";
+    if (MODE === "lesson") meta = "Exercise " + (pos.seg + 1) + " of " + segments.length + " · " + meta;
+    el.exMeta.textContent = meta;
+    el.stepNo.textContent = "Step " + (pos.step + 1) + " of " + seg.steps.length;
+    el.cue.textContent = cueLabel(st.cue);
+    el.cue.className = "tp-cue tp-cue--" + (MODE === "test" || MODE === "placement" ? "test" : st.cue);
+    el.say.textContent = st.say || "";
+    setBox(el.doBox, el.doText, st["do"] || (seg.materials && pos.step === 0 ? "You will need: " + seg.materials + "." : ""));
+    var testing = MODE === "test" || MODE === "placement";
+    setBox(el.answerBox, el.answerText, st.answer || "");
+    setBox(el.confirmBox, el.confirmText, !testing && st.cue === "test" ? st.confirm : "");
+    setBox(el.correctBox, el.correctText, !testing && st.cue === "test" ? st.correct : "");
+    el.correctBox.classList.remove("is-active");
+    el.testNote.hidden = !testing;
+
+    var isTest = st.cue === "test";
+    el.btnFirm.hidden = !isTest;
+    el.btnError.hidden = !isTest;
+    el.btnNext.hidden = isTest;
+    el.btnOver.hidden = true;
+    el.btnGoOn.hidden = true;
+    el.btnBack.disabled = pos.seg === 0 && pos.step === 0;
+    el.btnShow.hidden = !(st.flash || hasType(st.screen, "write"));
+    el.btnClear.hidden = !hasMarks(st.screen);
+    var r = results[key(pos.seg, pos.step)];
+    el.btnFirm.classList.toggle("is-chosen", r === "firm");
+    el.btnError.classList.toggle("is-chosen", r === "error");
+    renderProgress();
+    renderOutline();
+    el.teacher.scrollTop = 0;
+  }
+
+  function setBox(box, textEl, text) {
+    if (text) { textEl.textContent = text; box.hidden = false; }
+    else { textEl.textContent = ""; box.hidden = true; }
+  }
+
+  function hasType(screen, t) {
+    var found = false;
+    (function walk(v) {
+      if (!v || found) return;
+      if (Array.isArray(v)) return v.forEach(walk);
+      if (v.t === t) found = true;
+      if (v.items && v.t !== "pattern" && v.t !== "size") walk(v.items);
+      if (v.opts) walk(v.opts);
+    })(screen);
+    return found;
+  }
+  function hasMarks(screen) {
+    var found = false;
+    (function walk(v) {
+      if (!v || found) return;
+      if (Array.isArray(v)) return v.forEach(walk);
+      if (v.t === "obj" && v.tap) found = true;
+      if (v.items && v.t !== "pattern" && v.t !== "size") walk(v.items);
+    })(screen);
+    return found;
+  }
+
+  // Shrink wide equations and number rows so they fit on one line.
+  function fitStage() {
+    var eqs = stage.querySelectorAll(".mdv-eq, .mdv-num, .mdv-col");
+    for (var i = 0; i < eqs.length; i++) {
+      var e = eqs[i];
+      e.style.fontSize = "";
       var tries = 0;
-      while (childText.scrollWidth > maxW && tries < 20) {
-        var current = parseFloat(window.getComputedStyle(childText).fontSize);
-        childText.style.fontSize = (current * 0.9) + "px";
+      while (e.scrollWidth > stage.clientWidth - 8 && tries < 25) {
+        var fs = parseFloat(window.getComputedStyle(e).fontSize);
+        e.style.fontSize = (fs * 0.9) + "px";
         tries++;
       }
-    });
+    }
   }
 
-  // ─── Dot rendering: rows of 5, separator after 10 ───
-  function renderDots(count, animated) {
-    if (!count || visualHidden) { visualContainer.innerHTML = ""; return; }
-    var html = '<div class="math-dots">';
-    var placed = 0;
-    // If count > 10, show a tens block (two rows of 5) then a separator
-    var tens = Math.floor(count / 10);
-    var remainder = count % 10;
-
-    for (var t = 0; t < tens; t++) {
-      // Two rows of 5 for each ten
-      html += '<div class="math-dots__row">';
-      for (var i = 0; i < 5; i++) { html += dotSpan(placed++, animated); }
-      html += '</div>';
-      html += '<div class="math-dots__row">';
-      for (var i = 0; i < 5; i++) { html += dotSpan(placed++, animated); }
-      html += '</div>';
-      if (remainder > 0 || t < tens - 1) html += '<div class="math-dots__separator"></div>';
-    }
-    // Remaining dots in rows of 5
-    while (placed < count) {
-      var rowSize = Math.min(5, count - placed);
-      html += '<div class="math-dots__row">';
-      for (var i = 0; i < rowSize; i++) { html += dotSpan(placed++, animated); }
-      html += '</div>';
-    }
-    html += '</div>';
-    visualContainer.innerHTML = html;
+  function startFlash(ms) {
+    stage.classList.remove("is-flashed");
+    clearTimeout(flashTimer);
+    flashTimer = setTimeout(function () { stage.classList.add("is-flashed"); }, ms);
   }
 
-  function getAnimDelay() {
-    var slider = document.getElementById("speed-slider");
-    var val = slider ? parseInt(slider.value, 10) : 50;
-    // At 0: 800ms per dot (very slow). At 50: 400ms. At 100: 150ms (fast).
-    return 800 - (val / 100) * 650;
+  function showAgain() {
+    var st = currentStep();
+    if (!st) return;
+    stage.innerHTML = window.MDV.render(st.screen || []);
+    fitStage();
+    window.MDV.bind(stage, onChoose);
+    if (st.flash && !errorState) startFlash(st.flash);
+    else stage.classList.remove("is-flashed");
   }
 
-  function dotSpan(index, animated) {
-    if (animated) {
-      var delay = index * getAnimDelay();
-      return '<span class="math-dot math-dot--animated" style="animation-delay:' + delay + 'ms"></span>';
-    }
-    return '<span class="math-dot"></span>';
-  }
-
-  // ─── Tally rendering: groups of 5 (four marks + diagonal slash) ───
-  function renderTally(count) {
-    if (!count || visualHidden) { visualContainer.innerHTML = ""; return; }
-    var fullGroups = Math.floor(count / 5);
-    var leftover = count % 5;
-    var html = '<div class="math-tally">';
-    for (var g = 0; g < fullGroups; g++) {
-      html += '<div class="math-tally__group">';
-      for (var m = 0; m < 4; m++) html += '<div class="math-tally__mark"></div>';
-      html += '<div class="math-tally__slash"></div>';
-      html += '</div>';
-    }
-    if (leftover > 0) {
-      html += '<div class="math-tally__group">';
-      for (var m = 0; m < leftover; m++) html += '<div class="math-tally__mark"></div>';
-      html += '</div>';
-    }
-    html += '</div>';
-    visualContainer.innerHTML = html;
-  }
-
-  // ─── Interactive comparison buttons ───
-  function renderCompare(step) {
-    if (visualHidden) { visualContainer.innerHTML = ""; return; }
-    var answer = step.compareAnswer; // ">", "<", or "="
-    var html = '<div class="math-compare">';
-    ["<", "=", ">"].forEach(function (sym) {
-      html += '<button class="math-compare__btn" data-answer="' + sym + '" type="button" aria-label="' + sym + '">' + sym + '</button>';
-    });
-    html += '</div>';
-    visualContainer.innerHTML = html;
-
-    // Attach click handlers
-    var btns = visualContainer.querySelectorAll(".math-compare__btn");
-    btns.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        if (btn.disabled) return;
-        var picked = btn.getAttribute("data-answer");
-        btns.forEach(function (b) { b.disabled = true; });
-        if (picked === answer) {
-          btn.classList.add("is-correct");
-          // Show praise, hide correct
-          praiseBox.classList.add("is-visible");
-          correctBox.classList.remove("is-visible");
-        } else {
-          btn.classList.add("is-wrong");
-          // Highlight the right answer after a short delay
-          setTimeout(function () {
-            btns.forEach(function (b) {
-              if (b.getAttribute("data-answer") === answer) b.classList.add("is-correct");
-            });
-          }, 600);
-          // Show correct, hide praise
-          correctBox.classList.add("is-visible");
-          praiseBox.classList.remove("is-visible");
-        }
+  function renderProgress() {
+    var html = "";
+    segments.forEach(function (s, si) {
+      var errs = 0, done = 0, tests = 0;
+      s.steps.forEach(function (st, i) {
+        if (st.cue !== "test") return;
+        tests++;
+        var r = results[key(si, i)];
+        if (r) done++;
+        if (r === "error") errs++;
       });
+      var cls = "tp-seg" + (si === pos.seg ? " is-current" : "") + (si < pos.seg ? " is-done" : "") + (errs ? " has-errors" : "");
+      html += '<button type="button" class="' + cls + '" data-seg="' + si + '" title="' + escapeAttr(s.title) + '"><span class="tp-seg__bar" style="--p:' + (si < pos.seg ? 1 : si === pos.seg ? (pos.step + 1) / s.steps.length : 0) + '"></span></button>';
     });
+    el.progress.innerHTML = html;
+    var btns = el.progress.querySelectorAll(".tp-seg");
+    for (var i = 0; i < btns.length; i++) btns[i].addEventListener("click", function () { jump(Number(this.getAttribute("data-seg")), 0); });
   }
 
-  // ─── Dot groups: side-by-side blocks for equations/comparisons ───
-  function renderDotGroups(groups, symbols) {
-    if (!groups || !groups.length || visualHidden) { visualContainer.innerHTML = ""; return; }
-    var html = '<div class="math-dot-groups">';
-    for (var g = 0; g < groups.length; g++) {
-      if (g > 0 && symbols && symbols[g - 1]) {
-        html += '<span class="math-dot-groups__symbol">' + symbols[g - 1] + '</span>';
-      }
-      html += buildDotGroup(groups[g]);
-    }
-    html += '</div>';
-    visualContainer.innerHTML = html;
-  }
-
-  function buildDotGroup(count) {
-    var html = '<div class="math-dot-group">';
-    var placed = 0;
-    var tens = Math.floor(count / 10);
-    var remainder = count % 10;
-    for (var t = 0; t < tens; t++) {
-      html += '<div class="math-dot-group__row">';
-      for (var i = 0; i < 5; i++) { html += '<span class="math-dot"></span>'; placed++; }
-      html += '</div><div class="math-dot-group__row">';
-      for (var i = 0; i < 5; i++) { html += '<span class="math-dot"></span>'; placed++; }
-      html += '</div>';
-      if (remainder > 0 || t < tens - 1) html += '<div class="math-dot-group__separator"></div>';
-    }
-    while (placed < count) {
-      var rowSize = Math.min(5, count - placed);
-      html += '<div class="math-dot-group__row">';
-      for (var i = 0; i < rowSize; i++) { html += '<span class="math-dot"></span>'; placed++; }
-      html += '</div>';
-    }
-    html += '<div class="math-dot-group__label">' + count + '</div>';
-    html += '</div>';
-    return html;
-  }
-
-  // ─── Number line renderer ───
-  function renderNumberLine(start, end, highlight) {
-    if (visualHidden) { visualContainer.innerHTML = ""; return; }
-    var count = end - start + 1;
-    var dense = count > 11;
-    var html = '<div class="math-numberline-wrap"><div class="math-numberline' + (dense ? ' math-numberline--dense' : '') + '">';
-    for (var i = start; i <= end; i++) {
-      var isHL = highlight !== undefined && highlight === i;
-      html += '<div class="math-numberline__item">';
-      if (isHL) html += '<div class="math-numberline__hop-dot"></div>';
-      html += '<div class="math-numberline__tick"></div>';
-      html += '<div class="math-numberline__label' + (isHL ? ' math-numberline__label--active' : '') + '">' + i + '</div>';
-      html += '</div>';
-    }
-    html += '</div></div>';
-    visualContainer.innerHTML = html;
-  }
-
-  function renderVisual(step) {
-    if (!visualContainer) return;
-    if (visualHidden || !step.visual || step.visual === "none") {
-      visualContainer.innerHTML = "";
-      if (visualRemote) visualRemote.style.display = "none";
-      return;
-    }
-    // Show/hide visual remote: play/reset/speed/eye only for animated visuals
-    // Dots toggle is always visible (it's in the remote bar but never hidden)
-    var hasAnimation = step.visual === "dots" || step.visual === "tally";
-    var playBtn = document.getElementById("btn-play-pause");
-    var resetBtn = document.getElementById("btn-reset");
-    var speedSlider = document.getElementById("speed-slider");
-    var toggleVisBtn = document.getElementById("btn-toggle-visual");
-    [playBtn, resetBtn, speedSlider, toggleVisBtn].forEach(function (el) {
-      if (el) el.style.display = hasAnimation ? "" : "none";
+  function renderOutline() {
+    if (!el.outlineList) return;
+    var html = "";
+    segments.forEach(function (s, si) {
+      var errs = 0;
+      s.steps.forEach(function (st, i) { if (results[key(si, i)] === "error") errs++; });
+      html += '<li class="' + (si === pos.seg ? "is-current" : "") + '"><button type="button" data-seg="' + si + '"><span class="tp-outline__n">' + (si + 1) + "</span><span><strong>" + escapeHtml(s.title) + "</strong><small>" + escapeHtml(s.meta || "") + (s.materials ? " · needs " + escapeHtml(s.materials) : "") + (errs ? " · " + errs + " error" + (errs > 1 ? "s" : "") : "") + "</small></span></button></li>";
     });
-    // Always show the remote bar (dots toggle is there)
-    if (visualRemote) visualRemote.style.display = "";
-
-    switch (step.visual) {
-      case "dots":
-        renderDots(step.dotCount || 0, false);
-        break;
-      case "dot-groups":
-        renderDotGroups(step.dotGroups, step.groupSymbols);
-        break;
-      case "tally":
-        renderTally(step.dotCount || step.tallyCount || 0);
-        break;
-      case "compare":
-        renderCompare(step);
-        break;
-      case "equation":
-        // If dotGroups provided, show them; otherwise empty
-        if (step.dotGroups) renderDotGroups(step.dotGroups, step.groupSymbols);
-        else visualContainer.innerHTML = "";
-        break;
-      case "numberline":
-        renderNumberLine(step.nlStart || 0, step.nlEnd || 10, step.nlHighlight);
-        break;
-      case "placevalue":
-        visualContainer.innerHTML = "";
-        break;
-      default:
-        visualContainer.innerHTML = "";
-    }
+    el.outlineList.innerHTML = html;
+    var btns = el.outlineList.querySelectorAll("button");
+    for (var i = 0; i < btns.length; i++) btns[i].addEventListener("click", function () { jump(Number(this.getAttribute("data-seg")), 0); toggleOutline(false); });
   }
 
-  // ─── Auto-dots: inject dot patterns beneath .math-num elements ───
-  var showAutoDots = true;
-  try {
-    var stored = localStorage.getItem("math-direct-show-dots");
-    if (stored === "false") showAutoDots = false;
-  } catch (e) {}
+  function escapeHtml(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function escapeAttr(s) { return escapeHtml(s).replace(/"/g, "&quot;"); }
 
-  // ─── Convert inline bullet spans to proper dot grids (rows of 5) ───
-  function convertInlineDots() {
-    if (!childText) return;
-    var spans = childText.querySelectorAll(".math-dots");
-    spans.forEach(function (span) {
-      // Count bullet characters (•) in text
-      var text = span.textContent;
-      var count = 0;
-      for (var i = 0; i < text.length; i++) {
-        if (text[i] === "\u2022") count++;
-      }
-      if (count === 0) return;
-      // Build dot grid with rows of 5
-      var grid = document.createElement("span");
-      grid.className = "math-dots-inline";
-      var placed = 0;
-      while (placed < count) {
-        var rowSize = Math.min(5, count - placed);
-        var row = document.createElement("span");
-        row.className = "math-dots-inline__row";
-        for (var j = 0; j < rowSize; j++) {
-          var dot = document.createElement("span");
-          dot.className = "math-dot";
-          row.appendChild(dot);
-          placed++;
-        }
-        grid.appendChild(row);
-      }
-      span.textContent = "";
-      span.appendChild(grid);
-    });
+  // ── Responses ──
+  function onChoose(idx, right) {
+    var st = currentStep();
+    if (!st || st.cue !== "test") return;
+    mark(right ? "firm" : "error", true);
   }
 
-  function injectAutoDots() {
-    if (!childText) return;
-    childText.setAttribute("data-show-dots", showAutoDots ? "true" : "false");
-    var nums = childText.querySelectorAll(".math-num");
-    nums.forEach(function (el) {
-      if (el.parentNode.classList && el.parentNode.classList.contains("math-num-with-dots")) return;
-      var val = parseInt(el.textContent, 10);
-      if (isNaN(val) || val < 0 || val > 20) return;
-      var wrapper = document.createElement("span");
-      wrapper.className = "math-num-with-dots";
-      el.parentNode.insertBefore(wrapper, el);
-      wrapper.appendChild(el);
-      if (val > 0) {
-        var dotsDiv = document.createElement("span");
-        dotsDiv.className = "math-num-autodots";
-        var placed = 0;
-        while (placed < val) {
-          var rowSize = Math.min(5, val - placed);
-          var row = document.createElement("span");
-          row.className = "math-num-autodots__row";
-          for (var i = 0; i < rowSize; i++) {
-            var dot = document.createElement("span");
-            dot.className = "math-dot";
-            row.appendChild(dot);
-            placed++;
-          }
-          dotsDiv.appendChild(row);
-        }
-        wrapper.appendChild(dotsDiv);
-      }
-    });
-  }
-
-  function toggleAutoDots() {
-    showAutoDots = !showAutoDots;
-    try { localStorage.setItem("math-direct-show-dots", showAutoDots ? "true" : "false"); } catch (e) {}
-    var btn = document.getElementById("btn-toggle-dots");
-    if (btn) btn.classList.toggle("is-active", showAutoDots);
-    if (childText) childText.setAttribute("data-show-dots", showAutoDots ? "true" : "false");
-    // Re-render current step to add/remove dots
-    if (steps[currentStep]) showStep(currentStep);
-  }
-
-  // ─── Clickable ? to reveal answer ───
-  // Replace bare ? in display HTML before setting innerHTML
-  function wrapQuestionMarksInDisplay(html) {
-    if (html.indexOf("math-symbol-question") !== -1) return html;
-    return html.replace(/\?/g, "<span class='math-symbol-question'>?</span>");
-  }
-
-  function computeAnswer(step) {
-    if (step.answer !== undefined) return step.answer;
-    var text = (step.display || "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
-    var m;
-    // a + b = ?
-    m = text.match(/(\d+)\s*\+\s*(\d+)\s*=\s*\?/);
-    if (m) return parseInt(m[1], 10) + parseInt(m[2], 10);
-    // a − b = ?
-    m = text.match(/(\d+)\s*[−\u2212\-]\s*(\d+)\s*=\s*\?/);
-    if (m) return parseInt(m[1], 10) - parseInt(m[2], 10);
-    // N = a + ? (missing addend: answer = N - a)
-    m = text.match(/(\d+)\s*=\s*(\d+)\s*\+\s*\?/);
-    if (m) return parseInt(m[1], 10) - parseInt(m[2], 10);
-    // N = ? + b (missing addend: answer = N - b)
-    m = text.match(/(\d+)\s*=\s*\?\s*\+\s*(\d+)/);
-    if (m) return parseInt(m[1], 10) - parseInt(m[2], 10);
-    // a + ? = N (missing addend: answer = N - a)
-    m = text.match(/(\d+)\s*\+\s*\?\s*=\s*(\d+)/);
-    if (m) return parseInt(m[2], 10) - parseInt(m[1], 10);
-    // ? + b = N (missing addend: answer = N - b)
-    m = text.match(/\?\s*\+\s*(\d+)\s*=\s*(\d+)/);
-    if (m) return parseInt(m[2], 10) - parseInt(m[1], 10);
-    // a − ? = N (answer = a - N)
-    m = text.match(/(\d+)\s*[−\u2212\-]\s*\?\s*=\s*(\d+)/);
-    if (m) return parseInt(m[1], 10) - parseInt(m[2], 10);
-    // ? − b = N (answer = N + b)
-    m = text.match(/\?\s*[−\u2212\-]\s*(\d+)\s*=\s*(\d+)/);
-    if (m) return parseInt(m[2], 10) + parseInt(m[1], 10);
-    // N − a = ?
-    m = text.match(/(\d+)\s*[−\u2212\-]\s*(\d+)\s*=\s*\?/);
-    if (m) return parseInt(m[1], 10) - parseInt(m[2], 10);
-    return undefined;
-  }
-
-  // Store current answer for the active step
-  var currentAnswer = undefined;
-  var currentStepHasReveal = false;
-
-  function prepareReveal(step) {
-    if (step.visual === "compare") { currentAnswer = undefined; currentStepHasReveal = false; return; }
-    currentAnswer = computeAnswer(step);
-    currentStepHasReveal = currentAnswer !== undefined;
-  }
-
-  function buildInlineDots(count) {
-    var dotsDiv = document.createElement("span");
-    dotsDiv.className = "math-num-autodots";
-    var placed = 0;
-    while (placed < count) {
-      var rowSize = Math.min(5, count - placed);
-      var row = document.createElement("span");
-      row.className = "math-num-autodots__row";
-      for (var i = 0; i < rowSize; i++) {
-        var dot = document.createElement("span");
-        dot.className = "math-dot";
-        row.appendChild(dot);
-        placed++;
-      }
-      dotsDiv.appendChild(row);
-    }
-    return dotsDiv;
-  }
-
-  // Move number line highlight dot to the answer position
-  function moveNumberLineToAnswer(answer) {
-    if (!visualContainer) return;
-    var items = visualContainer.querySelectorAll(".math-numberline__item");
-    if (!items.length) return;
-    // Remove existing hop dot and active label
-    items.forEach(function (item) {
-      var hop = item.querySelector(".math-numberline__hop-dot");
-      if (hop) hop.remove();
-      var label = item.querySelector(".math-numberline__label");
-      if (label) label.classList.remove("math-numberline__label--active");
-    });
-    // Find the item matching the answer and add hop dot + active label
-    items.forEach(function (item) {
-      var label = item.querySelector(".math-numberline__label");
-      if (label && parseInt(label.textContent, 10) === answer) {
-        label.classList.add("math-numberline__label--active");
-        var dot = document.createElement("div");
-        dot.className = "math-numberline__hop-dot";
-        dot.style.animation = "correctPop 0.4s ease";
-        item.insertBefore(dot, item.firstChild);
-      }
-    });
-  }
-
-  // Restore number line to original highlight (from step data)
-  function restoreNumberLineHighlight() {
-    if (!visualContainer) return;
-    var step = steps[currentStep];
-    if (!step || step.visual !== "numberline") return;
-    var items = visualContainer.querySelectorAll(".math-numberline__item");
-    items.forEach(function (item) {
-      var hop = item.querySelector(".math-numberline__hop-dot");
-      if (hop) hop.remove();
-      var label = item.querySelector(".math-numberline__label");
-      if (label) {
-        label.classList.remove("math-numberline__label--active");
-        if (step.nlHighlight !== undefined && parseInt(label.textContent, 10) === step.nlHighlight) {
-          label.classList.add("math-numberline__label--active");
-          var dot = document.createElement("div");
-          dot.className = "math-numberline__hop-dot";
-          item.insertBefore(dot, item.firstChild);
-        }
-      }
-    });
-  }
-
-  // Event delegation: single click listener on childText — toggle reveal
-  if (childText) {
-    childText.addEventListener("click", function (e) {
-      var el = e.target.closest(".math-symbol-question");
-      if (!el || currentAnswer === undefined) return;
-      if (el.classList.contains("is-revealed")) {
-        // Hide answer — restore ?
-        el.textContent = "?";
-        el.classList.remove("is-revealed", "math-num-with-dots");
-        if (praiseBox) praiseBox.classList.remove("is-visible");
-        restoreNumberLineHighlight();
+  function mark(r, fromChild) {
+    var st = currentStep();
+    if (!st || st.cue !== "test") return;
+    results[key(pos.seg, pos.step)] = r;
+    if (st.fact && window.mathProgress && window.mathProgress.recordFact) window.mathProgress.recordFact(st.fact, r === "firm");
+    if (r === "firm") {
+      el.btnFirm.classList.add("is-chosen");
+      el.btnError.classList.remove("is-chosen");
+      if (fromChild) {
+        // Let the parent see the child's choice, then confirm.
+        el.btnFirm.hidden = true; el.btnError.hidden = true; el.btnNext.hidden = false;
+        setBox(el.confirmBox, el.confirmText, MODE === "test" || MODE === "placement" ? "Marked firm." : st.confirm);
+        renderProgress();
         return;
       }
-      // Reveal answer
-      el.textContent = currentAnswer;
-      el.classList.add("is-revealed", "math-num-with-dots");
-      if (currentAnswer > 0 && currentAnswer <= 20) {
-        el.appendChild(buildInlineDots(currentAnswer));
-      }
-      if (childText) childText.setAttribute("data-show-dots", showAutoDots ? "true" : "false");
-      if (praiseBox) praiseBox.classList.add("is-visible");
-      // Move number line dot to the answer
-      moveNumberLineToAnswer(currentAnswer);
-    });
-  }
-
-  function showStep(index) {
-    if (index < 0 || index >= steps.length) return;
-    currentStep = index;
-    var step = steps[currentStep];
-
-    // Hide child text only when number line IS the display (e.g. "Count: 0 to 10")
-    // Keep it visible when there's a real equation alongside the number line
-    var isNumberLineOnly = step.visual === "numberline" && /^(Count|Find|Number Line)/.test(step.display);
-    if (isNumberLineOnly) {
-      childText.innerHTML = "";
-      childText.style.display = "none";
-    } else {
-      childText.style.display = "";
-      childText.innerHTML = wrapQuestionMarksInDisplay(step.display);
-      childText.style.fontSize = "";
-      convertInlineDots();
-      injectAutoDots();
-      fitChildText();
-    }
-    prepareReveal(step);
-    // If step has a ? AND uses dots visual, hide the visual (wrong count).
-    // But keep number lines, compare buttons, etc.
-    var suppressVisual = currentStepHasReveal && (step.visual === "dots" || step.visual === "tally");
-    if (suppressVisual) {
-      if (visualContainer) visualContainer.innerHTML = "";
-      if (visualRemote) visualRemote.style.display = "";
-      var playBtn = document.getElementById("btn-play-pause");
-      var resetBtn = document.getElementById("btn-reset");
-      var speedSlider = document.getElementById("speed-slider");
-      var toggleVisBtn = document.getElementById("btn-toggle-visual");
-      [playBtn, resetBtn, speedSlider, toggleVisBtn].forEach(function (el) {
-        if (el) el.style.display = "none";
-      });
-    } else {
-      renderVisual(step);
-    }
-
-    stepNumber.textContent = "Step " + (currentStep + 1);
-    stepSay.innerHTML = step.say || "";
-    stepDo.innerHTML = step.do || "";
-
-    if (step.praise) { praiseBox.classList.add("is-visible"); praiseText.innerHTML = step.praise; }
-    else praiseBox.classList.remove("is-visible");
-    if (step.correct) { correctBox.classList.add("is-visible"); correctText.innerHTML = step.correct; }
-    else correctBox.classList.remove("is-visible");
-
-    stepDots.forEach(function (dot, i) {
-      dot.classList.remove("is-active", "is-done");
-      if (i === currentStep) dot.classList.add("is-active");
-      else if (i < currentStep) dot.classList.add("is-done");
-    });
-
-    prevBtn.disabled = currentStep === 0;
-
-    if (currentStep === steps.length - 1) {
-      nextBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
-      nextBtn.title = "Complete lesson";
-      nextBtn.setAttribute("aria-label", "Complete lesson");
-    } else {
-      nextBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
-      nextBtn.title = "Next step";
-      nextBtn.setAttribute("aria-label", "Next step");
-    }
-  }
-
-  function padId(id) {
-    var s = String(id);
-    while (s.length < 2) s = "0" + s;
-    return s;
-  }
-
-  var nextLessonId = lesson.id < 150 ? lesson.id + 1 : null;
-  var nextLessonUrl = nextLessonId ? "/lessons/lesson-" + padId(nextLessonId) + "/" : null;
-
-  function completeLesson() {
-    if (window.mathProgress) window.mathProgress.markComplete(lesson.id);
-    if (nextLessonUrl) {
-      window.location.href = nextLessonUrl;
-    } else {
-      window.location.href = "/lessons/";
-    }
-  }
-
-  function showCompletionScreen() {
-    if (window.mathProgress) window.mathProgress.markComplete(lesson.id);
-    var shell = document.querySelector(".lesson-shell");
-    if (shell) shell.classList.add("hidden");
-    var screen = document.getElementById("practice-round");
-    if (screen) {
-      var html = '<div class="practice-round__inner">' +
-        '<h2 class="practice-round__title">Lesson ' + lesson.id + ' Complete!</h2>' +
-        '<p class="practice-round__instruction">Great work!</p>' +
-        '<div class="practice-round__actions" style="display:flex;flex-direction:column;align-items:center;gap:var(--space-md)">';
-      if (nextLessonUrl) {
-        html += '<a href="' + nextLessonUrl + '" class="btn btn--cta">Next Lesson &rarr;</a>';
-      }
-      html += '<a href="/lessons/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">Back to Dashboard</a>';
-      html += '</div></div>';
-      screen.innerHTML = html;
-      screen.classList.remove("hidden");
-    }
-  }
-
-  function goNext() {
-    if (currentStep < steps.length - 1) showStep(currentStep + 1);
-    else showCompletionScreen();
-  }
-
-  function goPrev() { if (currentStep > 0) showStep(currentStep - 1); }
-
-  function playPause() {
-    var step = steps[currentStep];
-    if (visualHidden) return;
-    if (step.visual === "dots" && step.dotCount) {
-      renderDots(step.dotCount, true);
-    } else if (step.visual === "tally" && (step.dotCount || step.tallyCount)) {
-      renderTally(step.dotCount || step.tallyCount);
-    }
-  }
-
-  function resetVisual() {
-    renderVisual(steps[currentStep]);
-  }
-
-  function toggleVisual() {
-    visualHidden = !visualHidden;
-    var eyeOpen = document.getElementById("icon-eye-open");
-    var eyeClosed = document.getElementById("icon-eye-closed");
-    if (visualHidden) {
-      visualContainer.innerHTML = "";
-      if (eyeOpen) eyeOpen.classList.add("hidden");
-      if (eyeClosed) eyeClosed.classList.remove("hidden");
-    } else {
-      renderVisual(steps[currentStep]);
-      if (eyeOpen) eyeOpen.classList.remove("hidden");
-      if (eyeClosed) eyeClosed.classList.add("hidden");
-    }
-  }
-
-  // Expose to inline onclick
-  window.playPause = playPause;
-  window.resetVisual = resetVisual;
-  window.toggleVisual = toggleVisual;
-  window.toggleAutoDots = toggleAutoDots;
-  window.nextStep = goNext;
-  window.prevStep = goPrev;
-  window.completeLesson = completeLesson;
-
-  // Keyboard shortcuts
-  document.addEventListener("keydown", function (e) {
-    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-    if (e.key >= "1" && e.key <= "9" && !e.ctrlKey && !e.metaKey) {
-      var stepIndex = parseInt(e.key, 10) - 1;
-      if (stepIndex < steps.length) { e.preventDefault(); showStep(stepIndex); }
+      advance();
       return;
     }
+    // Error
+    el.btnError.classList.add("is-chosen");
+    el.btnFirm.classList.remove("is-chosen");
+    if (MODE === "test" || MODE === "placement") {
+      if (fromChild) {
+        el.btnFirm.hidden = true; el.btnError.hidden = true; el.btnNext.hidden = false;
+        setBox(el.confirmBox, el.confirmText, "Marked as an error. Do not correct during a test.");
+        renderProgress();
+        return;
+      }
+      advance();
+      return;
+    }
+    errorState = true;
+    el.correctBox.hidden = false;
+    el.correctBox.classList.add("is-active");
+    el.confirmBox.hidden = true;
+    el.btnFirm.hidden = true;
+    el.btnError.hidden = true;
+    el.btnNext.hidden = true;
+    el.btnOver.hidden = currentSeg().kind === "delayed" || MODE === "practice";
+    el.btnGoOn.hidden = false;
+    if (currentStep().flash) { clearTimeout(flashTimer); stage.classList.remove("is-flashed"); }
+    renderProgress();
+    renderOutline();
+    el.correctBox.scrollIntoView({ block: "nearest" });
+  }
+
+  function startOver() {
+    // Direct Instruction correction: after correcting, start the exercise over.
+    var seg = currentSeg();
+    var first = 0;
+    for (var i = 0; i < seg.steps.length; i++) { if (seg.steps[i].cue === "test") { first = i; break; } }
+    // Begin at the first step so the child hears the model again if there is one.
+    pos.step = seg.steps[0].cue === "model" ? 0 : first;
+    render();
+  }
+
+  function advance() {
+    var seg = currentSeg();
+    if (pos.step < seg.steps.length - 1) { pos.step++; render(); return; }
+    if (pos.seg < segments.length - 1) { pos.seg++; pos.step = 0; render(); return; }
+    endOfScript();
+  }
+
+  function back() {
+    if (pos.step > 0) pos.step--;
+    else if (pos.seg > 0) { pos.seg--; pos.step = segments[pos.seg].steps.length - 1; }
+    render();
+  }
+
+  function jump(seg, step) {
+    pos.seg = Math.max(0, Math.min(seg, segments.length - 1));
+    pos.step = step || 0;
+    render();
+  }
+
+  // ── End of script ──
+  function endOfScript() {
+    if (MODE === "lesson" && !delayedAdded) {
+      var missed = [];
+      segments.forEach(function (s, si) {
+        s.steps.forEach(function (st, i) {
+          if (results[key(si, i)] === "error") {
+            var c = asTestStep(st);
+            c.from = { seg: si, step: i };
+            missed.push(c);
+          }
+        });
+      });
+      delayedAdded = true;
+      if (missed.length) {
+        segments.push({ title: "Missed items, once more", meta: "Delayed test", kind: "delayed", steps: missed });
+        pos.seg = segments.length - 1;
+        pos.step = 0;
+        render();
+        return;
+      }
+    }
+    if (MODE === "placement") return placementSectionDone();
+    finish();
+  }
+
+  function tally(filter) {
+    var firm = 0, errors = 0;
+    segments.forEach(function (s, si) {
+      if (filter && !filter(s)) return;
+      s.steps.forEach(function (st, i) {
+        var r = results[key(si, i)];
+        if (r === "firm") firm++;
+        if (r === "error") errors++;
+      });
+    });
+    return { firm: firm, errors: errors };
+  }
+
+  function showFinish(html) {
+    el.shell.hidden = true;
+    el.finish.innerHTML = html;
+    el.finish.hidden = false;
+    document.body.classList.add("is-finished");
+    window.scrollTo(0, 0);
+    var noteBtn = $("finish-note-save");
+    if (noteBtn) {
+      noteBtn.addEventListener("click", function () {
+        var t = $("finish-note").value.trim();
+        if (t && window.mathProgress) {
+          window.mathProgress.addNote(t, DATA.lesson ? DATA.lesson.id : DATA.test ? DATA.test.id : "");
+          noteBtn.textContent = "Saved";
+          noteBtn.disabled = true;
+        }
+      });
+    }
+  }
+
+  function finish() {
+    var minutes = Math.max(1, Math.round((Date.now() - startTime) / 60000));
+    if (MODE === "lesson") return finishLesson(minutes);
+    if (MODE === "test") return finishTest(minutes);
+    if (MODE === "practice") return finishPractice();
+  }
+
+  function finishLesson(minutes) {
+    var lesson = DATA.lesson;
+    var main = tally(function (s) { return s.kind !== "delayed"; });
+    var delayed = tally(function (s) { return s.kind === "delayed"; });
+    var exErrors = [];
+    segments.forEach(function (s, si) {
+      if (s.kind === "delayed") return;
+      var errs = 0;
+      s.steps.forEach(function (st, i) { if (results[key(si, i)] === "error") errs++; });
+      if (errs) exErrors.push({ n: si + 1, title: s.title, track: s.track, errors: errs });
+    });
+    var stillMissed = [];
+    var del = segments.filter(function (s) { return s.kind === "delayed"; })[0];
+    if (del) {
+      var di = segments.indexOf(del);
+      del.steps.forEach(function (st, i) {
+        if (results[key(di, i)] === "error") {
+          var src = segments[st.from.seg];
+          if (stillMissed.indexOf(src.title) === -1) stillMissed.push(src.title);
+        }
+      });
+    }
+    var total = main.firm + main.errors;
+    var repeat = total > 0 && (main.errors / total > 0.25 || stillMissed.length > 1);
+    var summary = {
+      date: new Date().toISOString(), minutes: minutes, firm: main.firm, errors: main.errors,
+      delayedFirm: delayed.firm, delayedErrors: delayed.errors, exercises: exErrors, stillMissed: stillMissed, repeat: repeat,
+    };
+    if (window.mathProgress) window.mathProgress.recordLesson(lesson.id, summary);
+
+    var name = window.mathProgress && window.mathProgress.getActiveProfile() ? window.mathProgress.getActiveProfile().name : "";
+    var html = '<div class="finish">';
+    html += '<p class="finish__kicker">' + escapeHtml(lesson.levelName) + (name ? " · " + escapeHtml(name) : "") + "</p>";
+    html += '<h1 class="finish__title">Lesson ' + lesson.number + " is finished</h1>";
+    html += '<p class="finish__lead">This record is for you, the teacher. The child does not need to see it.</p>';
+    html += '<dl class="finish__facts"><div><dt>Answers firm</dt><dd>' + main.firm + "</dd></div><div><dt>Errors</dt><dd>" + main.errors + "</dd></div>";
+    if (del) html += "<div><dt>Missed items firm at the end</dt><dd>" + delayed.firm + " of " + (delayed.firm + delayed.errors) + "</dd></div>";
+    html += "<div><dt>Time</dt><dd>" + minutes + " min</dd></div></dl>";
+    if (exErrors.length) {
+      html += '<h2 class="finish__h2">Where the errors were</h2><ul class="finish__list">';
+      exErrors.forEach(function (e) { html += "<li>Exercise " + e.n + ", " + escapeHtml(e.title) + ": " + e.errors + " error" + (e.errors > 1 ? "s" : "") + "</li>"; });
+      html += "</ul>";
+    }
+    html += '<div class="finish__advice">';
+    if (repeat) {
+      html += "<p><strong>Repeat this lesson next time.</strong> " + (stillMissed.length > 1 ? "Several items were still missed at the end of the lesson." : "More than one answer in four needed correcting.") + " Repeating a lesson is normal. It is how the program makes sure each step is firm before the next one is built on it.</p>";
+    } else if (stillMissed.length) {
+      html += "<p><strong>Go on to the next lesson, but first reteach one exercise.</strong> At the start of the next session, teach this exercise again from the beginning: " + escapeHtml(stillMissed.join(", ")) + ".</p>";
+    } else {
+      html += "<p><strong>Go on to the next lesson.</strong> Every item was firm by the end.</p>";
+    }
+    html += "</div>";
+    html += '<div class="finish__actions">';
+    if (lesson.worksheet && lesson.worksheet.length) html += '<a class="btn btn--outline-dark" href="' + lesson.worksheetUrl + '">' + (lesson.worksheetOptional ? "Worksheet (optional)" : "Worksheet") + "</a>";
+    if (lesson.testAfter) html += '<a class="btn btn--cta" href="' + lesson.testAfter.url + '">' + escapeHtml(lesson.testAfter.title) + "</a>";
+    else if (lesson.next) html += '<a class="btn btn--cta" href="' + lesson.next.url + '">Next: ' + escapeHtml(lesson.next.title) + "</a>";
+    html += '<a class="btn btn--outline-dark" href="' + lesson.url + '">Teach again</a>';
+    html += '<a class="btn btn--outline-dark" href="/' + lesson.levelSlug + '/">All ' + escapeHtml(lesson.levelName) + " lessons</a>";
+    html += "</div>";
+    html += noteForm();
+    html += "</div>";
+    showFinish(html);
+  }
+
+  function noteForm() {
+    return '<div class="finish__note"><label for="finish-note">Note for your records (optional)</label><textarea id="finish-note" rows="2" placeholder="For example: confused six and nine; tired today."></textarea><button type="button" class="btn btn--outline-dark" id="finish-note-save">Save note</button></div>';
+  }
+
+  function finishTest(minutes) {
+    var t = DATA.test;
+    var parts = t.parts.map(function (p, pi) {
+      var si = pi, errs = 0, n = p.items.length;
+      segments[si].steps.forEach(function (st, i) { if (results[key(si, i)] === "error") errs++; });
+      return { track: p.track, trackName: p.trackName, items: n, errors: errs, passed: errs <= p.allowed, remedy: p.remedy };
+    });
+    var failed = parts.filter(function (p) { return !p.passed; });
+    var summary = { date: new Date().toISOString(), minutes: minutes, parts: parts.map(function (p) { return { track: p.track, trackName: p.trackName, items: p.items, errors: p.errors, passed: p.passed }; }), passed: !failed.length };
+    if (window.mathProgress) window.mathProgress.recordTest(t.id, summary);
+
+    var html = '<div class="finish">';
+    html += '<p class="finish__kicker">' + escapeHtml(t.levelName) + "</p>";
+    html += '<h1 class="finish__title">' + escapeHtml(t.title) + ": results</h1>";
+    if (!failed.length) {
+      html += '<div class="finish__advice"><p><strong>Every part was passed.</strong> Go on to the next lesson.</p></div>';
+    } else {
+      html += '<div class="finish__advice"><p><strong>' + failed.length + " part" + (failed.length > 1 ? "s need" : " needs") + " reteaching.</strong> Teach the exercises listed for each part below. Then give only those parts of the test again before going on. The lessons after this test build on these skills.</p></div>";
+    }
+    html += '<table class="finish__table"><thead><tr><th>Part</th><th>Errors</th><th>Result</th><th>If not passed, reteach</th></tr></thead><tbody>';
+    parts.forEach(function (p) {
+      html += "<tr><td>" + escapeHtml(p.trackName) + "</td><td>" + p.errors + " of " + p.items + "</td><td>" + (p.passed ? "Passed" : "<strong>Reteach</strong>") + "</td><td>";
+      if (!p.passed) {
+        html += p.remedy.map(function (r) { return '<a href="' + r.url + '">Lesson ' + r.lesson + ", exercise " + r.exercise + "</a> (" + escapeHtml(r.label) + ")"; }).join("<br>") || "Repeat the last three lessons' exercises for this skill.";
+      }
+      html += "</td></tr>";
+    });
+    html += "</tbody></table>";
+    html += '<div class="finish__actions">';
+    if (t.next) html += '<a class="btn btn--cta" href="' + t.next.url + '">' + escapeHtml(t.next.title) + "</a>";
+    html += '<a class="btn btn--outline-dark" href="' + t.url + '">Give the test again</a>';
+    html += '<a class="btn btn--outline-dark" href="/teacher/">Teacher dashboard</a>';
+    html += "</div>" + noteForm() + "</div>";
+    showFinish(html);
+  }
+
+  function finishPractice() {
+    var missed = [];
+    var seg = segments[0];
+    seg.steps.forEach(function (st, i) { if (results[key(0, i)] === "error") missed.push(st); });
+    var tl = tally();
+    var html = '<div class="finish">';
+    html += '<p class="finish__kicker">' + escapeHtml(DATA.set.levelName) + " practice</p>";
+    html += '<h1 class="finish__title">' + escapeHtml(DATA.set.title) + "</h1>";
+    html += '<dl class="finish__facts"><div><dt>Firm</dt><dd>' + tl.firm + "</dd></div><div><dt>Errors</dt><dd>" + tl.errors + "</dd></div></dl>";
+    if (missed.length) {
+      html += '<h2 class="finish__h2">Items to go over again</h2><ul class="finish__list">';
+      missed.forEach(function (m) { html += "<li>" + escapeHtml(m.say) + " (" + escapeHtml(m.answer) + ")</li>"; });
+      html += "</ul>";
+    }
+    html += '<div class="finish__actions"><a class="btn btn--cta" href="">Another set</a><a class="btn btn--outline-dark" href="/practice/">All practice</a></div></div>';
+    showFinish(html);
+  }
+
+  function placementSectionDone() {
+    var sec = DATA.sections[placement.idx];
+    var errs = tally().errors;
+    var passed = errs <= sec.allowed;
+    placement[passed ? "passed" : "failed"][placement.idx] = errs;
+    var next = null;
+    if (passed) {
+      if (placement.direction === -1) {
+        // Going back after a failure: this section is passed, so start at the one after it.
+        return placementDone(placement.idx + 1);
+      }
+      if (placement.idx < DATA.sections.length - 1) next = placement.idx + 1;
+      else return placementDone(DATA.sections.length); // passed everything
+    } else {
+      if (placement.idx === placement.startIdx && placement.idx > 0 && placement.direction === 1) {
+        placement.direction = -1;
+        next = placement.idx - 1;
+      } else if (placement.direction === -1 && placement.idx > 0) {
+        next = placement.idx - 1;
+      } else {
+        return placementDone(placement.idx);
+      }
+    }
+    placement.idx = next;
+    loadPlacementSection();
+    el.shell.hidden = true;
+    var s2 = DATA.sections[next];
+    el.finish.innerHTML = '<div class="finish"><p class="finish__kicker">Placement test</p><h1 class="finish__title">Section ' + (passed ? "passed" : "not passed") + '</h1><p class="finish__lead">' +
+      (passed ? "The child knows this part of the program. The next section checks the next span of lessons." : "This span of lessons is not yet firm. The next section checks the span before it.") +
+      '</p><div class="finish__actions"><button type="button" class="btn btn--cta" id="placement-continue">Begin: ' + escapeHtml(s2.title) + "</button></div></div>";
+    el.finish.hidden = false;
+    $("placement-continue").addEventListener("click", function () {
+      el.finish.hidden = true;
+      el.shell.hidden = false;
+      render();
+    });
+  }
+
+  function placementDone(startIdx) {
+    var rec;
+    if (startIdx >= DATA.sections.length) rec = DATA.afterAll;
+    else rec = DATA.sections[startIdx].start;
+    var sec = startIdx < DATA.sections.length ? DATA.sections[startIdx] : null;
+    var label = rec.label || (sec ? sec.levelName + ", Lesson " + rec.lesson : "");
+    if (window.mathProgress) window.mathProgress.recordPlacement({ date: new Date().toISOString(), level: rec.level, lesson: rec.lesson, url: rec.url, label: label });
+    var html = '<div class="finish"><p class="finish__kicker">Placement test</p><h1 class="finish__title">Start at ' + escapeHtml(label) + "</h1>";
+    html += '<p class="finish__lead">The child passed the sections before this point. Begin here, and the lessons will review what came before as they go. If the first few lessons are too easy, move ahead five lessons at a time; if they are too hard, move back.</p>';
+    html += '<div class="finish__actions"><a class="btn btn--cta" href="' + rec.url + '">Go to ' + escapeHtml(label) + '</a><a class="btn btn--outline-dark" href="/teacher/">Teacher dashboard</a></div></div>';
+    el.shell.hidden = true;
+    el.finish.innerHTML = html;
+    el.finish.hidden = false;
+  }
+
+  // ── Outline drawer ──
+  function toggleOutline(force) {
+    if (!el.outline) return;
+    var open = force !== undefined ? force : el.outline.hidden;
+    el.outline.hidden = !open;
+    if (el.btnOutline) el.btnOutline.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  // ── Wire up ──
+  el.btnNext.addEventListener("click", function () { advance(); });
+  el.btnBack.addEventListener("click", back);
+  el.btnFirm.addEventListener("click", function () { mark("firm"); });
+  el.btnError.addEventListener("click", function () { mark("error"); });
+  el.btnOver.addEventListener("click", startOver);
+  el.btnGoOn.addEventListener("click", function () { advance(); });
+  el.btnShow.addEventListener("click", showAgain);
+  el.btnClear.addEventListener("click", function () { window.MDV.clearMarks(stage); });
+  if (el.btnOutline) el.btnOutline.addEventListener("click", function () { toggleOutline(); });
+  var closeOutline = $("tp-outline-close");
+  if (closeOutline) closeOutline.addEventListener("click", function () { toggleOutline(false); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (!el.finish.hidden) return;
+    var st = currentStep();
+    var isTest = st && st.cue === "test";
     switch (e.key) {
-      case "ArrowRight": e.preventDefault(); goNext(); break;
-      case "ArrowLeft": e.preventDefault(); goPrev(); break;
-      case " ": e.preventDefault(); playPause(); break;
-      case "Escape": e.preventDefault(); window.location.href = "/lessons/"; break;
-      case "r": if (!e.ctrlKey && !e.metaKey) { e.preventDefault(); resetVisual(); } break;
+      case "ArrowRight":
+      case "Enter":
+        e.preventDefault();
+        if (errorState) advance();
+        else if (isTest && !el.btnFirm.hidden) mark("firm");
+        else advance();
+        break;
+      case "f": case "F":
+        if (isTest && !errorState) { e.preventDefault(); mark("firm"); }
+        break;
+      case "x": case "X": case "e": case "E":
+        if (isTest && !errorState) { e.preventDefault(); mark("error"); }
+        break;
+      case "ArrowLeft": e.preventDefault(); back(); break;
+      case "s": case "S": if (MODE === "lesson") { e.preventDefault(); startOver(); } break;
+      case " ": e.preventDefault(); showAgain(); break;
+      case "o": case "O": e.preventDefault(); toggleOutline(); break;
+      case "Escape":
+        if (el.outline && !el.outline.hidden) { toggleOutline(false); break; }
+        if (DATA.exitUrl && confirm("Leave this " + (MODE === "test" ? "test" : "lesson") + "? Marks made so far will not be saved.")) window.location.href = DATA.exitUrl;
+        break;
     }
   });
 
-  document.addEventListener("DOMContentLoaded", function () {
-    // Init dot toggle button state
-    var dotBtn = document.getElementById("btn-toggle-dots");
-    if (dotBtn) dotBtn.classList.toggle("is-active", showAutoDots);
+  window.addEventListener("resize", function () { fitStage(); });
 
-    showStep(0);
-
-    // Auto-hide header on lesson pages
-    var header = document.querySelector(".site-header");
-    if (header && document.body.classList.contains("page-lesson")) {
-      var hideTimer = null;
-      document.addEventListener("mousemove", function (e) {
-        if (e.clientY < 20) {
-          header.classList.add("is-visible");
-          clearTimeout(hideTimer);
-          hideTimer = setTimeout(function () { header.classList.remove("is-visible"); }, 3000);
+  function start() {
+    if (MODE === "lesson") initLesson();
+    else if (MODE === "test") initTest();
+    else if (MODE === "practice") initPractice();
+    else if (MODE === "placement") {
+      var chooser = $("placement-start");
+      if (chooser) {
+        el.shell.hidden = true;
+        chooser.hidden = false;
+        var btns = chooser.querySelectorAll("[data-start]");
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].addEventListener("click", function () {
+            chooser.hidden = true;
+            el.shell.hidden = false;
+            initPlacement(Number(this.getAttribute("data-start")));
+            render();
+          });
         }
-      });
-      var touchStartY = 0;
-      document.addEventListener("touchstart", function (e) { touchStartY = e.touches[0].clientY; });
-      document.addEventListener("touchmove", function (e) {
-        if (touchStartY < 30 && e.touches[0].clientY - touchStartY > 20) {
-          header.classList.add("is-visible");
-          clearTimeout(hideTimer);
-          hideTimer = setTimeout(function () { header.classList.remove("is-visible"); }, 3000);
-        }
-      });
+        return;
+      }
+      initPlacement(0);
     }
-  });
+    render();
+  }
+
+  window.mdRunner = {
+    results: function () { return results; },
+    segments: function () { return segments; },
+    pos: function () { return pos; },
+  };
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
 })();

@@ -1,33 +1,37 @@
 ---
 layout: layouts/base.njk
 title: Practice
-description: Practice problem sets organized by phase to reinforce math skills.
+description: Extra practice for every skill track in Math Direct, drawn only from what the child has been taught. The parent marks each answer; there are no scores.
 permalink: /practice/
+bodyClass: page-level
 ---
-<div class="content-page">
-  <div class="content-page__inner">
-    <h1>Practice Problem Sets</h1>
-    <p style="color:var(--text-secondary);margin-bottom:var(--space-xl)">Reinforce what you've learned with these practice sets. Each set focuses on skills from a specific phase.</p>
-
-    {% for phase in phases %}
-    {% set phaseProblems = collections.practice | where("data.phase", phase.id) %}
-    {% if phaseProblems.length > 0 %}
-    <section style="margin-bottom:var(--space-2xl)">
-      <h2>{{ phase.title }}</h2>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(16rem, 1fr));gap:var(--space-md);margin-top:var(--space-md)">
-        {% for item in phaseProblems %}
-        <a href="{{ item.url }}" style="display:block;padding:var(--space-lg);background:var(--bg-surface);border:1px solid var(--border-color);box-shadow:var(--shadow-sm);transition:box-shadow 0.2s">
-          <h3 style="font-size:1rem;font-weight:700;margin-bottom:var(--space-xs)">{{ item.data.title }}</h3>
-          <p style="font-size:0.875rem;color:var(--text-secondary)">{{ item.data.description }}</p>
-        </a>
-        {% endfor %}
+<div class="level-page">
+  <div class="level-page__inner">
+    <header class="level-head">
+      <div>
+        <h1 class="level-head__title">Practice</h1>
+        <p class="level-head__facts">Ten items at a time, from any skill track</p>
+      </div>
+      <div class="level-head__student" data-student-select></div>
+    </header>
+    <p class="level-lead">Practice is extra review for a skill that needs it, on a day without a lesson or after a lesson that went poorly. It works like a lesson: you read the question, the child answers, and you mark Firm or Error. The items come only from lessons the selected child has finished. There are no scores, streaks, or prizes; the point is the skill.</p>
+    <div class="placement-cta">
+      <div>
+        <h2>Quick facts</h2>
+        <p>A short drill on the addition and subtraction facts taught so far, with the facts the child has missed coming up more often.</p>
+      </div>
+      <a class="btn btn--cta" href="/facts/">Fact review</a>
+    </div>
+    {% for level in program.levels %}
+    <section class="practice-level" id="{{ level.id }}">
+      <h2>{{ level.name }}</h2>
+      <div class="practice-sets">
+        {% for set in program.practice %}{% if set.level == level.id %}
+        <a class="practice-set" href="{{ set.url }}"><strong>{{ set.title }}</strong><span>From lesson {{ set.startsAt }}. {{ set.summary }}</span></a>
+        {% endif %}{% endfor %}
       </div>
     </section>
-    {% endif %}
     {% endfor %}
-
-    {% if collections.practice.length == 0 %}
-    <p style="color:var(--text-secondary);font-style:italic">Practice sets are coming soon! Complete some lessons first.</p>
-    {% endif %}
   </div>
 </div>
+<script src="/assets/js/progress.js"></script>

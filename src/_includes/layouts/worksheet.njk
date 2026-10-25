@@ -1,0 +1,13 @@
+---
+layout: layouts/base.njk
+bodyClass: page-worksheet
+---
+{{ content | safe }}
+<div class="ws-tools">
+  <a href="{{ backUrl }}" class="btn btn--outline-dark">Back to the lesson</a>
+  <label class="ws-tools__key"><input type="checkbox" id="ws-show-key"> Include the answer key</label>
+  <button type="button" class="btn btn--cta" onclick="window.print()">Print</button>
+</div>
+<article class="ws-sheet" id="ws-sheet" aria-label="Worksheet"></article>
+<script src="/assets/js/visuals.js"></script>
+<script src="/assets/js/worksheet.js" defer></script>

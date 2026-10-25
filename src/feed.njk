@@ -11,12 +11,12 @@ eleventyExcludeFromCollections: true
     <language>{{ meta.language }}</language>
     <atom:link href="{{ meta.url }}/feed.xml" rel="self" type="application/rss+xml"/>
     <lastBuildDate>{{ page.date | htmlDateString }}</lastBuildDate>
-    {%- for phase in phases %}
+    {%- for level in program.levels %}
     <item>
-      <title>Phase {{ phase.id }}: {{ phase.title | replace("Phase " + phase.id + ": ", "") }}</title>
-      <link>{{ meta.url }}/phases/{{ phase.slug }}/</link>
-      <guid>{{ meta.url }}/phases/{{ phase.slug }}/</guid>
-      <description>{{ phase.description }} Lessons {{ phase.lessonRange }}, {{ phase.conceptsIntroduced.length }} concepts.</description>
+      <title>{{ level.name }}</title>
+      <link>{{ meta.url }}{{ level.url }}</link>
+      <guid>{{ meta.url }}{{ level.url }}</guid>
+      <description>{{ level.description }} {{ level.lessons }} lessons.</description>
     </item>
     {%- endfor %}
   </channel>

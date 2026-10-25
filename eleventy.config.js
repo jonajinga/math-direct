@@ -31,6 +31,8 @@ export default function (eleventyConfig) {
   });
 
   // Pad number with leading zero
+  eleventyConfig.addFilter("min", (arr) => Math.min(...arr));
+
   eleventyConfig.addFilter("pad", (num, size) => {
     let s = String(num);
     while (s.length < (size || 2)) s = "0" + s;
@@ -80,16 +82,15 @@ export default function (eleventyConfig) {
           "components/hamburger-panel.css",
           "components/footer.css",
           "components/buttons.css",
-          "components/lesson-card.css",
-          "components/number-display.css",
+          "components/visuals.css",
           "pages/home.css",
           "pages/dashboard.css",
           "pages/parent-guide.css",
           "pages/about.css",
           "pages/contact.css",
-          "pages/lesson.css",
-          "pages/practice.css",
-          "pages/flashcards.css",
+          "pages/runner.css",
+          "pages/worksheet.css",
+          "pages/levels.css",
         ];
         let combined = "";
         for (const file of importOrder) {
@@ -121,6 +122,7 @@ export default function (eleventyConfig) {
 
   // Watch Targets
   eleventyConfig.addWatchTarget("src/assets/css/");
+  eleventyConfig.addWatchTarget("curriculum/");
 
   return {
     dir: {

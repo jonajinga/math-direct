@@ -1,7 +1,7 @@
 {
   "name": "Math Direct",
   "short_name": "Math Direct",
-  "description": "Free, open-source math app that teaches children numbers, addition, and subtraction using Direct Instruction.",
+  "description": "Free scripted math lessons for Pre-K, Kindergarten, and First Grade, built on Direct Instruction.",
   "start_url": "/lessons/",
   "scope": "/",
   "display": "standalone",

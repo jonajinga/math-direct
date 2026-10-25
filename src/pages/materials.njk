@@ -1,0 +1,37 @@
+---
+layout: layouts/base.njk
+title: Printable Materials
+description: Printable number cards, dot cards, five-frames and ten-frames, shape cards, a tens-and-ones mat, and a clock face for use alongside Math Direct lessons.
+permalink: /materials/
+bodyClass: page-worksheet
+---
+<div class="ws-tools mat-tools">
+  <div>
+    <h1 class="level-head__title">Printable materials</h1>
+    <p class="level-head__facts">Cut the cards apart along the dashed lines. Each set prints on its own page.</p>
+  </div>
+  <button type="button" class="btn btn--cta" onclick="window.print()">Print all</button>
+</div>
+<div id="mat"></div>
+<script src="/assets/js/visuals.js"></script>
+<script>
+(function () {
+  var sets = [
+    { title: "Number cards 0 to 10", note: "For reading numbers, matching numbers to groups, and putting numbers in order.", cols: 4, cards: Array.from({ length: 11 }, function (_, i) { return { t: "num", v: i }; }) },
+    { title: "Number cards 11 to 20", note: "For the teen numbers.", cols: 4, cards: Array.from({ length: 10 }, function (_, i) { return { t: "num", v: i + 11 }; }) },
+    { title: "Dot cards 1 to 6", note: "For seeing small amounts at a glance. Show a card for a moment, then turn it over.", cols: 3, cards: Array.from({ length: 6 }, function (_, i) { return { t: "dots", n: i + 1, arr: "dice" }; }) },
+    { title: "Ten-frames 1 to 10", note: "For five and some more, partners of ten, and teen numbers.", cols: 2, cards: Array.from({ length: 10 }, function (_, i) { return { t: "frame", size: 10, n: i + 1 }; }) },
+    { title: "Empty ten-frames", note: "Lay counters such as beans or buttons in the boxes.", cols: 2, cards: [0, 0, 0, 0].map(function () { return { t: "frame", size: 10, n: 0 }; }) },
+    { title: "Shape cards", note: "For naming shapes. Turn the cards in any direction; the shape keeps its name.", cols: 4, cards: ["circle", "square", "triangle", "rectangle", "hexagon", "trapezoid", "semicircle", "rhombus"].map(function (s) { return { t: "shape", s: s, c: "white" }; }) },
+    { title: "Tens and ones mat", note: "Put bundles of ten on the left and single ones on the right.", cols: 1, cards: [{ t: "pv", mat: true }] },
+    { title: "Clock face", note: "Draw the hands with a pencil, or cut out two paper hands and fasten them with a paper fastener.", cols: 1, cards: [{ t: "clock", h: 12, m: 0, noHands: true }] },
+  ];
+  var html = "";
+  sets.forEach(function (s) {
+    html += '<section class="mat-sheet' + (s.cols === 1 ? " mat-sheet--one" : "") + '"><h2>' + s.title + "</h2><p>" + s.note + '</p><div class="mat-grid" style="--mat-cols:' + s.cols + '">';
+    s.cards.forEach(function (c) { html += '<div class="mat-card">' + MDV.render(c) + "</div>"; });
+    html += "</div></section>";
+  });
+  document.getElementById("mat").innerHTML = html;
+})();
+</script>

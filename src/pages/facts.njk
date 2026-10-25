@@ -1,0 +1,58 @@
+---
+layout: layouts/runner.njk
+title: Fact Review
+description: A short, parent-led drill on the addition and subtraction facts the child has been taught, with missed facts coming up more often.
+permalink: /facts/
+exitUrl: /practice/
+---
+<div class="placement-start" id="facts-start">
+  <div class="finish">
+    <p class="finish__kicker">Fact review</p>
+    <h1 class="finish__title">Quick facts</h1>
+    <p class="finish__lead">Twelve facts, drawn from the facts the selected child has been taught. Facts the child has missed recently come up first, then facts not yet tried, then a few that are already firm. Say each fact, let the child answer, and mark Firm or Error. A fact counts as firm after three right answers in a row.</p>
+    <p class="finish__lead" id="facts-who"></p>
+    <div class="finish__actions">
+      {% for level in program.summary %}{% if level.facts.length %}
+      <button type="button" class="btn btn--cta" data-facts="{{ level.id }}">{{ level.name }} facts</button>
+      {% endif %}{% endfor %}
+    </div>
+    <p class="finish__lead"><a href="/teacher/">See the fact chart on the teacher dashboard</a></p>
+  </div>
+</div>
+<script id="facts-data" type="application/json">{"levels":{{ program.summary | dump | safe }},"facts":{{ program.facts | dump | safe }}}</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var shell = document.getElementById("runner-shell");
+  var start = document.getElementById("facts-start");
+  if (shell) shell.hidden = true;
+  var data = JSON.parse(document.getElementById("facts-data").textContent);
+  function go(levelId) {
+    var P = window.mathProgress;
+    var lv = data.levels.filter(function (l) { return l.id === levelId; })[0];
+    var next = P ? P.nextLesson(levelId, lv.lessons) : lv.lessons;
+    var pool = data.facts[levelId].filter(function (f) { return f.lesson < next; });
+    if (pool.length < 6) pool = data.facts[levelId].filter(function (f) { return f.lesson <= Math.max(next, pool.length ? next : data.facts[levelId][0].lesson); });
+    var profile = P ? P.getActiveProfile() : null;
+    var rank = { shaky: 0, "new": 1, learning: 2, firm: 3 };
+    pool.forEach(function (f) { f._s = rank[P ? P.factStatus(profile && profile.facts[f.key]) : "new"] + Math.random() * 0.9; });
+    pool.sort(function (a, b) { return a._s - b._s; });
+    var chosen = pool.slice(0, 12);
+    chosen.forEach(function (f) { f.lesson = 0; });
+    var runner = { mode: "practice", exitUrl: "/facts/", count: chosen.length, set: { title: lv.name + " facts", level: levelId, levelName: lv.name, items: chosen } };
+    var el = document.createElement("script");
+    el.id = "runner-data";
+    el.type = "application/json";
+    el.textContent = JSON.stringify(runner);
+    document.body.appendChild(el);
+    start.hidden = true;
+    shell.hidden = false;
+    var s = document.createElement("script");
+    s.src = "/assets/js/lesson-engine.js";
+    document.body.appendChild(s);
+  }
+  var btns = document.querySelectorAll("[data-facts]");
+  for (var i = 0; i < btns.length; i++) btns[i].addEventListener("click", function () { go(this.getAttribute("data-facts")); });
+  var who = document.getElementById("facts-who");
+  if (who && window.mathProgress && window.mathProgress.getActiveProfile()) who.textContent = "Child: " + window.mathProgress.getActiveProfile().name + ".";
+});
+</script>

@@ -1,7 +1,7 @@
 export default {
   title: "Math Direct",
   shortTitle: "Math Direct",
-  description: "Free, open-source math app that teaches children numbers, addition, and subtraction using Direct Instruction methodology.",
+  description: "Free scripted math lessons for Pre-K, Kindergarten, and First Grade, built on Direct Instruction.",
   url: process.env.SITE_URL || "https://mathdirect.com",
   email: "hello@mathdirect.com",
   author: "Pikes Peak Web Designs",

@@ -1,60 +1,48 @@
 ---
 layout: layouts/base.njk
 title: Teach Children Math
-description: Free, open-source math app with 150 scripted lessons, 341 practice problems, and interactive flashcards. Built on Direct Instruction methodology for ages 5-10.
+description: Free scripted math lessons for Pre-K, Kindergarten, and First Grade, built on Direct Instruction. You read the script, the child answers, and the program plans every lesson, test, and review.
 bodyClass: page-home
 ---
+{% set ntracks = 0 %}{% for l in program.levels %}{% set ntracks = ntracks + l.tracks.length %}{% endfor %}
 <section class="hero">
   <div class="hero__inner">
-    <h1 class="hero__title">Teach Children Math</h1>
-    <p class="hero__subtitle">150 scripted lessons. 341 practice problems. Interactive flashcards. Built on proven Direct Instruction methodology. Free, open source, no accounts required.</p>
+    <h1 class="hero__title">Math, taught clearly</h1>
+    <p class="hero__subtitle">Scripted lessons for Pre-K, Kindergarten, and First Grade, built on Direct Instruction. You read the script and the child answers. The program plans each lesson, brings back what was missed, and tells you when a skill is firm.</p>
     <div class="hero__actions">
-      <a href="/lessons/" class="btn btn--cta">Start Lessons</a>
-      <a href="/guide/" class="btn btn--outline">Teacher Guide</a>
+      <a href="/lessons/" class="btn btn--cta">See the lessons</a>
+      <a href="/placement/" class="btn btn--outline">Take the placement test</a>
     </div>
   </div>
 </section>
 
-{# Stats bar #}
 <section class="home-stats">
   <div class="home-stats__inner">
-    <div class="home-stat">
-      <span class="home-stat__number">150</span>
-      <span class="home-stat__label">Lessons</span>
-    </div>
-    <div class="home-stat">
-      <span class="home-stat__number">2,400+</span>
-      <span class="home-stat__label">Teaching Steps</span>
-    </div>
-    <div class="home-stat">
-      <span class="home-stat__number">341</span>
-      <span class="home-stat__label">Practice Problems</span>
-    </div>
-    <div class="home-stat">
-      <span class="home-stat__number">7</span>
-      <span class="home-stat__label">Phases</span>
-    </div>
+    <div class="home-stat"><span class="home-stat__number">{{ program.lessons.length }}</span><span class="home-stat__label">Scripted lessons</span></div>
+    <div class="home-stat"><span class="home-stat__number">{{ program.tests.length }}</span><span class="home-stat__label">Mastery tests</span></div>
+    <div class="home-stat"><span class="home-stat__number">{{ ntracks }}</span><span class="home-stat__label">Skill tracks</span></div>
+    <div class="home-stat"><span class="home-stat__number">Pre-K&ndash;1</span><span class="home-stat__label">Grades, plus a bridge</span></div>
   </div>
 </section>
 
 <section class="home-section">
   <div class="home-section__inner">
-    <h2 class="home-section__title">How It Works</h2>
+    <h2 class="home-section__title">How a lesson works</h2>
     <div class="method-cards">
       <div class="method-card">
         <span class="method-card__number">1</span>
-        <h3 class="method-card__title">Read the Script</h3>
-        <p class="method-card__text">Each lesson tells you exactly what to say and do. No teaching experience needed. Just read and follow.</p>
+        <h3 class="method-card__title">Read the script</h3>
+        <p class="method-card__text">Each new skill is taught in three moves: you show it (my turn), you do it together (together), and the child does it alone (your turn). The words are written out for you.</p>
       </div>
       <div class="method-card">
         <span class="method-card__number">2</span>
-        <h3 class="method-card__title">Child Follows Visuals</h3>
-        <p class="method-card__text">Numbers, dot patterns, and number lines guide the learner through each concept with immediate feedback.</p>
+        <h3 class="method-card__title">Mark each answer</h3>
+        <p class="method-card__text">Tap Firm or Error. An error shows you the correction to give. Every missed item comes back at the end of the lesson, and the lesson tells you whether to go on or repeat it.</p>
       </div>
       <div class="method-card">
         <span class="method-card__number">3</span>
-        <h3 class="method-card__title">Practice &amp; Review</h3>
-        <p class="method-card__text">Each lesson is 90% review and 10% new material. Flashcards and practice sets reinforce every skill.</p>
+        <h3 class="method-card__title">Check for mastery</h3>
+        <p class="method-card__text">Every ten lessons, a short test checks each skill. If a part is not passed, the test lists the exact exercises to reteach before going on.</p>
       </div>
     </div>
   </div>
@@ -62,14 +50,14 @@ bodyClass: page-home
 
 <section class="home-section home-section--alt">
   <div class="home-section__inner">
-    <h2 class="home-section__title">7 Phases, From Counting to Arithmetic</h2>
-    <p class="home-section__subtitle">Every phase builds on the last. Master one before moving to the next.</p>
+    <h2 class="home-section__title">Three levels and a bridge</h2>
+    <p class="home-section__subtitle">Each level is about a school year of work, with room to repeat lessons when needed.</p>
     <div class="phase-cards">
-      {% for phase in phases %}
-      <a href="/phases/{{ phase.slug }}/" class="phase-card">
-        <span class="phase-card__badge">Phase {{ phase.id }}</span>
-        <h3 class="phase-card__title">{{ phase.title | replace("Phase " + phase.id + ": ", "") }}</h3>
-        <p class="phase-card__desc">Lessons {{ phase.lessonRange }}. {{ phase.description | truncate(100) }}</p>
+      {% for level in program.levels %}
+      <a href="{{ level.url }}" class="phase-card">
+        <span class="phase-card__badge">{{ level.age }}</span>
+        <h3 class="phase-card__title">{{ level.name }}</h3>
+        <p class="phase-card__desc">{{ level.lessons }} lessons of {{ level.minutes }} minutes. {{ level.tagline }}</p>
       </a>
       {% endfor %}
     </div>
@@ -78,39 +66,31 @@ bodyClass: page-home
 
 <section class="home-section">
   <div class="home-section__inner">
-    <h2 class="home-section__title">Practice &amp; Flashcards</h2>
-    <p class="home-section__subtitle">Reinforce what you learn with interactive problem sets and customizable flashcard decks.</p>
+    <h2 class="home-section__title">What makes it work</h2>
     <div class="method-cards">
       <div class="method-card">
-        <span class="method-card__number" style="background:var(--green-50);color:var(--green-700)">25</span>
-        <h3 class="method-card__title">Practice Sets</h3>
-        <p class="method-card__text">Interactive problem sets for every phase. Instant feedback, scoring, and streak tracking.</p>
+        <h3 class="method-card__title">Skills taught in tracks</h3>
+        <p class="method-card__text">Each lesson has short exercises from several skills, such as counting, shapes, and adding. A skill is practiced for days after it is taught, then reviewed at widening intervals, so it is not forgotten.</p>
       </div>
       <div class="method-card">
-        <span class="method-card__number" style="background:var(--amber-50);color:var(--amber-700)">341</span>
-        <h3 class="method-card__title">Problems</h3>
-        <p class="method-card__text">Counting, comparing, addition, subtraction, place value, regrouping, and word problems.</p>
+        <h3 class="method-card__title">Nothing out of order</h3>
+        <p class="method-card__text">A checking program reads every lesson before it is published. It confirms that no number appears before the child has learned to read it, that every correction states the answer, and that no strategy comes before the skills it needs.</p>
       </div>
       <div class="method-card">
-        <span class="method-card__number" style="background:var(--rose-50);color:var(--rose-700)">&#x2764;</span>
-        <h3 class="method-card__title">Flashcards</h3>
-        <p class="method-card__text">Filter by phase, type, and difficulty. Wrong answers re-enter the deck for extra practice.</p>
+        <h3 class="method-card__title">No games</h3>
+        <p class="method-card__text">There are no points, streaks, badges, or prizes. Praise is short and names the work: "Yes, seven." The reward is being able to do it.</p>
       </div>
-    </div>
-    <div style="text-align:center;margin-top:var(--space-xl);display:flex;gap:var(--space-md);justify-content:center;flex-wrap:wrap">
-      <a href="/practice/" class="btn btn--cta">Practice Sets</a>
-      <a href="/flashcards/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">Flashcards</a>
     </div>
   </div>
 </section>
 
 <section class="home-section home-section--alt">
   <div class="home-section__inner" style="text-align:center">
-    <h2 class="home-section__title">100% Free. No Accounts. No Tracking.</h2>
-    <p style="color:var(--text-secondary);margin-bottom:var(--space-lg);max-width:36rem;margin-left:auto;margin-right:auto">Math Direct is open source and works entirely in your browser. Progress is saved locally on your device. No sign-ups, no ads, no data collection.</p>
+    <h2 class="home-section__title">Free, private, and works offline</h2>
+    <p style="color:var(--text-secondary);margin-bottom:var(--space-lg);max-width:38rem;margin-left:auto;margin-right:auto">There are no accounts and no tracking. Each child's records stay in your browser. Worksheets and teaching materials print from any lesson.</p>
     <div style="display:flex;gap:var(--space-md);justify-content:center;flex-wrap:wrap">
-      <a href="/lessons/" class="btn btn--cta">Start Teaching</a>
-      <a href="/features/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">See All Features</a>
+      <a href="/guide/" class="btn btn--cta">Read the teaching guide</a>
+      <a href="/curriculum/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">Scope and sequence</a>
     </div>
   </div>
 </section>
