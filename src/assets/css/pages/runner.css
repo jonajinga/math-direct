@@ -47,7 +47,8 @@
    one line, box labels run into their text, and the controls stay on one row.
    When a long script still does not fit, the engine adds the classes fit-1 to
    fit-4 to the body: first the exercise details are hidden, then the type is
-   stepped down a little at a time. Scrolling is the last resort. */
+   stepped down a little at a time. A correction that would need much smaller
+   type waits behind a short note until Error. Scrolling is the last resort. */
 .teacher {
   flex: 1 1 48%;
   min-height: 0;
@@ -148,7 +149,7 @@
   font-weight: 700;
   color: var(--text-primary);
 }
-.tp-ex__meta { font-size: 0.75rem; color: var(--text-secondary); margin: -0.25rem 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tp-ex__meta { font-size: 0.75rem; color: var(--text-secondary); margin: -0.25rem 0 0; }
 
 .tp-cue {
   flex-shrink: 0;
@@ -205,18 +206,13 @@
 .tp-pair > .tp-box { flex: 1 1 auto; }
 .tp-pair:not(:has(> :not([hidden]))) { display: none; }
 
-/* Before an error the correction is a two-line preview. Pressing Error shows
-   all of it in place of the confirmation. */
-.tp-correct:not(.is-active):not([hidden]) {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-.tp-body.fit-4 .tp-correct:not(.is-active):not([hidden]) { -webkit-line-clamp: 1; line-clamp: 1; }
+/* Text is never cut short. Before an error the correction shows in full when
+   it fits; when it does not, a short note stands in its place, and pressing
+   Error shows all of it in place of the confirmation. */
+.tp-correct .tp-correct__wait { display: none; color: var(--text-secondary); font-style: italic; }
+.tp-correct.is-folded { padding-top: 0; padding-bottom: 0; }
+.tp-correct.is-folded #tp-correct-text { display: none; }
+.tp-correct.is-folded .tp-correct__wait { display: inline; }
 
 .tp-test-note { margin: 0; font-size: 0.8125rem; color: var(--text-secondary); font-style: italic; }
 

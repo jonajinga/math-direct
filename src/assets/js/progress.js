@@ -259,7 +259,7 @@
     profiles.forEach(function (p) {
       html += '<option value="' + p.id + '"' + (active && active.id === p.id ? " selected" : "") + ">" + escapeHtml(p.name) + "</option>";
     });
-    html += '<option value="__add">Add a child...</option></select></label>';
+    html += '<option value="__add">Add a child</option></select></label>';
     container.innerHTML = html;
     var sel = container.querySelector("select");
     sel.addEventListener("change", function () {

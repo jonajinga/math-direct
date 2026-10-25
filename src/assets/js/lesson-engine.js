@@ -182,14 +182,27 @@
   }
 
   // Keep the teacher's panel on one screen. If the text does not fit, hide
-  // the exercise details, then step the type down a little at a time. The
-  // body scrolls only if the smallest setting still does not fit.
-  var FIT_STEPS = 4;
-  function fitPanel() {
+  // the exercise details, then step the type down a little at a time. Before
+  // Error, a correction that would need more than a small step down is shown
+  // as a short note instead, never cut off; Error shows it in full. The body
+  // scrolls only if the smallest setting still does not fit.
+  var FIT_STEPS = 4, FIT_WITH_CORRECTION = 2;
+  function overflows() { return el.teacher.scrollHeight > el.teacher.clientHeight + 1; }
+  function stepDown(max) {
     var b = el.teacher, n;
     for (n = 1; n <= FIT_STEPS; n++) b.classList.remove("fit-" + n);
-    for (n = 1; n <= FIT_STEPS && b.scrollHeight > b.clientHeight + 1; n++) b.classList.add("fit-" + n);
-    b.scrollTop = 0;
+    for (n = 1; n <= max && overflows(); n++) b.classList.add("fit-" + n);
+  }
+  function fitPanel() {
+    var box = el.correctBox;
+    var waiting = !box.hidden && !box.classList.contains("is-active");
+    box.classList.remove("is-folded");
+    stepDown(waiting ? FIT_WITH_CORRECTION : FIT_STEPS);
+    if (waiting && overflows()) {
+      box.classList.add("is-folded");
+      stepDown(FIT_STEPS);
+    }
+    el.teacher.scrollTop = 0;
   }
 
   // A long counting chain is easier to scan as numerals: "105, 106, 107".
