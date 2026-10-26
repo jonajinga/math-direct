@@ -107,14 +107,14 @@ await page.waitForTimeout(300);
 check("Today shows no Continue card", !(await visible("[data-continue-card]")));
 
 // 6. Placement: a section in progress can be continued.
-await page.goto(BASE + "/placement/", { waitUntil: "load" });
+await page.goto(BASE + "/placement/math/", { waitUntil: "load" });
 await page.waitForTimeout(300);
 await (await page.$$("[data-start]"))[1].click();
 await page.waitForTimeout(200);
 await page.click("#btn-firm"); await page.click("#btn-firm");
 s = await sitting();
 check("placement sitting saved", !!s && s.kind === "placement" && s.marks === 2, s && JSON.stringify({ kind: s.kind, marks: s.marks }));
-await page.goto(BASE + "/placement/?continue=1", { waitUntil: "load" });
+await page.goto(BASE + "/placement/math/?continue=1", { waitUntil: "load" });
 await page.waitForTimeout(300);
 check("placement continued without the chooser", (await visible("#runner-shell")) && !(await visible("#placement-start")));
 check("placement marks restored", (await page.evaluate(() => Object.keys(window.mdRunner.results()).length)) === 2);

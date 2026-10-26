@@ -1,24 +1,29 @@
 ---
 layout: layouts/app.njk
 title: Today
-description: Scripted math lessons for ages 4 to 7, built on Direct Instruction. You read the script; the child answers.
+description: Scripted lessons for ages 4 to 7, built on Direct Instruction. You read the script; the child answers.
 bodyClass: page-today
 eleventyComputed:
-  seoTitle: "Math Direct"
+  seoTitle: "Teach Direct"
 ---
 <header class="screen__head">
   <h1 class="screen__title">Today</h1>
 </header>
 
+<section class="card card--quiet" data-moved-notice data-new-host="{{ meta.newHost }}" hidden>
+  <h2 class="card__title">This app is now Teach Direct</h2>
+  <p class="card__text">It lives at <a href="https://{{ meta.newHost }}/">{{ meta.newHost }}</a>. The records on this address stay here. To take them along, save a backup under More and load it there.</p>
+</section>
+
 <section class="today-welcome" id="today-welcome" hidden>
-  <p>Math Direct teaches a child of four to seven to count, read numbers, add, and subtract. You read a short script from your phone, and the child answers. Every lesson, test, and review is planned for you.</p>
+  <p>Teach Direct holds scripted lessons a parent teaches from a phone. The math program teaches a child of four to seven to count, read numbers, add, and subtract. You read a short script, and the child answers. Every lesson, test, and review is planned for you.</p>
   <ol class="how-list">
     <li><strong>Read the script.</strong> Each new skill is shown, done together, and then done alone.</li>
     <li><strong>Mark each answer.</strong> Tap Firm or Error. An error shows you the correction to give.</li>
     <li><strong>Check for mastery.</strong> Every ten lessons, a short test checks each skill.</li>
   </ol>
   <div class="btn-row">
-    <a class="btn btn--primary btn--big" href="/placement/">Take the placement test</a>
+    <a class="btn btn--primary btn--big" href="{% if program.subjects.length == 1 %}{{ program.subjects[0].placementUrl }}{% else %}/placement/{% endif %}">Take the placement test</a>
     <a class="btn btn--secondary btn--big" href="/lessons/">Choose a level</a>
   </div>
 </section>
@@ -28,7 +33,7 @@ eleventyComputed:
 <section id="today-next" aria-live="polite"></section>
 
 <section class="card card--quiet" data-install-card hidden>
-  <h2 class="card__title">Install Math Direct</h2>
+  <h2 class="card__title">Install Teach Direct</h2>
   <p class="card__text">It opens like an app and works without a connection.</p>
   <div class="btn-row">
     <button type="button" class="btn btn--primary" data-install>Install</button>
@@ -37,5 +42,6 @@ eleventyComputed:
 </section>
 
 <script id="today-data" type="application/json">{{ program.summary | dump | safe }}</script>
+<script id="today-subjects" type="application/json">{{ program.subjects | dump | safe }}</script>
 <script src="/assets/js/progress.js?v={{ build.version }}"></script>
 <script src="/assets/js/today.js?v={{ build.version }}" defer></script>

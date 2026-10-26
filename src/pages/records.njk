@@ -35,5 +35,6 @@ actionBar: true
 </div>
 
 <script id="dash-data" type="application/json">{{ program.summary | dump | safe }}</script>
+<script id="dash-subjects" type="application/json">{{ program.subjects | dump | safe }}</script>
 <script src="/assets/js/progress.js?v={{ build.version }}"></script>
 <script src="/assets/js/records.js?v={{ build.version }}" defer></script>

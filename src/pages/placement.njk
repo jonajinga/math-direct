@@ -1,0 +1,27 @@
+---
+layout: layouts/app.njk
+title: Placement test
+description: A short spoken test for each subject that finds the lesson a child should begin with.
+permalink: /placement/
+bodyClass: page-placement
+---
+<header class="screen__head">
+  <h1 class="screen__title">Placement test</h1>
+  <p class="screen__lead">A set of short sections, each checking one span of lessons. The child goes on until a section is not passed, and the test names the lesson to start with. Most children finish in ten to twenty minutes.</p>
+</header>
+
+<div data-child-picker></div>
+
+<ul class="rows">
+  {% for s in program.subjects %}
+  <li>
+    <a class="row" href="{{ s.placementUrl }}">
+      <span class="row__main"><span class="row__title">{{ s.name }}</span><span class="row__sub">{{ s.placementNote }}</span></span>
+      {% include "partials/icons/chevron-right.njk" %}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+<p class="muted small">Read each question aloud, let the child answer, and mark Firm or Error. Do not correct or help.</p>
+
+<script src="/assets/js/progress.js?v={{ build.version }}"></script>

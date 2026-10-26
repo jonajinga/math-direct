@@ -1,4 +1,4 @@
-// Math Direct visual renderer.
+// Teach Direct visual renderer.
 // Draws the visual specifications produced by curriculum/lib/v.js as HTML and
 // inline SVG. Used by lessons, tests, practice, and placement.
 //

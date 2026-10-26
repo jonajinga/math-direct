@@ -1,7 +1,7 @@
 ---
 layout: layouts/app.njk
 title: Lessons
-description: Four levels of scripted lessons, from Pre-K to a bridge into second grade. Choose a level, or let the placement test choose.
+description: Scripted lessons by subject and level. Choose a level, or let the placement test choose.
 permalink: /lessons/
 bodyClass: page-lessons
 ---
@@ -12,8 +12,10 @@ bodyClass: page-lessons
 
 <div data-child-picker></div>
 
+{% for s in program.subjects %}
+{% if program.subjects.length > 1 %}<h2 class="section-title" id="{{ s.id }}">{{ s.name }}</h2>{% endif %}
 <ul class="rows">
-  {% for level in program.levels %}
+  {% for level in program.levels %}{% if level.subject == s.id %}
   <li>
     <a class="row level-row" href="{{ level.url }}" data-level-actions data-level="{{ level.id }}" data-total="{{ level.lessons }}" data-slug="{{ level.slug }}" data-tests='{{ level.tests | dump }}'>
       <span class="row__main">
@@ -25,14 +27,15 @@ bodyClass: page-lessons
       {% include "partials/icons/chevron-right.njk" %}
     </a>
   </li>
-  {% endfor %}
+  {% endif %}{% endfor %}
   <li>
-    <a class="row" href="/placement/">
-      <span class="row__main"><span class="row__title">Placement test</span><span class="row__sub">Ten to twenty minutes. It names the lesson to begin with.</span></span>
+    <a class="row" href="{{ s.placementUrl }}">
+      <span class="row__main"><span class="row__title">Placement test{% if program.subjects.length > 1 %}: {{ s.name | lower }}{% endif %}</span><span class="row__sub">Ten to twenty minutes. It names the lesson to begin with.</span></span>
       {% include "partials/icons/chevron-right.njk" %}
     </a>
   </li>
 </ul>
+{% endfor %}
 
 <script src="/assets/js/progress.js?v={{ build.version }}"></script>
 <script src="/assets/js/lessons-index.js?v={{ build.version }}" defer></script>

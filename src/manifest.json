@@ -1,7 +1,7 @@
 {
-  "name": "Math Direct",
-  "short_name": "Math Direct",
-  "description": "Scripted math lessons for ages 4 to 7, built on Direct Instruction. You read the script; the child answers.",
+  "name": "Teach Direct",
+  "short_name": "Teach Direct",
+  "description": "Scripted lessons for ages 4 to 7, built on Direct Instruction. You read the script; the child answers.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

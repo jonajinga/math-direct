@@ -1,7 +1,7 @@
 ---
 layout: layouts/app.njk
 title: Scope and sequence
-description: Every skill track in Math Direct, the lesson where each step is taught, and the standard it meets.
+description: Every skill track in Teach Direct, the lesson where each step is taught, and the standard it meets.
 permalink: /curriculum/
 ---
 <div class="content">
@@ -16,7 +16,9 @@ permalink: /curriculum/
     <div class="stat"><span class="stat__number">4&ndash;7</span><span class="stat__label">Ages</span></div>
   </div>
 
-  {% for level in program.levels %}
+  {% for s in program.subjects %}
+  {% if program.subjects.length > 1 %}<h2 class="section-title">{{ s.name }}</h2>{% endif %}
+  {% for level in program.levels %}{% if level.subject == s.id %}
   <details class="fold" id="{{ level.id }}"{% if loop.first %} open{% endif %}>
     <summary><h2 class="fold__h">{{ level.name }}</h2></summary>
     <div class="fold__body">
@@ -32,5 +34,6 @@ permalink: /curriculum/
       {% endfor %}
     </div>
   </details>
+  {% endif %}{% endfor %}
   {% endfor %}
 </div>

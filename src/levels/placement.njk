@@ -1,8 +1,8 @@
 ---
-permalink: /placement/
+permalink: /placement/math/
 layout: layouts/runner.njk
-title: Placement Test
-description: A short spoken test that finds where in Math Direct a child should begin, from Pre-K through First Grade.
+title: Math placement test
+description: A short spoken test that finds where in the math program a child should begin, from Pre-K through First Grade.
 exitUrl: /lessons/
 ---
 {% set starts = { prek: -1, k: -1, first: -1 } %}
@@ -20,4 +20,4 @@ exitUrl: /lessons/
     <ul class="finish__links"><li><a href="/lessons/">Back to the lessons</a></li></ul>
   </article>
 </div>
-<script id="runner-data" type="application/json">{"mode":"placement","exitUrl":"/lessons/","sections":{{ program.placement | dump | safe }},"afterAll":{"level":"done","lesson":0,"url":"/lessons/","label":"second-grade work (every section was passed)"}}</script>
+<script id="runner-data" type="application/json">{"mode":"placement","subject":"math","exitUrl":"/lessons/","sections":{{ program.placement | dump | safe }},"afterAll":{"level":"done","lesson":0,"url":"/lessons/","label":"second-grade work (every section was passed)"}}</script>

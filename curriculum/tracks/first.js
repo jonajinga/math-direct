@@ -1514,6 +1514,7 @@ export { addFacts, subFacts, stories as firstStories, placeValue, numMax as firs
 export default {
   id: "first",
   slug: "first",
+  subject: "math",
   name: "First Grade",
   longName: "First Grade",
   age: "about six",

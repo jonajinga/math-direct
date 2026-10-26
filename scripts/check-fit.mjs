@@ -40,7 +40,7 @@ const urls = [];
 program.lessons.forEach((l, i) => { if (ALL || i % 12 === 0) urls.push(l.url); });
 program.tests.forEach((t) => urls.push(t.url));
 program.practice.forEach((s, i) => { if (ALL || i % 3 === 0) urls.push(s.url); });
-urls.push("/placement/", "/facts/");
+urls.push("/placement/math/", "/facts/");
 
 // ── A tiny static server ──
 const TYPES = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json" };

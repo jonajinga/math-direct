@@ -14,6 +14,13 @@ import { factStep } from "./tracks/k.js";
 
 export const LEVELS = [prek, k, first, bridge].filter(Boolean);
 
+// The subjects, in the order the app shows them. A level names its subject;
+// a subject appears only when a level of it is built.
+const SUBJECTS = {
+  reading: { id: "reading", name: "Reading", guideUrl: "/guide/reading/", placementUrl: "/placement/reading/", placementNote: "Reading 1 and Reading 2." },
+  math: { id: "math", name: "Math", guideUrl: "/guide/", placementUrl: "/placement/math/", placementNote: "Pre-K through First Grade." },
+};
+
 function practiceFor(level) {
   const sets = [];
   for (const track of level.tracks) {
@@ -90,6 +97,7 @@ export function buildProgram({ strict = true } = {}) {
     levels.push({
       id: level.id,
       slug: level.slug,
+      subject: level.subject || "math",
       name: level.name,
       longName: level.longName || level.name,
       age: level.age,
@@ -145,7 +153,7 @@ export function buildProgram({ strict = true } = {}) {
   }
   // The dashboard needs a compact map of every level, lesson, test, and track.
   const summary = levels.map((lv) => ({
-    id: lv.id, slug: lv.slug, name: lv.name, lessons: lv.lessons, url: lv.url,
+    id: lv.id, slug: lv.slug, subject: lv.subject, name: lv.name, lessons: lv.lessons, url: lv.url,
     tests: lv.tests,
     tracks: Object.fromEntries(lv.tracks.map((t) => [t.id, t.name])),
     facts: (facts[lv.id] || []).map((f) => ({ key: f.key, lesson: f.lesson })),
@@ -153,5 +161,8 @@ export function buildProgram({ strict = true } = {}) {
     // One short row per lesson: minutes, the real objects it needs, what is new.
     brief: lv.lessonList.map((l) => [l.minutes, l.materials.join("; "), l.newUnits.map((u) => u.label).join(", ")]),
   }));
-  return { levels, lessons, tests, practice, placement, facts, summary, errors, warnings };
+  const subjects = Object.keys(SUBJECTS)
+    .filter((s) => levels.some((l) => l.subject === s))
+    .map((s) => ({ ...SUBJECTS[s], levels: levels.filter((l) => l.subject === s).map((l) => l.id) }));
+  return { levels, lessons, tests, practice, placement, facts, summary, subjects, errors, warnings };
 }

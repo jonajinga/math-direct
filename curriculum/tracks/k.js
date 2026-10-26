@@ -1516,6 +1516,7 @@ for (const [a, op, b] of factsWithin(10, "−")) {
 export default {
   id: "k",
   slug: "k",
+  subject: "math",
   name: "Kindergarten",
   longName: "Kindergarten",
   age: "about five",

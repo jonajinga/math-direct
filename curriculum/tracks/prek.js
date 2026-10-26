@@ -1117,6 +1117,7 @@ const stories = {
 export default {
   id: "prek",
   slug: "prek",
+  subject: "math",
   name: "Pre-K",
   longName: "Pre-K",
   age: "about four",

@@ -27,7 +27,9 @@ bodyClass: page-practice
   </li>
 </ul>
 
-{% for level in program.levels %}
+{% for s in program.subjects %}
+{% if program.subjects.length > 1 %}<h2 class="section-title">{{ s.name }}</h2>{% endif %}
+{% for level in program.levels %}{% if level.subject == s.id %}
 <details class="fold practice-level" id="{{ level.id }}" data-practice-level="{{ level.id }}">
   <summary>{{ level.name }}</summary>
   <div class="fold__body">
@@ -38,6 +40,7 @@ bodyClass: page-practice
     </ul>
   </div>
 </details>
+{% endif %}{% endfor %}
 {% endfor %}
 
 <script src="/assets/js/progress.js?v={{ build.version }}"></script>

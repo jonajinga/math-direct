@@ -1,7 +1,7 @@
 {
-  "name": "math-direct",
-  "version": "1.0.0",
-  "description": "Free scripted Direct Instruction math lessons for Pre-K, Kindergarten, and First Grade.",
+  "name": "teach-direct",
+  "version": "2.0.0",
+  "description": "Free scripted Direct Instruction lessons a parent teaches from a phone: math for Pre-K through First Grade, with reading to come.",
   "scripts": {
     "start": "npx @11ty/eleventy --serve --port=8080",
     "dev": "npx @11ty/eleventy --serve --port=8080",
@@ -16,11 +16,14 @@
     "check:program": "node scripts/check-program.mjs",
     "check:a11y": "node scripts/check-a11y.mjs",
     "check:keys": "node scripts/check-keyboard.mjs",
+    "check:import": "node scripts/check-import.mjs",
     "check:all": "npm run check && npm run clean && npm run build && npm run check:pwa && npm run check:copy",
-    "check:browser": "npm run check:fit && npm run check:session && npm run check:program && npm run check:a11y && npm run check:keys"
+    "check:browser": "npm run check:fit && npm run check:session && npm run check:program && npm run check:a11y && npm run check:keys && npm run check:import"
   },
   "keywords": [
     "math",
+    "reading",
+    "phonics",
     "education",
     "addition",
     "subtraction",

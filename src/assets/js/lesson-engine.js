@@ -1,4 +1,4 @@
-// Math Direct lesson engine.
+// Teach Direct lesson engine.
 // Runs a lesson, a mastery test, the placement test, or a practice set. The
 // child's screen shows only the picture; the parent's panel shows what to
 // say, what the child should answer, and the correction. The parent marks
@@ -1232,7 +1232,7 @@
     else rec = DATA.sections[startIdx].start;
     var sec = startIdx < DATA.sections.length ? DATA.sections[startIdx] : null;
     var label = rec.label || (sec ? sec.levelName + ", Lesson " + rec.lesson : "");
-    if (P) P.recordPlacement({ date: new Date().toISOString(), level: rec.level, lesson: rec.lesson, url: rec.url, label: label });
+    if (P) P.recordPlacement({ date: new Date().toISOString(), subject: DATA.subject || "math", level: rec.level, lesson: rec.lesson, url: rec.url, label: label });
     var html = '<article class="finish"><p class="finish__kicker">Placement test' + (childName() ? " · " + escapeHtml(childName()) : "") + '</p><h1 class="finish__title">Start at ' + escapeHtml(label) + "</h1>";
     html += '<p class="finish__lead">The child passed the sections before this point. Begin here, and the lessons will review what came before as they go. If the first few lessons are too easy, move ahead five lessons at a time; if they are too hard, move back.</p></article>';
     showFinish(html, actionBar({ label: "Go to " + label, href: rec.url }, { label: "Records", href: "/records/" }));

@@ -1,6 +1,8 @@
-# Math Direct
+# Teach Direct
 
-Free, scripted Direct Instruction math lessons for Pre-K, Kindergarten, and First Grade, with an optional bridge to second grade. A parent or teacher reads the script; the child answers; the parent marks each answer Firm or Error. There are no games, points, or prizes.
+Free, scripted Direct Instruction lessons a parent teaches from a phone. The math program covers Pre-K, Kindergarten, and First Grade, with an optional bridge to second grade. A reading program, moved from Open Phonics, is being built on the same design. A parent or teacher reads the script; the child answers; the parent marks each answer Firm or Error. There are no games, points, or prizes.
+
+The app was called Math Direct until the reading program joined it; its records in a browser are kept under the old name, and a Math Direct or Open Phonics backup loads into it.
 
 ## Running it
 
@@ -22,6 +24,7 @@ npm run check:session  # a sitting is saved, continued, and cleared
 npm run check:program  # first-try scoring, retests, On your own, the test gate, signals, the timed check, two children
 npm run check:a11y     # axe-core over every screen at two sizes, plus contrast, target, reflow, and spacing probes
 npm run check:keys     # a keyboard walk of the runner and the app shell
+npm run check:import   # records from version 4 and from Open Phonics load into the store
 npm run check:browser  # all of the browser checks above
 ```
 

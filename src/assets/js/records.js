@@ -6,6 +6,8 @@
   var P = window.mathProgress;
   var root = document.getElementById("dash");
   var levels = JSON.parse(document.getElementById("dash-data").textContent);
+  var subjectsEl = document.getElementById("dash-subjects");
+  var subjects = subjectsEl ? JSON.parse(subjectsEl.textContent) : [{ id: "math", name: "Math", placementUrl: "/placement/" }];
   if (!P || !root) return;
 
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
@@ -23,26 +25,37 @@
     if (!p) { root.innerHTML = ""; return; }
     var html = "";
 
-    // ── Next up ──
-    var levelId = P.currentLevel();
-    var lv = levelId && levelOf(levelId);
-    if (lv) {
-      var step = P.nextStep(lv.id, lv.lessons, lv.tests, lv.slug);
-      html += card("Next up", '<p class="card__text">' + esc(lv.name) + ": " + esc(step.label) + '.</p><div class="btn-row"><a class="btn btn--primary" href="' + esc(step.url) + '">Start</a></div>', "card--strong");
-    }
-    var placement = p.placement
-      ? "Placement test on " + day(p.placement.date) + ': start at <a href="' + esc(p.placement.url) + '">' + esc(p.placement.label) + "</a>."
-      : 'No placement test yet. <a href="/placement/">The placement test</a> finds where to begin.';
-    html += '<p class="dash-line">' + placement + "</p>";
+    // ── Next up, in each subject ──
+    var many = subjects.length > 1;
+    var order = P.subjectOrder(subjects.map(function (s) { return s.id; }), p);
+    order.forEach(function (sid) {
+      var subj = subjects.filter(function (s) { return s.id === sid; })[0];
+      var lv = levelOf(P.currentLevel(sid, p));
+      if (lv) {
+        var step = P.nextStep(lv.id, lv.lessons, lv.tests, lv.slug);
+        html += card("Next up" + (many ? " in " + esc(subj.name.toLowerCase()) : ""), '<p class="card__text">' + esc(lv.name) + ": " + esc(step.label) + '.</p><div class="btn-row"><a class="btn btn--primary" href="' + esc(step.url) + '">Start</a></div>', "card--strong");
+      }
+      var pl = P.getPlacement(sid, p);
+      var what = many ? esc(subj.name) + " placement test" : "Placement test";
+      html += '<p class="dash-line">' + (pl && pl.level === "done" ? what + " on " + day(pl.date) + ": every section was passed."
+        : pl ? what + " on " + day(pl.date) + ': start at <a href="' + esc(pl.url) + '">' + esc(pl.label) + "</a>."
+        : "No " + (many ? esc(subj.name.toLowerCase()) + " " : "") + 'placement test yet. <a href="' + esc(subj.placementUrl) + '">The placement test</a> finds where to begin.') + "</p>";
+    });
     if (p.legacy && p.legacy.completed && p.legacy.completed.length) {
-      html += '<p class="dash-line dash-line--note">From the earlier version of Math Direct: ' + p.legacy.completed.length + " of its 150 lessons were finished. The program has since been rebuilt in levels, so those lessons do not map one to one. The placement test is the surest way to find the right starting lesson.</p>";
+      html += '<p class="dash-line dash-line--note">From the earlier Math Direct program: ' + p.legacy.completed.length + " of its 150 lessons were finished. The program has since been rebuilt in levels, so those lessons do not map one to one. The placement test is the surest way to find the right starting lesson.</p>";
+    }
+    if (p.readingImport && p.readingImport.lessons) {
+      html += '<p class="dash-line dash-line--note">From Open Phonics: ' + plural(p.readingImport.lessons, "lesson") + " finished there, marked here as reading lessons.</p>";
     }
 
     // ── Levels: started ones in full, the rest folded ──
     var started = [], other = [];
-    levels.forEach(function (l) {
+    var ordered = [];
+    order.forEach(function (sid) { levels.forEach(function (l) { if ((l.subject || "math") === sid) ordered.push(l); }); });
+    ordered.forEach(function (l) {
       var done = p.completed.filter(function (c) { return c.indexOf(l.id + "-") === 0; });
-      var any = done.length || Object.keys(p.lessons).some(function (k) { return k.indexOf(l.id + "-") === 0; }) || (p.placement && p.placement.level === l.id) || l.tests.some(function (t) { return p.tests[t.id] && p.tests[t.id].length; });
+      var pl = P.getPlacement(l.subject || "math", p);
+      var any = done.length || Object.keys(p.lessons).some(function (k) { return k.indexOf(l.id + "-") === 0; }) || (pl && pl.level === l.id) || l.tests.some(function (t) { return p.tests[t.id] && p.tests[t.id].length; });
       (any ? started : other).push(l);
     });
     function levelCard(l) {

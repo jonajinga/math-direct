@@ -243,6 +243,7 @@ const factsReview = {
 export default {
   id: "bridge",
   slug: "bridge",
+  subject: "math",
   name: "Bridge to Second Grade",
   longName: "Bridge to Second Grade",
   age: "after First Grade",

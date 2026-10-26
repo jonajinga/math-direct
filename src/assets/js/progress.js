@@ -1,12 +1,17 @@
-// Math Direct progress store. Everything stays in this browser's localStorage.
+// Teach Direct progress store. Everything stays in this browser's localStorage.
+// The storage keys keep their original names so records made under the
+// app's earlier name are still found.
 //
-// A profile is one child:
-//   { id, name, completed: ["prek-001", ...],
+// A profile is one child, with records for every subject:
+//   { id, name, completed: ["prek-001", "reading-1-004", ...],
 //     redo: ["prek-004", ...],                 lessons the teacher marked to repeat
 //     lessons: { lessonId: [summary, ...] },   last five teachings of each lesson
 //     tests: { testId: [summary, ...] },
-//     facts: { "3+2": { r: [1,0,1], last } }, last five results for each fact
-//     placement: { level, lesson, url, label, date },
+//     facts: { "3+2": { r: [1,0,1], t, last } }, last five results for each fact, with seconds
+//     sounds: { "th": { r, t, last } },         the same for each sound, in reading
+//     checkouts: [{ date, level, lesson, words, seconds, errors, wpm, goal }],  timed reading
+//     placements: { math: { level, lesson, url, label, date }, reading: {...} },
+//     last: { math: { id, date }, reading: { id, date } },   the last lesson taught in each subject
 //     notes: [{ id, text, date, ref }],
 //     items: { itemKey: { r: [1,0,1], last } },   last five first-try results for each item
 //     timed: [{ date, right, errors, goal }],
@@ -15,7 +20,11 @@
   var PROFILES_KEY = "math-direct-profiles";
   var ACTIVE_KEY = "math-direct-active-profile";
   var LEGACY_KEY = "math-direct-progress";
-  var VERSION = 4;
+  var VERSION = 5;
+
+  // The subject a level or lesson id belongs to: the reading levels are
+  // "reading-1" and "reading-2"; every other level is math.
+  function subjectOf(id) { return /^reading/.test(String(id || "")) ? "reading" : "math"; }
 
   function read() {
     try { return JSON.parse(localStorage.getItem(PROFILES_KEY) || "[]"); } catch (e) { return []; }
@@ -37,6 +46,14 @@
     if (!p.facts) p.facts = {};
     if (!p.items) p.items = {};
     if (!p.timed) p.timed = [];
+    if (!p.sounds) p.sounds = {};
+    if (!p.checkouts) p.checkouts = [];
+    if (!p.placements) p.placements = {};
+    // Version 4 kept one placement and one last lesson; version 5 keeps one of each for each subject.
+    if (p.placement && p.placement.level && !p.placements[subjectOf(p.placement.level)]) p.placements[subjectOf(p.placement.level)] = p.placement;
+    delete p.placement;
+    if (!p.last) p.last = {};
+    if (p.lastLesson && p.lastLesson.id && !p.last[subjectOf(p.lastLesson.id)]) p.last[subjectOf(p.lastLesson.id)] = p.lastLesson;
     if (!Array.isArray(p.completed)) p.completed = [];
     if (!Array.isArray(p.redo)) p.redo = [];
     // Old program: completed held lesson numbers 1 to 150.
@@ -158,6 +175,7 @@
       p.redo = p.redo.filter(function (c) { return c !== id; });
       if (!summary.repeat && p.completed.indexOf(id) === -1) p.completed.push(id);
       p.lastLesson = { id: id, date: summary.date };
+      p.last[subjectOf(id)] = { id: id, date: summary.date };
     });
   }
   function recordLesson(id, summary) { recordLessonFor(null, id, summary); }
@@ -186,6 +204,7 @@
       else {
         delete p.lessons[id];
         if (p.lastLesson && p.lastLesson.id === id) delete p.lastLesson;
+        if (p.last[subjectOf(id)] && p.last[subjectOf(id)].id === id) delete p.last[subjectOf(id)];
       }
     });
   }
@@ -198,7 +217,8 @@
       var m = /^(.+)-(\d{3})$/.exec(c);
       if (m && m[1] === levelId) hi = Math.max(hi, Number(m[2]));
     });
-    if (p && p.placement && p.placement.level === levelId && hi < p.placement.lesson - 1) hi = p.placement.lesson - 1;
+    var pl = p && p.placements[subjectOf(levelId)];
+    if (pl && pl.level === levelId && hi < pl.lesson - 1) hi = pl.lesson - 1;
     return Math.min(hi + 1, total);
   }
 
@@ -210,7 +230,8 @@
     // The latest test that falls before the next lesson, and after where the
     // child began the level, must be passed or marked passed before going on.
     // A passed test covers the ones before it.
-    var from = p && p.placement && p.placement.level === levelId ? p.placement.lesson : 1;
+    var pl = p && p.placements[subjectOf(levelId)];
+    var from = pl && pl.level === levelId ? pl.lesson : 1;
     var due = (tests || []).filter(function (t) { return t.afterLesson < n && t.afterLesson >= from; });
     var last = due[due.length - 1];
     if (last && p && testStatus(last.id, p) !== "passed") return { url: last.url, label: last.title, test: true };
@@ -263,8 +284,13 @@
     if (status === "new") { update(function (p) { delete p.tests[id]; }); return; }
     recordTest(id, { date: new Date().toISOString(), manual: true, parts: [], passed: status === "passed" });
   }
+  // One placement result for each subject: { level, lesson, url, label, date, subject }
   function recordPlacement(rec) {
-    update(function (p) { p.placement = rec; });
+    update(function (p) { p.placements[rec.subject || subjectOf(rec.level)] = rec; });
+  }
+  function getPlacement(subject, profile) {
+    var p = profile || getActiveProfile();
+    return p && p.placements && p.placements[subject || "math"] ? p.placements[subject || "math"] : null;
   }
   // Each fact keeps its last five results and, when known, how many seconds
   // the child took to answer.
@@ -278,23 +304,40 @@
     });
   }
   function recordFact(fact, firm, ms) { recordFactFor(null, fact, firm, ms); }
+  // Sounds, in reading, keep the same record as facts.
+  function recordSoundFor(childId, sound, firm, ms) {
+    updateProfile(childId, function (p) {
+      var f = p.sounds[sound] || { r: [] };
+      f.r = f.r.concat([firm ? 1 : 0]).slice(-5);
+      f.t = (f.t || []).concat([typeof ms === "number" ? Math.round(ms / 100) / 10 : null]).slice(-5);
+      f.last = new Date().toISOString();
+      p.sounds[sound] = f;
+    });
+  }
+  function recordSound(sound, firm, ms) { recordSoundFor(null, sound, firm, ms); }
   // automatic: the last three right and each under three seconds; firm: the
   // last three right; learning: the last one right; shaky: the last one
   // missed; new: no record.
   var AUTOMATIC_SECONDS = 3;
-  function factStatus(f) {
+  function factStatus(f, limit) {
     if (!f || !f.r || !f.r.length) return "new";
     var last3 = f.r.slice(-3);
     if (last3.length >= 3 && last3.every(function (x) { return x === 1; })) {
       var t3 = (f.t || []).slice(-3);
-      if (t3.length >= 3 && t3.every(function (x) { return typeof x === "number" && x <= AUTOMATIC_SECONDS; })) return "automatic";
+      if (t3.length >= 3 && t3.every(function (x) { return typeof x === "number" && x <= (limit || AUTOMATIC_SECONDS); })) return "automatic";
       return "firm";
     }
     return last3[last3.length - 1] === 1 ? "learning" : "shaky";
   }
+  // A sound is automatic when said within two seconds.
+  function soundStatus(f) { return factStatus(f, 2); }
   // One-minute timed checks: { date, level, right, errors, goal }
   function recordTimed(rec) {
     update(function (p) { p.timed = (p.timed || []).concat([rec]).slice(-20); });
+  }
+  // Rate and accuracy checkouts in reading: { date, level, lesson, words, seconds, errors, wpm, goal }
+  function recordCheckout(rec) {
+    update(function (p) { p.checkouts = (p.checkouts || []).concat([rec]).slice(-40); });
   }
 
   // ── Notes ──
@@ -311,17 +354,17 @@
   }
 
   function resetProgress() {
-    update(function (p) { p.completed = []; p.redo = []; p.lessons = {}; p.tests = {}; p.facts = {}; p.items = {}; p.timed = []; p.placement = null; });
+    update(function (p) { p.completed = []; p.redo = []; p.lessons = {}; p.tests = {}; p.facts = {}; p.sounds = {}; p.items = {}; p.timed = []; p.checkouts = []; p.placements = {}; p.last = {}; delete p.lastLesson; delete p.readingImport; });
   }
 
   // ── Export and import ──
   function exportAllProfiles() {
-    var data = JSON.stringify({ profiles: getProfiles(), version: VERSION, exported: new Date().toISOString() }, null, 2);
+    var data = JSON.stringify({ app: "teach-direct", profiles: getProfiles(), version: VERSION, exported: new Date().toISOString() }, null, 2);
     var blob = new Blob([data], { type: "application/json" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     a.href = url;
-    a.download = "math-direct-progress.json";
+    a.download = "teach-direct-backup.json";
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -339,10 +382,14 @@
       });
     });
     Object.keys(src.facts).forEach(function (f) { if (!target.facts[f]) target.facts[f] = src.facts[f]; });
+    Object.keys(src.sounds || {}).forEach(function (f) { if (!target.sounds[f]) target.sounds[f] = src.sounds[f]; });
+    target.checkouts = (target.checkouts || []).concat(src.checkouts || []).sort(function (a, b) { return a.date < b.date ? -1 : 1; }).slice(-40);
+    Object.keys(src.placements || {}).forEach(function (s) { var sp = src.placements[s], tp = target.placements[s]; if (sp && (!tp || sp.date > tp.date)) target.placements[s] = sp; });
+    Object.keys(src.last || {}).forEach(function (s) { var sl = src.last[s], tl = target.last[s]; if (sl && (!tl || sl.date > tl.date)) target.last[s] = sl; });
+    if (src.readingImport && !target.readingImport) target.readingImport = src.readingImport;
     var noteIds = {};
     target.notes.forEach(function (n) { noteIds[n.id] = 1; });
     src.notes.forEach(function (n) { if (!noteIds[n.id]) target.notes.push(n); });
-    if (src.placement && (!target.placement || src.placement.date > target.placement.date)) target.placement = src.placement;
     if (src.legacy) {
       target.legacy = target.legacy || { completed: [] };
       var ls = {};
@@ -350,12 +397,27 @@
       target.legacy.completed = Object.keys(ls).map(Number).sort(function (a, b) { return a - b; });
     }
   }
+  // A backup from Open Phonics carries version 2 and its finished lessons as
+  // numbers, 1 to 150. Lessons 1 to 100 become Reading 1; 101 to 150, Reading 2.
+  function isOpenPhonics(data) {
+    if (data.app === "open-phonics") return true;
+    return data.version === 2 && !data.exported && data.profiles.every(function (p) { return (p.completed || []).every(function (c) { return typeof c === "number"; }); });
+  }
+  function fromOpenPhonics(p) {
+    var done = (p.completed || []).filter(function (n) { return typeof n === "number" && n >= 1 && n <= 150; });
+    return {
+      id: p.id, name: p.name,
+      completed: done.map(function (n) { return n <= 100 ? "reading-1-" + String(n).padStart(3, "0") : "reading-2-" + String(n - 100).padStart(3, "0"); }),
+      readingImport: { lessons: done.length, date: new Date().toISOString() },
+    };
+  }
   function importProfiles(file) {
     var reader = new FileReader();
     reader.onload = function (e) {
       try {
         var data = JSON.parse(e.target.result);
-        if (!data.profiles || !Array.isArray(data.profiles)) { say("This file is not a Math Direct backup."); return; }
+        if (!data.profiles || !Array.isArray(data.profiles)) { say("This file is not a Teach Direct backup."); return; }
+        if (isOpenPhonics(data)) data.profiles = data.profiles.map(fromOpenPhonics);
         var existing = getProfiles();
         data.profiles.forEach(function (p) {
           var match = existing.find(function (x) { return x.name === p.name; });
@@ -429,21 +491,38 @@
     if (del && active) del.addEventListener("click", function () { confirmDelete(active.id, active.name); });
   }
 
-  // The level the child is working in: the last lesson taught, else the
-  // placement result, else nothing.
-  function currentLevel() {
-    var p = getActiveProfile();
+  // The level the child is working in for a subject: the last lesson taught
+  // in it, else that subject's placement result, else nothing.
+  function currentLevel(subject, profile) {
+    var p = profile || getActiveProfile();
+    subject = subject || "math";
     if (!p) return null;
-    if (p.lastLesson && p.lastLesson.id) { var m = /^(.+)-(\d{3})$/.exec(p.lastLesson.id); if (m) return m[1]; }
-    if (p.placement && p.placement.level) return p.placement.level;
+    var last = p.last && p.last[subject];
+    if (last && last.id) { var m = /^(.+)-(\d{3})$/.exec(last.id); if (m) return m[1]; }
+    var pl = p.placements && p.placements[subject];
+    if (pl && pl.level && pl.level !== "done") return pl.level;
     return null;
   }
-  // The last lesson taught, with its summary.
-  function lastResult() {
-    var p = getActiveProfile();
-    if (!p || !p.lastLesson || !p.lessons[p.lastLesson.id]) return null;
-    var h = p.lessons[p.lastLesson.id];
-    return { id: p.lastLesson.id, summary: h[h.length - 1] };
+  // The last lesson taught in a subject, with its summary.
+  function lastResult(subject, profile) {
+    var p = profile || getActiveProfile();
+    var last = p && p.last ? p.last[subject || "math"] : null;
+    if (!last || !p.lessons[last.id]) return null;
+    var h = p.lessons[last.id];
+    return { id: last.id, summary: h[h.length - 1] };
+  }
+  // Subjects in teaching order: one not yet started first (reading before
+  // math), then the one taught longest ago.
+  function subjectOrder(subjects, profile) {
+    var p = profile || getActiveProfile();
+    function when(s) { return p && p.last && p.last[s] ? p.last[s].date : ""; }
+    return subjects.slice().sort(function (a, b) {
+      var la = when(a), lb = when(b);
+      if (!la && !lb) return (a === "reading" ? 0 : 1) - (b === "reading" ? 0 : 1);
+      if (!la) return -1;
+      if (!lb) return 1;
+      return la < lb ? -1 : la > lb ? 1 : 0;
+    });
   }
 
   // One-time move of the oldest storage format.
@@ -469,7 +548,8 @@
     getCompleted: getCompleted, isComplete: isComplete, markComplete: markComplete, markIncomplete: markIncomplete,
     recordLesson: recordLesson, recordLessonFor: recordLessonFor, lessonHistory: lessonHistory, nextLesson: nextLesson, nextStep: nextStep,
     lessonStatus: lessonStatus, setLessonStatus: setLessonStatus, testStatus: testStatus, setTestStatus: setTestStatus,
-    recordTest: recordTest, recordPlacement: recordPlacement, recordFact: recordFact, recordFactFor: recordFactFor, factStatus: factStatus,
+    recordTest: recordTest, recordPlacement: recordPlacement, getPlacement: getPlacement, recordFact: recordFact, recordFactFor: recordFactFor, factStatus: factStatus,
+    recordSound: recordSound, recordSoundFor: recordSoundFor, soundStatus: soundStatus, recordCheckout: recordCheckout, subjectOf: subjectOf, subjectOrder: subjectOrder,
     recordItems: recordItems, recordItemsFor: recordItemsFor, itemHistory: itemHistory, recordTimed: recordTimed,
     addNote: addNote, addNoteFor: addNoteFor, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
     exportAllProfiles: exportAllProfiles, importProfiles: importProfiles,
@@ -499,7 +579,7 @@
     if (resetBtn) resetBtn.addEventListener("click", function () {
       var p = getActiveProfile();
       if (!window.MD) return;
-      MD.confirm({ title: "Erase " + (p ? p.name + "'s" : "this child's") + " records?", text: "Lessons, tests, facts, and the placement result are erased. Notes are kept. Save a backup first if you may want them back.", ok: "Erase", cancel: "Keep", danger: true }).then(function (yes) {
+      MD.confirm({ title: "Erase " + (p ? p.name + "'s" : "this child's") + " records?", text: "Lessons, tests, facts, sounds, and placement results are erased. Notes are kept. Save a backup first if you may want them back.", ok: "Erase", cancel: "Keep", danger: true }).then(function (yes) {
         if (!yes) return;
         // The records are held for a minute behind Undo before they are gone.
         var keep = JSON.parse(JSON.stringify(getActiveProfile()));

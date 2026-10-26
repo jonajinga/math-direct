@@ -1,4 +1,4 @@
-// Math Direct app shell: viewport height, sheets, toasts, the install prompt,
+// Teach Direct app shell: viewport height, sheets, toasts, the install prompt,
 // and the search shortcut. Loaded on every page.
 (function () {
   "use strict";

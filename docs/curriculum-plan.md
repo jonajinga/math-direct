@@ -1,4 +1,6 @@
-# Math Direct: Evaluation and Plan
+# The math program: evaluation and plan
+
+Written when the app was Math Direct; the program is now the math subject of Teach Direct.
 
 ## A complete Direct Instruction program for Pre-K, Kindergarten, and First Grade
 
