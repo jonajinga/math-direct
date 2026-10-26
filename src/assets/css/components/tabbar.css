@@ -19,7 +19,8 @@
 .tabbar__item svg { width: 1.5rem; height: 1.5rem; }
 .tabbar__item .tabbar__icon--on { display: none; }
 .tabbar__item[aria-current="page"] { color: var(--primary); font-weight: 700; }
-.tabbar__item[aria-current="page"]::before { content: ""; position: absolute; top: 0; left: 20%; right: 20%; height: 3px; background: var(--primary); border-radius: 0 0 3px 3px; }
+.tabbar__item[aria-current="page"]::before { content: ""; position: absolute; top: 0; left: 20%; right: 20%; height: 3px; background: var(--primary); border-radius: 0 0 var(--r-0) var(--r-0); }
 .tabbar__item[aria-current="page"] .tabbar__icon--on { display: block; }
 .tabbar__item[aria-current="page"] .tabbar__icon--off { display: none; }
+.tabbar__item:active { background-image: linear-gradient(color-mix(in srgb, var(--ink) var(--layer-press), transparent), color-mix(in srgb, var(--ink) var(--layer-press), transparent)); }
 .tabbar__item:focus-visible { outline-offset: -4px; box-shadow: none; }

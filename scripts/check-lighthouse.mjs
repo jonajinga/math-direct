@@ -22,7 +22,7 @@ const server = createServer((req, res) => {
 });
 await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const BASE = "http://127.0.0.1:" + server.address().port;
-const PAGES = process.argv.slice(2).length ? process.argv.slice(2) : ["/", "/lessons/", "/practice/", "/records/", "/more/", "/reading-1/", "/reading-1/lesson-040/", "/reading-2/lesson-026/", "/stories/", "/stories/sam-sat/", "/quick-sounds/", "/sounds/", "/words/", "/guide/reading/", "/placement/reading/", "/placement/"];
+const PAGES = process.argv.slice(2).length ? process.argv.slice(2) : ["/", "/lessons/", "/practice/", "/records/", "/more/", "/reading-1/", "/reading-1/lesson-040/", "/reading-2/lesson-026/", "/stories/", "/stories/sam-sat/", "/quick-sounds/", "/sounds/", "/words/", "/guide/reading/", "/placement/reading/", "/placement/", "/design/"];
 const chromePath = process.env.CHROME_PATH || "/opt/pw-browsers/chromium";
 const chrome = await chromeLauncher.launch({ chromePath, chromeFlags: ["--headless=new", "--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"] });
 const fails = [];

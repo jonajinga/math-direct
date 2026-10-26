@@ -256,10 +256,10 @@
     var tl = tally();
     var goal = DATA.goal || 10;
     if (P && P.recordTimed && !rehearsing) P.recordTimed({ date: new Date().toISOString(), level: DATA.level ? DATA.level.id : "", right: tl.firm, errors: tl.errors, goal: goal });
-    var html = '<article class="finish"><p class="finish__kicker">Timed facts' + (childName() ? " · " + escapeHtml(childName()) : "") + "</p>";
+    var html = '<article class="finish"><p class="eyebrow">Timed facts' + (childName() ? " · " + escapeHtml(childName()) : "") + "</p>";
     html += '<h1 class="finish__title">' + tl.firm + " right in one minute</h1>";
     html += '<dl class="finish__facts"><div><dt>Right</dt><dd>' + tl.firm + "</dd></div><div><dt>Errors</dt><dd>" + tl.errors + "</dd></div><div><dt>Goal</dt><dd>" + goal + "</dd></div></dl>";
-    html += '<div class="finish__advice"><p>' + (tl.firm >= goal ? "<strong>At the goal.</strong> The goal rises as more facts are released." : "<strong>Below the goal of " + goal + ".</strong> Keep the daily Quick facts going, and give this check again in a week.") + "</p></div>";
+    html += '<div class="advice"><p>' + (tl.firm >= goal ? "<strong>At the goal.</strong> The goal rises as more facts are released." : "<strong>Below the goal of " + goal + ".</strong> Keep the daily Quick facts going, and give this check again in a week.") + "</p></div>";
     html += '<ul class="finish__links"><li><a href="/records/">Records</a></li></ul></article>';
     showFinish(html, actionBar({ label: "Again", act: "again" }, { label: "All practice", href: DATA.exitUrl || "/practice/" }));
   }
@@ -1150,7 +1150,7 @@
       r.exErrors.forEach(function (e) { html += "<li>Exercise " + e.n + ", " + escapeHtml(e.title) + ": " + e.errors + " error" + (e.errors > 1 ? "s" : "") + "</li>"; });
       html += "</ul>";
     }
-    html += '<div class="finish__advice">';
+    html += '<div class="advice">';
     if (rehearsing) {
       html += "<p><strong>This was a rehearsal.</strong> Nothing was recorded.</p>";
     } else if (r.repeat) {
@@ -1184,7 +1184,7 @@
 
     var name = rehearsing ? "Rehearsal" : childName();
     var html = '<article class="finish">';
-    html += '<p class="finish__kicker">' + escapeHtml(lesson.levelName) + (name ? " · " + escapeHtml(name) : "") + "</p>";
+    html += '<p class="eyebrow">' + escapeHtml(lesson.levelName) + (name ? " · " + escapeHtml(name) : "") + "</p>";
     html += '<h1 class="finish__title">Lesson ' + lesson.number + " is finished</h1>";
     html += '<dl class="finish__facts">';
     if (!sitting.group) html += reportFacts(reports[0]);
@@ -1223,7 +1223,7 @@
     var cur = kind === "lesson" ? P.lessonStatus(id, child && P.getProfile ? P.getProfile(child.id) : undefined) : P.testStatus(id);
     var label = "Mark this " + kind + (child ? " for " + child.name : "");
     return '<div class="finish__mark" role="group" aria-label="' + escapeAttr(label) + '" data-mark-kind="' + kind + '" data-mark-id="' + id + '"' + (child ? ' data-mark-child="' + escapeAttr(child.id) + '"' : "") + '><span class="finish__mark-label">' + escapeHtml(label) + ":</span>" +
-      opts.map(function (o) { return '<button type="button" class="finish__mark-btn" data-mark="' + o[0] + '" aria-pressed="' + (cur === o[0]) + '">' + o[1] + "</button>"; }).join("") + "</div>";
+      opts.map(function (o) { return '<button type="button" class="btn btn--secondary" data-mark="' + o[0] + '" aria-pressed="' + (cur === o[0]) + '">' + o[1] + "</button>"; }).join("") + "</div>";
   }
 
   function noteForm() {
@@ -1259,12 +1259,12 @@
     var failed = parts.filter(function (p) { return !p.passed; });
 
     var html = '<article class="finish">';
-    html += '<p class="finish__kicker">' + escapeHtml(t.levelName) + (childName() ? " · " + escapeHtml(childName()) : "") + "</p>";
+    html += '<p class="eyebrow">' + escapeHtml(t.levelName) + (childName() ? " · " + escapeHtml(childName()) : "") + "</p>";
     html += '<h1 class="finish__title">' + escapeHtml(t.title) + ": results</h1>";
     if (!failed.length) {
-      html += '<div class="finish__advice"><p><strong>Every part was passed.</strong> Go on to the next lesson.</p></div>';
+      html += '<div class="advice"><p><strong>Every part was passed.</strong> Go on to the next lesson.</p></div>';
     } else {
-      html += '<div class="finish__advice"><p><strong>' + failed.length + " part" + (failed.length > 1 ? "s need" : " needs") + " reteaching.</strong> Teach the exercises listed below, then give only " + (failed.length > 1 ? "those parts" : "that part") + " of the test again before going on. A part is passed with every item right" + (t.parts.some(function (p) { return p.allowed; }) ? ", or one error in five or more" : "") + ".</p></div>";
+      html += '<div class="advice"><p><strong>' + failed.length + " part" + (failed.length > 1 ? "s need" : " needs") + " reteaching.</strong> Teach the exercises listed below, then give only " + (failed.length > 1 ? "those parts" : "that part") + " of the test again before going on. A part is passed with every item right" + (t.parts.some(function (p) { return p.allowed; }) ? ", or one error in five or more" : "") + ".</p></div>";
     }
     if (failed.length) {
       html += '<h2 class="finish__h2">Reteach</h2><ul class="finish__list">';
@@ -1303,7 +1303,7 @@
     seg.steps.forEach(function (st) { if (lastOf(st.uid) === "error") missed.push(st); });
     var tl = tally();
     var html = '<article class="finish">';
-    html += '<p class="finish__kicker">' + escapeHtml(DATA.set.levelName) + " practice" + (childName() ? " · " + escapeHtml(childName()) : "") + "</p>";
+    html += '<p class="eyebrow">' + escapeHtml(DATA.set.levelName) + " practice" + (childName() ? " · " + escapeHtml(childName()) : "") + "</p>";
     html += '<h1 class="finish__title">' + escapeHtml(DATA.set.title) + "</h1>";
     html += '<dl class="finish__facts"><div><dt>Firm</dt><dd>' + tl.firm + "</dd></div><div><dt>Errors</dt><dd>" + tl.errors + "</dd></div></dl>";
     if (missed.length) {
@@ -1311,7 +1311,7 @@
       missed.forEach(function (m) { html += "<li>" + escapeHtml(m.say) + " (" + escapeHtml(m.answer) + ")</li>"; });
       html += "</ul>";
     } else {
-      html += '<div class="finish__advice"><p><strong>Every item was firm.</strong></p></div>';
+      html += '<div class="advice"><p><strong>Every item was firm.</strong></p></div>';
     }
     html += "</article>";
     showFinish(html, actionBar({ label: DATA.exitLabel ? "Again" : "Another set", act: "again" }, { label: DATA.exitLabel || "All practice", href: DATA.exitUrl || "/practice/" }));
@@ -1359,7 +1359,7 @@
     loadPlacementSection();
     var s2 = DATA.sections[next];
     var keep = true;
-    var html = '<article class="finish"><p class="finish__kicker">Placement test</p><h1 class="finish__title">Section ' + (passed ? "passed" : "not passed") + '</h1><p class="finish__lead">' +
+    var html = '<article class="finish"><p class="eyebrow">Placement test</p><h1 class="finish__title">Section ' + (passed ? "passed" : "not passed") + '</h1><p class="finish__lead">' +
       (passed ? "The child knows this part of the program. The next section checks the next span of lessons." : "This span of lessons is not yet firm. The next section checks the span before it.") + "</p></article>";
     showFinish(html, actionBar({ label: "Begin: " + s2.title, id: "placement-continue" }));
     if (keep) saveSession();
@@ -1379,7 +1379,7 @@
     var sec = startIdx < DATA.sections.length ? DATA.sections[startIdx] : null;
     var label = rec.label || (sec ? sec.levelName + ", Lesson " + rec.lesson : "");
     if (P) P.recordPlacement({ date: new Date().toISOString(), subject: DATA.subject || "math", level: rec.level, lesson: rec.lesson, url: rec.url, label: label });
-    var html = '<article class="finish"><p class="finish__kicker">Placement test' + (childName() ? " · " + escapeHtml(childName()) : "") + '</p><h1 class="finish__title">Start at ' + escapeHtml(label) + "</h1>";
+    var html = '<article class="finish"><p class="eyebrow">Placement test' + (childName() ? " · " + escapeHtml(childName()) : "") + '</p><h1 class="finish__title">Start at ' + escapeHtml(label) + "</h1>";
     html += '<p class="finish__lead">The child passed the sections before this point. Begin here, and the lessons will review what came before as they go. If the first few lessons are too easy, move ahead five lessons at a time; if they are too hard, move back.</p></article>';
     showFinish(html, actionBar({ label: "Go to " + label, href: rec.url }, { label: "Records", href: "/records/" }));
   }

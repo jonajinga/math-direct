@@ -467,7 +467,7 @@
   function renderChildChips(container) {
     if (!container) return;
     var profiles = getProfiles(), active = getActiveProfile();
-    var html = '<fieldset class="chips"><legend>Child</legend>';
+    var html = '<fieldset class="chips"><legend class="eyebrow">Child</legend>';
     profiles.forEach(function (p) {
       var on = active && active.id === p.id;
       html += '<label class="chip"><input type="radio" name="md-child" value="' + p.id + '"' + (on ? " checked" : "") + ">" + escapeHtml(p.name) + "</label>";

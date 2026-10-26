@@ -27,12 +27,11 @@
 
 .shortcut-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-2); }
 .shortcut-item { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-2); }
-.shortcut-item kbd { display: inline-block; padding: 0.125rem 0.5rem; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface-2); font-family: var(--font-ui); font-size: var(--fs-1); font-weight: 700; }
 .shortcut-item span { color: var(--ink-2); }
 
 /* "On this page" list */
 .onpage { margin: 0 0 var(--sp-5); padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--sp-2); }
-.onpage a { display: inline-flex; align-items: center; min-height: 2.25rem; padding: 0 var(--sp-3); border: 1px solid var(--line-strong); border-radius: var(--r-full); background: var(--surface); color: var(--ink); font-size: var(--fs-1); font-weight: 600; text-decoration: none; }
+.onpage a { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 var(--sp-3); border: 1px solid var(--line-strong); border-radius: var(--r-full); background: var(--surface); color: var(--ink); font-size: var(--fs-1); font-weight: 600; text-decoration: none; }
 
 /* Figures on About */
 .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-2); margin: 0 0 var(--sp-5); }
@@ -46,7 +45,6 @@
 .scope__track h3 { font-family: var(--font-ui); font-size: var(--fs-3); margin: 0; }
 .scope__std { color: var(--ink-2); font-size: var(--fs-1); margin: 0 0 var(--sp-1); }
 .scope__sum { margin: 0 0 var(--sp-2); font-size: var(--fs-2); color: var(--ink-2); }
-.scope__units { list-style: none; margin: 0; padding: 0; font-size: var(--fs-2); line-height: 1.5; }
 
 /* Search */
 .search-form { display: flex; gap: var(--sp-2); margin: 0 0 var(--sp-4); }
@@ -55,7 +53,6 @@
 .search-results { list-style: none; margin: 0; padding: 0; }
 .search-results li + li { border-top: 1px solid var(--line); }
 .search-result { display: block; padding: var(--sp-3) 0; color: var(--ink); text-decoration: none; }
-.search-result__type { display: inline-block; font-size: var(--fs-1); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); margin-right: var(--sp-2); }
 .search-result__title { font-weight: 700; }
 .search-result__desc { display: block; margin-top: 2px; color: var(--ink-2); font-size: var(--fs-2); }
 
@@ -79,5 +76,22 @@
 .scope__units { list-style: none; margin: 0; padding: 0; }
 .scope__units li + li { border-top: 1px solid var(--line); }
 .scope__unit { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--tap); padding: var(--sp-1) 0; color: var(--ink); text-decoration: none; font-size: var(--fs-2); }
-.scope__unit:hover .scope__n { background: var(--primary-strong); }
-.scope__n { flex: 0 0 2.5rem; display: inline-flex; align-items: center; justify-content: center; min-height: 1.75rem; border-radius: var(--r-1); background: var(--primary); color: #fff; font-weight: 700; font-size: var(--fs-1); }
+@media (hover: hover) { .scope__unit:hover .scope__n { background: var(--primary-strong); } }
+.scope__n { flex: 0 0 2.5rem; display: inline-flex; align-items: center; justify-content: center; min-height: 1.75rem; border-radius: var(--r-1); background: var(--primary); color: var(--on-primary); font-weight: 700; font-size: var(--fs-1); }
+
+/* Sounds: each sound as the child sees it, how to say it, and its lesson */
+.snd-list { list-style: none; margin: 0; padding: 0; }
+.snd { display: grid; grid-template-columns: 4.5rem 1fr; gap: 0 var(--sp-3); align-items: center; padding: var(--sp-2) 0; border-top: 1px solid var(--line); }
+.snd:first-child { border-top: 0; }
+.snd__letters { font-family: var(--font-child); font-weight: 700; font-size: 1.75rem; line-height: 1.2; color: var(--ink); letter-spacing: 0.04em; }
+.snd__letters .j { border-bottom: 0.1em solid currentColor; letter-spacing: -0.02em; }
+.snd__letters .m { text-decoration: overline; text-decoration-thickness: 0.09em; text-underline-offset: 0.1em; }
+.snd__say { font-weight: 700; }
+.snd__meta { color: var(--ink-2); font-size: var(--fs-1); }
+
+/* Word list: the words of each lesson, in the child's letters */
+.wl__lesson { margin: var(--sp-3) 0 var(--sp-1); }
+.wl { display: flex; flex-wrap: wrap; gap: 0.25rem 0.625rem; margin: 0 0 var(--sp-2); padding: 0; list-style: none; }
+.wl li { font-family: var(--font-child); font-weight: 700; font-size: 1.125rem; letter-spacing: 0.03em; }
+.wl li.is-whole { text-decoration: underline wavy; text-decoration-thickness: 0.06em; text-underline-offset: 0.15em; }
+.wl li.is-later { color: var(--ink-2); font-weight: 400; }

@@ -7,7 +7,7 @@
 
 /* The level screen's lesson grid. Each chip is a lesson. */
 .lesson-group { margin-bottom: var(--sp-4); }
-.lesson-group__title { font-family: var(--font-ui); font-size: var(--fs-1); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); margin: 0 0 var(--sp-2); }
+.lesson-group > .eyebrow { margin-bottom: var(--sp-2); }
 .lgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--sp-2); margin: 0; padding: 0; list-style: none; }
 .lchip {
   position: relative; display: flex; align-items: center; justify-content: center;
@@ -19,9 +19,9 @@
 .lchip.is-done .lchip__mark--done { display: block; color: var(--firm); }
 .lchip.is-repeat { background: var(--note-soft); border-color: var(--note); color: var(--note-strong); }
 .lchip.is-repeat .lchip__mark--repeat { display: block; color: var(--note); }
-.lchip.is-next { border-color: var(--primary); box-shadow: inset 0 0 0 2px var(--primary); }
-.lchip.is-next::after { content: "Next"; position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--primary-strong); line-height: 1; }
-.lchip.is-next { padding-bottom: 0.5rem; }
+.lchip.is-next { border-color: var(--primary); box-shadow: inset 0 0 0 2px var(--primary); color: var(--primary-strong); }
+.lchip:active, .test-row:active { background-image: linear-gradient(color-mix(in srgb, currentColor var(--layer-press), transparent), color-mix(in srgb, currentColor var(--layer-press), transparent)); }
+.lgrid__legend { margin: var(--sp-2) 0 0; color: var(--ink-2); font-size: var(--fs-1); }
 .is-marking .lchip { outline: 2px dashed var(--primary); outline-offset: -2px; }
 
 /* A mastery test row after each group of ten */

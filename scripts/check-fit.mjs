@@ -77,7 +77,7 @@ function walk(url) {
   let primaryBox = null;
   const measure = (label) => {
     const b = $("tp-body"), st = $("child-stage"), bar = document.querySelector(".rn-bar"), where = $("rn-where"), say = $("tp-say");
-    const btns = [...bar.querySelectorAll(".rn-btn")].filter(visible);
+    const btns = [...bar.querySelectorAll(".btn")].filter(visible);
     const tops = new Set(btns.map((x) => Math.round(x.getBoundingClientRect().top)));
     const pb = primary() ? primary().getBoundingClientRect() : null;
     const box = pb ? [pb.right, pb.top, pb.height].map(Math.round).join(",") : "";

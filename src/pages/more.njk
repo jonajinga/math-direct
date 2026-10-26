@@ -9,7 +9,7 @@ bodyClass: page-more
   <h1 class="screen__title">More</h1>
 </header>
 
-<h2 class="section-title">Teaching</h2>
+<h2 class="eyebrow eyebrow--section">Teaching</h2>
 <ul class="rows">
   {% for s in program.subjects %}
   <li><a class="row" href="{{ s.guideUrl }}"><span class="row__main"><span class="row__title">Teaching guide{% if program.subjects.length > 1 %}: {{ s.name | lower }}{% endif %}</span><span class="row__sub">How to present, signal, mark, and correct</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
@@ -22,14 +22,14 @@ bodyClass: page-more
   <li><a class="row" href="/search/"><span class="row__main"><span class="row__title">Search</span><span class="row__sub">Lessons, skills, and pages</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
 </ul>
 
-<h2 class="section-title">What you need</h2>
+<h2 class="eyebrow eyebrow--section">What you need</h2>
 <ul class="rows">
   {% for level in program.levels %}
-  <li><details class="fold" style="border:0;margin:0"><summary>{{ level.name }}</summary><div class="fold__body"><ul class="prose"><li>A phone, tablet, or computer for the lesson screen</li>{% for m in level.materials %}<li>{{ m }}</li>{% endfor %}</ul></div></details></li>
+  <li><details class="fold fold--flat"><summary>{{ level.name }}</summary><div class="fold__body"><ul class="prose"><li>A phone, tablet, or computer for the lesson screen</li>{% for m in level.materials %}<li>{{ m }}</li>{% endfor %}</ul></div></details></li>
   {% endfor %}
 </ul>
 
-<h2 class="section-title">Children and records</h2>
+<h2 class="eyebrow eyebrow--section">Children and records</h2>
 <div data-child-picker></div>
 <ul class="rows">
   <li><a class="row" href="/records/"><span class="row__main"><span class="row__title">Records</span><span class="row__sub">Each child's results, and renaming or removing a child</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
@@ -39,17 +39,18 @@ bodyClass: page-more
 </ul>
 <p class="muted small">Records live in this browser only. Clearing the browser's site data erases them, so save a backup now and then.</p>
 
-<h2 class="section-title">This app</h2>
+<h2 class="eyebrow eyebrow--section">This app</h2>
 <ul class="rows">
   <li><button class="row" type="button" data-install hidden><span class="row__main"><span class="row__title">Install the app</span><span class="row__sub">Opens like an app and works without a connection</span></span>{% include "partials/icons/chevron-right.njk" %}</button></li>
   <li><button class="row" type="button" data-sheet-open="sheet-ios-install" id="ios-install-row" hidden><span class="row__main"><span class="row__title">Add to the Home Screen</span><span class="row__sub">On an iPhone or iPad</span></span>{% include "partials/icons/chevron-right.njk" %}</button></li>
 </ul>
 
-<h2 class="section-title">About</h2>
+<h2 class="eyebrow eyebrow--section">About</h2>
 <ul class="rows">
   <li><a class="row" href="/about/"><span class="row__main"><span class="row__title">About Teach Direct</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
   <li><a class="row" href="/privacy/"><span class="row__main"><span class="row__title">Privacy</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
   <li><a class="row" href="/terms/"><span class="row__main"><span class="row__title">Terms of use</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+  <li><a class="row" href="/design/"><span class="row__main"><span class="row__title">Style guide</span><span class="row__sub">The colors, type, parts, and words of every screen</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
 </ul>
 <p class="muted small">Teach Direct is free and open source. Build {{ build.version }}.</p>
 <script src="/assets/js/progress.js?v={{ build.version }}"></script>

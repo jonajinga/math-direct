@@ -92,6 +92,7 @@ export default function (eleventyConfig) {
           "screens/practice.css",
           "screens/records.css",
           "screens/content.css",
+          "screens/design.css",
           "screens/runner.css",
         ];
         let combined = "";

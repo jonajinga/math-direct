@@ -37,7 +37,7 @@
       matches.slice(0, 20).forEach(function (item) {
         var desc = item.description || firstSentence(item.content);
         html += '<li><a href="' + item.url + '" class="search-result">' +
-          '<span class="search-result__type">' + item.type + "</span>" +
+          '<span class="eyebrow eyebrow--inline">' + item.type + "</span>" +
           '<span class="search-result__title">' + escapeHtml(item.title) + "</span>" +
           (desc ? '<span class="search-result__desc">' + escapeHtml(desc) + "</span>" : "") +
           "</a></li>";
