@@ -83,7 +83,7 @@ const STORY_UNITS = (() => {
   for (const u of list) { if (u.at <= last) u.at = last + 1; last = u.at; }
   return list.filter((u) => u.at <= LESSONS).map((u) => {
     for (const x of u.extras) { if (!EXTRA.has(x.toLowerCase()) || EXTRA.get(x.toLowerCase()).lesson > u.at) EXTRA.set(x.toLowerCase(), { word: x, lesson: u.at }); }
-    return { id: u.story.slug, lesson: u.at, label: `Story: ${u.story.title}`, story: u.story, title: u.title, lines: u.lines, extras: u.extras, words: u.lines.reduce((a, l) => a + l.words.length, 0) };
+    return { id: u.story.slug, lesson: u.at, label: `Story: ${u.story.title.replace(/[!.]+$/, "")}`, story: u.story, title: u.title, lines: u.lines, extras: u.extras, words: u.lines.reduce((a, l) => a + l.words.length, 0) };
   });
 })();
 for (const [k, x] of EXTRA) if (!TOKENS.has(x.word)) TOKENS.set(x.word, [{ s: x.word, whole: true, sound: "word" }]);
@@ -459,7 +459,7 @@ const stories = {
   newEx(u, ctx) {
     const steps = [];
     const words = storyWordsToRead(u).slice(0, u.extras.length >= 4 ? 3 : 5);
-    steps.push(note(V.words(words.map((w) => TOKENS.get(w.word)), PLAIN), `A new story, ${titleOf(u)}. First, the words from it that are newest.`, { do: "Read each word before the story, so the story goes well." }));
+    steps.push(note(V.words(words.map((w) => TOKENS.get(w.word)), PLAIN), `A new story, ${titleOf(u)}. First, its newest words.`, { do: "Read each word before the story, so the story goes well." }));
     if (u.extras.length) {
       // Words the list does not have are read whole: told once, then read.
       steps.push(model(V.words(u.extras.map((x) => TOKENS.get(x)), PLAIN), `These words are in the story. We read them as whole words. My turn: ${u.extras.join(", ")}.`, { do: "Say each word as you point to it." }));
@@ -471,7 +471,7 @@ const stories = {
     steps.push(lead(lineOf(u.lines[0], ctx), "Read the first line with me, the fast way.", plainText(u.lines[0].text)));
     u.lines.forEach((s, i) => { const st = lineFast(u, i, ctx); if (i === 0) st.say = "Your turn. Read the first line the fast way."; steps.push(st); });
     u.story.questions.forEach((q, i) => steps.push(questionStep(u, i, ctx)));
-    return { title: `Story: ${u.story.title}`, steps };
+    return { title: `Story: ${titleOf(u)}`, steps };
   },
   firmEx(intro, ctx, u) {
     const steps = [titleStep(u, ctx)];
@@ -503,9 +503,9 @@ for (let n = 5; n <= LESSONS; n += 5) CHECKOUT_LESSONS.push(n);
 function checkoutPassage(n) { return passageFrom(STORY_UNITS, SENTENCE_UNITS, n, checkoutGoal(n)); }
 const checkouts = {
   id: "checkouts",
-  name: "Checkouts",
+  name: "Timed readings",
   summary: "Every fifth lesson: the child reads a passage alone while the clock runs. Words a minute and errors are kept against a goal that rises with the lessons.",
-  units: CHECKOUT_LESSONS.map((n) => ({ id: "c" + n, lesson: n, label: `Checkout: ${checkoutGoal(n)} words a minute` })),
+  units: CHECKOUT_LESSONS.map((n) => ({ id: "c" + n, lesson: n, label: `Timed reading: ${checkoutGoal(n)} words a minute` })),
   firmLessons: 0,
   last: true,
   newEx(u, ctx) { return checkoutExercise(checkoutPassage(u.lesson), ctx, checkoutGoal(u.lesson)); },

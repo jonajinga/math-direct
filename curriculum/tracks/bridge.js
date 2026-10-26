@@ -108,7 +108,7 @@ const addCols = {
     }
     return {
       title: u.label, steps: [
-        model([V.col(38, "+", 25, { ans: 63, show: true, labels: true, carry: 1 }), V.row(V.pv(3, 8), V.sign("+"), V.pv(2, 5))], `My turn. Thirty-eight plus twenty-five. ${script({ a: 38, b: 25, op: "+", ans: 63, regroup: true })}`, { do: "Point to the eight ones and five ones; show that ten of them make a new ten." }),
+        model([V.col(38, "+", 25, { ans: 63, show: true, labels: true, carry: 1 }), V.row(V.pv(3, 8), V.sign("+"), V.pv(2, 5))], `My turn. Thirty-eight plus twenty-five. ${script({ a: 38, b: 25, op: "+", ans: 63, regroup: true })}`, { do: "Point to the eight ones and the five ones. Show that ten of them make a new ten." }),
         model(V.col(47, "+", 36, { ans: 83, show: true, labels: true, carry: 1 }), `Again. Forty-seven plus thirty-six. ${script({ a: 47, b: 36, op: "+", ans: 83, regroup: true })}`),
         lead(V.col(29, "+", 14, { labels: true }), "Work it with me. Ones: nine plus four is thirteen. Three goes under the ones, and the new ten goes to the top of the tens column. Tens: one plus two plus one. What is the answer?", "Forty-three."),
         colItem(r, "addR"), colItem(r, "addR"), colItem(r, "add"), colItem(r, "addR"),

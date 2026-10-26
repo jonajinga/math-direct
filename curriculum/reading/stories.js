@@ -31,7 +31,7 @@ export default [
     questions: [
       {"q":"Who sat at the mat first?","a":"The cat sat at the mat."},
       {"q":"How did the cat feel?","a":"The cat is mad."},
-      {"q":"What did the rat do?","a":"The rat rid the mat."},
+      {"q":"What did the rat do?","a":"The rat sat."},
     ],
   },
   {
@@ -66,7 +66,7 @@ export default [
     questions: [
       {"q":"Was the dog a good dog?","a":"No, the dog was not a good dog."},
       {"q":"What did the dog get mud on?","a":"The dog got mud on the rug."},
-      {"q":"What did the man call the dog?","a":"A mud dog!"},
+      {"q":"What did the man call the dog?","a":"A mud dog."},
     ],
   },
   {
@@ -316,7 +316,7 @@ export default [
     questions: [
       {"q":"What was the crab looking for?","a":"The crab was looking for a snack."},
       {"q":"What did the frog do?","a":"The frog did a big flip into the stream."},
-      {"q":"Did the crab want the frog to do it again?","a":"Yes! The crab said \\"},
+      {"q":"Did the crab want the frog to do it again?","a":"Yes, the crab said to do it again."},
     ],
   },
   {
@@ -438,9 +438,9 @@ export default [
       "I will read every day!",
     ],
     questions: [
-      {"q":"What can the reader do now?","a":"Read!"},
-      {"q":"What kinds of things can they read about?","a":"Cats, boats, knights, turtles, and action at a station."},
-      {"q":"When will the reader read?","a":"Every day for the rest of their life."},
+      {"q":"What can the reader do now?","a":"Read."},
+      {"q":"What kinds of things can they read about?","a":"A cat on a mat, rain and boats, the moon and stars."},
+      {"q":"When will the reader read?","a":"Every day."},
     ],
   },
   {

@@ -87,7 +87,7 @@
   function initLesson() {
     var lesson = DATA.lesson;
     segments = lesson.exercises.map(function (ex) {
-      if (ex.kind === "checkout") return { title: ex.title, meta: "Rate and accuracy · " + ex.words + " words", kind: "checkout", track: ex.track, n: ex.n, words: ex.words, goal: ex.goal, allowed: ex.allowed, passage: ex.passage, steps: ex.steps };
+      if (ex.kind === "checkout") return { title: ex.title, meta: ex.words + " words, read alone against the clock", kind: "checkout", track: ex.track, n: ex.n, words: ex.words, goal: ex.goal, allowed: ex.allowed, passage: ex.passage, steps: ex.steps };
       return { title: ex.title, meta: ex.trackName + " · " + kindName(ex.kind), kind: ex.kind, track: ex.track, n: ex.n, materials: ex.materials, steps: ex.steps };
     });
     // With two children, the lines of a sentence or story and the questions on
@@ -104,7 +104,7 @@
     if (lesson.independent && lesson.independent.steps.length) {
       // With two children, the items are shared out one child at a time, so neither can copy.
       if (sitting.group) lesson.independent.steps.forEach(function (st, i) { st.forChild = sitting.children[i % 2].id; });
-      segments.push({ title: "Independent work", meta: "Read each line once, give no help", kind: "independent", steps: lesson.independent.steps });
+      segments.push({ title: "On your own", meta: "Read each line once, give no help", kind: "independent", steps: lesson.independent.steps });
     }
     if (!rehearsing) adaptReview(lesson);
     assignUids();
@@ -169,7 +169,7 @@
   }
 
   function kindName(k) {
-    return { "new": "new teaching", firm: "firming", review: "review", delayed: "delayed test", test: "test", practice: "practice", placement: "placement", checkout: "checkout" }[k] || k;
+    return { "new": "new skill", firm: "practice", review: "review", delayed: "the items missed earlier", test: "test", practice: "practice", placement: "placement", checkout: "timed reading" }[k] || k;
   }
 
   var testParts = [];
@@ -181,7 +181,7 @@
     segments = testParts.map(function (pi, i) {
       var p = t.parts[pi];
       // The passage part is a checkout: the clock runs while the child reads alone.
-      if (p.kind === "checkout") return { title: p.trackName, meta: "Part " + (i + 1) + " of " + testParts.length + " · rate and accuracy · " + p.words + " words", kind: "checkout", part: pi, words: p.words, goal: p.goal, allowed: p.allowed, passage: p.passage, steps: p.items.map(function (s) { var c = {}; for (var k in s) c[k] = s[k]; return c; }) };
+      if (p.kind === "checkout") return { title: p.trackName, meta: "Part " + (i + 1) + " of " + testParts.length + " · " + p.words + " words, read alone against the clock", kind: "checkout", part: pi, words: p.words, goal: p.goal, allowed: p.allowed, passage: p.passage, steps: p.items.map(function (s) { var c = {}; for (var k in s) c[k] = s[k]; return c; }) };
       return { title: p.trackName, meta: "Part " + (i + 1) + " of " + testParts.length, kind: "test", part: pi, steps: p.items.map(asTestStep) };
     });
     assignUids();
@@ -236,12 +236,12 @@
   }
   function startTimed() {
     timed = { ends: Date.now() + (DATA.seconds || 60) * 1000, timer: null };
-    where.ex = (DATA.seconds || 60) + " s left";
+    where.ex = (DATA.seconds || 60) + " seconds left";
     where.exShort = where.ex;
     fitStrip();
     timed.timer = setInterval(function () {
       var left = Math.max(0, Math.round((timed.ends - Date.now()) / 1000));
-      where.ex = left + " s left";
+      where.ex = left + " seconds left";
       where.exShort = where.ex;
       fitStrip();
       if (left <= 10 && left > 0 && left % 5 === 0) announce(left + " seconds left.");
@@ -259,7 +259,7 @@
     var html = '<article class="finish"><p class="eyebrow">Timed facts' + (childName() ? " · " + escapeHtml(childName()) : "") + "</p>";
     html += '<h1 class="finish__title">' + tl.firm + " right in one minute</h1>";
     html += '<dl class="finish__facts"><div><dt>Right</dt><dd>' + tl.firm + "</dd></div><div><dt>Errors</dt><dd>" + tl.errors + "</dd></div><div><dt>Goal</dt><dd>" + goal + "</dd></div></dl>";
-    html += '<div class="advice"><p>' + (tl.firm >= goal ? "<strong>At the goal.</strong> The goal rises as more facts are released." : "<strong>Below the goal of " + goal + ".</strong> Keep the daily Quick facts going, and give this check again in a week.") + "</p></div>";
+    html += '<div class="advice"><p>' + (tl.firm >= goal ? "<strong>At the goal.</strong> The goal rises as more facts are taught." : "<strong>Below the goal of " + goal + ".</strong> Keep up Quick facts each day, and give this check again in a week.") + "</p></div>";
     html += '<ul class="finish__links"><li><a href="/records/">Records</a></li></ul></article>';
     showFinish(html, actionBar({ label: "Again", act: "again" }, { label: "All practice", href: DATA.exitUrl || "/practice/" }));
   }
@@ -300,11 +300,11 @@
   function renderStrip() {
     var seg = currentSeg();
     where.child = rehearsing ? "Rehearsal" : childName();
-    if (checkoutRunning()) { where.ex = "Checkout " + clockText(); where.exShort = where.ex; }
-    else if (MODE === "lesson") { where.ex = "Exercise " + (pos.seg + 1) + " of " + segments.length; where.exShort = "Ex " + (pos.seg + 1) + " of " + segments.length; }
+    if (checkoutRunning()) { where.ex = "Timed reading " + clockText(); where.exShort = where.ex; }
+    else if (MODE === "lesson") { where.ex = "Exercise " + (pos.seg + 1) + " of " + segments.length; where.exShort = where.ex; }
     else if (MODE === "test") { where.ex = "Part " + (pos.seg + 1) + " of " + segments.length; where.exShort = where.ex; }
     else if (MODE === "placement") { where.ex = "Section " + (placement.idx + 1) + " of " + DATA.sections.length; where.exShort = where.ex; }
-    else if (MODE === "timed") { where.ex = timed ? Math.max(0, Math.round((timed.ends - Date.now()) / 1000)) + " s left" : ""; where.exShort = where.ex; }
+    else if (MODE === "timed") { where.ex = timed ? Math.max(0, Math.round((timed.ends - Date.now()) / 1000)) + " seconds left" : ""; where.exShort = where.ex; }
     else { where.ex = seg ? (pos.step + 1) + " of " + seg.steps.length : ""; where.exShort = where.ex; }
     fitStrip();
   }
@@ -345,7 +345,7 @@
   // ── Rendering a step ──
   function cueLabel(c, seg, st) {
     if (MODE === "timed") return "Timed";
-    if (seg && seg.kind === "checkout") return "Checkout";
+    if (seg && seg.kind === "checkout") return "Timed reading";
     if (MODE === "test" || MODE === "placement") return "Test item";
     if (st && st.forChild && sitting.group) return nameOf(st.forChild) + " alone";
     if (seg && seg.kind === "independent") return "On your own";
@@ -844,7 +844,7 @@
   function checkoutChild() { return sitting.group ? sitting.children[checkout ? checkout.round : 0] : null; }
   function checkoutNote(seg) {
     var done = !!(checkout && checkout.seg === pos.seg && checkout.done);
-    if (done) return "The checkout is recorded. Tap Next to go on.";
+    if (done) return "The timed reading is recorded. Tap Next to go on.";
     var who = sitting.group ? nameOf((checkoutChild() || {}).id) + " reads alone. " : "The child reads alone. ";
     if (!checkoutRunning()) return who + "Tap Start as the reading begins. Give no help.";
     return who + "Tap Error for each word missed. Tap " + (pos.step === seg.steps.length - 1 ? "Stop at the end." : "Next at the end of the line.");
@@ -962,7 +962,7 @@
         missed.push(c);
       });
     });
-    return missed.length ? { title: "Missed items, once more", meta: "Delayed test", kind: "delayed", steps: missed } : null;
+    return missed.length ? { title: "Missed items, once more", meta: "The items missed earlier, asked again", kind: "delayed", steps: missed } : null;
   }
   function endOfScript() {
     if (MODE === "timed") return finishTimed();
@@ -1138,9 +1138,9 @@
     var html = "<div><dt>Firm</dt><dd>" + r.main.firm + "</dd></div><div><dt>Errors</dt><dd>" + r.main.errors + "</dd></div>";
     if (sitting.group && r.turns.firm + r.turns.errors) html += "<div><dt>Alone</dt><dd>" + r.turns.firm + " of " + (r.turns.firm + r.turns.errors) + "</dd></div>";
     if (r.retests.firm + r.retests.errors) html += "<div><dt>Asked again</dt><dd>" + r.retests.firm + " of " + (r.retests.firm + r.retests.errors) + "</dd></div>";
-    if (r.hadDelayed) html += "<div><dt>Retest</dt><dd>" + r.delayed.firm + " of " + (r.delayed.firm + r.delayed.errors) + "</dd></div>";
+    if (r.hadDelayed) html += "<div><dt>At the end</dt><dd>" + r.delayed.firm + " of " + (r.delayed.firm + r.delayed.errors) + "</dd></div>";
     if (r.ownTotal) html += "<div><dt>On your own</dt><dd>" + r.own.firm + " of " + r.ownTotal + "</dd></div>";
-    if (r.summary.checkout) html += "<div><dt>Checkout</dt><dd>" + r.summary.checkout.wpm + " a minute, " + r.summary.checkout.errors + (r.summary.checkout.errors === 1 ? " error" : " errors") + "</dd></div>";
+    if (r.summary.checkout) html += "<div><dt>Timed reading</dt><dd>" + r.summary.checkout.wpm + " a minute, " + r.summary.checkout.errors + (r.summary.checkout.errors === 1 ? " error" : " errors") + "</dd></div>";
     return html;
   }
   function reportAdvice(r, whom) {
@@ -1154,15 +1154,15 @@
     if (rehearsing) {
       html += "<p><strong>This was a rehearsal.</strong> Nothing was recorded.</p>";
     } else if (r.repeat) {
-      html += "<p><strong>Repeat this lesson" + (whom ? " with " + escapeHtml(whom) : "") + " next time.</strong> " + (r.stillMissed.length > 1 ? "Several items were still missed at the end of the lesson." : "More than one answer in four needed correcting.") + " Repeating a lesson is normal; it makes sure each step is firm before the next is built on it.</p>";
+      html += "<p><strong>Repeat this lesson" + (whom ? " with " + escapeHtml(whom) : "") + " next time.</strong> " + (r.stillMissed.length > 1 ? "Several items were still missed at the end." : "More than one answer in four needed a correction.") + "</p>";
     } else if (r.stillMissed.length) {
-      html += "<p><strong>Go on to the next lesson, but first reteach one exercise" + (whom ? " with " + escapeHtml(whom) : "") + ".</strong> At the start of the next session, teach this exercise again from the beginning: " + escapeHtml(r.stillMissed.join(", ")) + ".</p>";
+      html += "<p><strong>Go on to the next lesson, but first teach " + (r.stillMissed.length > 1 ? "these exercises" : "this exercise") + " again" + (whom ? " with " + escapeHtml(whom) : "") + ":</strong> " + escapeHtml(r.stillMissed.join(", ")) + ".</p>";
     } else {
-      html += "<p><strong>" + (whom ? escapeHtml(whom) + " can go on to the next lesson." : "Go on to the next lesson.") + "</strong> Every item was firm by the end.</p>";
+      html += "<p><strong>" + (whom ? escapeHtml(whom) + " can go on to the next lesson." : "Go on to the next lesson.") + "</strong> Every item was right by the end.</p>";
     }
     if (r.ownLow && !rehearsing) html += "<p>On your own, " + r.own.errors + " of " + r.ownTotal + " were missed. Before the next lesson, go over those items with " + (whom ? escapeHtml(whom) : "the child") + ".</p>";
     var co = r.summary.checkout;
-    if (co && !rehearsing) html += "<p>" + (co.met ? "The checkout met its goal of " + co.goal + " words a minute with " + co.allowed + " errors or fewer." : "The checkout read " + co.wpm + " words a minute with " + co.errors + (co.errors === 1 ? " error" : " errors") + "; the goal is " + co.goal + " a minute with " + co.allowed + " or fewer. Read the passage again the fast way before the next lesson.") + "</p>";
+    if (co && !rehearsing) html += "<p>" + (co.met ? "The timed reading met its goal: " + co.goal + " words a minute with " + co.allowed + " errors or fewer." : "The timed reading came to " + co.wpm + " words a minute with " + co.errors + (co.errors === 1 ? " error" : " errors") + ". The goal is " + co.goal + " with " + co.allowed + " or fewer. Read the passage again the fast way before the next lesson.") + "</p>";
     html += "</div>";
     return html;
   }
@@ -1188,7 +1188,7 @@
     html += '<h1 class="finish__title">Lesson ' + lesson.number + " is finished</h1>";
     html += '<dl class="finish__facts">';
     if (!sitting.group) html += reportFacts(reports[0]);
-    html += "<div><dt>Time</dt><dd>" + minutes + " min</dd></div>";
+    html += "<div><dt>Time</dt><dd>" + minutes + " minutes</dd></div>";
     if (showPace) html += "<div><dt>Pace</dt><dd>" + pace + " a minute</dd></div>";
     html += "</dl>";
     if (showPace && !rehearsing) html += '<p class="finish__lead">Pace is answers a minute during the exercises. Direct Instruction aims for about ten on firm work; slower is right for new teaching.</p>';
@@ -1264,7 +1264,7 @@
     if (!failed.length) {
       html += '<div class="advice"><p><strong>Every part was passed.</strong> Go on to the next lesson.</p></div>';
     } else {
-      html += '<div class="advice"><p><strong>' + failed.length + " part" + (failed.length > 1 ? "s need" : " needs") + " reteaching.</strong> Teach the exercises listed below, then give only " + (failed.length > 1 ? "those parts" : "that part") + " of the test again before going on. A part is passed with every item right" + (t.parts.some(function (p) { return p.allowed; }) ? ", or one error in five or more" : "") + ".</p></div>";
+      html += '<div class="advice"><p><strong>' + failed.length + " part" + (failed.length > 1 ? "s were" : " was") + " not passed.</strong> Teach the exercises below, then give " + (failed.length > 1 ? "those parts" : "that part") + " again. A part is passed with every item right" + (t.parts.some(function (p) { return p.allowed; }) ? ", or with one error in a part of five or more" : "") + ".</p></div>";
     }
     if (failed.length) {
       html += '<h2 class="finish__h2">Reteach</h2><ul class="finish__list">';
@@ -1311,7 +1311,7 @@
       missed.forEach(function (m) { html += "<li>" + escapeHtml(m.say) + " (" + escapeHtml(m.answer) + ")</li>"; });
       html += "</ul>";
     } else {
-      html += '<div class="advice"><p><strong>Every item was firm.</strong></p></div>';
+      html += '<div class="advice"><p><strong>Every item was right.</strong></p></div>';
     }
     html += "</article>";
     showFinish(html, actionBar({ label: DATA.exitLabel ? "Again" : "Another set", act: "again" }, { label: DATA.exitLabel || "All practice", href: DATA.exitUrl || "/practice/" }));
@@ -1360,7 +1360,7 @@
     var s2 = DATA.sections[next];
     var keep = true;
     var html = '<article class="finish"><p class="eyebrow">Placement test</p><h1 class="finish__title">Section ' + (passed ? "passed" : "not passed") + '</h1><p class="finish__lead">' +
-      (passed ? "The child knows this part of the program. The next section checks the next span of lessons." : "This span of lessons is not yet firm. The next section checks the span before it.") + "</p></article>";
+      (passed ? "The child knows these lessons. The next section checks the lessons after them." : "The child does not yet know these lessons. The next section checks the lessons before them.") + "</p></article>";
     showFinish(html, actionBar({ label: "Begin: " + s2.title, id: "placement-continue" }));
     if (keep) saveSession();
     $("placement-continue").addEventListener("click", function () {

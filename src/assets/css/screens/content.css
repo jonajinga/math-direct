@@ -1,6 +1,5 @@
 /* ===== Reading screens: guide, about, privacy, terms, scope and sequence, search, offline, 404 ===== */
 .content { max-width: 44rem; }
-.content__intro { color: var(--ink-2); font-size: var(--fs-4); line-height: 1.5; margin: 0 0 var(--sp-5); }
 
 .guide-section { margin-bottom: var(--sp-6); }
 .guide-section__title { margin: 0 0 var(--sp-3); padding-bottom: var(--sp-2); border-bottom: 2px solid var(--primary-soft); }

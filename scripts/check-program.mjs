@@ -129,7 +129,7 @@ for (let i = 0; i < 200; i++) {
 }
 check("the test finished", await visible("#runner-finish"));
 let fin = await page.textContent("#runner-finish");
-check("one part needs reteaching", /1 part needs reteaching/.test(fin));
+check("one part was not passed", /1 part was not passed/.test(fin));
 const again = await page.getAttribute(".action-bar a.btn--primary", "href");
 check("the main action gives that part again", /\?parts=2$/.test(again || ""), again);
 const remedyHref = await page.getAttribute("#runner-finish .finish__list a", "href");
@@ -274,7 +274,7 @@ for (let i = 0; i < 500; i++) {
   if (await visible("#runner-finish")) break;
   const cue = await page.textContent("#tp-cue");
   const title = await page.textContent("#tp-ex-title");
-  if (/Independent work/.test(title)) ownCues.push(cue);
+  if (/On your own/.test(title)) ownCues.push(cue);
   if (/Missed items/.test(title)) sawDelayedG = true;
   const pick = (await visible("#btn-goon")) ? "#btn-goon" : (await visible("#btn-firm")) ? "#btn-firm" : "#btn-next";
   await page.click(pick);
@@ -314,7 +314,7 @@ const stages = new Set();
 for (let i = 0; i < 400; i++) {
   if (await visible("#runner-finish")) break;
   const cue = await page.textContent("#tp-cue");
-  if (cue === "Checkout") {
+  if (cue === "Timed reading") {
     // The checkout: Start runs the clock, Error counts a word missed, Stop ends it.
     if (!sawCheckout) { sawCheckout = true; checkoutStart = await page.textContent("#btn-next"); }
     if (!checkoutErrorTapped && !(await page.evaluate(() => document.getElementById("btn-error").disabled))) { await page.click("#btn-error"); checkoutErrorTapped = true; await page.waitForTimeout(30); }
@@ -332,7 +332,7 @@ check("lesson 40 shows the full alphabet", stages.has("full") && !stages.has("pl
 check("the checkout came with a Start button and counted an error", sawCheckout && checkoutStart === "Start" && checkoutErrorTapped);
 const crec = await page.evaluate(() => (window.mathProgress.getActiveProfile().checkouts || [])[0]);
 check("the checkout is recorded with words a minute, the error, and the goal", !!crec && crec.level === "reading-1" && crec.lesson === 40 && crec.words > 0 && crec.errors === 1 && crec.wpm > 0 && crec.goal > 0 && crec.seconds > 0, JSON.stringify(crec));
-check("the finish screen reports the checkout", /Checkout/.test(await page.textContent("#runner-finish")) && /a minute/.test(await page.textContent("#runner-finish")));
+check("the finish screen reports the timed reading", /Timed reading/.test(await page.textContent("#runner-finish")) && /a minute/.test(await page.textContent("#runner-finish")));
 check("the reading lesson finished and is recorded under reading", (await visible("#runner-finish")) && (await page.evaluate(() => { const P = window.mathProgress; const p = P.getActiveProfile(); return !!(p.last.reading && p.last.reading.id === "reading-1-040") && P.currentLevel("reading") === "reading-1" && P.currentLevel("math") !== "reading-1"; })));
 await page.goto(BASE + "/", { waitUntil: "load" });
 await page.waitForTimeout(300);
@@ -373,7 +373,7 @@ async function runTest(url, passageErrors) {
   for (let i = 0; i < 300; i++) {
     if (await visible("#runner-finish")) break;
     const cue = await page.textContent("#tp-cue");
-    if (cue === "Checkout" && tapped < passageErrors && !(await page.evaluate(() => document.getElementById("btn-error").disabled))) { await page.click("#btn-error"); tapped++; await page.waitForTimeout(20); continue; }
+    if (cue === "Timed reading" && tapped < passageErrors && !(await page.evaluate(() => document.getElementById("btn-error").disabled))) { await page.click("#btn-error"); tapped++; await page.waitForTimeout(20); continue; }
     await page.click(await pickBtn());
     await page.waitForTimeout(10);
   }

@@ -15,6 +15,9 @@ const purposes = new Set((manifest.icons || []).map((i) => i.purpose));
 if (!purposes.has("any") || !purposes.has("maskable")) errors.push("manifest needs an icon with purpose any and one with purpose maskable");
 for (const icon of manifest.icons || []) if (!exists(icon.src)) errors.push(`manifest icon missing: ${icon.src}`);
 for (const s of manifest.shortcuts || []) if (!exists(s.url)) errors.push(`shortcut target missing: ${s.url}`);
+if (manifest.id !== "/") errors.push("manifest needs id: \"/\" so an installed app keeps its identity if start_url changes");
+if (!(manifest.screenshots || []).some((s) => s.form_factor === "narrow")) errors.push("manifest needs a narrow screenshot for the install prompt");
+for (const s of manifest.screenshots || []) if (!exists(s.src)) errors.push(`manifest screenshot missing: ${s.src}`);
 
 const sw = fs.readFileSync("src/sw.js", "utf8");
 const m = /var CORE_ASSETS = \[([\s\S]*?)\];/.exec(sw);

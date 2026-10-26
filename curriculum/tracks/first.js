@@ -773,7 +773,7 @@ const stories = {
       case "fewer": return story(`${name} has ${word(a)} ${thing}. ${other} has ${word(c)}.`, `How many fewer ${thing} does ${name} have than ${other}?`, "b");
       case "start+": return story(`${name} had some ${thing}. ${Pro} got ${word(b)} more. Now ${pro} has ${word(c)}.`, `How many ${thing} did ${name} have at the start?`, "a");
       case "start-": return story(`${name} had some ${thing}. ${Pro} gave away ${word(a)}. Now ${pro} has ${word(b)}.`, `How many ${thing} did ${name} have at the start?`, "c",
-        `${name} had the most at the start, before ${pro} gave some away. The start is the big number, and we are finding it, so the big number is missing.`);
+        `${name} had the most at the start, before ${pro} gave some away. The start is the big number. We are finding it, so the big number is missing.`);
       default: return null;
     }
   },
@@ -1335,7 +1335,7 @@ const shapes = {
           model(V.row(V.shape("triangle", { c: "green", size: "md" }), V.shape("triangle", { c: "green", rot: 180, size: "md" })), "Two triangles can make a square, or a rectangle, or a bigger triangle, depending on how they fit."),
           lead(V.row(V.shape("square", { c: "blue", size: "md" }), V.shape("square", { c: "blue", size: "md" })), "Two squares side by side make what shape? Say it with me.", "A rectangle."),
           test(V.row(V.shape("semicircle", { c: "red", size: "md" }), V.shape("semicircle", { c: "red", rot: 180, size: "md" })), "Two half-circles make what shape?", "A circle.", fix("A circle.", "Two half-circles make what shape?", "Put the straight sides together, and the curved sides go all the way around."), { skill: "shape", item: "compose:circle" }),
-          note(V.say(), "If you have pattern blocks, let the child build a hexagon from triangles: six triangles make a hexagon.", { do: "This is optional, but worth doing once." }),
+          note(V.say(), "If you have pattern blocks, let the child build a hexagon from triangles: six triangles make a hexagon.", { do: "Do this once if you have the blocks. If not, skip it." }),
         ],
       };
     }
@@ -1413,7 +1413,7 @@ const COIN_LOOK = {
 const money = {
   id: "money",
   name: "Coins (optional)",
-  summary: "Name the penny, nickel, dime, and quarter, know what each is worth, and count a group of the same coins. The Common Core places money in second grade; skip this track if you wish.",
+  summary: "Name the penny, nickel, dime, and quarter, know what each is worth, and count a group of the same coins. The Common Core places money in second grade; skip this skill if you wish.",
   standard: "2.MD.8 (early)",
   units: [
     { id: "penny", lesson: 106, coin: "penny", label: "Pennies" },

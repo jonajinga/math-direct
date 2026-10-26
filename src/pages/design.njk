@@ -249,7 +249,7 @@ bodyClass: page-design
   </div>
 
   <h2 id="sheets">Sheets and toasts</h2>
-  <p>A sheet is a native dialog that rises from the bottom in 200 ms and darkens the page behind it. It has a title, a close control, and either a list of rows or a body with its buttons at the foot. The browser keeps the page behind it inert and returns focus when it closes. A toast is one line that sits above the tab bar for a few seconds, with at most one action.</p>
+  <p>A sheet is a native dialog that rises from the bottom in 200 ms and darkens the page behind it. It has a grab handle, a title, a close control, and either a list of rows or a body with its buttons at the foot. A confirmation sheet has no close control; its two buttons decide. Any sheet closes with the Escape key, a tap on the darkened page, or a pull down on its handle, and it settles back down as it goes. The browser keeps the page behind it inert and returns focus when it closes. A toast is one line that sits above the tab bar for a few seconds, with at most one action.</p>
   <div class="sg-sample">
     <div class="btn-row"><button type="button" class="btn btn--secondary" data-sheet-open="sheet-sample">Open a sheet</button></div>
     <p class="eyebrow">A toast</p>
@@ -257,7 +257,7 @@ bodyClass: page-design
   </div>
   <dialog class="sheet" id="sheet-sample" aria-labelledby="sheet-sample-title">
     <form method="dialog" class="sheet__form">
-      <div class="sheet__head"><h2 class="sheet__title" id="sheet-sample-title">A sheet</h2><button type="submit" class="btn btn--quiet btn--square sheet__close" value="close" aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+      {% set sh = { title: "A sheet", id: "sheet-sample-title", submit: true } %}{% include "partials/sheet-head.njk" %}
       <div class="sheet__body">
         <p>Rows in a sheet are the menu of a screen. Each has an icon, a name, and its key.</p>
         <ul class="sheet__list">
@@ -291,7 +291,14 @@ bodyClass: page-design
       <tr><td>you</td><td>the parent, the teacher, the user</td><td>The one teaching</td></tr>
       <tr><td>lesson</td><td>module, unit, activity</td><td>One scripted lesson of about fifteen minutes</td></tr>
       <tr><td>exercise</td><td>task, item set, segment</td><td>One part of a lesson, on one skill</td></tr>
-      <tr><td>mark</td><td>score, grade, rate</td><td>What you do to an answer: Firm or Error</td></tr>
+      <tr><td>mark</td><td>score, grade, rate</td><td>What you do to an answer: Firm or Error. A lesson has a status, and a child draws rings.</td></tr>
+      <tr><td>asked again</td><td>retest, retry</td><td>The item that comes back two items after a correction</td></tr>
+      <tr><td>the missed items, at the end</td><td>delayed test</td><td>The round at the end of a lesson that asks each missed item once more</td></tr>
+      <tr><td>new skill, practice, review</td><td>new teaching, firming</td><td>The three kinds of exercise, on the exercise line</td></tr>
+      <tr><td>timed reading</td><td>checkout, fluency check</td><td>A passage read alone against the clock, kept as words a minute</td></tr>
+      <tr><td>lesson</td><td>sitting, session</td><td>Also the saved place in a lesson left in the middle: "an unfinished lesson"</td></tr>
+      <tr><td>Exercise 3 of 7, 60 seconds left, 12 minutes</td><td>Ex 3 of 7, 60 s left, 12 min</td><td>Counts and times are written out</td></tr>
+      <tr><td>Mastery Test 3</td><td>Test 3, Assessment 3</td><td>The name of a test; in a sentence, "the mastery test"</td></tr>
       <tr><td>Firm, Error</td><td>Correct, Wrong, Pass, Fail</td><td>The two marks, and the two buttons</td></tr>
       <tr><td>Start over</td><td>Reset, Restart</td><td>Begin the exercise again</td></tr>
       <tr><td>Next, Go on</td><td>Continue, Proceed, Submit</td><td>The primary button: Next within a step, Go on to the next exercise</td></tr>

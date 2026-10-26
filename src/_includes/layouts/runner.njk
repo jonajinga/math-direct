@@ -70,7 +70,7 @@ bodyClass: page-runner
 <div class="sr-only" id="rn-live" aria-live="polite" aria-atomic="true"></div>
 
 <dialog class="sheet" id="sheet-more" aria-labelledby="sheet-more-title">
-  <div class="sheet__head"><h2 class="sheet__title" id="sheet-more-title">More</h2><button type="button" class="btn btn--quiet btn--square sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  {% set sh = { title: "More", id: "sheet-more-title" } %}{% include "partials/sheet-head.njk" %}
   <ul class="sheet__list" id="more-list">
     <li><button type="button" class="sheet__row" data-act="back">{% include "partials/icons/arrow-left.njk" %}Back one step<kbd class="kbd">&larr;</kbd></button></li>
     <li><button type="button" class="sheet__row" data-act="over">{% include "partials/icons/repeat.njk" %}Start the exercise over<kbd class="kbd">S</kbd></button></li>
@@ -86,13 +86,13 @@ bodyClass: page-runner
 </dialog>
 
 <dialog class="sheet" id="sheet-outline" aria-labelledby="sheet-outline-title">
-  <div class="sheet__head"><h2 class="sheet__title" id="sheet-outline-title">Outline</h2><button type="button" class="btn btn--quiet btn--square sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  {% set sh = { title: "Outline", id: "sheet-outline-title" } %}{% include "partials/sheet-head.njk" %}
   <ol class="sheet__list rn-outline" id="tp-outline-list"></ol>
   <p class="sheet__note" id="tp-outline-links"></p>
 </dialog>
 
 <dialog class="sheet" id="sheet-keys" aria-labelledby="sheet-keys-title">
-  <div class="sheet__head"><h2 class="sheet__title" id="sheet-keys-title">Keys</h2><button type="button" class="btn btn--quiet btn--square sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  {% set sh = { title: "Keys", id: "sheet-keys-title" } %}{% include "partials/sheet-head.njk" %}
   <div class="sheet__body">
     <dl class="keys">
       <div><dt><kbd class="kbd">&rarr;</kbd> <kbd class="kbd">Enter</kbd></dt><dd>Next, Firm, or Go on</dd></div>
@@ -113,20 +113,20 @@ bodyClass: page-runner
 </dialog>
 
 <dialog class="sheet" id="sheet-child" aria-labelledby="sheet-child-title">
-  <div class="sheet__head"><h2 class="sheet__title" id="sheet-child-title">Switch child</h2><button type="button" class="btn btn--quiet btn--square sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  {% set sh = { title: "Switch child", id: "sheet-child-title" } %}{% include "partials/sheet-head.njk" %}
   <div class="sheet__body"><p id="sheet-child-text">The marks are saved. The lesson starts again for the child you pick.</p></div>
   <ul class="sheet__list" id="sheet-child-list"></ul>
 </dialog>
 
 <dialog class="sheet" id="sheet-with" aria-labelledby="sheet-with-title">
-  <div class="sheet__head"><h2 class="sheet__title" id="sheet-with-title">Teach two children</h2><button type="button" class="btn btn--quiet btn--square sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  {% set sh = { title: "Teach two children", id: "sheet-with-title" } %}{% include "partials/sheet-head.njk" %}
   <div class="sheet__body"><p id="sheet-with-text">Both children answer together, and you mark each answer once for both. Each exercise ends with a turn for each child alone. The marks made so far are dropped, and the lesson starts over.</p></div>
   <ul class="sheet__list" id="sheet-with-list"></ul>
 </dialog>
 
 <dialog class="sheet" id="sheet-leave" aria-labelledby="sheet-leave-title">
   <form method="dialog" class="sheet__form">
-    <div class="sheet__head"><h2 class="sheet__title" id="sheet-leave-title">Leave this lesson?</h2></div>
+    {% set sh = { title: "Leave this lesson?", id: "sheet-leave-title", close: false } %}{% include "partials/sheet-head.njk" %}
     <div class="sheet__body"><p id="sheet-leave-text">The marks are saved. You can continue later from Today.</p></div>
     <div class="sheet__foot"><button type="submit" class="btn btn--secondary" value="stay">Stay</button><a class="btn btn--danger" id="sheet-leave-go" href="{{ exitUrl or '/lessons/' }}">Leave</a></div>
   </form>
@@ -134,7 +134,7 @@ bodyClass: page-runner
 
 <dialog class="sheet" id="sheet-continue" aria-labelledby="sheet-continue-title">
   <form method="dialog" class="sheet__form">
-    <div class="sheet__head"><h2 class="sheet__title" id="sheet-continue-title">Continue where you left off?</h2></div>
+    {% set sh = { title: "Continue where you left off?", id: "sheet-continue-title", close: false } %}{% include "partials/sheet-head.njk" %}
     <div class="sheet__body"><p id="sheet-continue-text"></p></div>
     <div class="sheet__foot"><button type="submit" class="btn btn--secondary" value="restart">Start from the beginning</button><button type="submit" class="btn btn--primary" value="continue" autofocus>Continue</button></div>
   </form>

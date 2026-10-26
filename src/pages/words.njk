@@ -5,8 +5,10 @@ description: "Every word the reading lessons read, by level and by the lesson it
 permalink: /words/
 ---
 <div class="content">
-  <h1>Word list</h1>
-  <p class="content__intro">Every word the reading lessons read, {{ program.words.length }} in all, under the lesson it is first read at. A word with a wavy line is read whole, because it does not follow its sounds. In Reading 2 a word in plain type is readable once its parts are taught, though no lesson teaches it by itself.</p>
+  <header class="screen__head">
+    <h1 class="screen__title">Word list</h1>
+    <p class="screen__lead">Every word the reading lessons read, {{ program.words.length }} in all, under the lesson it is first read at. A word with a wavy line is read whole, because it does not follow its sounds. In Reading 2 a word in plain type is readable once its parts are taught, though no lesson teaches it by itself.</p>
+  </header>
 
   {% for g in program.wordGroups %}
   <details class="fold" id="{{ g.level }}"{% if loop.first %} open{% endif %}>

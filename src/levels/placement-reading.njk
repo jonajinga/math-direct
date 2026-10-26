@@ -9,7 +9,7 @@ exitUrl: /lessons/
   <article class="finish">
     <p class="eyebrow">Placement test</p>
     <h1 class="finish__title">Where should we begin?</h1>
-    <p class="finish__lead">The placement test is a set of short sections, each checking one span of lessons. It begins by checking that the child can say a sound after you and say a word fast from its parts; then the sections go on until one is not passed, and the test names the lesson to start with. Most children finish in ten to twenty minutes.</p>
+    <p class="finish__lead">The placement test is a set of short sections, each covering a stretch of lessons. It begins by checking that the child can say a sound after you and say a word fast from its parts; then the sections go on until one is not passed, and the test names the lesson to start with. Most children finish in ten to twenty minutes.</p>
     <p class="finish__lead">Read each line aloud, let the child answer, and mark Firm or Error. Do not correct or help. Hold the dot under the letters as you would in a lesson.</p>
     <div class="btn-row btn-row--stack">
       {% for sec in program.placements.reading %}{% if sec.readiness or (sec.from == 1 and sec.level != "reading-1") %}

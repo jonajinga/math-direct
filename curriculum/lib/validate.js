@@ -208,6 +208,9 @@ export function validateLevel(level, built) {
       ex.steps.forEach((st, i) => {
         validateStep(st, `${E}, step ${i + 1}`, errors);
         checkReadable(level, lesson.number, st, `${E}, step ${i + 1}`, errors);
+        // A line the parent reads aloud should fit in one breath.
+        const said = (st.say || "").split(/\s+/).filter(Boolean).length;
+        if (said > 30) warnings.push(`${E}, step ${i + 1}: a say line of ${said} words`);
       });
       (ex.spare || []).forEach((st, i) => {
         validateStep(st, `${E}, spare item ${i + 1}`, errors);

@@ -32,7 +32,7 @@ const countAloud = {
     const prev = intro.length > 1 ? intro[intro.length - 2].to : 0;
     const steps = [];
     if (prev === 0) {
-      steps.push(model(V.say(), `We are going to count out loud. Listen to me first. My turn to count to ${word(to)}. ${Chain(1, to)}`, {
+      steps.push(model(V.say(), `We will count out loud. Listen to me first. My turn to count to ${word(to)}. ${Chain(1, to)}`, {
         do: "Count at a steady pace, about one number each second. Hold up one finger for each number.",
       }));
     } else {
@@ -69,7 +69,7 @@ const countAloud = {
     if (to >= 5) {
       const stop = ctx.rand.int(3, to - 1);
       steps.push(countTest(1, stop, 1, {
-        do: `Listen for a clean stop at ${word(stop)}. Stopping on the right number matters as much as saying the numbers in order.`,
+        do: `Listen for a clean stop at ${word(stop)}. The right stop matters as much as the right order.`,
       }));
     }
     return { title: `Count to ${word(to)}`, steps };
@@ -181,7 +181,7 @@ const countOut = {
     const s = V.obj(icon, total, { arr: "row", tap: true, seed });
     return test(s, `Touch ${word(k)} ${plural(icon, k)}. Stop at ${word(k)}.`, `(Touches ${word(k)}, saying ${chain(1, k)}, and stops.)`,
       fixPoint(`I count as I touch, and I stop at ${word(k)}. ${Chain(1, k)} Stop.`, `Touch ${word(k)} ${plural(icon, k)}. Stop at ${word(k)}.`), {
-        do: `If marks are left from before, clear them first with the eraser. The child should stop at ${word(k)}.`,
+        do: `Clear any old marks with the eraser first. Watch that the child stops at ${word(k)}.`,
         skill: "count",
         item: `count-out:${k}`,
         confirm: `Yes, ${word(k)}. You stopped at ${word(k)}.`,
@@ -999,7 +999,7 @@ const sorting = {
           `My turn. ${a.same.replace("They are all", "Three of these are")} One is not. It does not belong with the others. (Touch it.) Why? ${a.why}`, {
             do: "Touch each one that is the same, then the one that is different.",
           }),
-        lead(V.choices(allB.map((x) => this.vis(x)), allB.findIndex((x) => x.odd)), "Let's find it together. Touch the one that does not belong. Get ready.", `(Touches ${b.oddName}.)`),
+        lead(V.choices(allB.map((x) => this.vis(x)), allB.findIndex((x) => x.odd)), "Do it with me. Touch the one that does not belong. Get ready.", `(Touches ${b.oddName}.)`),
         lead(V.choices(allB.map((x) => this.vis(x)), allB.findIndex((x) => x.odd)), "Why doesn't it belong? Say it with me.", b.why),
         ...this.oddTest(r, u.id),
         ...this.oddTest(r, u.id),

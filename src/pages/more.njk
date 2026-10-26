@@ -57,7 +57,7 @@ bodyClass: page-more
 
 <dialog class="sheet" id="sheet-ios-install" aria-labelledby="ios-install-title">
   <form method="dialog" class="sheet__form">
-    <div class="sheet__head"><h2 class="sheet__title" id="ios-install-title">Add to the Home Screen</h2></div>
+    {% set sh = { title: "Add to the Home Screen", id: "ios-install-title", submit: true } %}{% include "partials/sheet-head.njk" %}
     <div class="sheet__body">
       <ol class="prose">
         <li>In Safari, tap the Share button: the square with an arrow.</li>

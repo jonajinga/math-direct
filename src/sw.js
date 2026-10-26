@@ -1,5 +1,5 @@
 // Teach Direct service worker: the app works offline once it has been opened.
-var STATIC_CACHE = "teach-direct-static-v11";
+var STATIC_CACHE = "teach-direct-static-v12";
 
 // Cached on install. scripts/check-pwa.mjs confirms every path exists in the
 // build, since one missing file would fail the whole install.
@@ -14,6 +14,12 @@ var CORE_ASSETS = [
   "/guide/reading/",
   "/design/",
   "/sounds/",
+  "/words/",
+  "/curriculum/",
+  "/facts/",
+  "/timed/",
+  "/quick-sounds/",
+  "/about/",
   "/placement/",
   "/placement/math/",
   "/placement/reading/",
@@ -29,6 +35,7 @@ var CORE_ASSETS = [
   "/assets/js/lessons-index.js",
   "/assets/js/records.js",
   "/assets/js/search.js",
+  "/assets/js/today.js",
   "/assets/fonts/source-sans-3-latin-400-normal.woff2",
   "/assets/fonts/source-sans-3-latin-600-normal.woff2",
   "/assets/fonts/source-sans-3-latin-700-normal.woff2",
@@ -38,6 +45,7 @@ var CORE_ASSETS = [
   "/assets/img/favicon.svg",
   "/assets/img/icon-192.png",
   "/assets/img/icon-512.png",
+  "/assets/img/icon-maskable-512.png",
   "/manifest.json",
 ];
 

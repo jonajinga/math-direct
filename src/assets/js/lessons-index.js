@@ -115,7 +115,7 @@
     var now = st === "done" ? "finished" : st === "repeat" ? "to repeat" : "not started";
     var byHand = (st === "done" && (!last || last.repeat)) || (st === "repeat" && p.redo.indexOf(id) !== -1);
     var text = "For " + p.name + ", " + name + " is " + now + (byHand ? ", as you marked it" : "") + ". ";
-    if (last) text += "It was last taught on " + day(last.date) + ", with " + last.firm + " firm and " + last.errors + " error" + (last.errors === 1 ? "" : "s") + ".";
+    if (last) text += "It was last taught on " + day(last.date) + ", with " + last.firm + " right and " + last.errors + " error" + (last.errors === 1 ? "" : "s") + ".";
     else text += "No teaching of it is recorded.";
     return text;
   }

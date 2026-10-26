@@ -88,7 +88,7 @@ export function flashTest(n, arr, ms, seed) {
       flash: ms,
       skill: "subitize",
       item: `flash:${n}:${arr}`,
-      do: "The dots show for a moment, then hide. Show again, the curved arrow, brings them back.",
+      do: "The dots show for a moment, then hide. Tap Show again, the curved arrow, to bring them back.",
     });
 }
 
