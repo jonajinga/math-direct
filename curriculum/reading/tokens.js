@@ -5,11 +5,15 @@
 // word. Also builds the sounded-out form the parent listens for.
 
 import { SOUNDS, SOUND_BY_ID, SYMBOL_TO_ID } from "./sounds.js";
+import { PARTS, PART_BY_ID } from "./parts.js";
+
+// Every sound and part by id: the sounds of Reading 1 and the parts of Reading 2.
+export const ALL_BY_ID = { ...SOUND_BY_ID, ...PART_BY_ID };
 
 const MACRON = { ā: "a", ē: "e", ī: "i", ō: "o", ū: "u", ȳ: "y" };
 // Letter pairs that are two sounds, not one: blends are split into letters.
 const BLENDS = new Set(["bl", "cl", "fl", "sl", "br", "cr", "dr", "fr", "gr", "pr", "tr", "str", "sp", "st", "sm", "sn", "sw", "pl", "sk", "sc", "nd", "nk", "mp", "lt", "ft", "ct", "nt", "gl", "spr", "scr", "squ", "ld", "lf", "lp", "lk", "pt", "ng"]);
-const JOINED = new Set(SOUNDS.filter((s) => s.joined).map((s) => s.letters));
+const JOINED = new Set(SOUNDS.filter((s) => s.joined).map((s) => s.letters).concat(PARTS.filter((p) => p.kind !== "double").map((p) => p.letters)));
 // Vowel teams the book writes as the marked vowel and a small silent letter:
 // "eat" is ē with a small a.
 const TEAMS = { ea: "ē", ee: "ē", ai: "ā", ay: "ā", oa: "ō", ie: "ī", oe: "ō", ue: "ū", ui: "ū" };
@@ -31,8 +35,23 @@ function lettersOf(symbol) {
 }
 
 function isStopLetter(letter) {
-  const s = SOUND_BY_ID[letter];
+  const s = ALL_BY_ID[letter];
   return !!(s && s.stop);
+}
+// A blend's letters, each its own sound, with a joined pair inside it kept
+// whole: "squ" is s and qu, "str" is s, t, and r.
+function blendPieces(base) {
+  const out = [];
+  let i = 0;
+  while (i < base.length) {
+    let took = false;
+    for (const len of [3, 2]) {
+      const piece = base.slice(i, i + len);
+      if (piece.length === len && JOINED.has(piece)) { out.push(piece); i += len; took = true; break; }
+    }
+    if (!took) { out.push(base[i]); i++; }
+  }
+  return out;
 }
 
 // tokensFor("mat", ["m","a","t"]) -> [{s:"m"},{s:"a"},{s:"t",stop:true}]
@@ -46,9 +65,14 @@ export function tokensFor(word, sounds, opts = {}) {
   for (const symbol of sounds || []) {
     const { letters: base, macron } = lettersOf(symbol);
     const id = idOf(symbol);
-    const stop = !!(SOUND_BY_ID[id] && SOUND_BY_ID[id].stop);
+    const stop = !!(ALL_BY_ID[id] && ALL_BY_ID[id].stop);
     const pair = lower.slice(pos, pos + 2);
-    if (macron && base.length === 1 && TEAMS[pair] === symbol) {
+    if (base.length === 2 && base[0] === base[1] && lower.startsWith(base, pos)) {
+      // A doubled letter written as one symbol (ll, ss): one sound, the second letter small.
+      out.push({ s: letters[pos], ...(isStopLetter(base[0]) ? { stop: true } : {}), sound: base[0] });
+      out.push({ s: letters[pos + 1], silent: true });
+      pos += 2;
+    } else if (macron && base.length === 1 && TEAMS[pair] === symbol) {
       // A vowel team: the vowel that says the sound is marked, the other is small.
       out.push({ s: letters[pos], macron: true, sound: id });
       out.push({ s: letters[pos + 1], silent: true });
@@ -56,9 +80,9 @@ export function tokensFor(word, sounds, opts = {}) {
     } else if (lower.startsWith(base, pos)) {
       if (base.length > 1 && !JOINED.has(base) && !macron) {
         // A blend: each letter is its own sound.
-        for (const ch of base) {
-          out.push({ s: letters[pos], ...(isStopLetter(ch) ? { stop: true } : {}), sound: ch });
-          pos++;
+        for (const piece of blendPieces(base)) {
+          out.push({ s: letters.slice(pos, pos + piece.length), ...(piece.length > 1 ? { joined: true } : {}), ...(isStopLetter(piece) ? { stop: true } : {}), sound: piece });
+          pos += piece.length;
         }
       } else {
         out.push({ s: letters.slice(pos, pos + base.length), ...(base.length > 1 ? { joined: true } : {}), ...(macron ? { macron: true } : {}), ...(stop ? { stop: true } : {}), sound: id });
@@ -69,14 +93,14 @@ export function tokensFor(word, sounds, opts = {}) {
       out.push({ s: letters[pos], ...(macron ? { macron: true } : {}), ...(stop ? { stop: true } : {}), sound: id });
       out.push({ s: letters[pos + 1], silent: true });
       pos += 2;
-    } else if (TEAMS[pair] && SOUND_BY_ID[TEAMS[pair]] && SOUND_BY_ID[TEAMS[pair]].say === (SOUND_BY_ID[id] || {}).say) {
+    } else if (TEAMS[pair] && SOUND_BY_ID[TEAMS[pair]] && SOUND_BY_ID[TEAMS[pair]].say === (ALL_BY_ID[id] || {}).say) {
       // The spelling is a vowel team that says this sound: marked vowel, small letter.
       out.push({ s: letters[pos], macron: true, sound: TEAMS[pair] });
       out.push({ s: letters[pos + 1], silent: true });
       pos += 2;
-    } else if (JOINED.has(pair) && SOUND_BY_ID[pair] && SOUND_BY_ID[pair].say === (SOUND_BY_ID[id] || {}).say) {
+    } else if (JOINED.has(pair) && ALL_BY_ID[pair] && ALL_BY_ID[pair].say === (ALL_BY_ID[id] || {}).say) {
       // The spelling is another pair that says the same sound: "ur" for er.
-      out.push({ s: letters.slice(pos, pos + 2), joined: true, ...(SOUND_BY_ID[pair].macron ? { macron: true } : {}), ...(SOUND_BY_ID[pair].stop ? { stop: true } : {}), sound: pair });
+      out.push({ s: letters.slice(pos, pos + 2), joined: true, ...(ALL_BY_ID[pair].macron ? { macron: true } : {}), ...(ALL_BY_ID[pair].stop ? { stop: true } : {}), sound: pair });
       pos += 2;
     } else if (base === "k" && lower.startsWith("ck", pos)) {
       // ck: the c is small, the k says the sound.
@@ -108,7 +132,7 @@ export function tokensFor(word, sounds, opts = {}) {
 
 // The word as the parent sounds it out: "mmmaaat", "ththth iii sss" run together.
 export function soundedOut(tokens) {
-  return tokens.filter((t) => !t.silent && !t.punct).map((t) => (t.whole ? t.s : (SOUND_BY_ID[t.sound] ? SOUND_BY_ID[t.sound].say : t.s))).join("");
+  return tokens.filter((t) => !t.silent && !t.punct).map((t) => (t.whole ? t.s : (ALL_BY_ID[t.sound] ? ALL_BY_ID[t.sound].say : t.s))).join("");
 }
 
 // The plain spelling of the tokens.

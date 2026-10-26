@@ -10,6 +10,7 @@
 // Warm-up tracks (counting aloud) appear in every lesson.
 
 import { rng } from "./rand.js";
+import { stepSeconds } from "./validate.js";
 import { word } from "./words.js";
 
 function pad3(n) {
@@ -109,6 +110,7 @@ export function buildLevel(level) {
     });
 
     const exercises = [];
+    const seenBefore = { ...lastSeen };
     for (const w of chosen) {
       const ctx = makeCtx(level, n, w.track.id, w.kind);
       let made;
@@ -168,6 +170,24 @@ export function buildLevel(level) {
         exercises.push(ex);
       }
       lastSeen[w.track.id] = n;
+    }
+
+    // A level that caps its minutes drops the reviews least due when the
+    // lesson runs past its band, never below its minimum of exercises.
+    if (level.capMinutes && level.minutesBand) {
+      const hi = level.minutesBand[1] * 60;
+      const secondsOf = (ex) => 10 + ex.steps.reduce((a, st) => a + stepSeconds(st), 0);
+      let total = exercises.reduce((a, ex) => a + secondsOf(ex), 0);
+      const droppable = chosen.filter((w) => w.kind === "review" && !w.track.warmup && w.score !== undefined).sort((a, b) => a.score - b.score);
+      for (const w of droppable) {
+        if (total <= hi || chosen.length <= (level.minExercises || 0)) break;
+        const idx = exercises.findIndex((ex) => ex.track === w.track.id && ex.kind === "review");
+        if (idx === -1) continue;
+        total -= secondsOf(exercises[idx]);
+        exercises.splice(idx, 1);
+        chosen.splice(chosen.indexOf(w), 1);
+        if (seenBefore[w.track.id] === undefined) delete lastSeen[w.track.id]; else lastSeen[w.track.id] = seenBefore[w.track.id];
+      }
     }
 
     exercises.forEach((ex, i) => {
@@ -270,7 +290,9 @@ function hasText(screen) {
   return found;
 }
 function toTappable(it, readable, rand) {
-  // In reading, the child reads the item alone; the parent only marks.
+  // In reading, the child reads the item alone; the parent only marks. A
+  // question about a story is asked, not read, so it stays out.
+  if (it.skill === "comprehension") return null;
   if (hasText(it.screen)) return it.cue === "test" ? { ...it, independent: true } : null;
   const groups = tapGroups(it.screen);
   if (groups > 1) return null;

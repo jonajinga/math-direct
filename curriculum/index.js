@@ -11,9 +11,10 @@ import k from "./tracks/k.js";
 import first from "./tracks/first.js";
 import bridge from "./tracks/bridge.js";
 import reading1 from "./tracks/reading1.js";
+import reading2 from "./tracks/reading2.js";
 import { factStep } from "./tracks/k.js";
 
-export const LEVELS = [reading1, prek, k, first, bridge].filter(Boolean);
+export const LEVELS = [reading1, reading2, prek, k, first, bridge].filter(Boolean);
 
 // The subjects, in the order the app shows them. A level names its subject;
 // a subject appears only when a level of it is built.
@@ -171,8 +172,10 @@ export function buildProgram({ strict = true } = {}) {
   const stories = [];
   for (const level of LEVELS) {
     for (const st of level.storyLibrary || []) {
-      if (stories.some((x) => x.slug === st.slug)) continue;
       const placed = st.lesson !== null;
+      const have = stories.findIndex((x) => x.slug === st.slug);
+      // A level that places a story wins over one that only lists it.
+      if (have !== -1) { if (!placed || stories[have].level) continue; stories.splice(have, 1); }
       stories.push({ ...st, level: placed ? level.id : null, levelName: placed ? level.name : "", url: `/stories/${st.slug}/` });
       validateItems(st.items, `story ${st.slug}`, errors);
       if (placed) st.items.forEach((it, i) => checkReadable(level, st.lesson, it, `story ${st.slug} item ${i + 1}`, errors));

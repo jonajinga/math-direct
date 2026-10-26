@@ -8,6 +8,7 @@ import { V } from "../lib/v.js";
 import { model, lead, test, note, fix } from "../lib/steps.js";
 import { SOUNDS, SOUND_BY_ID, soundsTaughtBy } from "../reading/sounds.js";
 import WORDS from "../reading/words.js";
+const WORDS_ALL = WORDS;
 import SENTENCES from "../reading/sentences.js";
 import STORIES from "../reading/stories.js";
 import { tokensFor, soundedOut, soundIdsOf } from "../reading/tokens.js";
@@ -433,8 +434,9 @@ function firstReading(sent, ctx, teach) {
   return steps;
 }
 function secondReading(sent, ctx, say) {
-  return test(lineOf(sent, ctx), say || "Read the sentence the fast way.", sent.text, fix(sent.text, "Read the sentence the fast way.", "", { keep: true }), {
-    skill: "story", item: "sentence:" + sent.text.toLowerCase().replace(/[^a-z]+/g, "-"), secs: 12, confirm: "Yes. " + sent.text,
+  const t = plainText(sent.text);
+  return test(lineOf(sent, ctx), say || "Read the sentence the fast way.", t, fix(t, "Read the sentence the fast way.", "", { keep: true }), {
+    skill: "story", item: "sentence:" + sent.text.toLowerCase().replace(/[^a-z]+/g, "-"), secs: 12, confirm: "Yes. " + t,
     do: "Move the dot under each word as the child reads it.",
   });
 }
@@ -516,12 +518,16 @@ function titleStep(u, ctx) {
     skill: "story", item: `title:${u.id}`, secs: 6, confirm: "Yes. " + t,
   });
 }
+// A question after the story. A story of eight lines or fewer stays on the
+// stage; a longer one would be too small to read, so the child answers
+// from memory and the parent goes back a step to point when needed.
 function questionStep(u, i, ctx) {
   const q = u.story.questions[i];
   const a = plainText(q.a);
-  return test(V.passage(u.lines.map((s) => s.words.map((w) => w.tokens)), { prompts: ctx.prompts }), q.q, a, `My turn: ${a} Your turn. ${q.q}`, {
+  const short = u.lines.length <= 8;
+  return test(short ? V.passage(u.lines.map((s) => s.words.map((w) => w.tokens)), { prompts: ctx.prompts }) : V.say(), q.q, a, `My turn: ${a} Your turn. ${q.q}`, {
     skill: "comprehension", item: `q:${u.id}:${i}`, secs: 10, confirm: "Yes. " + a, signal: "watch",
-    do: i === 0 ? "The child answers from the story. Point to the line that tells it if the child is stuck." : undefined,
+    do: i === 0 ? (short ? "The child answers from the story. Point to the line that tells it if the child is stuck." : "The child answers from memory. If stuck, go back to the line that tells it, then ask again.") : undefined,
   });
 }
 // The story's words least practiced: read before the story, as the word
@@ -588,19 +594,37 @@ const stories = {
 export function checkoutGoal(n) { return Math.max(24, Math.min(60, Math.round(30 + (n - 50) * 0.6))); }
 const CHECKOUT_LESSONS = [];
 for (let n = 40; n <= LESSONS; n += 5) CHECKOUT_LESSONS.push(n);
-function checkoutPassage(n) {
-  // The story of a recent lesson; otherwise sentences read lately, newest first.
-  const story = [...STORY_UNITS].reverse().find((u) => u.lesson < n && u.lesson >= n - 8 && u.words >= 20);
-  if (story) return { title: story.story.title, lines: story.lines };
-  const target = checkoutGoal(n);
+// The story of a recent lesson; otherwise sentences read lately, newest
+// first, to about the target in words.
+export function passageFrom(storyUnits, sentenceUnits, n, target) {
+  const story = [...storyUnits].reverse().find((u) => u.lesson < n && u.lesson >= n - 8 && u.words >= 20);
+  if (story) return { title: story.story.title.replace(/[!.]+$/, ""), lines: story.lines, slug: story.id };
   const lines = [];
   let words = 0;
-  for (const u of [...SENTENCE_UNITS].reverse()) {
+  for (const u of [...sentenceUnits].reverse()) {
     if (u.lesson >= n) continue;
     for (const s of u.sentences) { if (words >= target) break; lines.push(s); words += s.words.length; }
     if (words >= target) break;
   }
   return { title: "", lines };
+}
+function checkoutPassage(n) { return passageFrom(STORY_UNITS, SENTENCE_UNITS, n, checkoutGoal(n)); }
+// A checkout exercise from a passage: one line to a step, the clock run by the runner.
+export function checkoutExercise(p, ctx, goal) {
+  const words = p.lines.reduce((a, s) => a + s.words.length, 0);
+  const steps = p.lines.map((s, i) => note(lineOf(s, ctx), plainText(s.text), {
+    secs: 2 + s.words.length * 1.5,
+    ...(i === 0 ? { do: (p.title ? `The story ${p.title}, read alone. ` : "Lines the child has read, read alone. ") + "Tap Start as the child begins, Error for each word missed, Next at the end of each line, and Stop at the end." } : {}),
+  }));
+  return { title: "Checkout", kind: "checkout", words, goal, allowed: 2, passage: p.title, steps };
+}
+// A test's passage part from a passage.
+export function passagePart(p, ctx, goal, level) {
+  const ex = checkoutExercise(p, ctx, goal);
+  return {
+    track: "passage", trackName: "Passage", kind: "checkout", items: ex.steps, words: ex.words, goal, allowed: 2, passage: p.title,
+    remedy: p.slug ? [{ url: `/stories/${p.slug}/`, label: `Read ${p.title} again the fast way` }] : [{ url: `/practice/${level}/sentences/`, label: "Sentences, read the fast way" }],
+  };
 }
 const checkouts = {
   id: "checkouts",
@@ -610,13 +634,7 @@ const checkouts = {
   firmLessons: 0,
   last: true,
   newEx(u, ctx) {
-    const p = checkoutPassage(u.lesson);
-    const words = p.lines.reduce((a, s) => a + s.words.length, 0);
-    const steps = p.lines.map((s, i) => note(lineOf(s, ctx), plainText(s.text), {
-      secs: 2 + s.words.length * 1.5,
-      ...(i === 0 ? { do: (p.title ? `The story ${p.title}, read alone. ` : "Lines the child has read, read alone. ") + "Tap Start as the child begins, Error for each word missed, Next at the end of each line, and Stop at the end." } : {}),
-    }));
-    return { title: "Checkout", kind: "checkout", words, goal: checkoutGoal(u.lesson), allowed: 2, passage: p.title, steps };
+    return checkoutExercise(checkoutPassage(u.lesson), ctx, checkoutGoal(u.lesson));
   },
 };
 
@@ -644,18 +662,7 @@ const readiness = [readyRepeat("m"), readyRepeat("s"), readyFast("mmm...at", "ma
 // as the checkouts are.
 function testPassage(end) {
   if (end < 50) return null;
-  const p = checkoutPassage(end + 1);
-  const ctx = { prompts: STAGE_AT(end) };
-  const words = p.lines.reduce((a, s) => a + s.words.length, 0);
-  const items = p.lines.map((s, i) => note(lineOf(s, ctx), plainText(s.text), {
-    secs: 2 + s.words.length * 1.5,
-    ...(i === 0 ? { do: (p.title ? `The story ${p.title}, read alone. ` : "Lines the child has read, read alone. ") + "Tap Start as the child begins, Error for each word missed, Next at the end of each line, and Stop at the end." } : {}),
-  }));
-  const story = p.title ? STORY_UNITS.find((u) => u.story.title === p.title) : null;
-  return {
-    track: "passage", trackName: "Passage", kind: "checkout", items, words, goal: checkoutGoal(end), allowed: 2, passage: p.title,
-    remedy: story ? [{ url: `/stories/${story.id}/`, label: `Read ${p.title} again the fast way` }] : [{ url: "/practice/reading-1/sentences/", label: "Sentences, read the fast way" }],
-  };
+  return passagePart(checkoutPassage(end + 1), { prompts: STAGE_AT(end) }, checkoutGoal(end), "reading-1");
 }
 
 // Every story, for the library under Practice: the lines the fast way and
@@ -686,6 +693,7 @@ export default {
   maxExercises: 10,
   minReviewSteps: 6,
   maxSteps: 130,
+  capMinutes: true,
   reviewIntervals: [2, 3, 5],
   tagline: "Sounds, sounding out, reading the fast way, and the first sentences and stories.",
   description: "Reading 1 is the first hundred lessons of reading, built on Engelmann's program: forty-odd sounds in a careful order, blending by ear, sounding out words as the dot moves under their sounds, reading the fast way, the words that must be learned whole, and sentences read twice. The child's letters carry marks that fade away by the end.",
@@ -709,4 +717,11 @@ export default {
   placementPoints: [1, 20, 40, 60, 80],
   placementTracks: 4,
   readiness,
+};
+
+// The formats Reading 2 builds on, with the same words and tokens.
+export {
+  TOKENS, BY_WORD, WORDS_ALL, cap, isName, plainText, sentenceWords, toSent, lineOf, groupByLesson,
+  soundStep, soundOutStep, fastStep, wholeStep, wordItem, fastItem, slowForm, soundsItem,
+  firstReading, secondReading, lineFast, lineSlow, titleStep, questionStep,
 };

@@ -187,6 +187,39 @@ allowed, met }`, the last forty kept), shown on the finish screen, and
 listed on Records. With two children, each reads the passage in turn and
 each gets a record.
 
+### Reading 2
+
+Reading 2 (`curriculum/tracks/reading2.js`) is fifty lessons in ordinary
+letters for a child who has finished Reading 1. Its data is the same word
+list, sentences, and stories, with `curriculum/reading/parts.js` adding
+the parts that come after the forty-odd sounds: sounds spelled with two or
+three letters (ng, ow, oi, oy, aw, igh, ew, au), silent-letter pairs (kn,
+wr, gn, mb, gh), doubled letters, the endings read as one part (tion,
+sion), and the final syllables (ble, tle, dle, ple, gle, kle), each with
+its lesson. Blends are not parts: the child sounds out each letter, and
+`tokens.js` splits a blend into its letters, keeping a joined pair inside
+it (squ is s and qu). A word is readable when its latest part or blend
+has been taught (`wordAt`); a word of Reading 1's sounds alone is readable
+from lesson 1. Six words are taught a lesson, the words that stories and
+sentences use first; the rest are read in the fast way review once their
+parts are known.
+
+The tracks: Sounds and parts (the warm-up: a new part most lessons, in
+the group it comes with, and a review of the parts and of Reading 1's
+two-letter sounds), Blends (words with the blend of the day, sounded out
+and said fast), New words, Reading the fast way (from both levels' words,
+every lesson), Words read whole, Word endings (-ed, -er, -est, -ly, -ful,
+-less, -ness: the first part, then the whole word, the two parts under
+the dot), Sentences, Stories (the eighteen not placed in Reading 1, read
+the fast way with questions; a word the list lacks is told once and read
+whole), and Checkouts every fifth lesson with the goal rising from 63 to
+90 words a minute. Tests end with a passage from the first; the placement
+test adds sections for lessons 1 to 24 and 25 to 50. A word or a line that
+reads as praise is left out of the lessons, as the validator's rule has
+it. Both reading levels cap a lesson to the top of its band
+(`capMinutes`): when a lesson runs long, the reviews least due are
+dropped, never below the minimum of exercises.
+
 ### Tests and placement
 
 A reading mastery test takes its parts from the tracks the level names

@@ -1,8 +1,15 @@
 // Checks every lesson against the rules in docs/curriculum-plan.md. Any
 // error stops the build, so a broken lesson can never reach a child.
 
-const STEP_SECONDS = { model: 18, lead: 14, test: 12, note: 20 };
-const BANNED = /\b(brilliant|fantastic|awesome|amazing|super job|great job|good job|way to go|superstar|genius|wow)\b/i;
+export const STEP_SECONDS = { model: 18, lead: 14, test: 12, note: 20 };
+// About how long one step takes, for the lesson estimate and the density cap.
+export function stepSeconds(st) {
+  let t = st.secs || STEP_SECONDS[st.cue] || 10;
+  if (st.skill === "count" || st.skill === "story") t += 8;
+  if (st.answer && st.answer.length > 60) t += 6;
+  return t;
+}
+export const BANNED = /\b(brilliant|fantastic|awesome|amazing|super job|great job|good job|way to go|superstar|genius|wow)\b/i;
 const NUMERAL_TYPES = new Set(["num", "seq", "eq", "col", "family"]);
 const QUANTITY_TYPES = new Set(["dots", "obj", "frame", "story", "match", "pv"]);
 
@@ -22,12 +29,7 @@ export function estimateMinutes(lesson) {
   let s = 0;
   for (const ex of lesson.exercises) {
     s += 10; // moving between exercises
-    for (const st of ex.steps) {
-      let t = st.secs || STEP_SECONDS[st.cue] || 10;
-      if (st.skill === "count" || st.skill === "story") t += 8;
-      if (st.answer && st.answer.length > 60) t += 6;
-      s += t;
-    }
+    for (const st of ex.steps) s += stepSeconds(st);
   }
   if (lesson.independent) s += 10 + lesson.independent.steps.length * STEP_SECONDS.test;
   return Math.round(s / 60);

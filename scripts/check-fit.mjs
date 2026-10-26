@@ -9,6 +9,7 @@
 //   node scripts/check-fit.mjs            every 12th lesson, every test, practice sets, placement, facts
 //   node scripts/check-fit.mjs --all      every lesson too
 //   node scripts/check-fit.mjs --only /reading-sample/   one page
+//   node scripts/check-fit.mjs --level reading-2        every page of one level
 //   node scripts/check-fit.mjs --sizes 375x667,320x568
 //
 // Needs a built site in _site/ and Playwright (local or global).
@@ -38,8 +39,15 @@ if (!existsSync(join(ROOT, "index.html"))) { console.error("check-fit: build the
 const { buildProgram } = require("../curriculum/index.js");
 const program = buildProgram({ strict: true });
 const ONLY = args.includes("--only") ? args[args.indexOf("--only") + 1] : "";
+const LEVEL = process.argv.includes("--level") ? process.argv[process.argv.indexOf("--level") + 1] : "";
 const urls = [];
 if (ONLY) urls.push(ONLY);
+else if (LEVEL) {
+  // Every lesson, test, and practice set of one level.
+  program.lessons.forEach((l) => { if (l.level === LEVEL) urls.push(l.url); });
+  program.tests.forEach((t) => { if (t.level === LEVEL) urls.push(t.url); });
+  program.practice.forEach((s) => { if (s.level === LEVEL) urls.push(s.url); });
+}
 else {
   program.lessons.forEach((l, i) => { if (ALL || i % 12 === 0) urls.push(l.url); });
   program.tests.forEach((t) => urls.push(t.url));

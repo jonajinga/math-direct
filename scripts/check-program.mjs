@@ -54,6 +54,10 @@ check("a part of 5 or more allows one error, fewer allows none", parts.every((p)
 check("remedy links open the exercise", parts.every((p) => p.remedy.every((r) => /#ex\d+$/.test(r.url))));
 const rtests = program.tests.filter((t) => t.level === "reading-1");
 check("reading tests take sounds, words, whole words, sentences, and stories", rtests.every((t) => t.parts.some((p) => p.track === "sounds")) && rtests.filter((t) => t.afterLesson >= 30).every((t) => ["sound-out", "fast-way", "whole-words", "sentences"].every((k) => t.parts.some((p) => p.track === k))));
+const r2tests = program.tests.filter((t) => t.level === "reading-2");
+check("Reading 2 has fifty lessons, five tests each ending with a passage, and sections in the reading placement", program.lessons.filter((l) => l.level === "reading-2").length === 50 && r2tests.length === 5 && r2tests.every((t) => t.parts[t.parts.length - 1].kind === "checkout" && t.parts.some((p) => p.track === "blends")) && program.placements.reading.filter((s) => s.level === "reading-2").map((s) => s.from).join(",") === "1,25");
+check("every story is placed in a reading level, with the lesson it is readable at", program.stories.length === 30 && program.stories.every((s) => s.level && s.lesson >= 1) && program.stories.filter((s) => s.level === "reading-2").length >= 15);
+check("Reading 2 teaches blends, parts, endings, and stories, and reads a checkout every fifth lesson", ["blends", "sounds", "endings", "stories"].every((id) => program.lessons.some((l) => l.level === "reading-2" && l.exercises.some((e) => e.track === id && e.kind === "new"))) && [5, 10, 25, 50].every((n) => program.lessons.find((l) => l.id === "reading-2-" + String(n).padStart(3, "0")).exercises.some((e) => e.kind === "checkout")));
 check("reading tests from lesson 50 end with a passage read alone", rtests.every((t) => (t.afterLesson >= 50) === t.parts.some((p) => p.kind === "checkout")) && rtests.filter((t) => t.afterLesson >= 50).every((t) => { const p = t.parts[t.parts.length - 1]; return p.kind === "checkout" && p.words >= 20 && p.goal > 0 && p.remedy.length === 1; }));
 const withOwn = program.lessons.filter((l) => l.independent);
 check("most lessons end with On your own", withOwn.length / program.lessons.length > 0.9, withOwn.length + " of " + program.lessons.length);
@@ -157,7 +161,7 @@ check("the next step moves on once the test is passed", gate2.test === false, JS
 // ── Signals, pace, missed-last-time, the timed check, readiness ──
 check("every placement section has three items a track or more", program.placement.every((s) => s.readiness || s.items.length >= 6), program.placement.map((s) => s.items.length).join(","));
 check("the math placement test begins with a readiness section", program.placements.math[0].readiness === true && program.placements.math[0].items.length === 3);
-check("the reading placement test begins with readiness, then a section for each twenty lessons", program.placements.reading[0].readiness === true && program.placements.reading[0].items.length === 4 && program.placements.reading.slice(1).map((s) => s.from).join(",") === "1,20,40,60,80" && program.placements.reading.every((s) => s.subject === "reading"));
+check("the reading placement test begins with readiness, then a section for each twenty lessons", program.placements.reading[0].readiness === true && program.placements.reading[0].items.length === 4 && program.placements.reading.filter((s) => s.level === "reading-1").slice(1).map((s) => s.from).join(",") === "1,20,40,60,80" && program.placements.reading.every((s) => s.subject === "reading"));
 check("firming fades: most firming exercises carry a lead", program.lessons.flatMap((l) => l.exercises.filter((e) => e.kind === "firm")).filter((e) => e.steps.some((s) => s.cue === "lead")).length > 400);
 check("review exercises carry spare items", program.lessons.flatMap((l) => l.exercises.filter((e) => e.kind !== "new")).filter((e) => e.spare && e.spare.length).length > 2000);
 check("First Grade facts are released in sets", program.facts.first.some((f) => f.set === 2));
@@ -403,6 +407,26 @@ for (let i = 0; i < 300; i++) {
 const plRec = await page.evaluate(() => window.mathProgress.getPlacement("reading"));
 check("the reading placement test runs readiness, then the spans, and names the lesson to begin with", sectionsSeen.length === 3 && /readiness/.test(sectionsSeen[0]) && /Start at Reading 1, Lesson 20/.test(await page.textContent("#runner-finish")) && !!plRec && plRec.level === "reading-1" && plRec.lesson === 20 && plRec.subject === "reading", sectionsSeen.join(" | ") + " " + JSON.stringify(plRec));
 check("the reading placement leaves the math placement alone", await page.evaluate(() => { const p = window.mathProgress.getActiveProfile(); return !p.placements.math || p.placements.math.level !== "reading-1"; }));
+// ── A Reading 2 lesson: a story day, plain letters, recorded under reading ──
+await page.goto(BASE + "/reading-2/lesson-026/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+const r2stages = new Set();
+let sawStory2 = false, sawEnding2 = false;
+for (let i = 0; i < 400; i++) {
+  if (await visible("#runner-finish")) break;
+  const title = await page.textContent("#tp-ex-title");
+  if (/^Story:/.test(title)) sawStory2 = true;
+  if (/ending/i.test(title)) sawEnding2 = true;
+  const pr = await page.evaluate(() => { const t = document.querySelector("#child-stage .mdv-text"); return t ? t.getAttribute("data-prompts") : null; });
+  if (pr) r2stages.add(pr);
+  await page.click(await pickBtn());
+  await page.waitForTimeout(10);
+}
+check("a Reading 2 lesson reads a story in plain letters and finishes", (await visible("#runner-finish")) && sawStory2 && r2stages.size === 1 && r2stages.has("plain"), [...r2stages].join(",") + " story=" + sawStory2);
+check("the Reading 2 lesson is recorded under reading", await page.evaluate(() => { const p = window.mathProgress.getActiveProfile(); return p.last.reading && p.last.reading.id === "reading-2-026" && p.completed.indexOf("reading-2-026") !== -1; }));
+await page.goto(BASE + "/records/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+check("Records shows a sound chart for each reading level the child has begun", (await page.evaluate(() => document.querySelectorAll(".sound-grid").length)) === 2);
 await page.goto(BASE + "/lessons/", { waitUntil: "load" });
 await page.waitForTimeout(300);
 
