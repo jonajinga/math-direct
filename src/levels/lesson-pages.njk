@@ -8,7 +8,7 @@ permalink: "{{ lesson.url }}"
 layout: layouts/runner.njk
 eleventyComputed:
   title: "{{ lesson.levelName }} Lesson {{ lesson.number }}"
-  description: "Scripted Direct Instruction math lesson: {{ lesson.levelName }}, lesson {{ lesson.number }} of {{ lesson.totalLessons }}."
+  description: "A scripted Direct Instruction {% if 'reading' in lesson.levelSlug %}reading{% else %}math{% endif %} lesson: {{ lesson.levelName }}, lesson {{ lesson.number }} of {{ lesson.totalLessons }}."
   exitUrl: "/{{ lesson.levelSlug }}/"
 ---
 <script id="runner-data" type="application/json">{"mode":"lesson","exitUrl":"/{{ lesson.levelSlug }}/","lesson":{{ lesson | dump | safe }}}</script>

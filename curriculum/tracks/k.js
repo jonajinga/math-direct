@@ -85,7 +85,7 @@ const countAloud = {
       const max = u.max;
       const a = r.int(2, max - 4), b = Math.min(max, a + r.int(3, 6));
       steps.push(model(V.say(), `Now we start at a number that is not one. My turn. I start at ${word(a)} and count to ${word(b)}. I get it going by saying the first number long: ${word(a)}... ${chain(a + 1, b)}.`, {
-        do: `Say the first number slowly and stretched out, "${word(a)}...", then count on.`,
+        do: `Say the first number long, "${word(a)}...", then count on.`,
       }));
       steps.push(lead(V.say(), `Do it with me. Start at ${word(a)}. Count to ${word(b)}. Get it going.`, Chain(a, b)));
       const c = r.int(2, max - 4), d = Math.min(max, c + r.int(3, 6));
@@ -218,11 +218,11 @@ const countObjects = {
       return {
         title: u.label,
         steps: [
-          model(V.obj("star", total, { tap: true, size: "md" }), "My turn to touch fourteen stars. I count as I touch. When I get to fourteen, I stop. (Touch and count to fourteen.) Stop. Fourteen.", { do: "Touch each star you count. Marks show which ones are counted." }),
+          model(V.obj("star", total, { tap: true, size: "md" }), "My turn to touch fourteen stars. I count as I touch. When I get to fourteen, I stop. (Touch and count to fourteen.) Stop. Fourteen.", { do: "Touch each star as you count. A ring marks each one." }),
           lead(V.obj("ball", total, { tap: true, size: "md" }), "Touch twelve balls with me. Stop at twelve. Get ready.", Chain(1, 12) + " Stop."),
           this.outItem(r, r.int(11, 16), total),
           this.outItem(r, r.int(15, 19), total),
-          note(V.say(), "Now with real objects. Put twenty small objects in a pile. Say: Give me seventeen.", { do: "The child moves seventeen objects to you, one at a time, counting. Then ask: How many did you give me?", materials: true }),
+          note(V.say(), "Now with real objects. Put twenty small objects in a pile. Say: Give me seventeen.", { do: "Watch the child count out seventeen objects, one at a time. Then ask: How many did you give me?", materials: true }),
         ],
         materials: "20 small objects, such as blocks, buttons, or beans",
       };
@@ -559,7 +559,7 @@ const teens = {
     const [a, b, c] = u.set;
     return {
       title: u.label, steps: [
-        model(V.frame(10, a, { frames: 2 }), `My turn. This frame is full. That is ten. Here ${isAre(a - 10)} ${word(a - 10)} more. Ten and ${word(a - 10)} is ${word(a)}.`, { do: "Sweep your hand over the full frame and say ten, then touch each extra dot." }),
+        model(V.frame(10, a, { frames: 2 }), `My turn. This frame is full. That is ten. Here ${isAre(a - 10)} ${word(a - 10)} more. Ten and ${word(a - 10)} is ${word(a)}.`, { do: "Sweep your hand over the full frame and say ten. Then touch each extra dot." }),
         model(V.frame(10, b, { frames: 2 }), `Ten and ${word(b - 10)} is ${word(b)}.`),
         lead(V.frame(10, c, { frames: 2 }), `Ten and ${word(c - 10)} is how many? Say it with me.`, Word(c) + "."),
         this.tenAndItem(b),
@@ -1299,7 +1299,7 @@ const shapes = {
     const r = ctx.rand;
     if (u.id === "flat4") {
       const steps = [
-        model(V.shape("triangle", { c: "green", rot: 180 }), "A shape keeps its name when it is turned, big or small, or any color. My turn. This is a triangle. It is upside down, and it is still a triangle. It has three sides."),
+        model(V.shape("triangle", { c: "green", rot: 180 }), "A shape keeps its name when we turn it, make it big or small, or change its color. My turn. This is a triangle. It is upside down, and it is still a triangle. It has three sides."),
         model(V.shape("square", { c: "blue", rot: 45 }), "This is a square. It is turned, and it is still a square."),
         lead(V.shape("rectangle", { c: "orange", rot: 90 }), "What shape is this? Say it with me.", "A rectangle."),
       ];
@@ -1355,7 +1355,7 @@ const shapes = {
     }
     return {
       title: u.label, steps: [
-        model(V.row(V.shape("triangle", { c: "green", size: "md", rot: 0 }), V.shape("triangle", { c: "green", size: "md", rot: 180 })), "Shapes can be put together to make new shapes. My turn. If I put two triangles together along their long sides, they make a square."),
+        model(V.row(V.shape("triangle", { c: "green", size: "md", rot: 0 }), V.shape("triangle", { c: "green", size: "md", rot: 180 })), "We can put shapes together to make new shapes. My turn. If I put two triangles together along their long sides, they make a square."),
         model(V.row(V.shape("square", { c: "blue", size: "md" }), V.shape("square", { c: "blue", size: "md" })), "Two squares side by side make a rectangle."),
         lead(V.row(V.shape("square", { c: "blue", size: "md" }), V.shape("square", { c: "blue", size: "md" })), "Two squares side by side make what shape? Say it with me.", "A rectangle."),
         test(V.row(V.shape("triangle", { c: "red", size: "md" }), V.shape("triangle", { c: "red", size: "md", rot: 180 })), "Two triangles like these, put together, make what shape?", "A square.", fix("A square.", "Two triangles put together make what shape?"), { skill: "shape", item: "compose:tri" }),

@@ -16,7 +16,7 @@ actionBar: true
 
 <dialog class="sheet" id="sheet-note" aria-labelledby="sheet-note-title">
   <form method="dialog" class="sheet__form">
-    <div class="sheet__head"><h2 class="sheet__title" id="sheet-note-title">Add a note</h2></div>
+    {% set sh = { title: "Add a note", id: "sheet-note-title", submit: true } %}{% include "partials/sheet-head.njk" %}
     <div class="sheet__body">
       <div class="field">
         <label for="note-text">Note</label>

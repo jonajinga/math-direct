@@ -56,7 +56,7 @@ eleventyComputed:
   {% for m in level.materials %}<li>{{ m }}</li>{% endfor %}
 </ul>
 
-<h2 class="eyebrow eyebrow--section">Skill tracks</h2>
+<h2 class="eyebrow eyebrow--section">Skills</h2>
 <p class="muted small">A track is one skill taught across many lessons. Each lesson practices a little of several tracks.</p>
 <details class="fold">
   <summary>All {{ level.tracks.length }} tracks</summary>
@@ -76,7 +76,7 @@ eleventyComputed:
 
 <dialog class="sheet" id="mark-dialog" aria-labelledby="mark-title">
   <form method="dialog" class="sheet__form">
-    <div class="sheet__head"><h2 class="sheet__title" id="mark-title"></h2></div>
+    {% set sh = { title: "", id: "mark-title", submit: true } %}{% include "partials/sheet-head.njk" %}
     <div class="sheet__body">
       <p id="mark-status"></p>
       <div class="mark-choices">

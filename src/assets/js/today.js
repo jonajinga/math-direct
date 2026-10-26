@@ -32,12 +32,12 @@
   if (welcome) welcome.hidden = anyProfileStarted;
 
   var html = "";
-  // A sitting left in the middle comes first.
+  // A lesson left in the middle comes first.
   var sitting = P.loadSession ? P.loadSession() : null;
   if (sitting && sitting.url && sitting.kind !== "practice") {
     html += '<div class="card next-card card--strong" data-continue-card><p class="eyebrow">Continue</p><h2 class="card__title">' + esc(sitting.title || "Where you left off") + "</h2>" +
       '<p class="card__text">' + esc(sitting.children && sitting.children.length > 1 ? sitting.children.join(" and ") : p.name) + " stopped " + (sitting.where ? "at " + esc(sitting.where.replace(/^Ex /, "Exercise ")) : "part way through") + (sitting.marks ? ", with " + sitting.marks + " answer" + (sitting.marks === 1 ? "" : "s") + " marked" : "") + ", " + day(sitting.savedAt).toLowerCase() + ".</p>" +
-      '<div class="btn-row"><a class="btn btn--primary btn--big" href="' + esc(sitting.url + (sitting.url.indexOf("?") === -1 ? "?" : "&") + "continue=1") + '">Continue</a><button type="button" class="btn btn--quiet" data-discard-sitting>Start it over later</button></div></div>';
+      '<div class="btn-row"><a class="btn btn--primary btn--big" href="' + esc(sitting.url + (sitting.url.indexOf("?") === -1 ? "?" : "&") + "continue=1") + '">Continue</a><button type="button" class="btn btn--quiet" data-discard-sitting>Clear it</button></div></div>';
   }
 
   // One card for each subject: the next step in a subject the child has
@@ -64,7 +64,7 @@
   function lastLine(last) {
     var m = /^(.+)-(\d{3})$/.exec(last.id), ll = m && levelOf(m[1]);
     var s = last.summary;
-    return '<p class="today-last">' + day(s.date) + ": " + esc(ll ? ll.name : "") + " Lesson " + Number(m[2]) + ", " + s.firm + " firm, " + s.errors + " error" + (s.errors === 1 ? "" : "s") + ". " +
+    return '<p class="today-last">' + day(s.date) + ": " + esc(ll ? ll.name : "") + " Lesson " + Number(m[2]) + ", " + s.firm + " right, " + s.errors + " error" + (s.errors === 1 ? "" : "s") + ". " +
       (s.repeat ? "Repeat it." : s.stillMissed && s.stillMissed.length ? "Reteach " + esc(s.stillMissed.join(", ")) + " first." : "Go on.") + "</p>";
   }
   if (anyProfileStarted) {
@@ -84,6 +84,6 @@
     P.clearSession();
     var card = host.querySelector("[data-continue-card]");
     if (card) card.remove();
-    if (window.MD && MD.toast) MD.toast("The saved sitting was cleared.");
+    if (window.MD && MD.toast) MD.toast("The unfinished lesson was cleared.");
   });
 })();

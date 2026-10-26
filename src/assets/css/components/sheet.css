@@ -15,7 +15,9 @@
 .sheet::backdrop { background: var(--scrim); }
 .sheet[open] { display: flex; flex-direction: column; }
 .sheet__form { display: contents; }
-.sheet__head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); padding: var(--sp-4) var(--sp-4) var(--sp-2); }
+/* The handle: a hint that the sheet can be pulled down */
+.sheet__grab { flex: none; width: 2.25rem; height: 0.25rem; margin: var(--sp-2) auto 0; border-radius: var(--r-full); background: var(--line-strong); touch-action: none; }
+.sheet__head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4) var(--sp-2); touch-action: none; }
 .sheet__title { margin: 0; font-size: var(--fs-5); }
 .sheet__body { padding: 0 var(--sp-4) var(--sp-4); flex: 1 1 auto; }
 .sheet__body p { margin: 0 0 var(--sp-3); line-height: 1.5; }
@@ -38,9 +40,15 @@
 .sheet__row .kbd { margin-left: auto; }
 .sheet__row small { display: block; font-weight: 400; color: var(--ink-2); font-size: var(--fs-1); }
 
+/* Rising and settling: the same transition both ways. A browser without
+   @starting-style shows the sheet at once, which is no loss. */
 @media (prefers-reduced-motion: no-preference) {
-  .sheet[open] { animation: sheetUp var(--dur-2) var(--ease-out); }
-  @keyframes sheetUp { from { transform: translateY(1.5rem); opacity: 0; } to { transform: none; opacity: 1; } }
+  .sheet { transform: translateY(1.5rem); opacity: 0; transition: transform var(--dur-2) var(--ease-out), opacity var(--dur-2) var(--ease-out), overlay var(--dur-2) allow-discrete, display var(--dur-2) allow-discrete; }
+  .sheet[open] { transform: none; opacity: 1; }
+  @starting-style { .sheet[open] { transform: translateY(1.5rem); opacity: 0; } }
+  .sheet::backdrop { opacity: 0; transition: opacity var(--dur-2) var(--ease-out), overlay var(--dur-2) allow-discrete, display var(--dur-2) allow-discrete; }
+  .sheet[open]::backdrop { opacity: 1; }
+  @starting-style { .sheet[open]::backdrop { opacity: 0; } }
 }
 
 /* A toast sits above the tab bar for a few seconds. */

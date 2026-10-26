@@ -493,7 +493,7 @@ const STORY_UNITS = (() => {
   let last = 0;
   for (const u of list) { if (u.at <= last + 1) u.at = last + 2; last = u.at; }
   return list.filter((u) => u.at <= LESSONS).map((u) => ({
-    id: u.story.slug, lesson: u.at, label: `Story: ${u.story.title}`, story: u.story, title: u.title, lines: u.lines,
+    id: u.story.slug, lesson: u.at, label: `Story: ${u.story.title.replace(/[!.]+$/, "")}`, story: u.story, title: u.title, lines: u.lines,
     words: u.lines.reduce((a, l) => a + l.words.length, 0),
   }));
 })();
@@ -526,7 +526,7 @@ function questionStep(u, i, ctx) {
   const a = plainText(q.a);
   const short = u.lines.length <= 8;
   return test(short ? V.passage(u.lines.map((s) => s.words.map((w) => w.tokens)), { prompts: ctx.prompts }) : V.say(), q.q, a, `My turn: ${a} Your turn. ${q.q}`, {
-    skill: "comprehension", item: `q:${u.id}:${i}`, secs: 10, confirm: "Yes. " + a, signal: "watch",
+    skill: "comprehension", item: `q:${u.id}:${i}`, secs: 10, confirm: (/^No\b/.test(a) ? "Right. " : "Yes. ") + a, signal: "watch",
     do: i === 0 ? (short ? "The child answers from the story. Point to the line that tells it if the child is stuck." : "The child answers from memory. If stuck, go back to the line that tells it, then ask again.") : undefined,
   });
 }
@@ -554,14 +554,14 @@ const stories = {
   newEx(u, ctx) {
     const steps = [];
     const words = storyWordsToRead(u, ctx.lesson);
-    steps.push(note(V.words(words.map((w) => TOKENS.get(w.word)), { prompts: ctx.prompts }), `A new story, ${u.story.title}. First, the words from it that are newest.`, { do: "Read each word before the story, so the story goes well." }));
+    steps.push(note(V.words(words.map((w) => TOKENS.get(w.word)), { prompts: ctx.prompts }), `A new story, ${u.story.title}. First, its newest words.`, { do: "Read each word before the story, so the story goes well." }));
     for (const w of words) steps.push(wordItem(w, ctx));
     steps.push(titleStep(u, ctx));
     steps.push(model(lineOf(u.lines[0], ctx), `My turn to read the first line. I sound out each word, then say it fast: ${u.lines[0].words.map((w) => (w.entry.irregular ? w.word : soundedOut(w.tokens) + ", " + w.word)).join("; ")}.`, { do: "Move the dot under each word as you read it." }));
     steps.push(lead(lineOf(u.lines[0], ctx), "Read the first line with me. Sound out each word, then say it fast.", plainText(u.lines[0].text)));
     u.lines.forEach((s, i) => steps.push(lineSlow(u, i, ctx)));
     u.story.questions.forEach((q, i) => steps.push(questionStep(u, i, ctx)));
-    return { title: `Story: ${u.story.title}`, steps };
+    return { title: `Story: ${u.story.title.replace(/[!.]+$/, "")}`, steps };
   },
   firmEx(intro, ctx, u) {
     const steps = [titleStep(u, ctx)];
@@ -616,7 +616,7 @@ export function checkoutExercise(p, ctx, goal) {
     secs: 2 + s.words.length * 1.5,
     ...(i === 0 ? { do: (p.title ? `The story ${p.title}, read alone. ` : "Lines the child has read, read alone. ") + "Tap Start as the child begins, Error for each word missed, Next at the end of each line, and Stop at the end." } : {}),
   }));
-  return { title: "Checkout", kind: "checkout", words, goal, allowed: 2, passage: p.title, steps };
+  return { title: "Timed reading", kind: "checkout", words, goal, allowed: 2, passage: p.title, steps };
 }
 // A test's passage part from a passage.
 export function passagePart(p, ctx, goal, level) {
@@ -628,9 +628,9 @@ export function passagePart(p, ctx, goal, level) {
 }
 const checkouts = {
   id: "checkouts",
-  name: "Checkouts",
+  name: "Timed readings",
   summary: "From lesson 40, every fifth lesson: the child reads a passage alone while the clock runs. Words a minute and errors are kept against a goal that rises with the lessons.",
-  units: CHECKOUT_LESSONS.map((n) => ({ id: "c" + n, lesson: n, label: `Checkout: ${checkoutGoal(n)} words a minute` })),
+  units: CHECKOUT_LESSONS.map((n) => ({ id: "c" + n, lesson: n, label: `Timed reading: ${checkoutGoal(n)} words a minute` })),
   firmLessons: 0,
   last: true,
   newEx(u, ctx) {

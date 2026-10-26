@@ -138,7 +138,7 @@
         if (s.retestFirm + s.retestErrors) extra.push("asked again " + s.retestFirm + " of " + (s.retestFirm + s.retestErrors));
         if (s.independent) extra.push("on your own " + s.independent.firm + " of " + (s.independent.firm + s.independent.errors));
         if (s.group && s.with) extra.push("taught with " + esc(s.with));
-        return '<li class="recent"><span class="recent__date">' + shortDay(s.date) + '</span><a class="recent__name" href="' + lessonUrl(l, id.n) + '">' + esc(l.name) + " " + id.n + '</a><span class="recent__nums">' + s.firm + " firm, " + plural(s.errors, "error") + (extra.length ? "; " + extra.join("; ") : "") + '</span><span class="recent__advice">' + advice + "</span></li>";
+        return '<li class="recent"><span class="recent__date">' + shortDay(s.date) + '</span><a class="recent__name" href="' + lessonUrl(l, id.n) + '">' + esc(l.name) + " " + id.n + '</a><span class="recent__nums">' + s.firm + " right, " + plural(s.errors, "error") + (extra.length ? "; " + extra.join("; ") : "") + '</span><span class="recent__advice">' + advice + "</span></li>";
       });
       html += card("Recent lessons", '<ul class="recent-list">' + rows.join("") + "</ul>");
     }
@@ -166,7 +166,7 @@
     // ── Checkouts, in reading ──
     if (p.checkouts && p.checkouts.length) {
       var cl = p.checkouts.slice().reverse().slice(0, 10);
-      html += card("Reading checkouts", '<p class="card__text">Words a minute when reading a passage alone, with the errors, against the goal for the lesson.</p><ul class="recent-list">' + cl.map(function (c) {
+      html += card("Timed readings", '<p class="card__text">Words a minute when reading a passage alone, with the errors, against the goal for the lesson.</p><ul class="recent-list">' + cl.map(function (c) {
         var lv = levelOf(c.level);
         return '<li class="recent"><span class="recent__date">' + shortDay(c.date) + (lv ? " · " + esc(lv.name) + " lesson " + c.lesson : "") + '</span><span class="recent__name">' + c.wpm + " words a minute, " + plural(c.errors, "error") + '</span><span class="recent__advice">' + (c.met ? "At the goal of " + c.goal + " a minute." : "The goal is " + c.goal + " a minute with " + (c.allowed === undefined ? 2 : c.allowed) + " errors or fewer.") + "</span></li>";
       }).join("") + "</ul>");

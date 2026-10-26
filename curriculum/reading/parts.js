@@ -42,7 +42,7 @@ export const PART_BY_ID = Object.fromEntries(PARTS.map((p) => [p.id, p]));
 // in and how it is said. A word with the ending is read as its first part
 // and then the whole word.
 export const ENDINGS = [
-  { id: "ed", letters: "ed", say: "d, t, or id", lesson: 23, note: "-ed says d after a voiced sound (played), t after a whispered one (jumped), and id after t or d (wanted)" },
+  { id: "ed", letters: "ed", say: "d, t, or id", lesson: 23, note: "after a sound with the voice on, -ed says d, as in played. After a whispered sound, it says t, as in jumped. After t or d, it says id, as in wanted" },
   { id: "er", letters: "er", say: "er", lesson: 35, note: "comparing two things: bigger" },
   { id: "est", letters: "est", say: "est", lesson: 35, note: "the most: biggest" },
   { id: "ly", letters: "ly", say: "lee", lesson: 36 },

@@ -38,6 +38,28 @@
     var d = e.target;
     if (d && d.tagName === "DIALOG" && d._opener && typeof d._opener.focus === "function" && document.contains(d._opener) && !document.querySelector("dialog[open]")) d._opener.focus();
   }, true);
+  // A tap on the darkened page closes the sheet, as Escape does.
+  document.addEventListener("click", function (e) {
+    var d = e.target;
+    if (!d || d.tagName !== "DIALOG" || !d.classList.contains("sheet") || !d.open) return;
+    var r = d.getBoundingClientRect();
+    if (e.clientY < r.top || e.clientY > r.bottom || e.clientX < r.left || e.clientX > r.right) d.close("");
+  });
+  // A pull down on the handle or the head drags the sheet; past a hand's width it closes.
+  document.addEventListener("pointerdown", function (e) {
+    var head = e.target.closest(".sheet__grab, .sheet__head");
+    if (!head || e.target.closest("button, a, input, select, textarea")) return;
+    var dlg = head.closest("dialog");
+    if (!dlg || !dlg.open) return;
+    var y0 = e.clientY, dy = 0;
+    function move(ev) { dy = Math.max(0, ev.clientY - y0); dlg.style.transition = "none"; dlg.style.transform = "translateY(" + dy + "px)"; }
+    function up() {
+      document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up); document.removeEventListener("pointercancel", up);
+      dlg.style.transition = ""; dlg.style.transform = "";
+      if (dy > 72) dlg.close("");
+    }
+    document.addEventListener("pointermove", move); document.addEventListener("pointerup", up); document.addEventListener("pointercancel", up);
+  });
 
   // A sheet built on the spot. Both return a promise.
   function buildSheet(title, bodyHtml, buttons) {
@@ -45,7 +67,7 @@
     dlg.className = "sheet";
     dlg.setAttribute("aria-labelledby", "sheet-title-" + Date.now());
     dlg.innerHTML = '<form method="dialog" class="sheet__form">' +
-      '<div class="sheet__head"><h2 class="sheet__title" id="' + dlg.getAttribute("aria-labelledby") + '">' + esc(title) + "</h2></div>" +
+      '<div class="sheet__grab" aria-hidden="true"></div><div class="sheet__head"><h2 class="sheet__title" id="' + dlg.getAttribute("aria-labelledby") + '">' + esc(title) + "</h2></div>" +
       '<div class="sheet__body">' + bodyHtml + "</div>" +
       '<div class="sheet__foot">' + buttons.map(function (b) { return '<button type="submit" class="btn ' + (b.cls || "btn--secondary") + '" value="' + esc(b.value) + '">' + esc(b.label) + "</button>"; }).join("") + "</div></form>";
     document.body.appendChild(dlg);

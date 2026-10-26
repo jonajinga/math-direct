@@ -1,0 +1,5 @@
+{#- The head of every sheet: a grab handle, the title, and a close control.
+    Set `sh` before including: { title, id, close: false on a confirmation
+    sheet whose buttons decide, submit: true inside a form method="dialog" }. -#}
+<div class="sheet__grab" aria-hidden="true"></div>
+<div class="sheet__head"><h2 class="sheet__title" id="{{ sh.id }}">{{ sh.title }}</h2>{% if sh.close !== false %}{% if sh.submit %}<button type="submit" class="btn btn--quiet btn--square sheet__close" value="" aria-label="Close">{% include "partials/icons/x.njk" %}</button>{% else %}<button type="button" class="btn btn--quiet btn--square sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button>{% endif %}{% endif %}</div>

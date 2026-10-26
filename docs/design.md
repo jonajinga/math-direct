@@ -77,6 +77,48 @@ another stroke, and no selector styled twice when it stands alone.
 radius and a rule that every family of pages in the sitemap has a page in
 its list, so a new kind of screen cannot go unaudited.
 
+## Every screen and every string
+
+The second pass held every screen to the style guide's checklist and read
+every string. Content pages (About, Privacy, Terms, the guides, Scope and
+sequence, Sounds, Words, Offline, 404) now open with the same title and lead
+as the app screens (`.screen__head`, `.screen__title`, `.screen__lead`), so
+no page has a heading style of its own. Every sheet shares one head
+(`partials/sheet-head.njk`): a grab handle, the title, and a close control,
+except a confirmation sheet, whose two buttons decide. A sheet closes with
+Escape, a tap on the darkened page, or a pull down on its handle, and it
+settles back down as it goes: the slide is a CSS transition with
+`@starting-style` and `allow-discrete`, so it runs both ways with no script,
+and a browser without them shows the sheet at once. Inputs have focus,
+invalid, and disabled styles; a checkbox and its label are one target.
+
+One word for each thing. The words that had drifted were settled with the
+owner and are listed on `/design/`: On your own (never Independent work);
+"asked again" for the item that comes back after a correction, and "the
+missed items, at the end" for the round that closes a lesson; "lesson" for
+a saved sitting; "mark" for an answer, "status" for a lesson, "rings" for
+what the child draws; "new skill", "practice", and "review" on the exercise
+line in place of "new teaching" and "firming"; "timed reading" on screen for
+what the code still calls a checkout; "Exercise 3 of 7", "60 seconds left",
+and "12 minutes" in full; "right" rather than "firm" inside a sentence.
+`check-copy.mjs` now refuses the jargon and abbreviations in page text and
+in the lesson scripts (sitting as a noun, session, segment, firming,
+checkout, retest, released, sync, wpm, "s left", "Ex 3", "12 min"); the
+style guide, which names these words, is left out of that rule. The
+validator warns on a say line over thirty words. The finish-screen advice
+is brief and plain: what to do next, in one or two sentences, with no
+reassurance. The four step helpers in `curriculum/lib/steps.js` were read
+first, then every hand-written model, lead, note, and do line in the six
+tracks; the few lines that broke a rule were reworded without changing what
+is taught, and three story answers that did not match their stories were
+corrected.
+
+The guides lost their contradictions: one pass rule for a test part (every
+item right, or one error in a part of five or more), the backup under More,
+and About describes both programs. The manifest carries an `id` and two
+screenshots for the install prompt, and the service worker precaches
+Today's script, the maskable icon, and the pages it had missed.
+
 ## The runner
 
 One screen, never scrolled while teaching. From the top: a one-line strip
