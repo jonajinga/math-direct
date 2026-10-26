@@ -10,11 +10,12 @@ import prek from "./tracks/prek.js";
 import k from "./tracks/k.js";
 import first from "./tracks/first.js";
 import bridge from "./tracks/bridge.js";
+import second from "./tracks/second.js";
 import reading1 from "./tracks/reading1.js";
 import reading2 from "./tracks/reading2.js";
 import { factList } from "./lib/facts.js";
 
-export const LEVELS = [reading1, reading2, prek, k, first, bridge].filter(Boolean);
+export const LEVELS = [reading1, reading2, prek, k, first, second, bridge].filter(Boolean);
 
 // The subjects, in the order the app shows them. A level names its subject;
 // a subject appears only when a level of it is built.

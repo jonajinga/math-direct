@@ -270,8 +270,8 @@
 .mdv-table table { border-collapse: collapse; background: var(--v-paper); }
 .mdv-table th, .mdv-table td { border: 0.08em solid var(--v-ink); padding: 0.15em 0.5em; text-align: center; line-height: 1.2; }
 .mdv-table th { background: var(--v-soft); font-family: var(--font-ui); font-size: 0.75em; }
-.mdv-prose { display: block; max-width: min(100%, 36rem); font-family: var(--font-ui); font-size: clamp(1rem, 5.5cqh, 1.5rem); line-height: 1.45; color: var(--v-ink); text-align: left; }
-.mdv-prose p { margin: 0 0 0.4em; }
+.mdv-prose { display: block; max-width: min(100%, 36rem); font-family: var(--font-ui); font-size: clamp(0.875rem, 5.5cqh, 1.5rem); line-height: 1.35; color: var(--v-ink); text-align: left; }
+.mdv-prose p { margin: 0 0 0.3em; }
 .mdv-prose p:last-child { margin-bottom: 0; }
 .mdv-poem { display: block; max-width: 100%; font-family: var(--font-ui); font-size: clamp(1.0625rem, 6cqh, 1.625rem); line-height: 1.5; color: var(--v-ink); text-align: left; }
 .mdv-poem__stanza { margin: 0 0 0.8em; }

@@ -1,12 +1,14 @@
-// The app has no paper, no printing, no numeral writing, and no dark mode.
+// The app prints nothing, teaches no numeral writing, and has no dark mode.
 // This fails the build if any of those words appear in what the parent reads:
-// page text, the lesson scripts, and the strings the scripts show.
+// page text, the lesson scripts, and the strings the scripts show. (A child
+// may work on a whiteboard or paper beside the phone, and a pencil may be
+// measured or counted, so those words are allowed.)
 // Usage: node scripts/check-copy.mjs [siteDir]
 import fs from "node:fs";
 import path from "node:path";
 
 const site = process.argv[2] || "_site";
-const words = /\b(printable|print(?:s|ed|ing)?|worksheets?|pencils?|crayons?|trac(?:e|ing)|dark mode|handwriting|click(?:s|ed|ing)?|sliders?)\b|\bwrite (?:the|a|an|each) (?:number|numeral|digit)s?\b|\bon (?:your |the )?paper\b/i;
+const words = /\b(printable|print(?:s|ed|ing)?|worksheets?|trac(?:e|ing)|dark mode|handwriting|click(?:s|ed|ing)?|sliders?)\b|\bwrite (?:the|a|an|each) (?:number|numeral|digit)s?\b/i;
 // Words from the method or from software that the parent does not need, and
 // abbreviations: one word for each thing is the rule (see /design/, which
 // names these words and is left out of this check).
@@ -57,4 +59,4 @@ for (const file of files) {
   }
 }
 if (hits.length) { console.error("check-copy: " + hits.length + " hit(s)\n  " + hits.slice(0, 60).join("\n  ")); process.exit(1); }
-console.log("check-copy: no paper, printing, writing, clicking, slider, dark-mode, or jargon words in " + files.length + " files.");
+console.log("check-copy: no printing, worksheet, numeral-writing, clicking, slider, dark-mode, or jargon words in " + files.length + " files.");

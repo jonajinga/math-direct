@@ -184,6 +184,46 @@ heart; a version 5 backup loads without loss. Today gives full cards to the
 two subjects taught longest ago and a row to each of the rest, with the day
 a twice-weekly subject is next due.
 
+## Second Grade
+
+The first level built on the widened framework: 150 lessons of 18 to 24
+minutes for a child of about seven, in `curriculum/tracks/second.js` with
+its tracks under `second/` (numbers, operations, measure, geometry,
+puzzles) and a brief, `second/BRIEF.md`, that every later math level
+follows. Sixteen tracks: a skip-counting warm-up in every lesson; numbers
+to 1,000 by hundreds, tens, and ones, with blocks, expanded form, zeros,
+comparing, ordering, and counting on; mental math (ten and a hundred more
+and less, tens and hundreds added, going through ten, making a hundred,
+doubles); the facts to 20 drilled every other lesson and timed with a goal
+that rises to thirty a minute; adding and subtracting within 100 and then
+within 1,000 in columns, with carries, trades, three and four addends,
+missing digits, checking by adding, and subtracting across zeros; story
+problems in print, in one and two steps, with comparisons, extra
+information, and a letter for the unknown; even and odd and arrays;
+length with rulers in inches and centimeters, estimates, comparisons, the
+number line by tens, and units; time to five minutes, a.m. and p.m., and
+hours between; coins, bills, the dollar and cents signs, fewest coins and
+change; picture graphs, bar graphs, line plots, and tables; shapes by their
+sides, the cube, kinds of quadrilaterals, rows and columns, and halves,
+thirds, and fourths; and a puzzle in every lesson from lesson 2.
+
+The puzzle track has twelve families, each a seeded generator that
+computes its answer and its hints: digit cards for the greatest or least
+sum or difference, patterns with gaps, comparison chains, the distance
+around a tiled shape, counting rectangles, two-step stories with a twist,
+missing digits in column work, ways to make an amount with coins, balance
+puzzles, hops on the number line, magic triangles and squares, and who is
+who. The scheduler now treats a puzzle track as it treats the warm-up: in
+every lesson once begun, last in the lesson, never padded with more items,
+and never dropped by the minutes cap. Mastery tests end with a Problem
+solving part of two puzzles without hints; the Puzzles practice set under
+Practice holds every family as the challenge set.
+
+From this grade the child works column problems and two-step stories on a
+whiteboard beside the phone; the Do line says so, and the parent asks for
+the answer when the child says done. The guide has a section on the
+whiteboard, the puzzles, and the Hint button.
+
 ## The runner
 
 One screen, never scrolled while teaching. From the top: a one-line strip

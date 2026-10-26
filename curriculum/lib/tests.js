@@ -182,6 +182,7 @@ export function buildPlacement(levels) {
         level: level.id,
         levelName: level.name,
         levelSlug: level.slug,
+        age: level.age,
         from,
         to,
         start: { level: level.id, lesson: from, url: `/${level.slug}/lesson-${String(from).padStart(3, "0")}/` },
