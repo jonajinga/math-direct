@@ -12,14 +12,15 @@ export function allowedErrors(items) {
   return items >= 5 ? 1 : 0;
 }
 
-const PART_MIN = 4;
-const PART_MAX = 8;
+const PART_RANGE = [4, 8];
+const MAX_PARTS = 6;
 
 // Items for one part of a mastery test: one or two from the newest unit, one
 // from each other unit the part covers (the block's units, or every unit on
 // the final test), one from before the block for retention, and then fresh
 // draws until the part has at least four.
 function partItems(level, track, upTo, start, end, t, final) {
+  const [PART_MIN, PART_MAX] = level.partRange || PART_RANGE;
   const items = [];
   const seen = new Set();
   const add = (list, limit) => {
@@ -57,14 +58,27 @@ export function buildMasteryTests(level, built) {
     const start = end - every + 1;
     const final = t === count;
     const parts = [];
-    const testTracks = level.testTracks ? level.tracks.filter((tr) => level.testTracks.includes(tr.id)) : level.tracks;
+    const testTracks = (level.testTracks ? level.tracks.filter((tr) => level.testTracks.includes(tr.id)) : level.tracks).filter((tr) => !tr.puzzle);
+    // Tracks with a new unit in the block come first; the rest take turns
+    // from test to test, so a test holds at most six parts (maxParts).
+    const withNew = [], rest = [];
     for (const track of testTracks) {
       const upTo = track.units.filter((u) => u.lesson <= end);
       if (!upTo.length || !track.testItems) continue;
       const inBlock = track.units.filter((u) => u.lesson >= start && u.lesson <= end);
       // A track with no new unit in the block is left out, unless the level
-      // names it as tested every time (reading the fast way).
-      if (!final && !inBlock.length && !(level.testAlways || []).includes(track.id)) continue;
+      // names it as tested every time (reading the fast way) or it is the
+      // final test.
+      if (inBlock.length || (level.testAlways || []).includes(track.id)) withNew.push(track);
+      else if (final) rest.push(track);
+    }
+    // The final test sweeps the whole level; the others hold at most six parts.
+    const cap = final ? Infinity : level.maxParts || MAX_PARTS;
+    const turn = rest.length ? t % rest.length : 0;
+    const chosen = withNew.concat(rest.slice(turn), rest.slice(0, turn)).slice(0, Math.max(cap, withNew.length));
+    for (const track of chosen) {
+      const upTo = track.units.filter((u) => u.lesson <= end);
+      const inBlock = track.units.filter((u) => u.lesson >= start && u.lesson <= end);
       const items = partItems(level, track, upTo, start, end, t, final);
       if (!items.length) continue;
       const remedyUnits = inBlock.length ? inBlock : upTo.slice(-2);
@@ -82,6 +96,20 @@ export function buildMasteryTests(level, built) {
         allowed: allowedErrors(items.length),
         remedy,
       });
+    }
+    // Problem solving: two puzzles from the level's puzzle track, with no
+    // hints, as the passage part is built in reading.
+    for (const track of level.tracks.filter((tr) => tr.puzzle && tr.testItems)) {
+      const upTo = track.units.filter((u) => u.lesson <= end);
+      if (!upTo.length) continue;
+      const items = trackItems(level, track, upTo, end, `test${t}-puzzle`).slice(0, 2).map((s) => { const c = { ...s }; delete c.hints; return c; });
+      if (!items.length) continue;
+      const inBlock = track.units.filter((u) => u.lesson >= start && u.lesson <= end);
+      const remedy = (inBlock.length ? inBlock : upTo.slice(-2)).map((u) => {
+        const home = built.unitHome[`${track.id}:${u.id}`];
+        return home ? { lesson: home.lesson, exercise: home.exercise, label: u.label, url: `/${level.slug}/lesson-${String(home.lesson).padStart(3, "0")}/#ex${home.exercise}` } : null;
+      }).filter(Boolean);
+      parts.push({ track: track.id, trackName: "Problem solving", items, allowed: 0, remedy, kind: "puzzle" });
     }
     // A passage read alone against the clock, where the level has one.
     if (level.testPassage) {
@@ -117,10 +145,10 @@ export function buildPlacement(levels) {
       const to = (points[i + 1] || level.lessons + 1) - 1;
       // Tracks with the most teaching in this span go first.
       const ranked = level.tracks
-        .filter((t) => t.testItems && t.units.some((u) => u.lesson >= from && u.lesson <= to))
+        .filter((t) => t.testItems && !t.puzzle && t.units.some((u) => u.lesson >= from && u.lesson <= to))
         .map((t) => ({ t, k: t.units.filter((u) => u.lesson >= from && u.lesson <= to).length }))
         .sort((a, b) => b.k - a.k)
-        .slice(0, level.placementTracks || 5)
+        .slice(0, level.placementTracks || 6)
         .map((x) => x.t);
       const items = [];
       for (const track of ranked) {

@@ -199,6 +199,9 @@
 .tp-correct .tp-correct__wait { display: none; color: var(--ink-2); font-style: italic; }
 .tp-correct.is-folded #tp-correct-text { display: none; }
 .tp-correct.is-folded .tp-correct__wait { display: inline; }
+/* A puzzle's hints, shown one at a time */
+.tp-hint { border-left-color: var(--lead); background: var(--primary-soft); }
+.tp-hint p { display: block; }
 
 /* What the child touched, and whether it was right. The parent still marks. */
 .tp-touched {

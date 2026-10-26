@@ -82,9 +82,20 @@ await page.waitForTimeout(300);
 const afterTd = await page.evaluate(() => { const P = window.mathProgress; const z = P.getProfiles().find((p) => p.name === "Zoe"); return { completed: z.completed, sounds: z.sounds, checkouts: z.checkouts, placements: z.placements, soundStatus: P.soundStatus(z.sounds.th) }; });
 check("sounds, checkouts, and placements merge into the child", afterTd.completed.indexOf("prek-001") !== -1 && afterTd.completed.indexOf("reading-1-001") !== -1 && afterTd.sounds.th && afterTd.checkouts.length === 1 && afterTd.placements.reading && afterTd.placements.reading.lesson === 12, JSON.stringify(afterTd));
 check("a sound said three times within two seconds is automatic", afterTd.soundStatus === "automatic", afterTd.soundStatus);
+// ── Version 6: sight words and poems ──
+const v6 = await page.evaluate(() => {
+  const P = window.mathProgress;
+  const z = P.getProfiles().find((p) => p.name === "Zoe");
+  P.recordSightWordFor(z.id, "the", true, 800); P.recordSightWordFor(z.id, "the", true, 700); P.recordSightWordFor(z.id, "the", true, 900);
+  P.recordPoemFor(z.id, "the-fog", { stage: 2, errors: 0, recited: true });
+  const z2 = P.getProfile(z.id);
+  return { hasFields: !!(z.sightWords && z.poems), rec: z2.sightWords.the, status: P.sightWordStatus(z2.sightWords.the), poem: z2.poems["the-fog"] };
+});
+check("a version 5 record gains the version 6 fields", v6.hasFields);
+check("sight words are kept like sounds, and poems with their stage and history", v6.rec && v6.rec.r.length === 3 && v6.status === "automatic" && v6.poem && v6.poem.stage === 2 && v6.poem.history.length === 1 && !!v6.poem.last, JSON.stringify(v6));
 
 check("no page errors", !errors.length, errors.join(" | "));
 await browser.close();
 server.close();
 if (fails.length) { console.error("check-import: " + fails.length + " check(s) failed."); process.exit(1); }
-console.log("check-import: version 4 records read as version 5, and Teach Direct and Open Phonics backups load.");
+console.log("check-import: records from versions 4 and 5 read as version 6, and Teach Direct and Open Phonics backups load.");

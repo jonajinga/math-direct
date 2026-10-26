@@ -339,7 +339,7 @@
     if (p === "?") return '<span class="mdv-blank">?</span>';
     if (p === "_") return '<span class="mdv-blank mdv-blank--write"></span>';
     if (typeof p === "number") return '<span class="mdv-eq__n">' + p + "</span>";
-    if (p === "+" || p === "−" || p === "-" || p === "=" || p === "<" || p === ">") return '<span class="mdv-eq__op">' + esc(p === "-" ? "−" : p) + "</span>";
+    if (p === "+" || p === "−" || p === "-" || p === "×" || p === "÷" || p === "=" || p === "<" || p === ">") return '<span class="mdv-eq__op">' + esc(p === "-" ? "−" : p) + "</span>";
     return '<span class="mdv-eq__n">' + esc(p) + "</span>";
   }
 
@@ -677,22 +677,35 @@
   };
 
   R.nl = function (v) {
-    var from = v.from, to = v.to, n = to - from, step = n > 20 ? 30 : n > 10 ? 40 : 60, body = "";
-    var w = n * step + 60, y = 50;
+    var from = v.from, to = v.to, by = v.by || 1, denom = v.denom || 1;
+    var n = Math.round((to - from) / by * denom), step = n > 40 ? 20 : n > 20 ? 30 : n > 10 ? 40 : 60, body = "";
+    var w = n * step + 60, y = 50, every = v.labelsEvery || 1, places = (String(by).split(".")[1] || "").length;
+    function label(val) {
+      if (denom > 1) { var whole = Math.floor(val + 1e-9), rest = Math.round((val - whole) * denom); return rest ? (whole ? whole + " " : "") + rest + "/" + denom : String(whole); }
+      return places ? val.toFixed(places) : String(val);
+    }
     body += '<line x1="20" y1="' + y + '" x2="' + (w - 20) + '" y2="' + y + '" stroke="var(--v-ink)" stroke-width="3"/>';
     for (var i = 0; i <= n; i++) {
-      var x = 30 + i * step, val = from + i, hl = v.hl === val;
-      body += '<line x1="' + x + '" y1="' + (y - 10) + '" x2="' + x + '" y2="' + (y + 10) + '" stroke="var(--v-ink)" stroke-width="3"/>';
-      body += '<text x="' + x + '" y="' + (y + 40) + '" text-anchor="middle" font-size="' + (n > 20 ? 16 : 22) + '" font-weight="' + (hl ? 800 : 600) + '" fill="' + (hl ? "var(--v-accent)" : "var(--v-ink)") + '" font-family="var(--font-child)">' + val + "</text>";
+      var x = 30 + i * step, val = from + i * by / denom;
+      var whole = denom === 1 || Math.abs(val - Math.round(val)) < 1e-9;
+      var hl = v.hl !== undefined && v.hl !== null && Math.abs(v.hl - val) < 1e-9;
+      var show = denom > 1 ? (whole || v.labelFractions) : i % every === 0;
+      body += '<line x1="' + x + '" y1="' + (y - (whole ? 10 : 6)) + '" x2="' + x + '" y2="' + (y + (whole ? 10 : 6)) + '" stroke="var(--v-ink)" stroke-width="3"/>';
+      if (show) body += '<text x="' + x + '" y="' + (y + 40) + '" text-anchor="middle" font-size="' + (n > 20 ? 16 : 22) + '" font-weight="' + (hl ? 800 : 600) + '" fill="' + (hl ? "var(--v-accent)" : "var(--v-ink)") + '" font-family="var(--font-child)">' + esc(label(val)) + "</text>";
       if (hl) body += '<circle cx="' + x + '" cy="' + y + '" r="10" fill="var(--v-accent)"/>';
     }
+    var unit = by / denom;
     if (v.hops) {
       var a = v.hops[0], b = v.hops[1], dir = b > a ? 1 : -1;
-      for (var h = a; h !== b; h += dir) {
-        var x1 = 30 + (h - from) * step, x2 = 30 + (h + dir - from) * step;
-        body += '<path d="M' + x1 + " " + (y - 12) + " Q " + ((x1 + x2) / 2) + " " + (y - 46) + " " + x2 + " " + (y - 12) + '" stroke="var(--v-accent)" stroke-width="3" fill="none"/>';
+      for (var hv = a; dir > 0 ? hv < b - 1e-9 : hv > b + 1e-9; hv += dir * unit) {
+        var x1 = 30 + (hv - from) / unit * step, x2 = 30 + (hv + dir * unit - from) / unit * step;
+        body += '<path d="M' + x1.toFixed(1) + " " + (y - 12) + " Q " + ((x1 + x2) / 2).toFixed(1) + " " + (y - 46) + " " + x2.toFixed(1) + " " + (y - 12) + '" stroke="var(--v-accent)" stroke-width="3" fill="none"/>';
       }
     }
+    (v.points || []).forEach(function (p) {
+      var px = 30 + (p.v - from) / unit * step;
+      body += '<circle cx="' + px.toFixed(1) + '" cy="' + y + '" r="9" fill="var(--v-dot)"/>' + (p.label ? '<text x="' + px.toFixed(1) + '" y="' + (y - 18) + '" text-anchor="middle" font-size="20" font-weight="700" fill="var(--v-ink)" font-family="var(--font-child)">' + esc(p.label) + "</text>" : "");
+    });
     return '<div class="mdv mdv-nl">' + svg(w, 100, body) + "</div>";
   };
 
@@ -851,6 +864,316 @@
     return html + "</div>";
   };
 
+  // ── Grades 2 to 5 ──
+
+  // Column work: any number of rows, up to six digits, carries above,
+  // traded digits struck through with the new digit above, and the answer
+  // shown, blank, or left out.
+  R.colx = function (v) {
+    var rows = (v.rows || []).map(String), ans = v.ans !== undefined ? String(v.ans) : "";
+    var width = Math.max.apply(null, rows.map(function (r) { return r.length; }).concat([ans.length, 1]));
+    var trades = v.trades || [], carries = v.carries || [];
+    function cells(str, cls, rowIdx) {
+      var out = "", padded = str;
+      while (padded.length < width) padded = " " + padded;
+      for (var i = 0; i < padded.length; i++) {
+        var fromRight = width - 1 - i;
+        var struck = trades.some(function (t) { return t.row === rowIdx && t.col === fromRight; });
+        out += '<span class="mdv-col__d ' + (cls || "") + (struck ? " is-struck" : "") + '">' + (padded[i] === " " ? "" : esc(padded[i])) + "</span>";
+      }
+      return out;
+    }
+    var above = [];
+    for (var c = 0; c < width; c++) above[c] = carries[c] !== undefined && carries[c] !== "" ? String(carries[c]) : "";
+    trades.forEach(function (t) { if (t.to !== undefined) above[t.col] = String(t.to); });
+    var html = '<div class="mdv mdv-col mdv-colx" style="--w:' + width + '">';
+    if (above.some(Boolean)) {
+      html += '<div class="mdv-col__row mdv-col__carry"><span class="mdv-col__op"></span>';
+      for (var k = width - 1; k >= 0; k--) html += '<span class="mdv-col__d is-carry">' + esc(above[k]) + "</span>";
+      html += "</div>";
+    }
+    for (var r = 0; r < rows.length; r++) {
+      var last = r === rows.length - 1;
+      html += '<div class="mdv-col__row' + (last ? " mdv-col__line" : "") + '"><span class="mdv-col__op">' + (last ? esc(v.op === "-" ? "−" : v.op) : "") + "</span>" + cells(rows[r], "", r) + "</div>";
+    }
+    html += '<div class="mdv-col__row"><span class="mdv-col__op"></span>' + (v.show ? cells(ans) : v.blank ? cells(ans.replace(/./g, "?"), "is-blank") : cells("")) + "</div>";
+    return html + "</div>";
+  };
+
+  // Multiplication with the partial products revealed in turn.
+  R.mult = function (v) {
+    var a = String(v.a), b = String(v.b), partials = v.partials || [], show = Math.min(v.show || 0, partials.length);
+    var total = v.ans !== undefined ? String(v.ans) : String(v.a * v.b);
+    var width = Math.max.apply(null, [a.length, b.length, total.length].concat(partials.map(function (p) { return String(p.value).length; })));
+    function cells(str, cls) { var out = "", p = str; while (p.length < width) p = " " + p; for (var i = 0; i < p.length; i++) out += '<span class="mdv-col__d ' + (cls || "") + '">' + (p[i] === " " ? "" : esc(p[i])) + "</span>"; return out; }
+    var html = '<div class="mdv mdv-col mdv-mult" style="--w:' + width + '">';
+    html += '<div class="mdv-col__row"><span class="mdv-col__op"></span>' + cells(a) + "</div>";
+    html += '<div class="mdv-col__row mdv-col__line"><span class="mdv-col__op">×</span>' + cells(b) + "</div>";
+    for (var i = 0; i < show; i++) {
+      var p = partials[i], lastP = i === partials.length - 1;
+      html += '<div class="mdv-col__row' + (lastP ? " mdv-col__line" : "") + '"><span class="mdv-col__op">' + (i > 0 ? "+" : "") + "</span>" + cells(String(p.value)) + (p.label ? '<span class="mdv-col__note">' + esc(p.label) + "</span>" : "") + "</div>";
+    }
+    if (partials.length && show >= partials.length) html += '<div class="mdv-col__row"><span class="mdv-col__op"></span>' + (v.total === false ? cells("") : cells(total)) + "</div>";
+    return html + "</div>";
+  };
+
+  // The long division bracket, with its steps revealed in turn.
+  R.ldiv = function (v) {
+    var a = String(v.a), b = String(v.b), steps = v.steps || [], show = Math.min(v.show || 0, steps.length);
+    var cw = 44, rh = 50, left = (b.length + 1) * cw, w = left + a.length * cw + 20;
+    var h = (2 + show * 2) * rh + 10;
+    function t(x, y, s, color) { return '<text x="' + x + '" y="' + y + '" text-anchor="end" font-size="36" font-weight="700" fill="' + (color || "var(--v-ink)") + '" font-family="var(--font-child)">' + esc(s) + "</text>"; }
+    var body = "", i;
+    for (i = 0; i < show; i++) body += t(left + (steps[i].at + 1) * cw - 6, rh - 10, String(steps[i].q), "var(--v-accent)");
+    body += '<path d="M' + (left - 10) + " " + (rh + 4) + " q 6 20 0 " + (rh - 8) + " M" + (left - 4) + " " + (rh + 4) + " H " + (w - 10) + '" stroke="var(--v-ink)" stroke-width="3" fill="none"/>';
+    body += t(left - 16, 2 * rh - 12, b);
+    for (i = 0; i < a.length; i++) body += t(left + (i + 1) * cw - 6, 2 * rh - 12, a[i]);
+    var y = 3 * rh;
+    for (i = 0; i < show; i++) {
+      var s = steps[i], prod = String(s.prod), endX = left + (s.at + 1) * cw - 6;
+      body += t(endX - prod.length * cw - 4, y - 12, "−", "var(--v-accent)") + t(endX, y - 12, prod);
+      body += '<line x1="' + (endX - prod.length * cw - 20) + '" y1="' + (y - 2) + '" x2="' + (endX + 6) + '" y2="' + (y - 2) + '" stroke="var(--v-ink)" stroke-width="3"/>';
+      y += rh;
+      var rem = String(s.rem), remEnd = left + Math.min(a.length, s.at + 1 + (rem.length > prod.length ? 1 : 0)) * cw - 6;
+      body += t(remEnd, y - 12, rem);
+      y += rh;
+    }
+    return '<div class="mdv mdv-ldiv">' + svg(w, h, body) + "</div>";
+  };
+
+  // Base-ten blocks: thousands cubes, hundreds flats, tens rods, and ones.
+  R.blocks = function (v) {
+    var S = 100, gap = 14, x = 10, H = 10, body = "", groups = [], i;
+    var th = v.th || 0, hd = v.h || 0, tens = v.tens || 0, ones = v.ones || 0;
+    function cube(x0, y0) { var d = S * 0.4; return '<path d="M' + x0 + " " + (y0 + d) + " h" + S + " v" + S + " h-" + S + ' z" fill="var(--v-ten)" stroke="var(--v-ink)" stroke-width="1.5"/><path d="M' + x0 + " " + (y0 + d) + " l" + d + " -" + d + " h" + S + " l-" + d + " " + d + ' z" fill="var(--v-one)" stroke="var(--v-ink)" stroke-width="1.5"/><path d="M' + (x0 + S) + " " + (y0 + d) + " l" + d + " -" + d + " v" + S + " l-" + d + " " + d + ' z" fill="var(--v-box)" stroke="var(--v-ink)" stroke-width="1.5"/>'; }
+    function flat(x0, y0) { var out = '<rect x="' + x0 + '" y="' + y0 + '" width="' + S + '" height="' + S + '" fill="var(--v-ten)" stroke="var(--v-ink)" stroke-width="2"/>'; for (var k = 1; k < 10; k++) out += '<line x1="' + (x0 + k * S / 10) + '" y1="' + y0 + '" x2="' + (x0 + k * S / 10) + '" y2="' + (y0 + S) + '" stroke="var(--v-ink)" stroke-width="0.6"/><line x1="' + x0 + '" y1="' + (y0 + k * S / 10) + '" x2="' + (x0 + S) + '" y2="' + (y0 + k * S / 10) + '" stroke="var(--v-ink)" stroke-width="0.6"/>'; return out; }
+    function rod(x0, y0) { var out = ""; for (var k = 0; k < 10; k++) out += '<rect x="' + x0 + '" y="' + (y0 + k * S / 10) + '" width="' + (S / 10) + '" height="' + (S / 10) + '" fill="var(--v-ten)" stroke="var(--v-ink)" stroke-width="1"/>'; return out; }
+    if (th) { var gx = x; for (i = 0; i < th; i++) { body += cube(gx, 50); gx += S * 1.4 + gap; } groups.push({ x: x, w: gx - x - gap, n: th, name: "thousands" }); x = gx + gap; H = Math.max(H, 50 + S + 10); }
+    if (hd) { var cols = Math.min(3, hd), rowsN = Math.ceil(hd / cols); for (i = 0; i < hd; i++) body += flat(x + (i % cols) * (S + gap), 10 + Math.floor(i / cols) * (S + gap)); groups.push({ x: x, w: cols * (S + gap) - gap, n: hd, name: "hundreds" }); x += cols * (S + gap) + gap; H = Math.max(H, 10 + rowsN * (S + gap)); }
+    if (tens) { for (i = 0; i < tens; i++) body += rod(x + i * (S / 10 + 6), 10); groups.push({ x: x, w: tens * (S / 10 + 6) - 6, n: tens, name: "tens" }); x += tens * (S / 10 + 6) + gap; H = Math.max(H, 10 + S + 10); }
+    if (ones) { for (i = 0; i < ones; i++) body += '<rect x="' + (x + Math.floor(i / 5) * 16) + '" y="' + (10 + S - (i % 5 + 1) * (S / 10) - (i % 5) * 2) + '" width="' + (S / 10) + '" height="' + (S / 10) + '" fill="var(--v-one)" stroke="var(--v-ink)" stroke-width="1"/>'; groups.push({ x: x, w: Math.ceil(ones / 5) * 16, n: ones, name: "ones" }); x += Math.ceil(ones / 5) * 16 + gap; H = Math.max(H, 10 + S + 10); }
+    if (v.labels) { H += 30; groups.forEach(function (g) { body += '<text x="' + (g.x + g.w / 2) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="20" fill="var(--v-ink)" font-family="var(--font-ui)">' + g.n + " " + g.name + "</text>"; }); }
+    return '<div class="mdv mdv-blocks">' + svg(Math.max(x, 60), H, body) + "</div>";
+  };
+
+  // Fraction notation, with a whole number for a mixed number.
+  R.frac = function (v) {
+    var size = v.size || "lg";
+    var chars = String(v.n).length + String(v.d).length + (v.whole ? String(v.whole).length + 1 : 0);
+    function part(x) { return x === "?" ? '<span class="mdv-blank">?</span>' : esc(x); }
+    return '<div class="mdv mdv-frac mdv-frac--' + size + '" style="--chars:' + chars + '">' + (v.whole ? '<span class="mdv-frac__whole">' + esc(v.whole) + "</span>" : "") +
+      '<span class="mdv-frac__stack"><span class="mdv-frac__n">' + part(v.n) + '</span><span class="mdv-frac__d">' + part(v.d) + "</span></span></div>";
+  };
+
+  // Fraction bars, one or several to compare.
+  R.bar = function (v) {
+    var bars = v.bars || [{ d: v.d, shade: v.shade, label: v.label }];
+    var W = 360, H = 56, body = "", labelW = bars.some(function (b) { return b.label; }) ? 70 : 0;
+    bars.forEach(function (b, i) {
+      var y = i * (H + 16), pw = W / b.d;
+      for (var k = 0; k < b.d; k++) body += '<rect x="' + (labelW + k * pw) + '" y="' + y + '" width="' + pw + '" height="' + H + '" fill="' + (k < (b.shade || 0) ? col(b.c || "blue") : "var(--v-paper)") + '" stroke="var(--v-ink)" stroke-width="3"/>';
+      if (b.label) body += '<text x="' + (labelW - 12) + '" y="' + (y + H / 2 + 10) + '" text-anchor="end" font-size="28" font-weight="700" fill="var(--v-ink)" font-family="var(--font-child)">' + esc(b.label) + "</text>";
+    });
+    return '<div class="mdv mdv-bar">' + svg(W + labelW + 4, bars.length * (H + 16) - 12, body) + "</div>";
+  };
+
+  // An array or area model.
+  R.grid = function (v) {
+    var rows = v.rows, cols = v.cols, cell = 40, pad = v.labels ? 44 : 4, body = "", fill = v.fill || 0, sp = v.split;
+    for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
+      var idx = r * cols + c, x = pad + c * cell, y = pad + r * cell;
+      if (v.dots) body += '<circle cx="' + (x + cell / 2) + '" cy="' + (y + cell / 2) + '" r="' + (cell * 0.3) + '" fill="' + (!fill || idx < fill ? "var(--v-dot)" : "var(--v-line)") + '"/>';
+      else body += '<rect x="' + x + '" y="' + y + '" width="' + cell + '" height="' + cell + '" fill="' + (idx < fill ? "var(--v-blue)" : "var(--v-paper)") + '" stroke="var(--v-ink)" stroke-width="1.5"/>';
+    }
+    if (sp) {
+      var sx = pad + sp[1] * cell, sy = pad + sp[0] * cell;
+      body += '<line x1="' + sx + '" y1="' + pad + '" x2="' + sx + '" y2="' + (pad + rows * cell) + '" stroke="var(--v-accent)" stroke-width="5"/><line x1="' + pad + '" y1="' + sy + '" x2="' + (pad + cols * cell) + '" y2="' + sy + '" stroke="var(--v-accent)" stroke-width="5"/>';
+      if (v.partLabels) {
+        var cx = [pad + sp[1] * cell / 2, sx + (cols - sp[1]) * cell / 2], cy = [pad + sp[0] * cell / 2, sy + (rows - sp[0]) * cell / 2];
+        [[0, 0], [0, 1], [1, 0], [1, 1]].forEach(function (q, i) { if (v.partLabels[i]) body += '<text x="' + cx[q[1]] + '" y="' + (cy[q[0]] + 10) + '" text-anchor="middle" font-size="26" font-weight="700" fill="var(--v-ink)" font-family="var(--font-child)">' + esc(v.partLabels[i]) + "</text>"; });
+      }
+    }
+    if (v.labels) body += '<text x="' + (pad + cols * cell / 2) + '" y="30" text-anchor="middle" font-size="26" font-weight="700" fill="var(--v-ink)" font-family="var(--font-child)">' + esc(v.colLabel !== undefined ? v.colLabel : cols) + '</text><text x="22" y="' + (pad + rows * cell / 2 + 10) + '" text-anchor="middle" font-size="26" font-weight="700" fill="var(--v-ink)" font-family="var(--font-child)">' + esc(v.rowLabel !== undefined ? v.rowLabel : rows) + "</text>";
+    return '<div class="mdv mdv-grid">' + svg(pad + cols * cell + 4, pad + rows * cell + 4, body) + "</div>";
+  };
+
+  // A tape model.
+  R.tape = function (v) {
+    var parts = v.parts || [], W = 400, H = 60, top = v.total !== undefined ? 50 : 10, body = "", x = 10;
+    var total = parts.reduce(function (a, p) { return a + (p.len || 1); }, 0);
+    parts.forEach(function (p, i) {
+      var pw = (p.len || 1) / total * (W - 20), unknown = v.unknown === i;
+      body += '<rect x="' + x + '" y="' + top + '" width="' + pw + '" height="' + H + '" fill="' + (unknown ? "var(--v-soft)" : col(p.c || ["blue", "yellow", "green", "red"][i % 4])) + '" stroke="var(--v-ink)" stroke-width="3"/>';
+      body += '<text x="' + (x + pw / 2) + '" y="' + (top + H / 2 + 10) + '" text-anchor="middle" font-size="28" font-weight="700" fill="' + (unknown ? "var(--v-accent)" : "var(--v-ink)") + '" font-family="var(--font-child)">' + esc(unknown ? "?" : p.label !== undefined ? p.label : "") + "</text>";
+      x += pw;
+    });
+    if (v.total !== undefined) body += '<path d="M10 ' + (top - 14) + " v-8 h" + (W - 20) + ' v8" stroke="var(--v-ink)" stroke-width="3" fill="none"/><text x="' + (W / 2) + '" y="' + (top - 26) + '" text-anchor="middle" font-size="26" font-weight="700" fill="' + (v.total === "?" ? "var(--v-accent)" : "var(--v-ink)") + '" font-family="var(--font-child)">' + esc(v.total) + "</text>";
+    return '<div class="mdv mdv-tape">' + svg(W, top + H + 6, body) + "</div>";
+  };
+
+  // A table.
+  R.table = function (v) {
+    var html = '<div class="mdv mdv-table"><table>';
+    if (v.head && v.head.length) { html += "<thead><tr>"; v.head.forEach(function (h) { html += "<th>" + esc(h) + "</th>"; }); html += "</tr></thead>"; }
+    html += "<tbody>";
+    (v.rows || []).forEach(function (r) { html += "<tr>"; r.forEach(function (c) { html += "<td>" + (c === "?" ? '<span class="mdv-blank">?</span>' : esc(c)) + "</td>"; }); html += "</tr>"; });
+    return html + "</tbody></table></div>";
+  };
+
+  // A labeled figure.
+  R.geo = function (v) {
+    var s = v.s || "rect", W = 340, H = 260, pts;
+    var w = v.w || (s === "square" ? 1 : 1.5), h = v.h || 1;
+    var scale = Math.min(200 / w, 150 / h), bw = w * scale, bh = h * scale, ox = (W - bw) / 2, oy = (H - bh) / 2;
+    switch (s) {
+      case "square": case "rect": pts = [[ox, oy], [ox + bw, oy], [ox + bw, oy + bh], [ox, oy + bh]]; break;
+      case "tri": pts = [[ox + bw / 2, oy], [ox + bw, oy + bh], [ox, oy + bh]]; break;
+      case "right-tri": pts = [[ox, oy], [ox, oy + bh], [ox + bw, oy + bh]]; break;
+      case "para": pts = [[ox + bw * 0.25, oy], [ox + bw, oy], [ox + bw * 0.75, oy + bh], [ox, oy + bh]]; break;
+      case "trap": pts = [[ox + bw * 0.25, oy], [ox + bw * 0.75, oy], [ox + bw, oy + bh], [ox, oy + bh]]; break;
+      case "quad": pts = [[ox + bw * 0.15, oy], [ox + bw * 0.9, oy + bh * 0.1], [ox + bw, oy + bh], [ox, oy + bh * 0.75]]; break;
+      default: pts = (v.pts || [[50, 0], [100, 40], [80, 100], [20, 100], [0, 40]]).map(function (p) { return [ox + p[0] / 100 * bw, oy + p[1] / 100 * bh]; });
+    }
+    function unit(a, b) { var dx = a[0] - b[0], dy = a[1] - b[1], L = Math.hypot(dx, dy) || 1; return [dx / L, dy / L]; }
+    var body = '<polygon points="' + pts.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + '" fill="var(--v-soft)" stroke="var(--v-ink)" stroke-width="3" stroke-linejoin="round"/>';
+    var cx = pts.reduce(function (a, p) { return a + p[0]; }, 0) / pts.length, cy = pts.reduce(function (a, p) { return a + p[1]; }, 0) / pts.length;
+    (v.right || []).forEach(function (i) { var p = pts[i], u = unit(pts[(i + pts.length - 1) % pts.length], p), q = unit(pts[(i + 1) % pts.length], p), k = 14; body += '<path d="M' + (p[0] + u[0] * k) + " " + (p[1] + u[1] * k) + " L" + (p[0] + (u[0] + q[0]) * k) + " " + (p[1] + (u[1] + q[1]) * k) + " L" + (p[0] + q[0] * k) + " " + (p[1] + q[1] * k) + '" fill="none" stroke="var(--v-ink)" stroke-width="2"/>'; });
+    function label(x, y, text, color, size) { return '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" font-size="' + (size || 22) + '" font-weight="700" fill="' + (color || "var(--v-ink)") + '" font-family="var(--font-child)">' + esc(text) + "</text>"; }
+    (v.sides || []).forEach(function (lab, i) { if (!lab) return; var a = pts[i], b = pts[(i + 1) % pts.length], mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, nx = mx - cx, ny = my - cy, L = Math.hypot(nx, ny) || 1; body += label(mx + nx / L * 24, my + ny / L * 24 + 8, lab); });
+    (v.angles || []).forEach(function (lab, i) { if (!lab) return; var p = pts[i], nx = cx - p[0], ny = cy - p[1], L = Math.hypot(nx, ny) || 1; body += label(p[0] + nx / L * 32, p[1] + ny / L * 32 + 7, lab, "var(--v-accent)", 20); });
+    (v.names || []).forEach(function (lab, i) { if (!lab) return; var p = pts[i], nx = p[0] - cx, ny = p[1] - cy, L = Math.hypot(nx, ny) || 1; body += label(p[0] + nx / L * 20, p[1] + ny / L * 20 + 7, lab); });
+    return '<div class="mdv mdv-geo">' + svg(W, H, body) + "</div>";
+  };
+
+  // An angle, with a protractor laid on it if asked.
+  R.angle = function (v) {
+    var deg = v.deg, W = 340, H = 200, vx = 40, vy = 170, L = 250, rad = deg * Math.PI / 180, body = "";
+    if (v.protractor || deg > 90) { vx = 170; L = 150; }
+    if (v.protractor) {
+      var R0 = 150;
+      body += '<path d="M' + (vx - R0) + " " + vy + " A" + R0 + " " + R0 + " 0 0 1 " + (vx + R0) + " " + vy + ' Z" fill="var(--v-soft)" stroke="var(--v-line)" stroke-width="2"/>';
+      for (var d = 0; d <= 180; d += 10) {
+        var a = d * Math.PI / 180, inner = d % 30 === 0 ? R0 - 22 : R0 - 12;
+        body += '<line x1="' + (vx + inner * Math.cos(a)).toFixed(1) + '" y1="' + (vy - inner * Math.sin(a)).toFixed(1) + '" x2="' + (vx + R0 * Math.cos(a)).toFixed(1) + '" y2="' + (vy - R0 * Math.sin(a)).toFixed(1) + '" stroke="var(--v-ink)" stroke-width="1.5"/>';
+        if (d % 30 === 0) body += '<text x="' + (vx + (R0 - 38) * Math.cos(a)).toFixed(1) + '" y="' + (vy - (R0 - 38) * Math.sin(a) + 5).toFixed(1) + '" text-anchor="middle" font-size="13" fill="var(--v-ink)" font-family="var(--font-ui)">' + d + "</text>";
+      }
+    }
+    var ex = vx + L * Math.cos(rad), ey = vy - L * Math.sin(rad), arcR = 40;
+    if (deg === 90) body += '<path d="M' + (vx + 18) + " " + vy + ' v-18 h-18" fill="none" stroke="var(--v-accent)" stroke-width="3"/>';
+    else body += '<path d="M' + (vx + arcR) + " " + vy + " A" + arcR + " " + arcR + " 0 " + (deg > 180 ? 1 : 0) + " 0 " + (vx + arcR * Math.cos(rad)).toFixed(1) + " " + (vy - arcR * Math.sin(rad)).toFixed(1) + '" fill="none" stroke="var(--v-accent)" stroke-width="3"/>';
+    body += '<line x1="' + vx + '" y1="' + vy + '" x2="' + (vx + L) + '" y2="' + vy + '" stroke="var(--v-ink)" stroke-width="4" stroke-linecap="round"/><line x1="' + vx + '" y1="' + vy + '" x2="' + ex.toFixed(1) + '" y2="' + ey.toFixed(1) + '" stroke="var(--v-ink)" stroke-width="4" stroke-linecap="round"/><circle cx="' + vx + '" cy="' + vy + '" r="5" fill="var(--v-ink)"/>';
+    if (v.label) body += '<text x="' + (vx + 70 * Math.cos(rad / 2)).toFixed(1) + '" y="' + (vy - 70 * Math.sin(rad / 2) + 8).toFixed(1) + '" text-anchor="middle" font-size="24" font-weight="700" fill="var(--v-accent)" font-family="var(--font-child)">' + esc(v.label === true ? deg + "°" : v.label) + "</text>";
+    return '<div class="mdv mdv-angle">' + svg(W, H, body) + "</div>";
+  };
+
+  // A coordinate grid with points and lines.
+  R.coord = function (v) {
+    var w = v.w || 10, h = v.h || 10, cell = w > 12 || h > 12 ? 24 : 36, pad = 34, body = "", every = w > 12 || h > 12 ? 2 : 1;
+    for (var i = 0; i <= w; i++) body += '<line x1="' + (pad + i * cell) + '" y1="' + pad + '" x2="' + (pad + i * cell) + '" y2="' + (pad + h * cell) + '" stroke="' + (i ? "var(--v-line)" : "var(--v-ink)") + '" stroke-width="' + (i ? 1 : 3) + '"/>' + (i % every === 0 ? '<text x="' + (pad + i * cell) + '" y="' + (pad + h * cell + 24) + '" text-anchor="middle" font-size="16" fill="var(--v-ink)" font-family="var(--font-ui)">' + i + "</text>" : "");
+    for (var j = 0; j <= h; j++) body += '<line x1="' + pad + '" y1="' + (pad + h * cell - j * cell) + '" x2="' + (pad + w * cell) + '" y2="' + (pad + h * cell - j * cell) + '" stroke="' + (j ? "var(--v-line)" : "var(--v-ink)") + '" stroke-width="' + (j ? 1 : 3) + '"/>' + (j % every === 0 ? '<text x="' + (pad - 10) + '" y="' + (pad + h * cell - j * cell + 6) + '" text-anchor="end" font-size="16" fill="var(--v-ink)" font-family="var(--font-ui)">' + j + "</text>" : "");
+    var P = (v.points || []).map(function (p) { return [pad + p.x * cell, pad + h * cell - p.y * cell, p]; });
+    (v.lines || []).forEach(function (l) { var a = P[l[0]], b = P[l[1]]; if (a && b) body += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="var(--v-accent)" stroke-width="3"/>'; });
+    P.forEach(function (p, i) { body += (v.tap ? '<g class="mdv-tap" data-choice="' + i + '" tabindex="-1"><circle cx="' + p[0] + '" cy="' + p[1] + '" r="18" fill="transparent"/>' : "<g>") + '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="7" fill="var(--v-dot)"/>' + (p[2].label ? '<text x="' + (p[0] + 10) + '" y="' + (p[1] - 10) + '" font-size="20" font-weight="700" fill="var(--v-ink)" font-family="var(--font-child)">' + esc(p[2].label) + "</text>" : "") + "</g>"; });
+    return '<div class="mdv mdv-coord' + (v.tap ? " mdv-pickable" : "") + '" data-ans="' + (v.ans !== undefined ? v.ans : "") + '">' + svg(pad + w * cell + 12, pad + h * cell + 30, body) + "</div>";
+  };
+
+  // A ruler, with a bar laid along it to measure.
+  R.ruler = function (v) {
+    var len = v.len, unit = v.unit || "cm", u = unit === "in" ? 60 : 30, pad = 20, W = pad * 2 + len * u, H = v.obj !== undefined ? 130 : 80, y0 = H - 60, body = "";
+    body += '<rect x="' + pad + '" y="' + y0 + '" width="' + (len * u) + '" height="50" fill="var(--v-ten)" stroke="var(--v-ink)" stroke-width="2"/>';
+    for (var i = 0; i <= len; i++) {
+      var x = pad + i * u;
+      body += '<line x1="' + x + '" y1="' + y0 + '" x2="' + x + '" y2="' + (y0 + 22) + '" stroke="var(--v-ink)" stroke-width="2"/><text x="' + x + '" y="' + (y0 + 44) + '" text-anchor="middle" font-size="16" font-weight="700" fill="var(--v-ink)" font-family="var(--font-ui)">' + i + "</text>";
+      if (i < len) { var subs = unit === "in" ? 4 : 2; for (var k = 1; k < subs; k++) body += '<line x1="' + (x + k * u / subs) + '" y1="' + y0 + '" x2="' + (x + k * u / subs) + '" y2="' + (y0 + (subs === 4 && k === 2 ? 14 : 8)) + '" stroke="var(--v-ink)" stroke-width="1.5"/>'; }
+    }
+    body += '<text x="' + (W - pad - 4) + '" y="' + (y0 + 44) + '" text-anchor="end" font-size="14" fill="var(--v-ink)" font-family="var(--font-ui)">' + unit + "</text>";
+    if (v.obj !== undefined) body += '<rect x="' + (pad + (v.start || 0) * u) + '" y="' + (y0 - 46) + '" width="' + (v.obj * u) + '" height="30" rx="6" fill="' + col(v.c || "red") + '" stroke="var(--v-ink)" stroke-width="2"/>';
+    return '<div class="mdv mdv-ruler">' + svg(W, H, body) + "</div>";
+  };
+
+  // A box of unit cubes.
+  R.cubes = function (v) {
+    var l = v.l, w = v.w, h = v.h, s = 36, dx = s * 0.5, dy = s * 0.28, ox = 30, oy = 10 + w * dy, body = "";
+    function cubeAt(x, y, z) {
+      var X = ox + x * s + z * dx, Y = oy + y * s - z * dy;
+      return '<path d="M' + X + " " + Y + " h" + s + " v" + s + " h-" + s + ' z" fill="var(--v-ten)" stroke="var(--v-ink)" stroke-width="1.2"/><path d="M' + X + " " + Y + " l" + dx + " -" + dy + " h" + s + " l-" + dx + " " + dy + ' z" fill="var(--v-one)" stroke="var(--v-ink)" stroke-width="1.2"/><path d="M' + (X + s) + " " + Y + " l" + dx + " -" + dy + " v" + s + " l-" + dx + " " + dy + ' z" fill="var(--v-box)" stroke="var(--v-ink)" stroke-width="1.2"/>';
+    }
+    for (var z = w - 1; z >= 0; z--) for (var y = 0; y < h; y++) for (var x = 0; x < l; x++) body += cubeAt(x, y, z);
+    if (v.labels) body += '<text x="' + (ox + l * s / 2) + '" y="' + (oy + h * s + 24) + '" text-anchor="middle" font-size="18" fill="var(--v-ink)" font-family="var(--font-ui)">' + l + '</text><text x="' + (ox - 8) + '" y="' + (oy + h * s / 2 + 6) + '" text-anchor="end" font-size="18" fill="var(--v-ink)" font-family="var(--font-ui)">' + h + '</text><text x="' + (ox + l * s + w * dx + 8) + '" y="' + (oy + h * s - w * dy / 2) + '" font-size="18" fill="var(--v-ink)" font-family="var(--font-ui)">' + w + "</text>";
+    return '<div class="mdv mdv-cubes">' + svg(ox + l * s + w * dx + 40, oy + h * s + 30, body) + "</div>";
+  };
+
+  // Text in the interface face: a word problem, a science note, a hint.
+  R.prose = function (v) {
+    var html = '<div class="mdv mdv-prose">';
+    (v.lines || []).forEach(function (l) { html += "<p>" + esc(l) + "</p>"; });
+    return html + "</div>";
+  };
+
+  // A poem by stanzas, with words faded by a rule that the seed fixes.
+  R.poem = function (v) {
+    var fade = v.fade || 0, rand = rng((v.seed || 1) * 7919 + 17);
+    var html = '<div class="mdv mdv-poem" data-fade="' + esc(String(fade)) + '">';
+    (v.stanzas || []).forEach(function (st) {
+      html += '<div class="mdv-poem__stanza">';
+      st.forEach(function (line) {
+        if (fade === "rules") { html += '<span class="mdv-poem__rule" style="--n:' + Math.max(8, line.length) + '"></span>'; return; }
+        html += '<span class="mdv-poem__line">';
+        line.split(/(\s+)/).forEach(function (piece) {
+          if (!piece.trim()) { html += piece; return; }
+          var m = /^([^A-Za-z'’]*)([A-Za-z'’]+)(.*)$/.exec(piece);
+          if (!m) { html += esc(piece); return; }
+          var hide = fade === "first" || (typeof fade === "number" && rand() < fade);
+          if (!hide) html += esc(piece);
+          else if (fade === "first") html += esc(m[1]) + '<span class="mdv-poem__gap" data-word="' + esc(m[2]) + '">' + esc(m[2].charAt(0)) + '<span class="mdv-poem__rest" style="--n:' + (m[2].length - 1) + '"></span></span>' + esc(m[3]);
+          else html += esc(m[1]) + '<span class="mdv-poem__gap mdv-poem__gap--all" data-word="' + esc(m[2]) + '" style="--n:' + m[2].length + '"></span>' + esc(m[3]);
+        });
+        html += "</span>";
+      });
+      html += "</div>";
+    });
+    return html + "</div>";
+  };
+
+  // A hand-drawn diagram (src/assets/js/diagrams.js) with its labels.
+  R.diagram = function (v) {
+    var lib = window.MDDiagrams, d = lib && lib[v.kind];
+    if (!d) return '<div class="mdv mdv-diagram">' + svg(300, 200, '<rect x="4" y="4" width="292" height="192" rx="12" fill="var(--v-soft)" stroke="var(--v-line)" stroke-width="2"/><text x="150" y="108" text-anchor="middle" font-size="22" fill="var(--v-ink)" font-family="var(--font-ui)">' + esc(v.kind) + "</text>") + "</div>";
+    var body = d.draw(v), shownNames = v.labels;
+    (d.labels || []).forEach(function (lab, i) {
+      if (shownNames && shownNames.indexOf(lab.name) === -1) return;
+      var text = v.hide && v.hide.indexOf(lab.name) !== -1 ? "?" : lab.name;
+      var g = (lab.lx !== undefined ? '<line x1="' + lab.x + '" y1="' + (lab.y - 8) + '" x2="' + lab.lx + '" y2="' + lab.ly + '" stroke="var(--v-ink)" stroke-width="2"/>' : "") +
+        '<rect x="' + (lab.x - 6) + '" y="' + (lab.y - 20) + '" width="' + (text.length * 11 + 12) + '" height="26" rx="6" fill="var(--v-paper)" stroke="var(--v-line)" stroke-width="1.5"/><text x="' + lab.x + '" y="' + (lab.y - 2) + '" font-size="18" font-weight="700" fill="var(--v-ink)" font-family="var(--font-ui)">' + esc(text) + "</text>";
+      body += v.tap ? '<g class="mdv-tap" data-choice="' + i + '" tabindex="-1">' + g + "</g>" : "<g>" + g + "</g>";
+    });
+    return '<div class="mdv mdv-diagram' + (v.tap ? " mdv-pickable" : "") + '" data-ans="' + (v.ans !== undefined ? v.ans : "") + '">' + svg(d.w, d.h, body) + "</div>";
+  };
+
+  // Bar graphs and line plots join the picture and tally graphs.
+  var graphBase = R.graph;
+  R.graph = function (v, o) {
+    if (v.kind === "bar") return barGraph(v);
+    if (v.kind === "plot") return linePlot(v);
+    return graphBase(v, o);
+  };
+  function barGraph(v) {
+    var cats = v.cats || [], scale = v.scale || 1, top = Math.max.apply(null, cats.map(function (c) { return c.n; }).concat([scale])), steps = Math.ceil(top / scale);
+    var bw = 56, gap = 24, left = 50, bottom = 40, H = 220, W = left + cats.length * (bw + gap) + 10, body = "";
+    for (var s = 0; s <= steps; s++) { var y = 10 + (H - 10) * (1 - s / steps); body += '<line x1="' + left + '" y1="' + y.toFixed(1) + '" x2="' + (W - 10) + '" y2="' + y.toFixed(1) + '" stroke="var(--v-line)" stroke-width="1"/><text x="' + (left - 8) + '" y="' + (y + 6).toFixed(1) + '" text-anchor="end" font-size="16" fill="var(--v-ink)" font-family="var(--font-ui)">' + (s * scale) + "</text>"; }
+    cats.forEach(function (c, i) { var x = left + i * (bw + gap) + gap / 2, bh = (H - 10) * (c.n / (steps * scale)); body += '<rect x="' + x + '" y="' + (H - bh).toFixed(1) + '" width="' + bw + '" height="' + bh.toFixed(1) + '" fill="' + col(c.c || ["blue", "red", "green", "yellow", "purple"][i % 5]) + '" stroke="var(--v-ink)" stroke-width="2"/>' + (c.icon ? icon(c.icon, x + bw / 2 - 16, H + 6, 32) : '<text x="' + (x + bw / 2) + '" y="' + (H + 26) + '" text-anchor="middle" font-size="16" fill="var(--v-ink)" font-family="var(--font-ui)">' + esc(c.label || "") + "</text>"); });
+    body += '<line x1="' + left + '" y1="' + H + '" x2="' + (W - 10) + '" y2="' + H + '" stroke="var(--v-ink)" stroke-width="3"/><line x1="' + left + '" y1="10" x2="' + left + '" y2="' + H + '" stroke="var(--v-ink)" stroke-width="3"/>';
+    if (v.title) body += '<text x="' + (W / 2) + '" y="' + (H + bottom + 10) + '" text-anchor="middle" font-size="18" font-weight="700" fill="var(--v-ink)" font-family="var(--font-ui)">' + esc(v.title) + "</text>";
+    return '<div class="mdv mdv-graph mdv-graph--bar">' + svg(W, H + bottom + (v.title ? 18 : 0), body) + "</div>";
+  }
+  function linePlot(v) {
+    var cats = v.cats || [], step = 50, left = 24, W = left * 2 + Math.max(cats.length - 1, 1) * step, maxN = Math.max.apply(null, cats.map(function (c) { return c.n; }).concat([1])), H = 60 + maxN * 24 + (v.title ? 20 : 0), body = "";
+    body += '<line x1="' + left + '" y1="' + (H - 40) + '" x2="' + (W - left) + '" y2="' + (H - 40) + '" stroke="var(--v-ink)" stroke-width="3"/>';
+    cats.forEach(function (c, i) { var x = left + i * step; body += '<line x1="' + x + '" y1="' + (H - 48) + '" x2="' + x + '" y2="' + (H - 32) + '" stroke="var(--v-ink)" stroke-width="2"/><text x="' + x + '" y="' + (H - 10) + '" text-anchor="middle" font-size="18" font-weight="700" fill="var(--v-ink)" font-family="var(--font-child)">' + esc(c.label !== undefined ? c.label : c.v) + "</text>"; for (var k = 0; k < c.n; k++) body += '<text x="' + x + '" y="' + (H - 54 - k * 24) + '" text-anchor="middle" font-size="24" font-weight="700" fill="var(--v-accent)" font-family="var(--font-child)">×</text>'; });
+    if (v.title) body += '<text x="' + (W / 2) + '" y="18" text-anchor="middle" font-size="18" font-weight="700" fill="var(--v-ink)" font-family="var(--font-ui)">' + esc(v.title) + "</text>";
+    return '<div class="mdv mdv-graph mdv-graph--plot">' + svg(W, H, body) + "</div>";
+  }
+
   function render(spec, o) {
     if (!spec) return "";
     if (Array.isArray(spec)) {
@@ -928,7 +1251,7 @@
     return items.slice(0, -1).join(", ") + ", and " + items[items.length - 1];
   }
   function numWord(v) { return v === "?" || v === "_" ? "a blank" : String(v); }
-  function opWord(p) { return { "+": "plus", "−": "minus", "-": "minus", "=": "equals", "<": "is less than", ">": "is more than" }[p] || p; }
+  function opWord(p) { return { "+": "plus", "−": "minus", "-": "minus", "×": "times", "÷": "divided by", "=": "equals", "<": "is less than", ">": "is more than" }[p] || p; }
   function arrWord(arr) { return { row: "in a row", scatter: "scattered", dice: "in a dice pattern", col: "in a column", grid: "in rows", five: "in a five frame", circle: "in a circle" }[arr] || ""; }
   function clockWord(h, m) {
     if (m === 0) return h + " o'clock";
@@ -971,7 +1294,11 @@
       case "nl": return "a number line from " + v.from + " to " + v.to + (v.hl !== undefined && v.hl !== null ? ", with " + v.hl + " marked" : "") + (v.hops ? ", with hops from " + v.hops[0] + " to " + v.hops[1] : "");
       case "clock": return v.digital ? "a digital clock showing " + v.h + ":" + (v.m < 10 ? "0" + v.m : v.m) : v.noHands ? "a clock face with no hands" : "a clock showing " + clockWord(v.h, v.m);
       case "tally": return "tally marks for " + v.n;
-      case "graph": return "a " + (v.kind === "tally" ? "tally chart" : "picture graph") + ": " + list(v.cats.map(function (c) { return plural(c.n, c.icon); }));
+      case "graph": {
+        if (v.kind === "bar") return "a bar graph: " + list(v.cats.map(function (c) { return (c.label || c.icon) + " " + c.n; }));
+        if (v.kind === "plot") return "a line plot: " + list(v.cats.map(function (c) { return c.n + " at " + (c.label !== undefined ? c.label : c.v); }));
+        return "a " + (v.kind === "tally" ? "tally chart" : "picture graph") + ": " + list(v.cats.map(function (c) { return plural(c.n, c.icon); }));
+      }
       case "parts": return "a " + v.s + " cut into " + (v.cut || "halves").replace(/-.*/, "") + (v.shade ? ", " + v.shade + " part" + (v.shade > 1 ? "s" : "") + " shaded" : "");
       case "coins": return list((v.list || []).map(function (c) { return "a " + c; }));
       case "measure": return "a " + (v.icon || "stick") + " " + v.len + " units long";
@@ -984,6 +1311,23 @@
         if (v.kind === "words") return "the words " + list(lines);
         return (lines.length > 1 ? "lines of text: " : "a line of text: ") + lines.join(" ");
       }
+      case "colx": return (v.rows || []).join(" " + opWord(v.op) + " ") + ", written in columns" + (v.show ? ", with the answer " + v.ans : "");
+      case "mult": return v.a + " times " + v.b + " in columns" + (v.show ? ", with " + v.show + " partial product" + (v.show > 1 ? "s" : "") + " shown" : "");
+      case "ldiv": return v.a + " divided by " + v.b + " under the long division bracket" + (v.show ? ", " + v.show + " step" + (v.show > 1 ? "s" : "") + " shown" : "");
+      case "blocks": return "base-ten blocks: " + list([v.th ? plural(v.th, "thousand") : "", v.h ? plural(v.h, "hundred") : "", v.tens ? plural(v.tens, "ten") : "", v.ones ? plural(v.ones, "one") : ""].filter(Boolean));
+      case "frac": return (v.whole ? v.whole + " and " : "") + v.n + " over " + v.d;
+      case "bar": return list((v.bars || [{ d: v.d, shade: v.shade }]).map(function (b) { return "a bar in " + b.d + " parts with " + (b.shade || 0) + " shaded"; }));
+      case "grid": return "a grid of " + v.rows + " rows and " + v.cols + " columns" + (v.fill ? ", " + v.fill + " filled" : "") + (v.split ? ", cut in four" : "");
+      case "tape": return "a tape model with " + list((v.parts || []).map(function (p, i) { return v.unknown === i ? "a part marked ?" : "a part labeled " + (p.label !== undefined ? p.label : p.len); })) + (v.total !== undefined ? ", " + v.total + " over the whole" : "");
+      case "table": return "a table" + (v.head ? " with the columns " + list(v.head.map(String)) : "") + " and " + plural((v.rows || []).length, "row");
+      case "geo": return "a " + ({ rect: "rectangle", square: "square", tri: "triangle", "right-tri": "right triangle", quad: "quadrilateral", para: "parallelogram", trap: "trapezoid" }[v.s] || "figure") + (v.sides ? " with sides " + list(v.sides.filter(Boolean)) : "") + (v.angles ? " and angles " + list(v.angles.filter(Boolean)) : "");
+      case "angle": return "an angle" + (v.label ? " of " + (v.label === true ? v.deg + " degrees" : v.label) : "") + (v.protractor ? " under a protractor" : "");
+      case "coord": return "a coordinate grid " + v.w + " by " + v.h + (v.points && v.points.length ? " with points at " + list(v.points.map(function (p) { return (p.label ? p.label + " " : "") + "(" + p.x + ", " + p.y + ")"; })) : "");
+      case "ruler": return "a ruler of " + v.len + " " + (v.unit === "in" ? "inches" : "centimeters") + (v.obj !== undefined ? " with a bar " + v.obj + " long laid on it" : "");
+      case "cubes": return "a box of unit cubes, " + v.l + " by " + v.w + " by " + v.h;
+      case "prose": return "text: " + (v.lines || []).join(" ");
+      case "poem": return "a poem of " + plural((v.stanzas || []).length, "stanza") + (v.fade === "rules" ? ", shown as blank lines" : v.fade === "first" ? ", with first letters only" : v.fade ? ", with some words hidden" : "");
+      case "diagram": return "a diagram of " + ({ plant: "a plant", insect: "an insect", body: "the body", "earth-sun-moon": "the earth, sun, and moon", "water-cycle": "the water cycle", circuit: "a circuit", "food-chain": "a food chain" }[v.kind] || v.kind) + (v.labels && v.labels.length ? " with the labels " + list(v.labels) : "");
       default: return "";
     }
   }
@@ -1014,6 +1358,8 @@
       case "match": return idx === 0 ? "the top row" : "the bottom row";
       case "lineup": return "the " + ordinal(idx) + " in line, the " + (ICON_WORD[g.icons[idx]] || g.icons[idx]);
       case "size": return g.kind === "heavy" && g.names ? "the " + g.names[idx] : "the " + ordinal(idx) + " one";
+      case "coord": { var pt = (g.points || [])[idx]; return pt ? "the point " + (pt.label ? pt.label + ", " : "") + "(" + pt.x + ", " + pt.y + ")" : "the " + ordinal(idx) + " point"; }
+      case "diagram": { var lib = window.MDDiagrams, dd = lib && lib[g.kind], lab = dd && dd.labels && dd.labels[idx]; return lab ? "the label " + lab.name : "the " + ordinal(idx) + " label"; }
       default: return "the " + ordinal(idx) + " one";
     }
   }

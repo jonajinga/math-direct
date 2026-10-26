@@ -1,6 +1,9 @@
 // Checks every lesson against the rules in docs/curriculum-plan.md. Any
 // error stops the build, so a broken lesson can never reach a child.
 
+import { readableOf, parseAnswer, answerText } from "./numbers.js";
+import { DIAGRAMS } from "./v.js";
+
 export const STEP_SECONDS = { model: 18, lead: 14, test: 12, note: 20 };
 // About how long one step takes, for the lesson estimate and the density cap.
 export function stepSeconds(st) {
@@ -10,8 +13,10 @@ export function stepSeconds(st) {
   return t;
 }
 export const BANNED = /\b(brilliant|fantastic|awesome|amazing|super job|great job|good job|way to go|superstar|genius|wow)\b/i;
-const NUMERAL_TYPES = new Set(["num", "seq", "eq", "col", "family"]);
-const QUANTITY_TYPES = new Set(["dots", "obj", "frame", "story", "match", "pv"]);
+const NUMERAL_TYPES = new Set(["num", "seq", "eq", "col", "family", "colx", "mult", "ldiv", "frac"]);
+const QUANTITY_TYPES = new Set(["dots", "obj", "frame", "story", "match", "pv", "blocks"]);
+const KNOWN_TYPES = new Set(["say", "num", "sign", "seq", "dots", "obj", "frame", "eq", "col", "choices", "row", "stack", "match", "shape", "solid", "scene", "lineup", "size", "pattern", "story", "family", "pv", "nl", "clock", "graph", "tally", "parts", "coins", "measure", "text", "blank",
+  "colx", "mult", "ldiv", "blocks", "frac", "bar", "grid", "tape", "table", "geo", "angle", "coord", "ruler", "cubes", "prose", "poem", "diagram"]);
 
 function walk(vis, fn) {
   if (!vis) return;
@@ -64,17 +69,33 @@ export function validateIndependent(level, lesson, errors) {
   });
 }
 
-// Every number printed on the child's screen.
+// Every number printed on the child's screen: whole numbers as numbers,
+// fractions and decimals as values (see numbers.js).
 function printedNumbers(screen) {
   const out = [];
   walk(screen, (v) => {
-    const add = (x) => { if (typeof x === "number") out.push(x); };
+    const add = (x) => { if (typeof x === "number") out.push(x); else if (typeof x === "string" && /^\d/.test(x)) { const p = parseAnswer(x); if (p) out.push(p.kind === "int" ? p.value : p); } };
     if (v.t === "num") (Array.isArray(v.v) ? v.v : [v.v]).forEach(add);
     if (v.t === "eq") v.parts.forEach(add);
     if (v.t === "seq") v.items.forEach(add);
     if (v.t === "family") { if (v.miss !== "a") add(v.a); if (v.miss !== "b") add(v.b); if (v.miss !== "c") add(v.c); }
     if (v.t === "col") { add(v.a); add(v.b); if (v.show) add(v.ans); }
-    if (v.t === "nl") for (let i = v.from; i <= v.to; i++) add(i);
+    if (v.t === "colx") { (v.rows || []).forEach(add); if (v.show) add(v.ans); }
+    if (v.t === "mult") { add(v.a); add(v.b); (v.partials || []).slice(0, v.show || 0).forEach((p) => add(p.value)); }
+    if (v.t === "ldiv") { add(v.a); add(v.b); }
+    if (v.t === "frac") out.push({ kind: v.whole ? "mixed" : "frac", n: v.n, d: v.d, whole: v.whole, value: (v.whole || 0) + v.n / v.d });
+    if (v.t === "nl") {
+      const by = v.by || 1;
+      if (v.denom) { for (let i = v.from; i <= v.to; i++) add(i); }
+      else for (let x = v.from; x <= v.to + 1e-9; x += by) add(Number.isInteger(by) ? x : Number(x.toFixed(String(by).split(".")[1]?.length || 1)));
+      (v.points || []).forEach((p) => add(p.v));
+    }
+    if (v.t === "grid" && v.labels) { add(v.rows); add(v.cols); }
+    if (v.t === "table") (v.rows || []).forEach((r) => r.forEach(add));
+    if (v.t === "coord") (v.points || []).forEach((p) => { add(p.x); add(p.y); });
+    if (v.t === "ruler") for (let i = 0; i <= v.len; i++) add(i);
+    if (v.t === "graph" && v.kind === "bar") { const top = Math.max(...v.cats.map((c) => c.n), 0), sc = v.scale || 1; for (let y = 0; y <= top; y += sc) add(y); }
+    if (v.t === "graph" && v.kind === "plot") v.cats.forEach((c) => add(c.v !== undefined ? c.v : c.label));
   });
   return out;
 }
@@ -101,10 +122,10 @@ export function checkReadable(level, n, st, where, errors) {
       }
     });
   }
-  if (!level.readable) return;
-  const known = level.readable(n);
+  const known = readableOf(level, n);
+  if (!known) return;
   for (const x of printedNumbers(st.screen)) {
-    if (!known.has(x)) { errors.push(`${where}: shows ${x}, which is not taught to read until later`); break; }
+    if (!known.has(x)) { errors.push(`${where}: shows ${typeof x === "number" ? x : answerText(x)}, which is not taught to read until later`); break; }
   }
 }
 
@@ -117,6 +138,27 @@ export function validateStep(st, where, errors) {
     if (/!/.test(v)) errors.push(`${where}: exclamation mark in ${field}: "${v}"`);
     if (BANNED.test(v)) errors.push(`${where}: effusive praise in ${field}: "${v}"`);
     if (/undefined|NaN|\[object/.test(v)) errors.push(`${where}: broken text in ${field}: "${v}"`);
+  }
+  // Hints on a puzzle: one to three, each a plain line that does not give
+  // the answer away.
+  if (st.hints !== undefined) {
+    if (!Array.isArray(st.hints) || !st.hints.length || st.hints.length > 3) errors.push(`${where}: a puzzle has one to three hints`);
+    else {
+      const a = norm(st.answer).split(" ").filter((w) => w.length > 0);
+      const key = a.slice(0, Math.min(a.length, 4)).join(" ");
+      const val = parseAnswer(st.answer);
+      st.hints.forEach((h, i) => {
+        if (typeof h !== "string" || !h.trim()) errors.push(`${where}: hint ${i + 1} is empty`);
+        else {
+          if (/!/.test(h)) errors.push(`${where}: exclamation mark in hint ${i + 1}`);
+          if (BANNED.test(h)) errors.push(`${where}: effusive praise in hint ${i + 1}`);
+          const hn = norm(h);
+          if (key && !st.answer.startsWith("(") && hn.includes(key)) errors.push(`${where}: hint ${i + 1} gives the answer away`);
+          if (val && val.kind === "int" && new RegExp(`\\b${val.value}\\b|\\bis ${norm(answerText(val))}\\b`).test(hn)) errors.push(`${where}: hint ${i + 1} names the answer`);
+        }
+      });
+    }
+    if (st.cue !== "test") errors.push(`${where}: hints belong on a test step`);
   }
   if (st.cue === "lead" && !st.answer) errors.push(`${where}: lead step has no answer`);
   if (st.cue === "test") {
@@ -140,6 +182,39 @@ export function validateStep(st, where, errors) {
     if (types.some((v) => v.t === "num" && v.dots)) errors.push(`${where}: reading step shows dots under the numeral`);
   }
   for (const v of types) {
+    if (v.t && !KNOWN_TYPES.has(v.t)) errors.push(`${where}: unknown picture type "${v.t}"`);
+    if (v.t === "colx") {
+      if (!Array.isArray(v.rows) || v.rows.length < 2) errors.push(`${where}: column work needs two or more rows`);
+      else if (v.rows.some((r) => String(r).replace(/\D/g, "").length > 6)) errors.push(`${where}: column work holds at most six digits`);
+      if (!["+", "−", "-", "×"].includes(v.op)) errors.push(`${where}: bad column operator "${v.op}"`);
+    }
+    if (v.t === "mult" && v.partials && v.show > v.partials.length) errors.push(`${where}: shows more partial products than it has`);
+    if (v.t === "ldiv" && v.show > (v.steps || []).length) errors.push(`${where}: shows more division steps than it has`);
+    if (v.t === "blocks" && [v.th, v.h, v.tens, v.ones].some((x) => !(x >= 0) || x > 9)) errors.push(`${where}: blocks hold 0 to 9 of each kind`);
+    if (v.t === "frac" && (!(v.d >= 2) || !(v.n >= 0))) errors.push(`${where}: a fraction needs a denominator of 2 or more`);
+    if (v.t === "bar") {
+      const bars = v.bars || [{ d: v.d, shade: v.shade }];
+      if (bars.some((b) => !(b.d >= 1) || b.d > 12 || b.shade > b.d)) errors.push(`${where}: a fraction bar has 1 to 12 parts, with no more shaded than it has`);
+    }
+    if (v.t === "grid" && (!(v.rows >= 1) || !(v.cols >= 1) || v.rows * v.cols > 144)) errors.push(`${where}: a grid is 1 to 144 cells`);
+    if (v.t === "tape" && (!Array.isArray(v.parts) || !v.parts.length || v.parts.length > 6)) errors.push(`${where}: a tape model has 1 to 6 parts`);
+    if (v.t === "table" && (!Array.isArray(v.rows) || v.rows.length > 8 || (v.head && v.head.length > 5))) errors.push(`${where}: a table has at most 8 rows and 5 columns`);
+    if (v.t === "coord" && (v.points || []).some((p) => p.x < 0 || p.y < 0 || p.x > v.w || p.y > v.h)) errors.push(`${where}: a point is off the grid`);
+    if (v.t === "angle" && !(v.deg > 0 && v.deg < 360)) errors.push(`${where}: an angle is between 0 and 360 degrees`);
+    if (v.t === "ruler" && (!(v.len >= 1) || v.len > 30)) errors.push(`${where}: a ruler is 1 to 30 units`);
+    if (v.t === "cubes" && [v.l, v.w, v.h].some((x) => !(x >= 1) || x > 6)) errors.push(`${where}: a box of cubes is 1 to 6 each way`);
+    if (v.t === "prose") {
+      if (!Array.isArray(v.lines) || !v.lines.length || v.lines.length > 8) errors.push(`${where}: prose is one to eight lines`);
+      else if (v.lines.some((l) => String(l).length > 90)) errors.push(`${where}: a prose line of more than 90 characters`);
+      if ((v.lines || []).some((l) => /!/.test(l))) errors.push(`${where}: exclamation mark in prose`);
+    }
+    if (v.t === "poem") {
+      if (!Array.isArray(v.stanzas) || !v.stanzas.length) errors.push(`${where}: a poem with no stanzas`);
+      else if (v.stanzas.some((s) => !Array.isArray(s) || !s.length || s.length > 4)) errors.push(`${where}: a poem shows one to four lines a stanza`);
+      if (!(v.fade === 0 || v.fade === undefined || (typeof v.fade === "number" && v.fade > 0 && v.fade < 1) || v.fade === "first" || v.fade === "rules")) errors.push(`${where}: bad poem fade "${v.fade}"`);
+    }
+    if (v.t === "diagram" && !DIAGRAMS.includes(v.kind)) errors.push(`${where}: unknown diagram "${v.kind}"`);
+    if (v.t === "graph" && !["picture", "tally", "bar", "plot"].includes(v.kind || "picture")) errors.push(`${where}: bad graph kind "${v.kind}"`);
     if (v.t === "choices") {
       if (!Array.isArray(v.opts) || !v.opts.length) errors.push(`${where}: choices without options`);
       const ans = Array.isArray(v.ans) ? v.ans : [v.ans];
@@ -202,6 +277,10 @@ export function validateLevel(level, built) {
       } else if (ex.kind === "checkout") {
         if (!(ex.words > 0) || !(ex.goal > 0)) errors.push(`${E}: a checkout needs its word count and goal`);
         if (ex.steps.some((s) => s.cue !== "note" || !hasTextVisual(s.screen))) errors.push(`${E}: a checkout shows lines of text and nothing else`);
+      } else if (ex.kind === "puzzle") {
+        const tests = ex.steps.filter((s) => s.cue === "test");
+        if (!tests.length || tests.length > 2) errors.push(`${E}: a puzzle has one or two test steps`);
+        if (!tests.some((s) => s.hints && s.hints.length)) errors.push(`${E}: a puzzle needs hints on its test step`);
       } else if (!ex.steps.some((s) => s.cue === "test")) {
         errors.push(`${E}: ${ex.kind} exercise without a test step`);
       }
@@ -226,12 +305,18 @@ export function validateLevel(level, built) {
     const responses = lesson.exercises.reduce((a, e) => a + e.steps.filter((st) => st.cue === "test").length, 0) + (lesson.independent ? lesson.independent.steps.length : 0);
     lesson.responses = responses;
     if (steps > (level.maxSteps || 80)) errors.push(`${L}: ${steps} steps, more than the ${level.maxSteps} allowed`);
-    // Direct Instruction density: a band of minutes, and several answers a minute.
+    // Direct Instruction density: a band of minutes, and several answers a
+    // minute. A puzzle is slow by design: its time is left out of the pace,
+    // and puzzles may not take more than two fifths of a lesson.
+    const puzzleSeconds = lesson.exercises.filter((e) => e.kind === "puzzle").reduce((a, e) => a + 10 + e.steps.reduce((b, st) => b + stepSeconds(st), 0), 0);
+    const paceMinutes = Math.max(0, lesson.minutes - puzzleSeconds / 60);
+    const paceResponses = responses - lesson.exercises.filter((e) => e.kind === "puzzle").reduce((a, e) => a + e.steps.filter((st) => st.cue === "test").length, 0);
     if (level.minutesBand && lesson.number > 3) {
       const [lo, hi] = level.minutesBand;
       if (lesson.minutes < lo - 2 || lesson.minutes > hi + 2) warnings.push(`${L}: about ${lesson.minutes} minutes, outside ${lo} to ${hi}`);
     }
-    if (lesson.minutes >= 4 && responses / lesson.minutes < 2.5) warnings.push(`${L}: ${responses} answers in about ${lesson.minutes} minutes, fewer than three a minute`);
+    if (paceMinutes >= 4 && paceResponses / paceMinutes < 2.5) warnings.push(`${L}: ${paceResponses} answers in about ${Math.round(paceMinutes)} minutes, fewer than three a minute`);
+    if (puzzleSeconds > 0 && puzzleSeconds > lesson.minutes * 60 * 0.4) warnings.push(`${L}: puzzles take ${Math.round(puzzleSeconds / 60)} of ${lesson.minutes} minutes, more than two fifths`);
   }
   // Gaps: once a track has begun, it must come back often.
   for (const t of level.tracks) {
@@ -245,7 +330,7 @@ export function validateLevel(level, built) {
     let last = first;
     for (const n of lessons.concat([end + 1])) {
       if (n < first) continue;
-      if (n - last > level.maxGap && last <= end) {
+      if (n - last > (t.maxGap || level.maxGap) && last <= end) {
         errors.push(`${level.id}/${t.id}: not seen between lessons ${last} and ${n}`);
       }
       last = n;

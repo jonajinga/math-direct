@@ -202,7 +202,7 @@ await page.waitForTimeout(200);
 check("Practice offers the timed check once the child is in First Grade", await visible("[data-timed-row]"));
 await page.goto(BASE + "/timed/", { waitUntil: "load" });
 await page.waitForTimeout(300);
-await page.click("[data-start-timed]");
+await page.click("[data-timed]");
 await page.waitForTimeout(200);
 check("the timed check runs with a clock in the strip", /s left/.test(await page.textContent("#rn-where")), await page.textContent("#rn-where"));
 for (let i = 0; i < 12; i++) { await page.click(i % 4 === 3 ? "#btn-error" : "#btn-firm"); await page.waitForTimeout(30); }

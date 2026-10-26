@@ -18,9 +18,10 @@
     "check:keys": "node scripts/check-keyboard.mjs",
     "check:import": "node scripts/check-import.mjs",
     "check:dot": "node scripts/check-dot.mjs",
+    "check:hint": "node scripts/check-hint.mjs",
     "check:style": "node scripts/check-style.mjs",
     "check:all": "npm run check && npm run clean && npm run build && npm run check:pwa && npm run check:copy && npm run check:style",
-    "check:browser": "npm run check:fit && npm run check:session && npm run check:program && npm run check:a11y && npm run check:keys && npm run check:import && npm run check:dot"
+    "check:browser": "npm run check:fit && npm run check:session && npm run check:program && npm run check:a11y && npm run check:keys && npm run check:import && npm run check:dot && npm run check:hint"
   },
   "keywords": [
     "math",

@@ -9,6 +9,8 @@
 //     tests: { testId: [summary, ...] },
 //     facts: { "3+2": { r: [1,0,1], t, last } }, last five results for each fact, with seconds
 //     sounds: { "th": { r, t, last } },         the same for each sound, in reading
+//     sightWords: { "the": { r, t, last } },    the same for each sight word
+//     poems: { slug: { stage, history: [{ date, stage, errors, recited }], last, byHeart } },
 //     checkouts: [{ date, level, lesson, words, seconds, errors, wpm, goal }],  timed reading
 //     placements: { math: { level, lesson, url, label, date }, reading: {...} },
 //     last: { math: { id, date }, reading: { id, date } },   the last lesson taught in each subject
@@ -20,11 +22,12 @@
   var PROFILES_KEY = "math-direct-profiles";
   var ACTIVE_KEY = "math-direct-active-profile";
   var LEGACY_KEY = "math-direct-progress";
-  var VERSION = 5;
+  var VERSION = 6;
 
-  // The subject a level or lesson id belongs to: the reading levels are
-  // "reading-1" and "reading-2"; every other level is math.
-  function subjectOf(id) { return /^reading/.test(String(id || "")) ? "reading" : "math"; }
+  // The subject a level or lesson id belongs to, by its prefix; every other
+  // level is math.
+  var SUBJECT_PREFIX = { "reading-": "reading", "science-": "science", "poetry-": "poetry" };
+  function subjectOf(id) { id = String(id || ""); for (var k in SUBJECT_PREFIX) if (id.indexOf(k) === 0) return SUBJECT_PREFIX[k]; return "math"; }
 
   function read() {
     try { return JSON.parse(localStorage.getItem(PROFILES_KEY) || "[]"); } catch (e) { return []; }
@@ -48,6 +51,9 @@
     if (!p.timed) p.timed = [];
     if (!p.sounds) p.sounds = {};
     if (!p.checkouts) p.checkouts = [];
+    // Version 6 adds sight words and poems.
+    if (!p.sightWords) p.sightWords = {};
+    if (!p.poems) p.poems = {};
     if (!p.placements) p.placements = {};
     // Version 4 kept one placement and one last lesson; version 5 keeps one of each for each subject.
     if (p.placement && p.placement.level && !p.placements[subjectOf(p.placement.level)]) p.placements[subjectOf(p.placement.level)] = p.placement;
@@ -263,6 +269,7 @@
         var cur = p.items[k] || { r: [] };
         cur.r = cur.r.concat([items[k].first ? 1 : 0]).slice(-5);
         cur.last = date || new Date().toISOString();
+        if (items[k].hints !== undefined) cur.h = items[k].hints;
         p.items[k] = cur;
       }
     });
@@ -345,6 +352,30 @@
     updateProfile(childId, function (p) { p.checkouts = (p.checkouts || []).concat([rec]).slice(-40); });
   }
   function recordCheckout(rec) { recordCheckoutFor(null, rec); }
+  // Sight words, kept like sounds: the last five results and seconds.
+  function recordSightWordFor(childId, word, firm, ms) {
+    updateProfile(childId, function (p) {
+      var cur = p.sightWords[word] || { r: [], t: [] };
+      cur.r = cur.r.concat([firm ? 1 : 0]).slice(-5);
+      cur.t = (cur.t || []).concat([typeof ms === "number" ? Math.round(ms / 100) / 10 : null]).slice(-5);
+      cur.last = new Date().toISOString();
+      p.sightWords[word] = cur;
+    });
+  }
+  function recordSightWord(word, firm, ms) { recordSightWordFor(null, word, firm, ms); }
+  // A poem: its stage (how much is faded), its history, and whether it is by heart.
+  function recordPoemFor(childId, slug, entry) {
+    updateProfile(childId, function (p) {
+      var cur = p.poems[slug] || { stage: 0, history: [] };
+      if (entry.stage !== undefined) cur.stage = entry.stage;
+      var date = entry.date || new Date().toISOString();
+      cur.history = (cur.history || []).concat([{ date: date, stage: entry.stage, errors: entry.errors || 0, recited: !!entry.recited }]).slice(-12);
+      cur.last = date;
+      if (entry.byHeart) cur.byHeart = date;
+      p.poems[slug] = cur;
+    });
+  }
+  function recordPoem(slug, entry) { recordPoemFor(null, slug, entry); }
 
   // ── Notes ──
   function addNoteFor(childId, text, ref) {
@@ -389,6 +420,8 @@
     });
     Object.keys(src.facts).forEach(function (f) { if (!target.facts[f]) target.facts[f] = src.facts[f]; });
     Object.keys(src.sounds || {}).forEach(function (f) { if (!target.sounds[f]) target.sounds[f] = src.sounds[f]; });
+    Object.keys(src.sightWords || {}).forEach(function (f) { if (!target.sightWords[f]) target.sightWords[f] = src.sightWords[f]; });
+    Object.keys(src.poems || {}).forEach(function (k) { var sp = src.poems[k], tp = target.poems[k]; if (sp && (!tp || (sp.last || "") > (tp.last || ""))) target.poems[k] = sp; });
     target.checkouts = (target.checkouts || []).concat(src.checkouts || []).sort(function (a, b) { return a.date < b.date ? -1 : 1; }).slice(-40);
     Object.keys(src.placements || {}).forEach(function (s) { var sp = src.placements[s], tp = target.placements[s]; if (sp && (!tp || sp.date > tp.date)) target.placements[s] = sp; });
     Object.keys(src.last || {}).forEach(function (s) { var sl = src.last[s], tl = target.last[s]; if (sl && (!tl || sl.date > tl.date)) target.last[s] = sl; });
@@ -556,6 +589,7 @@
     lessonStatus: lessonStatus, setLessonStatus: setLessonStatus, testStatus: testStatus, setTestStatus: setTestStatus,
     recordTest: recordTest, recordPlacement: recordPlacement, getPlacement: getPlacement, recordFact: recordFact, recordFactFor: recordFactFor, factStatus: factStatus,
     recordSound: recordSound, recordSoundFor: recordSoundFor, soundStatus: soundStatus, missedRecently: missedRecently, recordCheckout: recordCheckout, recordCheckoutFor: recordCheckoutFor, subjectOf: subjectOf, subjectOrder: subjectOrder,
+    recordSightWord: recordSightWord, recordSightWordFor: recordSightWordFor, sightWordStatus: soundStatus, recordPoem: recordPoem, recordPoemFor: recordPoemFor,
     recordItems: recordItems, recordItemsFor: recordItemsFor, itemHistory: itemHistory, recordTimed: recordTimed,
     addNote: addNote, addNoteFor: addNoteFor, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
     exportAllProfiles: exportAllProfiles, importProfiles: importProfiles,

@@ -4,6 +4,7 @@ import {
   V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural,
   countTest, touchCount, readNum, touchNum, flashTest, touchChoice, iconSeq, favorNew, others,
 } from "./common.js";
+import { factStep } from "../lib/facts.js";
 const isAre = (n) => (n === 1 ? "is" : "are");
 import {
   compare as prekCompare, position as prekPosition, numerals as prekNumerals, retrack,
@@ -593,46 +594,9 @@ function addScreen(a, b, icon, ans) {
   return [V.eq(a, "+", b, "=", ans === undefined ? "?" : ans), V.row(V.obj(icon, a, { size: "md" }), V.sign("+"), V.obj(icon, b, { size: "md" }))];
 }
 
-// The rule a child uses to work out a fact, said as part of the correction.
-export function factHint(a, op, b) {
-  if (op === "+") {
-    const big = Math.max(a, b), small = Math.min(a, b);
-    if (b === 0) return "Plus zero: the number stays the same.";
-    if (a === 0) return `Zero plus a number is that number. Zero plus ${word(b)} is ${word(b)}.`;
-    if (small === 1) return `Plus one is the next number. ${Word(big)}, ${word(big + 1)}. ${Word(big + 1)} comes after ${word(big)}.`;
-    if (small === 2) return `Start with ${word(big)} and count on two: ${word(big + 1)}, ${word(big + 2)}.`;
-    if (a === b) return `It is a double. ${Word(a)} plus ${word(a)} is ${word(2 * a)}.`;
-    if (Math.abs(a - b) === 1) return `It is a double plus one. ${Word(small)} plus ${word(small)} is ${word(2 * small)}, and one more is ${word(2 * small + 1)}.`;
-    if (big === 10) return `Ten plus a number is a teen number. Ten and ${word(small)} make ${word(10 + small)}.`;
-    if (a + b > 10 && big >= 7) {
-      const need = 10 - big, left = small - need;
-      return `${Word(big)} needs ${word(need)} more to make ten. Take ${word(need)} from the ${word(small)}. ${Word(left)} ${left === 1 ? "is" : "are"} left. Ten plus ${word(left)} is ${word(10 + left)}.`;
-    }
-    if (a < b) return `Turn it around and start with the bigger number: ${word(b)}... ${chain(b + 1, a + b)}.`;
-    return `Start with ${word(big)} and count on ${word(small)}: ${chain(big + 1, big + small)}.`;
-  }
-  const ans = a - b;
-  if (b === 0) return "Minus zero: the number stays the same.";
-  if (b === a) return "A number minus itself is zero.";
-  if (b === 1) return `Minus one is the number before. ${Word(a - 1)} comes just before ${word(a)}.`;
-  if (b === 2) return `Start at ${word(a)} and count back two: ${word(a - 1)}, ${word(a - 2)}.`;
-  if (b === 10 && a === 20) return "Twenty is two tens. Take away one ten, and one ten is left. That is ten.";
-  if (b === 10) return `${Word(a)} is ten and ${word(ans)}. Take away the ten. ${Word(ans)} ${ans === 1 ? "is" : "are"} left.`;
-  if (a === 10) return `${Word(b)} and ${word(ans)} make ten.`;
-  if (b === 9) return `Take away ten, then give one back. ${Word(a)} minus ten is ${word(a - 10)}, and one more is ${word(ans)}.`;
-  return `Think of the family: ${word(b)} and what make ${word(a)}? ${Word(b)} and ${word(ans)}.`;
-}
-
-export function factStep(a, op, b, opts = {}) {
-  const ans = op === "+" ? a + b : a - b;
-  const opWord = op === "+" ? "plus" : "minus";
-  return test(V.eq(a, op, b, "=", "?"), opts.say || `${Word(a)} ${opWord} ${word(b)} is how many?`, Word(ans) + ".",
-    fix(Word(ans) + ".", `${Word(a)} ${opWord} ${word(b)} is how many?`, opts.preface !== undefined ? opts.preface : factHint(a, op === "+" ? "+" : "−", b)), {
-      skill: op === "+" ? "add" : "subtract",
-      item: `fact:${a}${op}${b}`,
-      fact: `${a}${op === "+" ? "+" : "-"}${b}`,
-    });
-}
+// The fact helpers live in lib/facts.js; they are re-exported here for the
+// levels that import them from this file.
+export { factHint, factStep } from "../lib/facts.js";
 
 const addition = {
   id: "addition",
