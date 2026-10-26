@@ -6,9 +6,9 @@ import fs from "node:fs";
 import path from "node:path";
 
 const site = process.argv[2] || "_site";
-const words = /\b(printable|print(?:s|ed|ing)?|worksheets?|pencils?|crayons?|trac(?:e|ing)|dark mode|handwriting)\b|\bwrite (?:the|a|an|each) (?:number|numeral|digit)s?\b|\bon (?:your |the )?paper\b/i;
+const words = /\b(printable|print(?:s|ed|ing)?|worksheets?|pencils?|crayons?|trac(?:e|ing)|dark mode|handwriting|click(?:s|ed|ing)?|sliders?)\b|\bwrite (?:the|a|an|each) (?:number|numeral|digit)s?\b|\bon (?:your |the )?paper\b/i;
 // Looks like a hit but is not: "paper clips" is a real object the child counts.
-const allowed = /paper clips?|fingerprint|footprint|blueprint/gi;
+const allowed = /paper clips?|fingerprint|footprint|blueprint|addEventListener\("click"|\.click\(\)/gi;
 // Lesson data keys whose text the parent reads.
 const COPY_KEYS = new Set(["say", "do", "answer", "confirm", "correct", "title", "label", "materials", "summary", "name", "prompt", "text", "description", "endsWith", "tagline"]);
 
@@ -52,4 +52,4 @@ for (const file of files) {
   }
 }
 if (hits.length) { console.error("check-copy: " + hits.length + " hit(s)\n  " + hits.slice(0, 60).join("\n  ")); process.exit(1); }
-console.log("check-copy: no paper, printing, writing, or dark-mode words in " + files.length + " files.");
+console.log("check-copy: no paper, printing, writing, clicking, slider, or dark-mode words in " + files.length + " files.");

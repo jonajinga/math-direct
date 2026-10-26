@@ -4,6 +4,10 @@ Free, scripted Direct Instruction lessons a parent teaches from a phone. The mat
 
 The app was called Math Direct until the reading program joined it; its records in a browser are kept under the old name, and a Math Direct or Open Phonics backup loads into it.
 
+## Addresses and the move
+
+The site is deployed from `main` by Cloudflare Pages. It is meant to serve three addresses from one build: `teachdirect.com` (the primary address, once registered and added to the Pages project), `mathdirect.com`, and `openphonics.com`. The old addresses are kept as extra domains rather than redirects, since each keeps its own records in the browser. When the new domain is live, set `NEW_HOST=teachdirect.com` in the Pages build settings: Today on an old domain then shows a card with the new address and the advice to save a backup and load it there. `docs/open-phonics-moved/index.html` is the one page openphonics.com should serve before it switches to this build: it lets a parent save the Open Phonics records as a backup that this app loads.
+
 ## Running it
 
 ```

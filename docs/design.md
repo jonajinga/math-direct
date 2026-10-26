@@ -306,3 +306,28 @@ Pre-K begins with a readiness track (say what I say, answer on the signal,
 touch the one I name) over its first three lessons, and the placement test
 opens with a readiness section that a child who fails the first Pre-K
 section is given. Every other placement section has three items a track.
+
+## The move
+
+Teach Direct is one build for three addresses. `teachdirect.com` is the
+primary address once the owner registers it and adds it to the Cloudflare
+Pages project; `mathdirect.com` and `openphonics.com` serve the same build
+as extra custom domains, not redirects, because each origin keeps its own
+records in localStorage and a redirect would strand them. On an old domain,
+Today shows one card, "This app is now Teach Direct", with the new address
+and the advice to save a backup under More and load it there. The card is
+driven by `meta.newHost`, read from the `NEW_HOST` environment variable at
+build time, so it appears only once the new domain is live and set in the
+Pages build settings; a build without the variable shows nothing.
+
+Open Phonics records cannot cross origins on their own, so openphonics.com
+needs one last deploy of a "moved" page before it switches to the Teach
+Direct build. The page is `docs/open-phonics-moved/index.html` here and on
+the `teach-direct-moved` branch of the `open-phonics` repository, where it
+replaces the home page: it reads the records in that browser, lists the
+children with their lessons finished, and saves a backup named
+`open-phonics-backup.json` in the shape the importer accepts (`app:
+"open-phonics", version: 2`). The importer maps lessons 1 to 100 to Reading
+1 and 101 to 150 to Reading 2. The old addresses for lessons, phases,
+stories, the pronunciation guide, the word list, and the parent guide
+redirect to their new screens (`src/_data/redirects.js`).
