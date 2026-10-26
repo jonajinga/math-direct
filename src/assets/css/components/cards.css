@@ -18,7 +18,8 @@
   min-height: 3.5rem; padding: var(--sp-3) var(--sp-4);
   border: 0; background: none; color: var(--ink); font: inherit; text-align: left; text-decoration: none; cursor: pointer;
 }
-.row:hover { background: var(--surface-2); }
+@media (hover: hover) { .row:hover { background: var(--surface-2); } }
+.row:active { background: color-mix(in srgb, var(--ink) var(--layer-press), var(--surface)); }
 .row--danger { color: var(--error); }
 .row--danger > svg { color: var(--error); }
 .row__main { flex: 1 1 auto; min-width: 0; }
@@ -42,12 +43,6 @@
 .pbar__fill { position: absolute; inset: 0; width: calc(var(--p, 0) * 100%); background: var(--primary); }
 .pbar__label { margin: var(--sp-1) 0 0; color: var(--ink-2); font-size: var(--fs-1); font-weight: 600; }
 
-/* Figures: label over number */
-.figures { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin: 0 0 var(--sp-3); }
-.figures div { display: flex; align-items: baseline; gap: 0.3rem; }
-.figures dt { font-size: var(--fs-1); color: var(--ink-2); }
-.figures dd { margin: 0; font-weight: 700; font-size: var(--fs-4); }
-
 /* Advice box */
 .advice { border-left: 4px solid var(--primary); background: var(--surface-2); padding: var(--sp-3) var(--sp-4); margin: 0 0 var(--sp-3); border-radius: 0 var(--r-1) var(--r-1) 0; }
 .advice p { margin: 0; }
@@ -57,6 +52,9 @@
 .fold > summary { min-height: 3.25rem; display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); font-weight: 700; cursor: pointer; list-style: none; }
 .fold > summary::-webkit-details-marker { display: none; }
 .fold__h { font: inherit; margin: 0; }
-.fold > summary::after { content: ""; margin-left: auto; width: 0.6rem; height: 0.6rem; border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(45deg); transition: transform 0.15s; }
+.fold > summary::after { content: ""; margin-left: auto; width: 0.6rem; height: 0.6rem; border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(45deg); transition: transform var(--dur-1) var(--ease-out); }
+.fold > summary:active { background-image: linear-gradient(color-mix(in srgb, var(--ink) var(--layer-press), transparent), color-mix(in srgb, var(--ink) var(--layer-press), transparent)); }
 .fold[open] > summary::after { transform: rotate(-135deg); }
 .fold__body { padding: 0 var(--sp-4) var(--sp-4); }
+/* A fold inside a row list: the list draws the border */
+.fold--flat { border: 0; border-radius: 0; margin: 0; }

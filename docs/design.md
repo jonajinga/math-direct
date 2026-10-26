@@ -32,6 +32,51 @@ label, an icon, or a fixed place carries it.
 - Copy follows Strunk and White: plain words, the active voice, no needless
   words, no exclamation marks.
 
+## The style guide
+
+The rules below are shown, with a live sample of each part, at `/design/`
+(More, under About). That page is the style guide a screen is held to; this
+file keeps the reasoning. The design is one system drawing on two sources.
+From Apple's Human Interface Guidelines: a clear hierarchy, a native sheet
+that rises from the bottom, controls within reach of a thumb, and respect
+for the system's text size and reduced-motion settings. From Material 3:
+tokens for every color, size, shape, and duration; state layers (a wash of
+the control's own text color over its fill, 8% on hover and 12% on press, so
+one rule serves filled and outlined controls alike); three elevation levels;
+and one order of states on every control (hover, pressed, focus, disabled,
+selected). No platform switching and no dark mode: one light theme on every
+phone.
+
+Tokens (`src/assets/css/tokens.css`) hold the palette with an "on" color for
+each fill, the state layers and the disabled opacity, the type ramp from 13
+to 36 px, seven steps of space, five radii (`--r-0` 4 px for badges and key
+caps, `--r-1` 6 px for controls and inputs, `--r-2` 12 px for cards and row
+groups, `--r-3` 20 px for sheets, `--r-full` for pills), three shadows
+(cards that must stand out, sheets, toasts), four durations (120 ms for a
+state change, 200 ms for a sheet or a fold or the dot moving to a word,
+300 ms for the dot's bounce, 600 ms for its sweep) with an ease-out for what
+arrives and an ease-in for what leaves, and one icon stroke of 2.
+
+There is one button (`components/buttons.css`): `.btn` with the variants
+`--primary`, `--secondary`, `--quiet`, `--danger`, and `--firm`, and the
+sizes `--big` (52 px), `--bar` (56 px, the runner's), `--stack` (an icon
+over a 13 px label), `--tight`, `--square`, and `--block`. The runner's
+four slots are geometry on `.rn-bar` and `.rn-slot`, not on the buttons, so
+the bar's buttons are the one button in its bar size and the engine
+addresses them by id. The one small label is `.eyebrow`; the one key cap is
+`.kbd`. Hover styles live inside `@media (hover: hover)` so a phone never
+shows a stuck hover after a tap.
+
+`scripts/check-style.mjs` keeps the stylesheets, templates, and icons to the
+system: no color written out but in the tokens and the drawing palette, no
+text under 13 px, no radius or duration written as a number, no hover rule
+outside the media query, no `<style>` or `style=` in a template (a
+custom-property setter such as `style="--p: 0.4"` is allowed), no icon with
+another stroke, and no selector styled twice when it stands alone.
+`check-a11y.mjs` adds a probe that reads every element's computed corner
+radius and a rule that every family of pages in the sitemap has a page in
+its list, so a new kind of screen cannot go unaudited.
+
 ## The runner
 
 One screen, never scrolled while teaching. From the top: a one-line strip

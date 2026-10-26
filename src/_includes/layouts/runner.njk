@@ -28,98 +28,98 @@ bodyClass: page-runner
       </div>
       <p class="tp-ex__meta" id="tp-ex-meta"></p>
       <p class="tp-say" id="tp-say"></p>
-      <div class="tp-box tp-do" id="tp-do" hidden><span class="tp-label">Do</span><p id="tp-do-text"></p></div>
+      <div class="tp-box tp-do" id="tp-do" hidden><span class="tp-label eyebrow">Do</span><p id="tp-do-text"></p></div>
       <div class="tp-pair">
-        <div class="tp-box tp-answer" id="tp-answer" hidden><span class="tp-label">Child</span><p id="tp-answer-text"></p></div>
-        <div class="tp-box tp-confirm" id="tp-confirm" hidden><span class="tp-label">If right</span><p id="tp-confirm-text"></p></div>
+        <div class="tp-box tp-answer" id="tp-answer" hidden><span class="tp-label eyebrow">Child</span><p id="tp-answer-text"></p></div>
+        <div class="tp-box tp-confirm" id="tp-confirm" hidden><span class="tp-label eyebrow">If right</span><p id="tp-confirm-text"></p></div>
       </div>
-      <div class="tp-box tp-correct" id="tp-correct" hidden><span class="tp-label">If wrong</span><p id="tp-correct-text"></p><p class="tp-correct__wait">Press Error to see the correction.</p></div>
+      <div class="tp-box tp-correct" id="tp-correct" hidden><span class="tp-label eyebrow">If wrong</span><p id="tp-correct-text"></p><p class="tp-correct__wait">Press Error to see the correction.</p></div>
       <p class="tp-touched" id="tp-touched" hidden></p>
       <p class="tp-test-note" id="tp-test-note" hidden>This is a test. Do not correct or help. Mark each answer and go on.</p>
     </div>
   </section>
 
   <div class="rn-bar" role="group" aria-label="Lesson controls">
-    <button type="button" class="rn-btn rn-btn--icon" id="btn-more" aria-haspopup="dialog" aria-controls="sheet-more">
-      {% include "partials/icons/more.njk" %}<span class="rn-btn__label">More</span>
+    <button type="button" class="btn btn--bar btn--stack" id="btn-more" aria-haspopup="dialog" aria-controls="sheet-more">
+      {% include "partials/icons/more.njk" %}<span class="btn__label">More</span>
     </button>
     <div class="rn-slot" id="rn-tool">
-      <button type="button" class="rn-btn rn-btn--icon" id="btn-show" aria-label="Show again" hidden>
-        {% include "partials/icons/show-again.njk" %}<span class="rn-btn__label">Show</span>
+      <button type="button" class="btn btn--bar btn--stack" id="btn-show" aria-label="Show again" hidden>
+        {% include "partials/icons/show-again.njk" %}<span class="btn__label">Show</span>
       </button>
-      <button type="button" class="rn-btn rn-btn--icon" id="btn-clear" aria-label="Clear marks" hidden>
-        {% include "partials/icons/clear-marks.njk" %}<span class="rn-btn__label">Clear</span>
+      <button type="button" class="btn btn--bar btn--stack" id="btn-clear" aria-label="Clear marks" hidden>
+        {% include "partials/icons/clear-marks.njk" %}<span class="btn__label">Clear</span>
       </button>
-      <button type="button" class="rn-btn rn-btn--icon rn-btn--dot" id="btn-dot" aria-label="Dot. Press and hold to move the dot under the next sound." hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="16" x2="20" y2="16"/><path d="M16 12 L20 16 L16 20"/><circle cx="8" cy="16" r="3.5" fill="currentColor" stroke="none"/></svg><span class="rn-btn__label">Dot</span>
+      <button type="button" class="btn btn--bar btn--stack btn--dot" id="btn-dot" aria-label="Dot. Press and hold to move the dot under the next sound." hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="16" x2="20" y2="16"/><path d="M16 12 L20 16 L16 20"/><circle cx="8" cy="16" r="3.5" fill="currentColor" stroke="none"/></svg><span class="btn__label">Dot</span>
       </button>
     </div>
     <div class="rn-slot">
-      <button type="button" class="rn-btn rn-btn--error" id="btn-error" disabled>Error</button>
-      <button type="button" class="rn-btn rn-btn--over" id="btn-over" hidden>Start over</button>
+      <button type="button" class="btn btn--bar btn--danger" id="btn-error" disabled>Error</button>
+      <button type="button" class="btn btn--bar btn--secondary btn--tight" id="btn-over" hidden>Start over</button>
     </div>
     <div class="rn-slot rn-slot--main">
-      <button type="button" class="rn-btn rn-btn--next" id="btn-next">Next</button>
-      <button type="button" class="rn-btn rn-btn--firm" id="btn-firm" hidden>Firm</button>
-      <button type="button" class="rn-btn rn-btn--next" id="btn-goon" hidden>Go on</button>
+      <button type="button" class="btn btn--bar btn--primary" id="btn-next">Next</button>
+      <button type="button" class="btn btn--bar btn--firm" id="btn-firm" hidden>Firm</button>
+      <button type="button" class="btn btn--bar btn--primary" id="btn-goon" hidden>Go on</button>
     </div>
-    <button type="button" class="rn-btn rn-btn--next rn-btn--big-back" id="btn-big-back" hidden>Back to the lesson</button>
+    <button type="button" class="btn btn--bar btn--primary" id="btn-big-back" hidden>Back to the lesson</button>
   </div>
 </div>
 
 <div class="sr-only" id="rn-live" aria-live="polite" aria-atomic="true"></div>
 
 <dialog class="sheet" id="sheet-more" aria-labelledby="sheet-more-title">
-  <div class="sheet__head"><h2 class="sheet__title" id="sheet-more-title">More</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  <div class="sheet__head"><h2 class="sheet__title" id="sheet-more-title">More</h2><button type="button" class="btn btn--quiet btn--square sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
   <ul class="sheet__list" id="more-list">
-    <li><button type="button" class="sheet__row" data-act="back">{% include "partials/icons/arrow-left.njk" %}Back one step<kbd>&larr;</kbd></button></li>
-    <li><button type="button" class="sheet__row" data-act="over">{% include "partials/icons/repeat.njk" %}Start the exercise over<kbd>S</kbd></button></li>
-    <li><button type="button" class="sheet__row" data-act="show">{% include "partials/icons/show-again.njk" %}Show again<kbd>Space</kbd></button></li>
-    <li><button type="button" class="sheet__row" data-act="clear">{% include "partials/icons/clear-marks.njk" %}Clear marks<kbd>C</kbd></button></li>
-    <li><button type="button" class="sheet__row" data-act="outline">{% include "partials/icons/list.njk" %}Outline<kbd>O</kbd></button></li>
-    <li><button type="button" class="sheet__row" data-act="big">{% include "partials/icons/expand.njk" %}Big picture<kbd>B</kbd></button></li>
-    <li><button type="button" class="sheet__row" data-act="keys">{% include "partials/icons/keyboard.njk" %}Keys<kbd>?</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="back">{% include "partials/icons/arrow-left.njk" %}Back one step<kbd class="kbd">&larr;</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="over">{% include "partials/icons/repeat.njk" %}Start the exercise over<kbd class="kbd">S</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="show">{% include "partials/icons/show-again.njk" %}Show again<kbd class="kbd">Space</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="clear">{% include "partials/icons/clear-marks.njk" %}Clear marks<kbd class="kbd">C</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="outline">{% include "partials/icons/list.njk" %}Outline<kbd class="kbd">O</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="big">{% include "partials/icons/expand.njk" %}Big picture<kbd class="kbd">B</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="keys">{% include "partials/icons/keyboard.njk" %}Keys<kbd class="kbd">?</kbd></button></li>
     <li><button type="button" class="sheet__row" data-act="child">{% include "partials/icons/child.njk" %}Switch child</button></li>
     <li><button type="button" class="sheet__row" data-act="with">{% include "partials/icons/child.njk" %}<span id="more-with-label">Teach two children</span></button></li>
-    <li><button type="button" class="sheet__row" data-act="leave">{% include "partials/icons/leave.njk" %}Leave<kbd>Esc</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="leave">{% include "partials/icons/leave.njk" %}Leave<kbd class="kbd">Esc</kbd></button></li>
   </ul>
 </dialog>
 
 <dialog class="sheet" id="sheet-outline" aria-labelledby="sheet-outline-title">
-  <div class="sheet__head"><h2 class="sheet__title" id="sheet-outline-title">Outline</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  <div class="sheet__head"><h2 class="sheet__title" id="sheet-outline-title">Outline</h2><button type="button" class="btn btn--quiet btn--square sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
   <ol class="sheet__list rn-outline" id="tp-outline-list"></ol>
   <p class="sheet__note" id="tp-outline-links"></p>
 </dialog>
 
 <dialog class="sheet" id="sheet-keys" aria-labelledby="sheet-keys-title">
-  <div class="sheet__head"><h2 class="sheet__title" id="sheet-keys-title">Keys</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  <div class="sheet__head"><h2 class="sheet__title" id="sheet-keys-title">Keys</h2><button type="button" class="btn btn--quiet btn--square sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
   <div class="sheet__body">
     <dl class="keys">
-      <div><dt><kbd>&rarr;</kbd> <kbd>Enter</kbd></dt><dd>Next, Firm, or Go on</dd></div>
-      <div><dt><kbd>F</kbd></dt><dd>Firm</dd></div>
-      <div><dt><kbd>X</kbd> <kbd>E</kbd></dt><dd>Error</dd></div>
-      <div><dt><kbd>&larr;</kbd></dt><dd>Back one step</dd></div>
-      <div><dt><kbd>S</kbd></dt><dd>Start the exercise over</dd></div>
-      <div><dt><kbd>Space</kbd></dt><dd>Show again. In reading, hold it to move the dot.</dd></div>
-      <div><dt><kbd>D</kbd></dt><dd>Move the dot one sound on</dd></div>
-      <div><dt><kbd>C</kbd></dt><dd>Clear marks</dd></div>
-      <div><dt><kbd>O</kbd></dt><dd>Outline</dd></div>
-      <div><dt><kbd>B</kbd></dt><dd>Big picture</dd></div>
-      <div><dt><kbd>M</kbd></dt><dd>More</dd></div>
-      <div><dt><kbd>?</kbd></dt><dd>This list</dd></div>
-      <div><dt><kbd>Esc</kbd></dt><dd>Close a sheet, or leave</dd></div>
+      <div><dt><kbd class="kbd">&rarr;</kbd> <kbd class="kbd">Enter</kbd></dt><dd>Next, Firm, or Go on</dd></div>
+      <div><dt><kbd class="kbd">F</kbd></dt><dd>Firm</dd></div>
+      <div><dt><kbd class="kbd">X</kbd> <kbd class="kbd">E</kbd></dt><dd>Error</dd></div>
+      <div><dt><kbd class="kbd">&larr;</kbd></dt><dd>Back one step</dd></div>
+      <div><dt><kbd class="kbd">S</kbd></dt><dd>Start the exercise over</dd></div>
+      <div><dt><kbd class="kbd">Space</kbd></dt><dd>Show again. In reading, hold it to move the dot.</dd></div>
+      <div><dt><kbd class="kbd">D</kbd></dt><dd>Move the dot one sound on</dd></div>
+      <div><dt><kbd class="kbd">C</kbd></dt><dd>Clear marks</dd></div>
+      <div><dt><kbd class="kbd">O</kbd></dt><dd>Outline</dd></div>
+      <div><dt><kbd class="kbd">B</kbd></dt><dd>Big picture</dd></div>
+      <div><dt><kbd class="kbd">M</kbd></dt><dd>More</dd></div>
+      <div><dt><kbd class="kbd">?</kbd></dt><dd>This list</dd></div>
+      <div><dt><kbd class="kbd">Esc</kbd></dt><dd>Close a sheet, or leave</dd></div>
     </dl>
   </div>
 </dialog>
 
 <dialog class="sheet" id="sheet-child" aria-labelledby="sheet-child-title">
-  <div class="sheet__head"><h2 class="sheet__title" id="sheet-child-title">Switch child</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  <div class="sheet__head"><h2 class="sheet__title" id="sheet-child-title">Switch child</h2><button type="button" class="btn btn--quiet btn--square sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
   <div class="sheet__body"><p id="sheet-child-text">The marks are saved. The lesson starts again for the child you pick.</p></div>
   <ul class="sheet__list" id="sheet-child-list"></ul>
 </dialog>
 
 <dialog class="sheet" id="sheet-with" aria-labelledby="sheet-with-title">
-  <div class="sheet__head"><h2 class="sheet__title" id="sheet-with-title">Teach two children</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  <div class="sheet__head"><h2 class="sheet__title" id="sheet-with-title">Teach two children</h2><button type="button" class="btn btn--quiet btn--square sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
   <div class="sheet__body"><p id="sheet-with-text">Both children answer together, and you mark each answer once for both. Each exercise ends with a turn for each child alone. The marks made so far are dropped, and the lesson starts over.</p></div>
   <ul class="sheet__list" id="sheet-with-list"></ul>
 </dialog>

@@ -26,11 +26,12 @@ eleventyComputed:
 
 {% if level.materials.length %}<p class="level-needs"><strong>You need:</strong> {{ level.materials | join("; ") | lower }}.</p>{% endif %}
 <p class="muted small" id="mark-note" hidden>Tap a lesson or test to mark it finished, mark it to repeat, reset it, or rehearse it. Choose Done when you have finished.</p>
+<p class="lgrid__legend">A blue ring marks the next lesson. Green is finished; tan is to repeat.</p>
 
 {% for lesson in level.lessonList %}
 {% if loop.index0 % 10 == 0 %}
 <section class="lesson-group" aria-labelledby="group-{{ lesson.number }}">
-  <h2 class="lesson-group__title" id="group-{{ lesson.number }}">Lessons {{ lesson.number }} to {{ [lesson.number + 9, level.lessons] | min }}</h2>
+  <h2 class="eyebrow" id="group-{{ lesson.number }}">Lessons {{ lesson.number }} to {{ [lesson.number + 9, level.lessons] | min }}</h2>
   <ul class="lgrid">
 {% endif %}
     <li><a href="{{ lesson.url }}" class="lchip" data-lesson-id="{{ lesson.id }}" data-n="{{ lesson.number }}" aria-label="Lesson {{ lesson.number }}">{{ lesson.number }}<span class="lchip__mark lchip__mark--done">{% include "partials/icons/check.njk" %}</span><span class="lchip__mark lchip__mark--repeat">{% include "partials/icons/repeat.njk" %}</span></a></li>
@@ -46,16 +47,16 @@ eleventyComputed:
 {% endif %}
 {% endfor %}
 
-<h2 class="section-title">What the child will learn</h2>
+<h2 class="eyebrow eyebrow--section">What the child will learn</h2>
 <p>{{ level.endsWith }}</p>
 
-<h2 class="section-title">What you need</h2>
+<h2 class="eyebrow eyebrow--section">What you need</h2>
 <ul class="prose">
   <li>A phone, tablet, or computer for the lesson screen</li>
   {% for m in level.materials %}<li>{{ m }}</li>{% endfor %}
 </ul>
 
-<h2 class="section-title">Skill tracks</h2>
+<h2 class="eyebrow eyebrow--section">Skill tracks</h2>
 <p class="muted small">A track is one skill taught across many lessons. Each lesson practices a little of several tracks.</p>
 <details class="fold">
   <summary>All {{ level.tracks.length }} tracks</summary>

@@ -44,7 +44,6 @@
    layout. --vis-h: the tallest a drawing may be. --cell: one counted object.
    Each SVG carries --ar (width / height) and, for countable things, --cw
    (cells wide). */
-.child-stage { --stage-max: 80cqh; --vis-h: calc(var(--stage-max) * 0.85); --cell: min(32cqh, 10rem, 16cqw); }
 .child-stage .mdv-svg { width: min(100%, calc(var(--vis-h) * var(--ar, 1))); height: auto; }
 .child-stage .mdv-cells { width: min(100%, calc(var(--cell) * var(--cw, 1)), calc(var(--vis-h) * var(--ar, 1))); }
 .child-stage .mdv--md { --vis-h: calc(var(--stage-max) * 0.7); }
@@ -53,7 +52,7 @@
 .child-stage .mdv-shape { --vis-h: calc(var(--stage-max) * 0.7); }
 .child-stage .mdv-say { --vis-h: calc(var(--stage-max) * 0.35); }
 .child-stage .mdv-scene { --vis-h: calc(var(--stage-max) * 0.8); }
-.child-stage .mdv-choice { --vis-h: calc(var(--stage-max) * 0.42); --cell: min(20cqh, 6rem); }
+.child-stage .mdv-choice { --vis-h: calc(var(--stage-max) * 0.42); --cell: min(20cqh, 6rem); container-type: inline-size; }
 .child-stage .mdv-choice .mdv-shape { --vis-h: calc(var(--stage-max) * 0.32); }
 .child-stage .mdv-row__item > .mdv { --vis-h: calc(var(--stage-max) * 0.5); --cell: min(15cqh, 4.5rem); }
 .child-stage .mdv-frame { width: min(100%, calc(var(--vis-h) * var(--ar, 1)), 30rem); }
@@ -160,19 +159,19 @@
   padding: clamp(0.4rem, 1.5cqw, 1rem);
   background: var(--v-paper);
   border: 3px solid var(--v-line);
-  min-height: min(5rem, 28cqh);
+  min-height: max(var(--tap), min(5rem, 28cqh));
   cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition: border-color var(--dur-1) var(--ease-out), background-color var(--dur-1) var(--ease-out);
 }
-.mdv-choice:hover, .mdv-choice:focus-visible { border-color: var(--v-ink); outline: none; }
+@media (hover: hover) { .mdv-choice:hover { border-color: var(--v-ink); } }
+.mdv-choice:focus-visible { border-color: var(--v-ink); outline: none; }
 .mdv-choice.is-picked { border-color: var(--v-ink); box-shadow: 0 0 0 4px var(--v-ink); }
 .is-done .mdv-choice { cursor: default; }
-/* A choice is a width container of its own, so a numeral inside it is also
-   capped by the cell's width: Comic Neue digits are about 0.44 em wide, and
-   --chars is the widest item in characters. Heights (cqh) still come from
-   the stage. In a narrow landscape stage a three-digit number thus shrinks
-   instead of crossing the cell's border. */
-.child-stage .mdv-choice { container-type: inline-size; }
+/* A choice is a width container of its own (container-type, above), so a
+   numeral inside it is also capped by the cell's width: Comic Neue digits
+   are about 0.44 em wide, and --chars is the widest item in characters.
+   Heights (cqh) still come from the stage. In a narrow landscape stage a
+   three-digit number thus shrinks instead of crossing the cell's border. */
 .child-stage .mdv-choice .mdv-num { font-size: min(clamp(min(2.5rem, 19.2cqh), 24cqh, 6rem), calc(92cqw / (var(--chars, 2) * 0.44))); }
 
 /* ── Reading: letters, the arrow, and the dot ── */
@@ -182,8 +181,7 @@
    to hold it. A sound or a word is as wide as its letters, never capped, so
    the runner can measure it and shrink it until it fits the stage. */
 .child-stage .mdv-text--sound, .child-stage .mdv-text--word { font-size: clamp(min(3rem, 24cqh), 32cqh, 9rem); padding: 0 1.1em 0.6em; max-width: none; width: max-content; }
-.child-stage .mdv-text--words { max-width: none; width: max-content; }
-.child-stage .mdv-text--words { font-size: clamp(min(2rem, 14cqh), 18cqh, 5rem); }
+.child-stage .mdv-text--words { max-width: none; width: max-content; font-size: clamp(min(2rem, 14cqh), 18cqh, 5rem); }
 .child-stage .mdv-text--line { font-size: clamp(min(1.75rem, 12cqh), 15cqh, 4rem); padding-bottom: 0.5em; }
 .child-stage .mdv-text--story { font-size: clamp(min(1.5rem, 9cqh), 11cqh, 3.25rem); padding-bottom: 0.5em; width: 100%; align-items: stretch; }
 .mdv-text__line { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 0.5em 0.45em; max-width: 100%; }
@@ -191,19 +189,19 @@
 .mdv-text__word { display: inline-flex; align-items: baseline; white-space: nowrap; letter-spacing: 0.04em; }
 .mdv-tok { position: relative; display: inline-block; }
 .mdv-tok--joined { letter-spacing: -0.02em; }
-.mdv-tok--joined::after { content: ""; position: absolute; left: 0.04em; right: 0.06em; bottom: -0.03em; height: 0.075em; border-radius: 0.04em; background: currentColor; }
-.mdv-tok--macron::before { content: ""; position: absolute; left: 0.08em; right: 0.1em; top: 0.28em; height: 0.075em; border-radius: 0.04em; background: currentColor; }
+.mdv-tok--joined::after { content: ""; position: absolute; left: 0.04em; right: 0.06em; bottom: -0.03em; height: 0.075em; border-radius: var(--r-full); background: currentColor; }
+.mdv-tok--macron::before { content: ""; position: absolute; left: 0.08em; right: 0.1em; top: 0.28em; height: 0.075em; border-radius: var(--r-full); background: currentColor; }
 .mdv-tok--silent { font-size: 0.55em; }
 .mdv-tok--punct { margin-left: -0.04em; }
 .mdv-text__track { position: absolute; height: 0.3em; pointer-events: none; }
 .mdv-text__ball { position: absolute; left: 0; top: 50%; width: 0.28em; height: 0.28em; margin-top: -0.14em; border-radius: 50%; background: var(--v-ink); }
 .mdv-text__rail { position: absolute; left: 0.14em; right: 0.24em; top: 50%; height: 0.07em; margin-top: -0.035em; background: var(--v-ink); }
 .mdv-text__head { position: absolute; right: 0; top: 50%; width: 0; height: 0; margin-top: -0.17em; border-top: 0.17em solid transparent; border-bottom: 0.17em solid transparent; border-left: 0.28em solid var(--v-ink); }
-.mdv-text__dot { position: absolute; left: 0; top: 0; width: 0.34em; height: 0.34em; margin: -0.17em 0 0 -0.17em; border-radius: 50%; background: var(--v-red); box-shadow: 0 0 0 0.05em var(--v-paper); transition: left 0.18s ease-out, top 0.18s ease-out, transform 0.12s ease-out; pointer-events: none; }
+.mdv-text__dot { position: absolute; left: 0; top: 0; width: 0.34em; height: 0.34em; margin: -0.17em 0 0 -0.17em; border-radius: 50%; background: var(--v-red); box-shadow: 0 0 0 0.05em var(--v-paper); transition: left var(--dur-2) var(--ease-out), top var(--dur-2) var(--ease-out), transform var(--dur-1) var(--ease-out); pointer-events: none; }
 .mdv-text__dot.is-held { transform: scale(1.3); }
-.mdv-text__dot.is-sweep { transition-duration: 0.6s, 0.6s, 0.12s; transition-timing-function: linear, linear, ease-out; }
+.mdv-text__dot.is-sweep { transition-duration: var(--dur-4), var(--dur-4), var(--dur-1); transition-timing-function: linear, linear, var(--ease-out); }
 .mdv-text__dot.is-instant { transition: none; }
-.mdv-text__dot.is-tap { animation: mdv-tap 0.26s ease-out; }
+.mdv-text__dot.is-tap { animation: mdv-tap var(--dur-3) var(--ease-out); }
 @keyframes mdv-tap { 0% { transform: scale(1.3) translateY(0); } 50% { transform: scale(1.1) translateY(-0.14em); } 100% { transform: scale(1.3) translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .mdv-text__dot { transition: none; animation: none; } }
 
@@ -222,13 +220,14 @@
 /* Marking objects as they are counted */
 .mdv-mark { cursor: pointer; }
 .mdv-mark__ring { stroke: transparent; stroke-width: 6; }
-.mdv-mark.is-marked .mdv-mark__ring { stroke: var(--v-accent); fill: rgba(234, 88, 12, 0.08); }
+.mdv-mark.is-marked .mdv-mark__ring { stroke: var(--v-accent); fill: color-mix(in srgb, var(--v-accent) 8%, transparent); }
 .mdv-markable { touch-action: manipulation; }
 
 /* Picking a row, a line position, or a size */
 .mdv-pickable .mdv-tap { cursor: pointer; }
 .mdv-rowpick__bg { stroke: transparent; stroke-width: 5; }
-.mdv-tap:hover .mdv-rowpick__bg, .mdv-tap:focus .mdv-rowpick__bg { stroke: var(--v-line); }
+@media (hover: hover) { .mdv-tap:hover .mdv-rowpick__bg { stroke: var(--v-line); } }
+.mdv-tap:focus .mdv-rowpick__bg { stroke: var(--v-line); }
 .mdv-tap.is-picked .mdv-rowpick__bg { stroke: var(--v-ink); stroke-width: 7; }
 .is-done .mdv-tap { cursor: default; }
 .mdv-tap:focus { outline: none; }

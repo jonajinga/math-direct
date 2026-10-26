@@ -13,7 +13,7 @@ bodyClass: page-lessons
 <div data-child-picker></div>
 
 {% for s in program.subjects %}
-{% if program.subjects.length > 1 %}<h2 class="section-title" id="{{ s.id }}">{{ s.name }}</h2>{% endif %}
+{% if program.subjects.length > 1 %}<h2 class="eyebrow eyebrow--section" id="{{ s.id }}">{{ s.name }}</h2>{% endif %}
 <ul class="rows">
   {% for level in program.levels %}{% if level.subject == s.id %}
   <li>

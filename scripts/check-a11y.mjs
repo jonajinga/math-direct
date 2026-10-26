@@ -1,10 +1,13 @@
 // Runs axe-core (WCAG 2.2 A and AA, plus best practices) over every kind of
 // screen at two phone sizes, in several states: the runner on a step, after
 // a touch, in a correction, with each sheet open, on a finish screen, and
-// the app screens with a child's records in place. Adds four probes of its
+// the app screens with a child's records in place. Adds five probes of its
 // own: every text node at 7:1 against its background, every control at
 // least 44 by 44 px, no sideways overflow at 320 px except inside the fact
-// chart's own region, and no clipped text under 200% text spacing.
+// chart's own region, no clipped text under 200% text spacing, and every
+// corner radius one of the shape tokens. Before any of that, it reads the
+// sitemap and fails if a family of pages (a level's lessons, its tests, the
+// practice sets, the stories, each single screen) has no page in its list.
 //
 //   node scripts/check-a11y.mjs
 import { createServer } from "node:http";
@@ -37,13 +40,33 @@ await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const BASE = "http://127.0.0.1:" + server.address().port;
 
 const SIZES = [[390, 844], [320, 568]];
-const PAGES = ["/", "/lessons/", "/k/", "/practice/", "/records/", "/more/", "/search/?q=count", "/guide/", "/curriculum/", "/about/", "/privacy/", "/terms/", "/offline/", "/404.html", "/placement/", "/placement/math/", "/facts/", "/timed/", "/reading-sample/", "/reading-1/", "/reading-1/lesson-040/", "/quick-sounds/", "/stories/", "/stories/sam-sat/", "/placement/reading/", "/reading-2/", "/reading-2/lesson-026/", "/guide/reading/", "/sounds/", "/words/"];
+const PAGES = ["/", "/lessons/", "/k/", "/k/test-01/", "/practice/", "/practice/k/addition/", "/records/", "/more/", "/search/?q=count", "/guide/", "/curriculum/", "/about/", "/privacy/", "/terms/", "/offline/", "/404.html", "/placement/", "/placement/math/", "/facts/", "/timed/", "/reading-sample/", "/reading-1/", "/reading-1/lesson-040/", "/quick-sounds/", "/stories/", "/stories/sam-sat/", "/placement/reading/", "/reading-2/", "/reading-2/lesson-026/", "/guide/reading/", "/sounds/", "/words/", "/design/"];
+// Pages the runner walk below visits besides the list.
+const WALKED = ["/prek/lesson-074/", "/prek/lesson-001/", "/prek/lesson-002/", "/k/"];
 const fails = [];
 let runs = 0;
 
+// ── Coverage: every family of pages in the sitemap has a page in the list ──
+{
+  const xml = readFileSync(join(ROOT, "sitemap.xml"), "utf8");
+  const urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]).pathname);
+  const levels = new Set(urls.map((u) => /^\/([^/]+)\/lesson-\d+\/$/.exec(u)?.[1]).filter(Boolean));
+  const familyOf = (u) => {
+    const seg = u.split("/").filter(Boolean);
+    if (seg.length && levels.has(seg[0])) seg[0] = "<level>";
+    if (seg[0] === "practice" && seg.length === 3) return "/practice/<level>/<set>/";
+    if (seg[0] === "stories" && seg.length === 2) return "/stories/<story>/";
+    return "/" + seg.map((s) => s.replace(/^(lesson|test)-\d+$/, "$1-N")).join("/") + (seg.length ? "/" : "");
+  };
+  const visited = new Set([...PAGES, ...WALKED].map((u) => familyOf(u.replace(/\?.*$/, ""))));
+  const missing = [...new Set(urls.map(familyOf))].filter((f) => !visited.has(f));
+  if (missing.length) { console.log("FAIL coverage: no page in the list for " + missing.join(", ")); fails.push("coverage"); }
+  else console.log("ok   coverage: every family of pages in the sitemap has a page in the list");
+}
+
 // ── Probes run inside the page ──
 function probes(allowRegion) {
-  const out = { contrast: [], targets: [], overflow: 0, spacing: [] };
+  const out = { contrast: [], targets: [], overflow: 0, spacing: [], radius: [] };
   // Relative luminance and contrast, resolving the effective background.
   const lum = (r, g, b) => { const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
   const parse = (s) => { const m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/.exec(s); return m ? [+m[1], +m[2], +m[3], m[4] === undefined ? 1 : +m[4]] : null; };
@@ -74,8 +97,8 @@ function probes(allowRegion) {
     if (!visible(el) || el.closest("dialog:not([open])")) return;
     // WCAG 2.5.8 exempts a link inside a sentence or a line of text.
     if (el.tagName === "A" && getComputedStyle(el).display === "inline" && !el.classList.contains("btn") && !el.classList.contains("row") && !el.classList.contains("lchip")) return;
-    // A radio inside a chip label: the chip is the target.
-    if (el.tagName === "INPUT" && el.type === "radio" && el.closest("label.chip")) { const r2 = el.closest("label.chip").getBoundingClientRect(); if (r2.height >= 43.5 && r2.width >= 43.5) return; }
+    // A radio inside a chip label, or a checkbox inside its label: the label is the target.
+    if (el.tagName === "INPUT" && (el.type === "radio" || el.type === "checkbox") && el.closest("label.chip, label.check")) { const r2 = el.closest("label.chip, label.check").getBoundingClientRect(); if (r2.height >= 43.5 && r2.width >= 43.5) return; }
     const r = el.getBoundingClientRect();
     if (r.width < 43.5 || r.height < 43.5) out.targets.push({ where: el.id || el.className || el.tagName, w: Math.round(r.width), h: Math.round(r.height), text: (el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 30) });
   });
@@ -86,6 +109,18 @@ function probes(allowRegion) {
       if (allowRegion && el.closest(allowRegion)) return;
       if (el === document.documentElement || el === document.body) return;
       out.spacing.push("scrolls sideways: " + (el.id || el.className || el.tagName));
+    }
+  });
+  // Shape: every corner is a token (0, 4, 6, 12, or 20 px, or a pill), except in the child's drawings.
+  const TOKENS = [4, 6, 12, 20];
+  document.querySelectorAll("body *").forEach((el) => {
+    if (out.radius.length >= 20 || !visible(el) || el.closest("svg, .child-stage, dialog:not([open])")) return;
+    const cs = getComputedStyle(el);
+    for (const side of ["borderTopLeftRadius", "borderTopRightRadius", "borderBottomRightRadius", "borderBottomLeftRadius"]) {
+      const v = cs[side];
+      if (!v || v === "0px") continue;
+      const bad = v.split(/\s+/).some((part) => { if (part.endsWith("%")) return false; const px = parseFloat(part); return !(px < 0.01 || px >= 100 || TOKENS.some((t) => Math.abs(px - t) < 0.51)); });
+      if (bad) { out.radius.push({ where: el.id || el.className || el.tagName, v }); return; }
     }
   });
   return out;
@@ -118,6 +153,7 @@ async function audit(page, label, allowRegion) {
   pr.targets.slice(0, 5).forEach((t) => problems.push(`target ${t.w}x${t.h} ${t.where} "${t.text}"`));
   if (pr.overflow > 1) problems.push(`page overflows sideways by ${pr.overflow}px`);
   pr.spacing.slice(0, 3).forEach((s) => problems.push(s));
+  pr.radius.slice(0, 5).forEach((r) => problems.push(`radius ${r.v} in ${r.where} (use a shape token)`));
   console.log((problems.length ? "FAIL " : "ok   ") + label);
   problems.forEach((p) => console.log("      " + p));
   if (problems.length) fails.push(label);
@@ -212,4 +248,4 @@ for (const [w, h] of SIZES) {
 await browser.close();
 server.close();
 if (fails.length) { console.error(`check-a11y: ${fails.length} of ${runs} audits failed.`); process.exit(1); }
-console.log(`check-a11y: ${runs} audits clean at ${SIZES.map((s) => s.join("x")).join(" and ")}: no axe violations, text at 7:1, controls at 44 px, no sideways overflow, no clipped text under wide spacing.`);
+console.log(`check-a11y: ${runs} audits clean at ${SIZES.map((s) => s.join("x")).join(" and ")}: no axe violations, text at 7:1, controls at 44 px, no sideways overflow, no clipped text under wide spacing, every corner a token, every page family covered.`);

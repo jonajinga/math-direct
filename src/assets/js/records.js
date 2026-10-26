@@ -222,7 +222,7 @@
     var notes = (p.notes || []).slice().reverse();
     var notesBody = !notes.length ? '<p class="card__text">No notes yet. Add one with the button below.</p>'
       : '<ul class="dash-notes">' + notes.map(function (n) {
-        return "<li><span>" + esc(n.text) + '</span><span class="dash-small">' + day(n.date) + (n.ref ? " · " + esc(n.ref) : "") + '</span><button type="button" class="icon-btn dash-note-del" data-note="' + n.id + '" aria-label="Delete note">' + xIcon() + "</button></li>";
+        return "<li><span>" + esc(n.text) + '</span><span class="dash-small">' + day(n.date) + (n.ref ? " · " + esc(n.ref) : "") + '</span><button type="button" class="btn btn--quiet btn--square dash-note-del" data-note="' + n.id + '" aria-label="Delete note">' + xIcon() + "</button></li>";
       }).join("") + "</ul>";
     html += card("Notes", notesBody);
 

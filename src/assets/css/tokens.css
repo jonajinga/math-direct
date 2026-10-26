@@ -32,6 +32,12 @@
   --note-strong: #7c2d12;  /* text on --note-soft: 8.3:1 */
   --note-soft: #fef3c7;
 
+  /* Text on a filled color */
+  --on-primary: #ffffff;
+  --on-firm: #ffffff;
+  --on-error: #ffffff;
+  --on-ink: #ffffff;
+
   /* Surfaces */
   --page: #f3f5f7;
   --surface: #ffffff;
@@ -41,6 +47,13 @@
   /* Lines */
   --line: #d5dae0;         /* decorative hairlines */
   --line-strong: #6b7684;  /* control borders and rails: 4.6:1 on white */
+  --line-inv: rgba(255, 255, 255, 0.6); /* a border on an ink fill */
+  --scrim: rgba(20, 33, 43, 0.45);      /* behind a sheet */
+
+  /* States: a layer of the control's own text color over its fill */
+  --layer-hover: 8%;
+  --layer-press: 12%;
+  --disabled: 0.45;
 
   /* Type */
   --font-ui: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -65,13 +78,31 @@
   --sp-6: 2rem;
   --sp-7: 3rem;
 
-  /* Shape */
+  /* Shape: r-0 badges and key caps, r-1 controls and inputs, r-2 cards and
+     row groups, r-3 sheets, r-full pills */
+  --r-0: 4px;
   --r-1: 6px;
   --r-2: 12px;
   --r-3: 20px;
   --r-full: 9999px;
-  --shadow-1: 0 1px 2px rgba(20, 33, 43, 0.06), 0 1px 1px rgba(20, 33, 43, 0.04);
-  --shadow-2: 0 -8px 24px rgba(20, 33, 43, 0.12);
+
+  /* Elevation: 1 cards, 2 sheets, 3 toasts */
+  --elev-1: 0 1px 2px rgba(20, 33, 43, 0.06), 0 1px 1px rgba(20, 33, 43, 0.04);
+  --elev-2: 0 -8px 24px rgba(20, 33, 43, 0.12);
+  --elev-3: 0 6px 20px rgba(20, 33, 43, 0.18);
+  --shadow-1: var(--elev-1);
+  --shadow-2: var(--elev-2);
+
+  /* Motion: 1 a state change, 2 a sheet or a fold, 3 a move across the stage */
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 300ms;
+  --dur-4: 600ms;    /* the dot's sweep under a word */
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Icons: one stroke */
+  --icon-stroke: 2;
 
   /* Layout */
   --tap: 2.75rem;        /* 44 px: the smallest control */

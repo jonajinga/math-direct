@@ -1,0 +1,324 @@
+---
+layout: layouts/app.njk
+title: Style guide
+description: The colors, type, spacing, shapes, motion, icons, parts, and words that every Teach Direct screen is built from, with a sample of each.
+permalink: /design/
+bodyClass: page-design
+---
+<header class="screen__head">
+  <h1 class="screen__title">Style guide</h1>
+  <p class="screen__lead">Every screen is built from the pieces on this page, and a script keeps it so.</p>
+</header>
+<div class="content prose">
+  <ul class="onpage" aria-label="On this page">
+    <li><a href="#principles">Principles</a></li>
+    <li><a href="#color">Color</a></li>
+    <li><a href="#type">Type</a></li>
+    <li><a href="#space">Space</a></li>
+    <li><a href="#shape">Shape</a></li>
+    <li><a href="#motion">Motion</a></li>
+    <li><a href="#icons">Icons</a></li>
+    <li><a href="#buttons">Buttons</a></li>
+    <li><a href="#labels">Labels and marks</a></li>
+    <li><a href="#cards">Cards and rows</a></li>
+    <li><a href="#forms">Forms</a></li>
+    <li><a href="#sheets">Sheets and toasts</a></li>
+    <li><a href="#words">Words</a></li>
+    <li><a href="#screens">Every screen</a></li>
+    <li><a href="#checks">The checks</a></li>
+  </ul>
+
+  <h2 id="principles">Principles</h2>
+  <p>Teach Direct is one design on every phone. It takes from Apple's Human Interface Guidelines the clear hierarchy, the native sheet that rises from the bottom, the controls within reach of a thumb, and the respect for the system's text size and motion settings. It takes from Google's Material 3 the tokens, the state layers, the elevation levels, and the rule that every control shows the same states in the same order. It adds its own rules for a parent teaching a child from a phone.</p>
+  <ul>
+    <li>One light theme. Every color has one job, and text is never lighter than 7:1 against what is behind it.</li>
+    <li>Every control is at least 44 by 44 pixels, and every control sits at the bottom of the screen, within reach.</li>
+    <li>The lesson screen never scrolls. The four slots of its control bar never move.</li>
+    <li>Meaning is never carried by color alone. A status has a glyph and a word; a link has an underline.</li>
+    <li>Nothing moves without a reason, and nothing moves at all for a person who has asked for less motion.</li>
+    <li>No sound, no points, no prizes. The child sees pictures, letters, and numbers; the parent reads every word.</li>
+  </ul>
+
+  <h2 id="color">Color</h2>
+  <p>The palette is small. Ink is for text, the one accent is for the primary action and links, and three meaning colors mark what is firm, what is an error, and what is a note. Each color has a strong shade for text on its soft tint, so a filled badge is as readable as plain text.</p>
+  <h3>Ink and surfaces</h3>
+  <ul class="sg-grid">
+    <li class="sg-swatch" style="--sw: var(--ink)"><span class="sg-swatch__chip"></span><code class="sg-code">--ink</code><span>Text and the child's numerals. 16.4:1 on white.</span></li>
+    <li class="sg-swatch" style="--sw: var(--ink-2)"><span class="sg-swatch__chip"></span><code class="sg-code">--ink-2</code><span>Secondary text and labels. 9.0:1.</span></li>
+    <li class="sg-swatch" style="--sw: var(--ink-3)"><span class="sg-swatch__chip"></span><code class="sg-code">--ink-3</code><span>Icons only, never small text. 5.4:1.</span></li>
+    <li class="sg-swatch" style="--sw: var(--page)"><span class="sg-swatch__chip"></span><code class="sg-code">--page</code><span>The page behind every screen.</span></li>
+    <li class="sg-swatch" style="--sw: var(--surface)"><span class="sg-swatch__chip"></span><code class="sg-code">--surface</code><span>Cards, rows, sheets, controls.</span></li>
+    <li class="sg-swatch" style="--sw: var(--surface-2)"><span class="sg-swatch__chip"></span><code class="sg-code">--surface-2</code><span>A quiet card, the strip, the bar.</span></li>
+    <li class="sg-swatch" style="--sw: var(--stage-bg)"><span class="sg-swatch__chip"></span><code class="sg-code">--stage-bg</code><span>The child's stage, a warm white.</span></li>
+    <li class="sg-swatch" style="--sw: var(--line)"><span class="sg-swatch__chip"></span><code class="sg-code">--line</code><span>Hairlines between rows.</span></li>
+    <li class="sg-swatch" style="--sw: var(--line-strong)"><span class="sg-swatch__chip"></span><code class="sg-code">--line-strong</code><span>Control borders and rails. 4.6:1.</span></li>
+  </ul>
+  <h3>The accent and the meanings</h3>
+  <ul class="sg-grid">
+    <li class="sg-swatch" style="--sw: var(--primary)"><span class="sg-swatch__chip"></span><code class="sg-code">--primary</code><span>The primary action, links, focus. 8.4:1.</span></li>
+    <li class="sg-swatch" style="--sw: var(--primary-strong)"><span class="sg-swatch__chip"></span><code class="sg-code">--primary-strong</code><span>Text on the soft tint.</span></li>
+    <li class="sg-swatch" style="--sw: var(--primary-soft)"><span class="sg-swatch__chip"></span><code class="sg-code">--primary-soft</code><span>A selected button, the next lesson.</span></li>
+    <li class="sg-swatch" style="--sw: var(--firm)"><span class="sg-swatch__chip"></span><code class="sg-code">--firm</code><span>Firm, finished. 7.1:1.</span></li>
+    <li class="sg-swatch" style="--sw: var(--firm-strong)"><span class="sg-swatch__chip"></span><code class="sg-code">--firm-strong</code><span>Text on the soft tint. 8.3:1.</span></li>
+    <li class="sg-swatch" style="--sw: var(--firm-soft)"><span class="sg-swatch__chip"></span><code class="sg-code">--firm-soft</code><span>A finished lesson, a firm fact.</span></li>
+    <li class="sg-swatch" style="--sw: var(--error)"><span class="sg-swatch__chip"></span><code class="sg-code">--error</code><span>Error, a correction. 8.3:1.</span></li>
+    <li class="sg-swatch" style="--sw: var(--error-strong)"><span class="sg-swatch__chip"></span><code class="sg-code">--error-strong</code><span>Text on the soft tint. 8.1:1.</span></li>
+    <li class="sg-swatch" style="--sw: var(--error-soft)"><span class="sg-swatch__chip"></span><code class="sg-code">--error-soft</code><span>A missed item, a shaky sound.</span></li>
+    <li class="sg-swatch" style="--sw: var(--note)"><span class="sg-swatch__chip"></span><code class="sg-code">--note</code><span>A set-up cue, a lesson to repeat. 7.3:1.</span></li>
+    <li class="sg-swatch" style="--sw: var(--note-strong)"><span class="sg-swatch__chip"></span><code class="sg-code">--note-strong</code><span>Text on the soft tint. 8.3:1.</span></li>
+    <li class="sg-swatch" style="--sw: var(--note-soft)"><span class="sg-swatch__chip"></span><code class="sg-code">--note-soft</code><span>A lesson to repeat.</span></li>
+    <li class="sg-swatch" style="--sw: var(--lead)"><span class="sg-swatch__chip"></span><code class="sg-code">--lead</code><span>The Together cue in a script. 9.0:1.</span></li>
+  </ul>
+  <p>Text on a filled color is white: <code class="sg-code">--on-primary</code>, <code class="sg-code">--on-firm</code>, <code class="sg-code">--on-error</code>, and <code class="sg-code">--on-ink</code>. A hover or a press lays the control's own text color over its fill at <code class="sg-code">--layer-hover</code> (8%) or <code class="sg-code">--layer-press</code> (12%), so one rule serves a filled button and an outlined one alike. A disabled control fades to <code class="sg-code">--disabled</code> (45%). Behind a sheet the page darkens under <code class="sg-code">--scrim</code>. The child's drawings have a palette of their own, kept in the visuals stylesheet, and it is the one place a color is written out.</p>
+
+  <h2 id="type">Type</h2>
+  <p>Three faces. Source Sans 3 is the interface and the script the parent reads. Lora, a serif, is for headings, so a title reads as a title. Comic Neue is the child's face: its letters are the shapes a child is taught to write, with a single-story a and g, and it appears only on the stage and in the sound and word lists.</p>
+  <p class="sg-type" style="--fs: var(--fs-1)">13 px, <code class="sg-code">--fs-1</code>. The smallest text anywhere: small labels, help lines, key caps, the status marks.</p>
+  <p class="sg-type" style="--fs: var(--fs-2)">15 px, <code class="sg-code">--fs-2</code>. Secondary text: a screen's lead, a card's text, a row's second line.</p>
+  <p class="sg-type" style="--fs: var(--fs-3)">16 px, <code class="sg-code">--fs-3</code>. Body text, buttons, rows, and inputs.</p>
+  <p class="sg-type" style="--fs: var(--fs-4)">18 px, <code class="sg-code">--fs-4</code>. A third-level heading, the bar's buttons, the big button, the welcome on Today.</p>
+  <p class="sg-type sg-type--heading" style="--fs: var(--fs-5)">20 px, <code class="sg-code">--fs-5</code>. A second-level heading, a card's title, a sheet's title.</p>
+  <p class="sg-type sg-type--heading" style="--fs: var(--fs-6)">24 px, <code class="sg-code">--fs-6</code>. The title of the next lesson on Today.</p>
+  <p class="sg-type sg-type--heading" style="--fs: var(--fs-7)">30 px, <code class="sg-code">--fs-7</code>. A screen's title on a phone.</p>
+  <p class="sg-type sg-type--heading" style="--fs: var(--fs-8)">36 px, <code class="sg-code">--fs-8</code>. A screen's title from 40 em.</p>
+  <p class="sg-type" style="--fs: var(--fs-say)">17 to 20 px, <code class="sg-code">--fs-say</code>. What the parent says, sized by the screen's width.</p>
+  <p class="sg-type sg-type--child" style="--fs: var(--fs-6)">a b c d g q 1 2 3 4 5. The child's face, Comic Neue.</p>
+  <p>Body text sits at a line height of 1.5, and headings at 1.2. Nothing is cut short with an ellipsis: text wraps, or it folds behind a note. On the lesson screen, the script shrinks in three steps to fit, and the stage gives up room before the panel is allowed to scroll.</p>
+
+  <h2 id="space">Space</h2>
+  <p>Seven steps, from a quarter rem to three. A screen's gutter is <code class="sg-code">--sp-4</code> on a phone and <code class="sg-code">--sp-5</code> from 40 em. Items in a list are <code class="sg-code">--sp-2</code> apart, cards <code class="sg-code">--sp-3</code>, and sections <code class="sg-code">--sp-5</code>.</p>
+  <ul class="sg-space">
+    <li><span class="sg-space__bar" style="--w: var(--sp-1)"></span><code class="sg-code">--sp-1</code> 4 px</li>
+    <li><span class="sg-space__bar" style="--w: var(--sp-2)"></span><code class="sg-code">--sp-2</code> 8 px</li>
+    <li><span class="sg-space__bar" style="--w: var(--sp-3)"></span><code class="sg-code">--sp-3</code> 12 px</li>
+    <li><span class="sg-space__bar" style="--w: var(--sp-4)"></span><code class="sg-code">--sp-4</code> 16 px</li>
+    <li><span class="sg-space__bar" style="--w: var(--sp-5)"></span><code class="sg-code">--sp-5</code> 24 px</li>
+    <li><span class="sg-space__bar" style="--w: var(--sp-6)"></span><code class="sg-code">--sp-6</code> 32 px</li>
+    <li><span class="sg-space__bar" style="--w: var(--sp-7)"></span><code class="sg-code">--sp-7</code> 48 px</li>
+  </ul>
+  <p>Two measures govern layout: <code class="sg-code">--tap</code>, 44 px, the smallest control, and <code class="sg-code">--content-max</code>, 48 rem, the widest a screen grows. Safe-area insets are added to every edge that touches the screen's edge.</p>
+
+  <h2 id="shape">Shape</h2>
+  <p>Five radii, each for one kind of thing. A corner is never written as a length; it takes a token, so like things share a shape.</p>
+  <ul class="sg-shapes">
+    <li><span class="sg-shape" style="--r: var(--r-0)"></span><code class="sg-code">--r-0</code> 4 px<br>badges, key caps</li>
+    <li><span class="sg-shape" style="--r: var(--r-1)"></span><code class="sg-code">--r-1</code> 6 px<br>controls, inputs</li>
+    <li><span class="sg-shape" style="--r: var(--r-2)"></span><code class="sg-code">--r-2</code> 12 px<br>cards, row groups</li>
+    <li><span class="sg-shape" style="--r: var(--r-3)"></span><code class="sg-code">--r-3</code> 20 px<br>sheets</li>
+    <li><span class="sg-shape" style="--r: var(--r-full)"></span><code class="sg-code">--r-full</code><br>pills, dots</li>
+  </ul>
+  <h3>Elevation</h3>
+  <p>Most things sit flat on the page with a hairline. Three shadows lift what must come forward: a card that must stand out from the page, a sheet rising over it, and a toast over everything.</p>
+  <ul class="sg-elev">
+    <li><span class="sg-elev__box" style="--sh: var(--elev-1)"></span><code class="sg-code">--elev-1</code> a raised card</li>
+    <li><span class="sg-elev__box" style="--sh: var(--elev-2)"></span><code class="sg-code">--elev-2</code> a sheet</li>
+    <li><span class="sg-elev__box" style="--sh: var(--elev-3)"></span><code class="sg-code">--elev-3</code> a toast</li>
+  </ul>
+
+  <h2 id="motion">Motion</h2>
+  <p>Four durations and two curves. A state change is quick; a sheet or a fold takes a beat; the dot that leads the child's eye across a word takes longer, so the eye can follow. Everything that enters or settles eases out; everything that leaves eases in. When the system asks for less motion, every duration becomes nothing.</p>
+  <table class="sg-table">
+    <thead><tr><th scope="col">Token</th><th scope="col">Time</th><th scope="col">Used for</th></tr></thead>
+    <tbody>
+      <tr><td><code class="sg-code">--dur-1</code></td><td>120 ms</td><td>A hover, a press, a fold's arrow turning, the dot's tap</td></tr>
+      <tr><td><code class="sg-code">--dur-2</code></td><td>200 ms</td><td>A sheet rising, the dot moving to the next word</td></tr>
+      <tr><td><code class="sg-code">--dur-3</code></td><td>300 ms</td><td>The dot's bounce when a child touches a word</td></tr>
+      <tr><td><code class="sg-code">--dur-4</code></td><td>600 ms</td><td>The dot's sweep under a word read the fast way</td></tr>
+      <tr><td><code class="sg-code">--ease-out</code></td><td></td><td>Things that arrive or settle</td></tr>
+      <tr><td><code class="sg-code">--ease-in</code></td><td></td><td>Things that leave</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="icons">Icons</h2>
+  <p>Every icon is drawn on a 24-unit grid with a stroke of 2, round caps, and round joins, in the current text color. An icon never stands alone: it has a visible label, or the control it sits in has one for the screen reader. The tab bar's icons have a filled twin for the current tab.</p>
+  <ul class="sg-icons">
+    {% for name in ["arrow-left", "arrow-right", "book-open", "check", "check-circle", "chevron-right", "child", "clear-marks", "download", "expand", "eye", "eye-off", "info", "keyboard", "leave", "list", "more", "pause", "play", "plus", "refresh-cw", "repeat", "rotate-ccw", "show-again", "upload", "x", "tab-today", "tab-lessons", "tab-practice", "tab-records", "tab-more"] %}
+    <li>{% include "partials/icons/" + name + ".njk" %}<span>{{ name }}</span></li>
+    {% endfor %}
+  </ul>
+
+  <h2 id="buttons">Buttons</h2>
+  <p>One button, in five variants and a few sizes. Its states come in one order: hover, only where a pointer can hover; pressed, a darker layer and a one-pixel drop; focus, the ring every control shares; disabled, faded; and selected, a soft fill on an outlined button or a ring on a filled one. The label says what the button does, in one or two words, and the primary action is the one filled button on a screen.</p>
+  <div class="sg-sample">
+    <p class="eyebrow">Variants</p>
+    <div class="btn-row">
+      <button type="button" class="btn btn--primary">Primary</button>
+      <button type="button" class="btn btn--secondary">Secondary</button>
+      <button type="button" class="btn btn--quiet">Quiet</button>
+      <button type="button" class="btn btn--danger">Danger</button>
+      <button type="button" class="btn btn--firm">Firm</button>
+    </div>
+    <p class="eyebrow">Disabled</p>
+    <div class="btn-row">
+      <button type="button" class="btn btn--primary" disabled>Primary</button>
+      <button type="button" class="btn btn--secondary" disabled>Secondary</button>
+      <button type="button" class="btn btn--danger" disabled>Danger</button>
+    </div>
+    <p class="eyebrow">Selected</p>
+    <div class="btn-row">
+      <button type="button" class="btn btn--secondary" aria-pressed="true">Outlined</button>
+      <button type="button" class="btn btn--danger" aria-pressed="true">Danger</button>
+      <button type="button" class="btn btn--primary" aria-pressed="true">Filled</button>
+      <button type="button" class="btn btn--secondary btn--stack is-held">{% include "partials/icons/eye.njk" %}<span class="btn__label">Held</span></button>
+    </div>
+    <p class="eyebrow">Sizes</p>
+    <div class="btn-row">
+      <button type="button" class="btn btn--primary btn--big">Big, 52 px</button>
+      <button type="button" class="btn btn--secondary btn--square" aria-label="Close">{% include "partials/icons/x.njk" %}</button>
+      <button type="button" class="btn btn--secondary btn--stack">{% include "partials/icons/keyboard.njk" %}<span class="btn__label">Stack</span></button>
+      <button type="button" class="btn btn--secondary btn--tight">Tight</button>
+    </div>
+    <button type="button" class="btn btn--primary btn--block">Block: the width of its column</button>
+  </div>
+  <h3>The lesson screen's bar</h3>
+  <p>Four slots, 56 px tall, that never move: More, a tool for the step, Error, and the primary action. Buttons that share a slot take turns, so the primary button's box is in the same place on every step and the parent's thumb learns it. A dot in a button's corner marks the mark the child's touch suggests.</p>
+  <div class="sg-sample sg-sample--bar">
+    <div class="sg-bar">
+      <button type="button" class="btn btn--bar btn--stack">{% include "partials/icons/more.njk" %}<span class="btn__label">More</span></button>
+      <button type="button" class="btn btn--bar btn--stack">{% include "partials/icons/show-again.njk" %}<span class="btn__label">Show</span></button>
+      <button type="button" class="btn btn--bar btn--danger">Error</button>
+      <button type="button" class="btn btn--bar btn--primary">Next</button>
+    </div>
+  </div>
+  <div class="sg-sample sg-sample--bar">
+    <div class="sg-bar">
+      <button type="button" class="btn btn--bar btn--stack">{% include "partials/icons/more.njk" %}<span class="btn__label">More</span></button>
+      <button type="button" class="btn btn--bar btn--stack">{% include "partials/icons/eye.njk" %}<span class="btn__label">Dot</span></button>
+      <button type="button" class="btn btn--bar btn--secondary btn--tight">Start over</button>
+      <button type="button" class="btn btn--bar btn--firm">Firm</button>
+    </div>
+  </div>
+
+  <h2 id="labels">Labels and marks</h2>
+  <p>One small label, the eyebrow, sits above a card, a section, or a box: 13 px, bold, in capitals, in the secondary ink. A key cap shows a keyboard shortcut. A status is a pill with a glyph and a word, never color alone. A progress bar is a rail with a fill and a line of text that says the same thing in words.</p>
+  <div class="sg-sample">
+    <p class="eyebrow">An eyebrow above a card</p>
+    <p class="muted small">A key cap: press <kbd class="kbd">F</kbd> for Firm and <kbd class="kbd">E</kbd> for Error.</p>
+    <p class="eyebrow">Status</p>
+    <p><span class="status status--done">{% include "partials/icons/check.njk" %}Finished</span> <span class="status status--repeat">{% include "partials/icons/repeat.njk" %}Repeat</span> <span class="status status--next">Next</span> <span class="status status--plain">Not begun</span></p>
+    <p class="eyebrow">Progress</p>
+    <span class="pbar" style="--p: 0.4"><span class="pbar__fill"></span></span>
+    <p class="pbar__label">Lesson 40 of 100</p>
+  </div>
+
+  <h2 id="cards">Cards and rows</h2>
+  <p>A card holds one thing and its action: a title, a line or two, and at most two buttons. A quiet card is for what is secondary; a strong card, with the accent border, is for the one thing a screen leads with. Rows are a list of links or buttons, each at least 56 px tall, with a title, an optional second line, and a chevron or an icon at the end. A fold hides what most people do not need.</p>
+  <div class="sg-sample">
+    <div class="card card--strong">
+      <h3 class="card__title">Kindergarten, Lesson 41</h3>
+      <p class="card__text">Counting by tens, adding one, and the shapes. About 15 minutes.</p>
+      <div class="btn-row"><button type="button" class="btn btn--primary">Start</button><button type="button" class="btn btn--secondary">Outline</button></div>
+    </div>
+    <div class="card card--quiet">
+      <h3 class="card__title">A quiet card</h3>
+      <p class="card__text">For what can wait: a note, a hint, a second choice.</p>
+    </div>
+    <ul class="rows">
+      <li><a class="row" href="#cards"><span class="row__main"><span class="row__title">A link row</span><span class="row__sub">With a second line and a chevron</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+      <li><button class="row" type="button"><span class="row__main"><span class="row__title">A button row</span><span class="row__sub">It does something here instead of going somewhere</span></span><span class="row__aside">Aside</span></button></li>
+      <li><button class="row row--danger" type="button"><span class="row__main"><span class="row__title">A danger row</span><span class="row__sub">Erases, removes, or cannot be undone</span></span>{% include "partials/icons/x.njk" %}</button></li>
+    </ul>
+    <details class="fold"><summary><h3 class="fold__h">A fold</h3></summary><div class="fold__body"><p>What most people do not need is here, one tap away.</p></div></details>
+    <div class="advice"><p>An advice box: a line the parent should act on, with the accent at its left.</p></div>
+  </div>
+
+  <h2 id="forms">Forms</h2>
+  <p>A field is a label, an input at least 44 px tall, and a help line. An error line appears under the field and the input's border turns the error color; the message says what to do. A disabled field fades. A checkbox and its label are one tap target. A radio group that chooses a child is a row of pills.</p>
+  <div class="sg-sample">
+    <div class="field">
+      <label for="sg-name">Child's name</label>
+      <input class="input" id="sg-name" type="text" value="Mia" autocomplete="off">
+      <p class="field__help">Shown on Today and in the records.</p>
+    </div>
+    <div class="field">
+      <label for="sg-note">A note</label>
+      <input class="input" id="sg-note" type="text" value="" aria-invalid="true" aria-describedby="sg-note-error" autocomplete="off">
+      <p class="field__error" id="sg-note-error">Type the note before you save it.</p>
+    </div>
+    <div class="field">
+      <label for="sg-off">A disabled field</label>
+      <input class="input" id="sg-off" type="text" value="Not now" disabled>
+    </div>
+    <label class="check"><input type="checkbox" checked> Save this choice</label>
+    <fieldset class="chips">
+      <legend class="eyebrow">Who is learning</legend>
+      <label class="chip"><input type="radio" name="sg-child" checked>Mia</label>
+      <label class="chip"><input type="radio" name="sg-child">Sam</label>
+      <label class="chip chip--add"><input type="radio" name="sg-child">{% include "partials/icons/plus.njk" %}Add a child</label>
+    </fieldset>
+  </div>
+
+  <h2 id="sheets">Sheets and toasts</h2>
+  <p>A sheet is a native dialog that rises from the bottom in 200 ms and darkens the page behind it. It has a title, a close control, and either a list of rows or a body with its buttons at the foot. The browser keeps the page behind it inert and returns focus when it closes. A toast is one line that sits above the tab bar for a few seconds, with at most one action.</p>
+  <div class="sg-sample">
+    <div class="btn-row"><button type="button" class="btn btn--secondary" data-sheet-open="sheet-sample">Open a sheet</button></div>
+    <p class="eyebrow">A toast</p>
+    <div class="toast sg-static"><span>Backup saved.</span><button type="button" class="btn">Undo</button></div>
+  </div>
+  <dialog class="sheet" id="sheet-sample" aria-labelledby="sheet-sample-title">
+    <form method="dialog" class="sheet__form">
+      <div class="sheet__head"><h2 class="sheet__title" id="sheet-sample-title">A sheet</h2><button type="submit" class="btn btn--quiet btn--square sheet__close" value="close" aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+      <div class="sheet__body">
+        <p>Rows in a sheet are the menu of a screen. Each has an icon, a name, and its key.</p>
+        <ul class="sheet__list">
+          <li><button type="submit" class="sheet__row" value="outline">{% include "partials/icons/list.njk" %}Outline<kbd class="kbd">O</kbd></button></li>
+          <li><button type="submit" class="sheet__row" value="keys">{% include "partials/icons/keyboard.njk" %}Keys<kbd class="kbd">?</kbd></button></li>
+          <li><button type="submit" class="sheet__row" value="leave" disabled>{% include "partials/icons/leave.njk" %}A disabled row</button></li>
+        </ul>
+      </div>
+      <div class="sheet__foot"><button type="submit" class="btn btn--secondary" value="cancel">Cancel</button><button type="submit" class="btn btn--primary" value="ok">Done</button></div>
+    </form>
+  </dialog>
+
+  <h2 id="words">Words</h2>
+  <p>The copy of every screen follows Strunk and White. These are the rules.</p>
+  <ul>
+    <li>Use the active voice and short, declarative sentences. "The test names the lesson to start with," not "the starting lesson will be determined."</li>
+    <li>Use concrete words. Say "tap," "lesson," "child," not "interact," "module," "learner."</li>
+    <li>Omit needless words. A button is one or two words. A sheet's title is a noun. A help line is one sentence.</li>
+    <li>Use one word for each thing, and the same word everywhere it appears.</li>
+    <li>No jargon from the method or from software. The parent does not need to know what a track, a segment, or a session is.</li>
+    <li>Sentences end with periods. Nothing on any screen ends with an exclamation mark.</li>
+    <li>Praise is the answer itself: "Yes, seven." Never "Great job."</li>
+    <li>Address the parent as you and the child as the child or by name. Never "the student" or "the user."</li>
+    <li>Numbers under ten are words in prose and numerals in a label, a count, or a time.</li>
+  </ul>
+  <h3>One word for each thing</h3>
+  <table class="sg-table">
+    <thead><tr><th scope="col">Say</th><th scope="col">Not</th><th scope="col">For</th></tr></thead>
+    <tbody>
+      <tr><td>child</td><td>student, learner, kid</td><td>The one being taught</td></tr>
+      <tr><td>you</td><td>the parent, the teacher, the user</td><td>The one teaching</td></tr>
+      <tr><td>lesson</td><td>module, unit, activity</td><td>One scripted lesson of about fifteen minutes</td></tr>
+      <tr><td>exercise</td><td>task, item set, segment</td><td>One part of a lesson, on one skill</td></tr>
+      <tr><td>mark</td><td>score, grade, rate</td><td>What you do to an answer: Firm or Error</td></tr>
+      <tr><td>Firm, Error</td><td>Correct, Wrong, Pass, Fail</td><td>The two marks, and the two buttons</td></tr>
+      <tr><td>Start over</td><td>Reset, Restart</td><td>Begin the exercise again</td></tr>
+      <tr><td>Next, Go on</td><td>Continue, Proceed, Submit</td><td>The primary button: Next within a step, Go on to the next exercise</td></tr>
+      <tr><td>On your own</td><td>Independent work, Practice</td><td>The last exercise, which the child does by touching the screen</td></tr>
+      <tr><td>mastery test</td><td>assessment, quiz, exam</td><td>The test after every tenth lesson</td></tr>
+      <tr><td>placement test</td><td>diagnostic, screener</td><td>The test that names the lesson to begin with</td></tr>
+      <tr><td>records</td><td>progress, data, stats, dashboard</td><td>What the app keeps about each child</td></tr>
+      <tr><td>backup</td><td>export, download, sync</td><td>The file that holds the records</td></tr>
+      <tr><td>Today, Lessons, Practice, Records, More</td><td></td><td>The five tabs, by their names</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="screens">Every screen</h2>
+  <p>A screen is finished when every line below is true of it.</p>
+  <ul class="sg-check">
+    <li>{% include "partials/icons/check-circle.njk" %}<span>One title in the screen's title style, with an optional lead beneath it, and nothing above it but the strip.</span></li>
+    <li>{% include "partials/icons/check-circle.njk" %}<span>Every control is at least 44 by 44 pixels and sits at the bottom or within a list; nothing important is above the fold on a tall screen that a thumb cannot reach.</span></li>
+    <li>{% include "partials/icons/check-circle.njk" %}<span>Every control shows its states in order: hover only where a pointer can hover, pressed, focus, disabled, selected.</span></li>
+    <li>{% include "partials/icons/check-circle.njk" %}<span>No text is under 13 px, and every line of text is at 7:1 against what is behind it.</span></li>
+    <li>{% include "partials/icons/check-circle.njk" %}<span>Every color, size, radius, shadow, and duration is a token. No style is written in the page.</span></li>
+    <li>{% include "partials/icons/check-circle.njk" %}<span>Every small label is the eyebrow; every shortcut is a key cap; every status has a glyph and a word.</span></li>
+    <li>{% include "partials/icons/check-circle.njk" %}<span>Every icon has a label, and every image on the stage has a description for a screen reader.</span></li>
+    <li>{% include "partials/icons/check-circle.njk" %}<span>The screen fits a 320-pixel phone with nothing cut off and nothing scrolling sideways, and the lesson screen fits with no scrolling at all.</span></li>
+    <li>{% include "partials/icons/check-circle.njk" %}<span>Every menu and confirmation is a sheet from the bottom, and the keyboard reaches everything a finger can.</span></li>
+    <li>{% include "partials/icons/check-circle.njk" %}<span>Every word follows the rules above, and the screen's description says what the screen is for.</span></li>
+  </ul>
+
+  <h2 id="checks">The checks</h2>
+  <p>Scripts in the repository hold every screen to this page. The style check reads the stylesheets, the templates, and the icons, and refuses a color, size, radius, or duration written out, a style in a template, a hover rule that is not gated, an icon with the wrong stroke, or a selector styled twice. The accessibility check runs axe-core over every kind of screen at two phone sizes and adds probes of its own for contrast, target size, sideways overflow, text spacing, and corner radii. The fit check steps through sample lessons at four sizes and fails if the lesson screen scrolls or the primary button moves. The copy check refuses the words that do not belong here. Lighthouse must score 100 for accessibility on every page it is given. The <a href="https://github.com/jonajinga/math-direct/blob/main/docs/design.md">design notes</a> keep the reasoning behind each rule.</p>
+</div>

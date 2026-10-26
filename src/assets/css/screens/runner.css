@@ -56,6 +56,8 @@
   border-bottom: 1px solid var(--line);
 }
 .child-stage {
+  /* The drawings' sizes (visuals.css): the tallest a drawing may be, and one counted object */
+  --stage-max: 80cqh; --vis-h: calc(var(--stage-max) * 0.85); --cell: min(32cqh, 10rem, 16cqw);
   width: 100%;
   height: 100%;
   display: flex;
@@ -179,7 +181,7 @@
   color: var(--ink);
 }
 .tp-box p { display: inline; margin: 0; }
-.tp-label { display: inline-block; min-width: 3.25rem; margin-right: var(--sp-1); font-size: var(--fs-1); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-2); }
+.tp-label { display: inline-block; min-width: 3.25rem; margin: 0 var(--sp-1) 0 0; }
 .tp-do { border-left-color: var(--note); background: var(--note-soft); }
 .tp-do p { font-style: italic; }
 .tp-answer p { font-weight: 700; }
@@ -225,45 +227,13 @@
   border-top: 1px solid var(--line);
 }
 .rn-slot { display: grid; min-width: 0; }
-.rn-slot > .rn-btn { grid-area: 1 / 1; }
-.rn-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  min-height: 3.5rem;
-  min-width: 0;
-  padding: 0 var(--sp-3);
-  border: 2px solid var(--line-strong);
-  border-radius: var(--r-1);
-  background: var(--surface);
-  color: var(--ink);
-  font: inherit;
-  font-size: var(--fs-4);
-  font-weight: 700;
-  line-height: 1.1;
-  white-space: nowrap;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.rn-btn:disabled { opacity: 0.4; cursor: default; }
-.rn-btn--icon { flex-direction: column; gap: 0.125rem; padding: 0; font-size: var(--fs-1); font-weight: 600; color: var(--ink-2); border-color: var(--line); background: transparent; }
-.rn-btn--icon svg { width: 1.375rem; height: 1.375rem; color: var(--ink); }
-.rn-btn--dot { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-.rn-btn--dot.is-held { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
-.rn-btn--dot.is-held svg { color: var(--primary); }
-.rn-btn--next { background: var(--primary); border-color: var(--primary); color: #fff; }
-.rn-btn--next:hover:not(:disabled) { background: var(--primary-strong); border-color: var(--primary-strong); }
-.rn-btn--firm { background: var(--firm); border-color: var(--firm); color: #fff; }
-.rn-btn--error { border-color: var(--error); color: var(--error); }
-.rn-btn--error:hover:not(:disabled) { background: var(--error-soft); }
-.rn-btn--over { border-color: var(--ink-2); color: var(--ink); font-size: var(--fs-2); padding: 0 var(--sp-1); }
-/* A mark already made on this step */
-.rn-btn[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 5px currentColor; }
-.rn-btn--firm[aria-pressed="true"], .rn-btn--next[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 5px var(--ink); }
+.rn-slot > .btn { grid-area: 1 / 1; }
+/* The bar's buttons are the one button in its bar size (components/buttons.css). */
+.rn-bar .btn:disabled { cursor: default; }
+.btn--dot { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 /* The child's touch suggests a mark; a dot marks the suggested button. */
-.rn-btn.is-suggested { position: relative; }
-.rn-btn.is-suggested::after { content: ""; position: absolute; top: 0.2rem; right: 0.2rem; width: 0.75rem; height: 0.75rem; border-radius: 50%; background: var(--ink); border: 2px solid var(--surface); }
+.rn-bar .btn.is-suggested { position: relative; }
+.rn-bar .btn.is-suggested::after { content: ""; position: absolute; top: 0.2rem; right: 0.2rem; width: 0.75rem; height: 0.75rem; border-radius: var(--r-full); background: var(--ink); border: 2px solid var(--surface); }
 
 /* Tight: when the panel's text would not fit even at the smallest step,
    the stage gives up some room before the panel is allowed to scroll. */
@@ -273,8 +243,8 @@
 /* Narrow phones: the same four slots, a little closer together. */
 @media (max-width: 22.5em) {
   .rn-bar { gap: var(--sp-1); padding-left: calc(var(--sp-2) + var(--safe-l)); padding-right: calc(var(--sp-2) + var(--safe-r)); grid-template-columns: 2.75rem 2.75rem 5.75rem minmax(0, 1fr); }
-  .rn-btn { padding: 0 var(--sp-2); font-size: var(--fs-3); }
-  .rn-btn--over { font-size: 0.875rem; }
+  .rn-bar .btn { padding: 0 var(--sp-2); font-size: var(--fs-3); }
+  .rn-bar .btn--tight { font-size: var(--fs-1); }
   .tp-body { padding-left: var(--sp-3); padding-right: var(--sp-3); }
   .rn-strip { padding-left: calc(var(--sp-3) + var(--safe-l)); padding-right: calc(var(--sp-3) + var(--safe-r)); }
   .runner.is-tight { grid-template-rows: auto 26% minmax(0, 1fr) auto; }
@@ -285,8 +255,8 @@
 .runner.is-big { grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "stage" "bar"; }
 .runner.is-big .rn-strip, .runner.is-big .rn-panel { display: none; }
 .runner.is-big .rn-bar { grid-template-columns: 1fr; }
-.runner.is-big .rn-bar > :not(.rn-btn--big-back) { display: none; }
-.runner.is-big .rn-btn--big-back { display: inline-flex; }
+.runner.is-big .rn-bar > :not(#btn-big-back) { display: none; }
+.runner.is-big #btn-big-back { display: inline-flex; }
 
 /* ── Sheets used by the runner ── */
 .sheet__note { margin: 0; padding: var(--sp-3) var(--sp-4) var(--sp-4); font-size: var(--fs-2); color: var(--ink-2); }
@@ -300,7 +270,6 @@
 .keys div { display: flex; align-items: center; gap: var(--sp-3); }
 .keys dt { flex: 0 0 6.5rem; }
 .keys dd { margin: 0; }
-.keys kbd, .sheet__row kbd { font-family: var(--font-ui); font-size: var(--fs-1); font-weight: 700; color: var(--ink-2); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.05em 0.45em; background: var(--surface); }
 
 /* ── Finish and start screens ──
    A scrolling article with its main action in a fixed bar at the bottom. */
@@ -313,7 +282,6 @@
 .runner-finish[hidden], .runner-start[hidden] { display: none; }
 .page-runner:has(.runner-finish:not([hidden])), .page-runner:has(.runner-start:not([hidden])) { overflow: auto; }
 .finish { max-width: var(--content-max); margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-2); padding: var(--sp-4); }
-.finish__kicker { margin: 0 0 var(--sp-1); font-size: var(--fs-1); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--primary); }
 .finish__title { margin: 0 0 var(--sp-3); font-size: var(--fs-6); line-height: 1.2; }
 .finish__lead { margin: 0 0 var(--sp-3); color: var(--ink-2); line-height: 1.5; font-size: var(--fs-2); }
 .finish__lead a { color: var(--primary); text-decoration: underline; }
@@ -323,20 +291,18 @@
 .finish__facts dd { margin: 0; font-size: var(--fs-4); font-weight: 700; }
 .finish__h2 { margin: var(--sp-3) 0 var(--sp-1); font-family: var(--font-ui); font-size: var(--fs-3); }
 /* One card for each child when two were taught together. */
-.finish__child { margin: var(--sp-3) 0 0; padding: var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-1); background: var(--surface-2); }
+.finish__child { margin: var(--sp-3) 0 0; padding: var(--sp-4); border: 1px solid var(--line); border-radius: var(--r-2); background: var(--surface-2); }
 .finish__child > .finish__h2 { margin-top: 0; font-size: var(--fs-4); }
 .finish__child .finish__facts { margin-bottom: var(--sp-2); }
-.finish__child .finish__advice { background: var(--surface); }
+.finish__child .advice { background: var(--surface); }
 .finish__list { margin: 0 0 var(--sp-3); padding-left: 1.25rem; line-height: 1.45; font-size: var(--fs-2); }
 .finish__list li + li { margin-top: 0.125rem; }
 .finish__list a, .finish__passed a { color: var(--primary); text-decoration: underline; }
 .finish__passed { margin: 0 0 var(--sp-3); font-size: var(--fs-2); line-height: 1.45; }
-.finish__advice { margin: var(--sp-3) 0; padding: var(--sp-3) var(--sp-4); border-left: 4px solid var(--primary); background: var(--surface-2); line-height: 1.5; font-size: var(--fs-2); border-radius: 0 var(--r-1) var(--r-1) 0; }
-.finish__advice p { margin: 0; }
+.finish .advice { margin: var(--sp-3) 0; line-height: 1.5; font-size: var(--fs-2); }
 .finish__mark { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin: var(--sp-3) 0 0; font-size: var(--fs-2); }
 .finish__mark-label { color: var(--ink-2); }
-.finish__mark-btn { min-height: var(--tap); padding: 0 var(--sp-3); border: 2px solid var(--line-strong); border-radius: var(--r-1); background: var(--surface); color: var(--ink); font: inherit; font-size: var(--fs-2); font-weight: 600; cursor: pointer; }
-.finish__mark-btn[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-strong); }
+.finish__mark .btn { font-size: var(--fs-2); padding: 0 var(--sp-3); }
 .finish__links { margin: var(--sp-3) 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); font-size: var(--fs-2); }
 .finish__links a { color: var(--primary); text-decoration: underline; min-height: var(--tap); display: inline-flex; align-items: center; }
 .finish__note { margin-top: var(--sp-3); border-top: 1px solid var(--line); padding-top: var(--sp-3); }
@@ -358,10 +324,10 @@
   .rn-where { margin-bottom: var(--sp-1); }
   .tp-body { padding: var(--sp-2) var(--sp-3); gap: 0.375rem; }
   .rn-bar { min-height: 3.5rem; padding-top: var(--sp-1); padding-bottom: calc(var(--sp-1) + var(--safe-b)); grid-template-columns: 2.75rem 2.75rem 6rem minmax(0, 1fr); }
-  .rn-btn { min-height: 2.75rem; font-size: var(--fs-3); }
-  .rn-btn--over { font-size: 0.875rem; }
-  .rn-btn--icon { font-size: 0.8125rem; }
-  .rn-btn--icon .rn-btn__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .rn-bar .btn { min-height: 2.75rem; font-size: var(--fs-3); }
+  .rn-bar .btn--tight { font-size: var(--fs-1); }
+  .rn-bar .btn--stack { font-size: var(--fs-1); }
+  .rn-bar .btn--stack .btn__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
   .runner.is-tight { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); grid-template-rows: auto minmax(0, 1fr) auto; }
   .runner.is-tight-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
   .runner.is-big { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "stage" "bar"; }

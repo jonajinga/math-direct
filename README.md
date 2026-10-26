@@ -22,7 +22,8 @@ npm run check      # validate every lesson and print a summary
 More checks, each run against a built site (`npm run build` first):
 
 ```
-npm run check:all      # the curriculum, a clean build, the PWA files, and the copy rules
+npm run check:all      # the curriculum, a clean build, the PWA files, the copy rules, and the style guide
+npm run check:style    # the stylesheets, templates, and icons keep to the tokens (also run by check:all)
 npm run check:fit      # every step of a sample of runner pages fits one phone screen at four sizes
 npm run check:session  # a sitting is saved, continued, and cleared
 npm run check:program  # first-try scoring, retests, On your own, the test gate, signals, the timed check, two children
