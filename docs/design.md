@@ -187,6 +187,27 @@ allowed, met }`, the last forty kept), shown on the finish screen, and
 listed on Records. With two children, each reads the passage in turn and
 each gets a record.
 
+### Tests and placement
+
+A reading mastery test takes its parts from the tracks the level names
+(`testTracks`: sounds, sounding out, the fast way, words read whole,
+sentences, stories), with the same item counts, allowed errors, and
+remedies as math. From the test after lesson 50, a last part is a passage
+read alone (`testPassage`): the story of a recent lesson or sentences read
+lately, run as a checkout against the lesson's goal. The part is passed
+when the goal is met with two errors or fewer; its remedy is the story in
+the library, or the sentences practice. The result is kept with the test
+(`wpm` and `goal` on the part) and as a checkout record.
+
+The placement test is built per subject (`program.placements.reading`,
+`program.placements.math`) and runs at `/placement/reading/` and
+`/placement/math/`. The reading test begins with a readiness section (say
+a sound after the parent, say a word fast from its parts), then a section
+for each span of twenty lessons, four tracks and three items each; the
+rules for passing, going back, and naming the lesson to begin with are the
+math test's. The record goes to the reading placement alone, and the test
+gate, the next-step logic, and Today read it by subject.
+
 ## Two children
 
 A lesson can be taught to two children at once: the runner's More sheet

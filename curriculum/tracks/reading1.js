@@ -620,6 +620,44 @@ const checkouts = {
   },
 };
 
+// ── Readiness, for the placement test's first section ──
+// Can the child say a sound after the parent, and say a word fast from its
+// parts? If not, the first lessons teach both.
+function readyRepeat(id) {
+  const say = SOUND_BY_ID[id].say;
+  return test(V.say(), `My turn: ${say}. Your turn. Say ${say}.`, say + ".", fix(say + ".", `Say ${say}.`), {
+    skill: "ready", item: `ready-sound:${id}`, confirm: "Yes.", signal: "drop", secs: 6,
+    do: "Say the sound once, held two seconds. The child says it back.",
+  });
+}
+function readyFast(parts, word) {
+  return test(V.say(), `Listen. ${parts}. Say it fast.`, cap(word) + ".", fix(cap(word) + ".", `Say it fast. ${parts}.`, "", { keep: isName(word) }), {
+    skill: "ready", item: `ready-fast:${word.toLowerCase()}`, confirm: "Yes, " + word + ".", signal: "drop", secs: 6,
+    do: "Say the parts with a pause between them, then drop your hand.",
+  });
+}
+const readiness = [readyRepeat("m"), readyRepeat("s"), readyFast("mmm...at", "mat"), readyFast("sss...am", "Sam")];
+
+// ── Mastery tests: a passage part from lesson 50 ──
+// The test after lesson 50 and every test after it ends with the story of a
+// recent lesson, or sentences read lately, read alone against the clock,
+// as the checkouts are.
+function testPassage(end) {
+  if (end < 50) return null;
+  const p = checkoutPassage(end + 1);
+  const ctx = { prompts: STAGE_AT(end) };
+  const words = p.lines.reduce((a, s) => a + s.words.length, 0);
+  const items = p.lines.map((s, i) => note(lineOf(s, ctx), plainText(s.text), {
+    secs: 2 + s.words.length * 1.5,
+    ...(i === 0 ? { do: (p.title ? `The story ${p.title}, read alone. ` : "Lines the child has read, read alone. ") + "Tap Start as the child begins, Error for each word missed, Next at the end of each line, and Stop at the end." } : {}),
+  }));
+  const story = p.title ? STORY_UNITS.find((u) => u.story.title === p.title) : null;
+  return {
+    track: "passage", trackName: "Passage", kind: "checkout", items, words, goal: checkoutGoal(end), allowed: 2, passage: p.title,
+    remedy: story ? [{ url: `/stories/${story.id}/`, label: `Read ${p.title} again the fast way` }] : [{ url: "/practice/reading-1/sentences/", label: "Sentences, read the fast way" }],
+  };
+}
+
 // Every story, for the library under Practice: the lines the fast way and
 // the questions, at the alphabet stage of the lesson it is readable at.
 // A story whose words go past this level is listed for the next level.
@@ -663,4 +701,12 @@ export default {
   tracks: [sounds, sayFast, saySounds, rhyming, soundOut, fastWay, wholeWords, sentences, stories, checkouts],
   storyLibrary,
   checkoutGoal,
+  // Mastery tests take these tracks, and from lesson 50 a passage read alone.
+  testTracks: ["sounds", "sound-out", "fast-way", "whole-words", "sentences", "stories"],
+  testAlways: ["fast-way"],
+  testPassage,
+  // The placement test: readiness, then a section for each span of twenty lessons.
+  placementPoints: [1, 20, 40, 60, 80],
+  placementTracks: 4,
+  readiness,
 };

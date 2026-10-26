@@ -57,11 +57,14 @@ export function buildMasteryTests(level, built) {
     const start = end - every + 1;
     const final = t === count;
     const parts = [];
-    for (const track of level.tracks) {
+    const testTracks = level.testTracks ? level.tracks.filter((tr) => level.testTracks.includes(tr.id)) : level.tracks;
+    for (const track of testTracks) {
       const upTo = track.units.filter((u) => u.lesson <= end);
       if (!upTo.length || !track.testItems) continue;
       const inBlock = track.units.filter((u) => u.lesson >= start && u.lesson <= end);
-      if (!final && !inBlock.length) continue;
+      // A track with no new unit in the block is left out, unless the level
+      // names it as tested every time (reading the fast way).
+      if (!final && !inBlock.length && !(level.testAlways || []).includes(track.id)) continue;
       const items = partItems(level, track, upTo, start, end, t, final);
       if (!items.length) continue;
       const remedyUnits = inBlock.length ? inBlock : upTo.slice(-2);
@@ -79,6 +82,11 @@ export function buildMasteryTests(level, built) {
         allowed: allowedErrors(items.length),
         remedy,
       });
+    }
+    // A passage read alone against the clock, where the level has one.
+    if (level.testPassage) {
+      const pp = level.testPassage(end);
+      if (pp) parts.push(pp);
     }
     tests.push({
       id: `${level.id}-test-${pad2(t)}`,
@@ -127,6 +135,7 @@ export function buildPlacement(levels) {
         // in the first lessons come first.
         sections.push({
           id: `${level.id}-ready`,
+          subject: level.subject || "math",
           level: level.id,
           levelName: level.name,
           levelSlug: level.slug,
@@ -141,6 +150,7 @@ export function buildPlacement(levels) {
       }
       sections.push({
         id: `${level.id}-${from}`,
+        subject: level.subject || "math",
         level: level.id,
         levelName: level.name,
         levelSlug: level.slug,

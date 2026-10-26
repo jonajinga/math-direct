@@ -37,7 +37,7 @@ await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const BASE = "http://127.0.0.1:" + server.address().port;
 
 const SIZES = [[390, 844], [320, 568]];
-const PAGES = ["/", "/lessons/", "/k/", "/practice/", "/records/", "/more/", "/search/?q=count", "/guide/", "/curriculum/", "/about/", "/privacy/", "/terms/", "/offline/", "/404.html", "/placement/", "/placement/math/", "/facts/", "/timed/", "/reading-sample/", "/reading-1/", "/reading-1/lesson-040/", "/quick-sounds/", "/stories/", "/stories/sam-sat/"];
+const PAGES = ["/", "/lessons/", "/k/", "/practice/", "/records/", "/more/", "/search/?q=count", "/guide/", "/curriculum/", "/about/", "/privacy/", "/terms/", "/offline/", "/404.html", "/placement/", "/placement/math/", "/facts/", "/timed/", "/reading-sample/", "/reading-1/", "/reading-1/lesson-040/", "/quick-sounds/", "/stories/", "/stories/sam-sat/", "/placement/reading/"];
 const fails = [];
 let runs = 0;
 

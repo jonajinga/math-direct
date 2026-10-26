@@ -47,11 +47,14 @@ function check(name, ok, detail) { console.log((ok ? "ok   " : "FAIL ") + name +
 // ── The data ──
 const sizes = {};
 program.tests.forEach((t) => t.parts.forEach((p) => { sizes[p.items.length] = (sizes[p.items.length] || 0) + 1; }));
-const parts = program.tests.flatMap((t) => t.parts);
+const parts = program.tests.flatMap((t) => t.parts).filter((p) => p.kind !== "checkout");
 check("most test parts have 4 to 8 items", parts.filter((p) => p.items.length >= 4 && p.items.length <= 8).length / parts.length > 0.85, JSON.stringify(sizes));
 check("no part has more than 8 items", parts.every((p) => p.items.length <= 8));
 check("a part of 5 or more allows one error, fewer allows none", parts.every((p) => p.allowed === (p.items.length >= 5 ? 1 : 0)));
 check("remedy links open the exercise", parts.every((p) => p.remedy.every((r) => /#ex\d+$/.test(r.url))));
+const rtests = program.tests.filter((t) => t.level === "reading-1");
+check("reading tests take sounds, words, whole words, sentences, and stories", rtests.every((t) => t.parts.some((p) => p.track === "sounds")) && rtests.filter((t) => t.afterLesson >= 30).every((t) => ["sound-out", "fast-way", "whole-words", "sentences"].every((k) => t.parts.some((p) => p.track === k))));
+check("reading tests from lesson 50 end with a passage read alone", rtests.every((t) => (t.afterLesson >= 50) === t.parts.some((p) => p.kind === "checkout")) && rtests.filter((t) => t.afterLesson >= 50).every((t) => { const p = t.parts[t.parts.length - 1]; return p.kind === "checkout" && p.words >= 20 && p.goal > 0 && p.remedy.length === 1; }));
 const withOwn = program.lessons.filter((l) => l.independent);
 check("most lessons end with On your own", withOwn.length / program.lessons.length > 0.9, withOwn.length + " of " + program.lessons.length);
 const subjectOfLevel = Object.fromEntries(program.levels.map((l) => [l.id, l.subject]));
@@ -153,7 +156,8 @@ check("the next step moves on once the test is passed", gate2.test === false, JS
 
 // ── Signals, pace, missed-last-time, the timed check, readiness ──
 check("every placement section has three items a track or more", program.placement.every((s) => s.readiness || s.items.length >= 6), program.placement.map((s) => s.items.length).join(","));
-check("the placement test begins with a readiness section", program.placement[0].readiness === true && program.placement[0].items.length === 3);
+check("the math placement test begins with a readiness section", program.placements.math[0].readiness === true && program.placements.math[0].items.length === 3);
+check("the reading placement test begins with readiness, then a section for each twenty lessons", program.placements.reading[0].readiness === true && program.placements.reading[0].items.length === 4 && program.placements.reading.slice(1).map((s) => s.from).join(",") === "1,20,40,60,80" && program.placements.reading.every((s) => s.subject === "reading"));
 check("firming fades: most firming exercises carry a lead", program.lessons.flatMap((l) => l.exercises.filter((e) => e.kind === "firm")).filter((e) => e.steps.some((s) => s.cue === "lead")).length > 400);
 check("review exercises carry spare items", program.lessons.flatMap((l) => l.exercises.filter((e) => e.kind !== "new")).filter((e) => e.spare && e.spare.length).length > 2000);
 check("First Grade facts are released in sets", program.facts.first.some((f) => f.set === 2));
@@ -354,6 +358,53 @@ await page.click("#btn-firm");
 const srec2 = await page.evaluate((id) => window.mathProgress.getActiveProfile().sounds[id], soundId);
 // The record keeps the last five marks.
 check("a sound marked in Quick sounds is recorded", srec2.r.length === Math.min(5, srecBefore.r.length + 1) && srec2.r[srec2.r.length - 1] === 1 && srec2.last !== srecBefore.last, JSON.stringify(srec2.r));
+
+// ── A reading mastery test with its passage, passed, then the passage failed alone ──
+const rt5 = program.tests.find((t) => t.id === "reading-1-test-05");
+const passageIdx = rt5.parts.findIndex((p) => p.kind === "checkout");
+async function runTest(url, passageErrors) {
+  await page.goto(BASE + url, { waitUntil: "load" });
+  await page.waitForTimeout(300);
+  let tapped = 0;
+  for (let i = 0; i < 300; i++) {
+    if (await visible("#runner-finish")) break;
+    const cue = await page.textContent("#tp-cue");
+    if (cue === "Checkout" && tapped < passageErrors && !(await page.evaluate(() => document.getElementById("btn-error").disabled))) { await page.click("#btn-error"); tapped++; await page.waitForTimeout(20); continue; }
+    await page.click(await pickBtn());
+    await page.waitForTimeout(10);
+  }
+}
+await runTest(rt5.url, 0);
+const t5 = await page.evaluate(() => { const h = window.mathProgress.getActiveProfile().tests["reading-1-test-05"]; return h[h.length - 1]; });
+check("a reading test with a passage is passed when the passage meets its goal", /Every part was passed/.test(await page.textContent("#runner-finish")) && t5.passed === true && t5.parts.some((p) => p.track === "passage" && p.passed && p.wpm > 0), JSON.stringify(t5.parts.map((p) => p.track + ":" + p.passed)));
+check("the test's passage is kept as a checkout", await page.evaluate(() => { const c = window.mathProgress.getActiveProfile().checkouts; return c.some((x) => x.test === "reading-1-test-05" && x.lesson === 50 && x.wpm > 0); }));
+await runTest(rt5.url + "?parts=" + (passageIdx + 1), 3);
+const t5b = await page.evaluate(() => { const h = window.mathProgress.getActiveProfile().tests["reading-1-test-05"]; return h[h.length - 1]; });
+const fin5 = (await page.textContent("#runner-finish")).replace(/\s+/g, " ");
+check("the passage given again with three errors fails, and the remedy is the story read again", t5b.passed === false && t5b.parts.filter((p) => p.track === "passage")[0].passed === false && /Reteach/.test(fin5) && /again the fast way|read the fast way/.test(fin5) && /words a minute with 3 errors/.test(fin5), fin5.slice(0, 200));
+
+// ── The reading placement test: readiness and the first span passed, the second not ──
+await page.goto(BASE + "/placement/reading/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+await page.click("[data-start]");
+await page.waitForTimeout(300);
+let plErrors = 0, sectionsSeen = [];
+for (let i = 0; i < 300; i++) {
+  if (await visible("#runner-finish")) {
+    if (await visible("#placement-continue")) { await page.click("#placement-continue"); await page.waitForTimeout(100); continue; }
+    break;
+  }
+  const title = await page.textContent("#tp-ex-title");
+  if (sectionsSeen[sectionsSeen.length - 1] !== title) sectionsSeen.push(title);
+  if (/lessons 20 to 39/.test(title) && plErrors < 3) { await page.click("#btn-error"); plErrors++; await page.waitForTimeout(20); continue; }
+  await page.click("#btn-firm");
+  await page.waitForTimeout(10);
+}
+const plRec = await page.evaluate(() => window.mathProgress.getPlacement("reading"));
+check("the reading placement test runs readiness, then the spans, and names the lesson to begin with", sectionsSeen.length === 3 && /readiness/.test(sectionsSeen[0]) && /Start at Reading 1, Lesson 20/.test(await page.textContent("#runner-finish")) && !!plRec && plRec.level === "reading-1" && plRec.lesson === 20 && plRec.subject === "reading", sectionsSeen.join(" | ") + " " + JSON.stringify(plRec));
+check("the reading placement leaves the math placement alone", await page.evaluate(() => { const p = window.mathProgress.getActiveProfile(); return !p.placements.math || p.placements.math.level !== "reading-1"; }));
+await page.goto(BASE + "/lessons/", { waitUntil: "load" });
+await page.waitForTimeout(300);
 
 check("no page errors", !errors.length, errors.join(" | "));
 await browser.close();

@@ -139,6 +139,9 @@ export function buildProgram({ strict = true } = {}) {
 
   const placement = buildPlacement(LEVELS);
   placement.forEach((s) => validateItems(s.items, `placement ${s.id}`, errors));
+  // The placement test runs one subject at a time.
+  const placements = {};
+  for (const s of placement) (placements[s.subject] = placements[s.subject] || []).push(s);
 
   // Fact review: one ready-made step for every fact, tagged with the lesson
   // after which it is fair game.
@@ -195,5 +198,5 @@ export function buildProgram({ strict = true } = {}) {
   const subjects = Object.keys(SUBJECTS)
     .filter((s) => levels.some((l) => l.subject === s))
     .map((s) => ({ ...SUBJECTS[s], levels: levels.filter((l) => l.subject === s).map((l) => l.id) }));
-  return { levels, lessons, tests, practice, placement, facts, soundItems, stories, summary, subjects, errors, warnings };
+  return { levels, lessons, tests, practice, placement, placements, facts, soundItems, stories, summary, subjects, errors, warnings };
 }

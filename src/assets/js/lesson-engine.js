@@ -169,6 +169,8 @@
     testParts = only.length ? only.map(function (x) { return x - 1; }) : t.parts.map(function (p, i) { return i; });
     segments = testParts.map(function (pi, i) {
       var p = t.parts[pi];
+      // The passage part is a checkout: the clock runs while the child reads alone.
+      if (p.kind === "checkout") return { title: p.trackName, meta: "Part " + (i + 1) + " of " + testParts.length + " · rate and accuracy · " + p.words + " words", kind: "checkout", part: pi, words: p.words, goal: p.goal, allowed: p.allowed, passage: p.passage, steps: p.items.map(function (s) { var c = {}; for (var k in s) c[k] = s[k]; return c; }) };
       return { title: p.trackName, meta: "Part " + (i + 1) + " of " + testParts.length, kind: "test", part: pi, steps: p.items.map(asTestStep) };
     });
     assignUids();
@@ -869,7 +871,9 @@
     stopCheckoutClock(false);
     var child = checkoutChild();
     var wpm = Math.round((seg.words / seconds) * 60);
-    var rec = { date: new Date().toISOString(), level: DATA.lesson.level, lesson: DATA.lesson.number, words: seg.words, seconds: seconds, errors: checkout.errors, wpm: wpm, goal: seg.goal, allowed: seg.allowed, met: wpm >= seg.goal && checkout.errors <= seg.allowed };
+    var src = DATA.lesson || DATA.test || {};
+    var rec = { date: new Date().toISOString(), level: src.level, lesson: DATA.lesson ? DATA.lesson.number : src.afterLesson || 0, words: seg.words, seconds: seconds, errors: checkout.errors, wpm: wpm, goal: seg.goal, allowed: seg.allowed, met: wpm >= seg.goal && checkout.errors <= seg.allowed };
+    if (DATA.test) rec.test = DATA.test.id;
     if (P && !rehearsing) {
       if (child && P.recordCheckoutFor) P.recordCheckoutFor(child.id, rec);
       else if (P.recordCheckout) P.recordCheckout(rec);
@@ -1220,10 +1224,14 @@
     var partial = testParts.length < t.parts.length;
     var given = segments.map(function (seg) {
       var p = t.parts[seg.part], errs = 0;
+      if (seg.kind === "checkout") {
+        var co = checkoutResult(null);
+        return { track: p.track, trackName: p.trackName, kind: "checkout", items: p.words, errors: co ? co.errors : 0, allowed: p.allowed, passed: !!(co && co.met), wpm: co ? co.wpm : 0, goal: p.goal, remedy: p.remedy, n: seg.part + 1 };
+      }
       seg.steps.forEach(function (st) { if (firstOf(st.uid) === "error") errs++; });
       return { track: p.track, trackName: p.trackName, items: p.items.length, errors: errs, allowed: p.allowed, passed: errs <= p.allowed, remedy: p.remedy, n: seg.part + 1 };
     });
-    var summary = { date: new Date().toISOString(), minutes: minutes, partial: partial, parts: given.map(function (p) { return { track: p.track, trackName: p.trackName, items: p.items, errors: p.errors, passed: p.passed }; }), passed: given.every(function (p) { return p.passed; }) };
+    var summary = { date: new Date().toISOString(), minutes: minutes, partial: partial, parts: given.map(function (p) { var o = { track: p.track, trackName: p.trackName, items: p.items, errors: p.errors, passed: p.passed }; if (p.kind === "checkout") { o.kind = "checkout"; o.wpm = p.wpm; o.goal = p.goal; } return o; }), passed: given.every(function (p) { return p.passed; }) };
     if (P) { P.recordTest(t.id, summary); if (P.recordItems) P.recordItems(itemResults(), summary.date); }
     // What the record now says, with the parts not given this time.
     var parts = given;
@@ -1234,7 +1242,7 @@
         var g = given.filter(function (x) { return x.track === rp.track; })[0];
         if (g) return g;
         var tp = t.parts.filter(function (x) { return x.track === rp.track; })[0];
-        return { track: rp.track, trackName: rp.trackName, items: rp.items, errors: rp.errors, passed: rp.passed, remedy: tp ? tp.remedy : [], n: t.parts.indexOf(tp) + 1, earlier: true };
+        return { track: rp.track, trackName: rp.trackName, kind: rp.kind, wpm: rp.wpm, goal: rp.goal, items: rp.items, errors: rp.errors, passed: rp.passed, remedy: tp ? tp.remedy : [], n: t.parts.indexOf(tp) + 1, earlier: true };
       });
     }
     var failed = parts.filter(function (p) { return !p.passed; });
@@ -1251,7 +1259,7 @@
       html += '<h2 class="finish__h2">Reteach</h2><ul class="finish__list">';
       failed.forEach(function (p) {
         html += "<li><strong>" + escapeHtml(p.trackName) + "</strong>, " + errorsIn(p) + (p.earlier ? " last time" : "") + ": " +
-          (p.remedy.map(function (r) { return '<a href="' + r.url + '">Lesson ' + r.lesson + ", exercise " + r.exercise + "</a> (" + escapeHtml(r.label) + ")"; }).join("; ") || "repeat the last three lessons' exercises for this skill") + ".</li>";
+          (p.remedy.map(function (r) { return r.lesson ? '<a href="' + r.url + '">Lesson ' + r.lesson + ", exercise " + r.exercise + "</a> (" + escapeHtml(r.label) + ")" : '<a href="' + r.url + '">' + escapeHtml(r.label) + "</a>"; }).join("; ") || "repeat the last three lessons' exercises for this skill") + ".</li>";
       });
       html += "</ul>";
     }
@@ -1274,6 +1282,7 @@
   }
 
   function errorsIn(p) {
+    if (p.kind === "checkout") return p.wpm + " words a minute with " + p.errors + " error" + (p.errors === 1 ? "" : "s") + " (the goal is " + p.goal + " with " + (p.allowed === undefined ? 2 : p.allowed) + " or fewer)";
     return p.errors + " error" + (p.errors === 1 ? "" : "s") + " in " + p.items;
   }
 
@@ -1556,7 +1565,11 @@
   });
   window.addEventListener("resize", function () { fitStage(); fitStrip(); });
   // Web fonts can arrive after the first step is laid out; fit again then.
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!el.shell.hidden && currentStep()) { fitPanel(); fitStrip(); fitStage(); } });
+  // Fonts load when text first shows them, which can be after a start screen
+  // hides the runner; the panel is fitted again whenever a font arrives.
+  function refitAll() { if (!el.shell.hidden && currentStep()) { fitPanel(); fitStrip(); fitStage(); } }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refitAll);
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", refitAll);
   // Refit the panel whenever its body changes size: a turned screen, or a
   // keyboard that takes part of it.
   if (window.ResizeObserver) {
