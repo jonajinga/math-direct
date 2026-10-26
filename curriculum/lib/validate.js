@@ -126,6 +126,16 @@ export function validateStep(st, where, errors) {
     }
     if ((v.t === "dots" || v.t === "obj") && (!(v.n >= 0) || v.n > 30)) errors.push(`${where}: bad count ${v.n}`);
     if (v.t === "frame" && v.size !== 5 && v.size !== 10) errors.push(`${where}: a frame must have 5 or 10 boxes, not "${v.size}"`);
+    if (v.t === "text") {
+      if (!Array.isArray(v.lines) || !v.lines.length) errors.push(`${where}: text with no lines`);
+      else v.lines.forEach((line) => {
+        if (!Array.isArray(line) || !line.length) { errors.push(`${where}: a line with no words`); return; }
+        line.forEach((w) => { if (!Array.isArray(w) || !w.length || w.some((t) => !t || typeof t.s !== "string" || !t.s)) errors.push(`${where}: a word with a bad token`); });
+      });
+      if (!["sound", "word", "fast", "line", "none"].includes(v.dot || "none")) errors.push(`${where}: bad dot mode "${v.dot}"`);
+      if (!["full", "light", "plain"].includes(v.prompts || "full")) errors.push(`${where}: bad alphabet stage "${v.prompts}"`);
+      if ((v.kind === "sound" || v.kind === "word") && (v.lines.length !== 1 || v.lines[0].length !== 1)) errors.push(`${where}: a ${v.kind} must be one word`);
+    }
   }
   if (typeof st.check === "function") {
     const msg = st.check();

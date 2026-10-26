@@ -8,6 +8,7 @@
 //
 //   node scripts/check-fit.mjs            every 12th lesson, every test, practice sets, placement, facts
 //   node scripts/check-fit.mjs --all      every lesson too
+//   node scripts/check-fit.mjs --only /reading-sample/   one page
 //   node scripts/check-fit.mjs --sizes 375x667,320x568
 //
 // Needs a built site in _site/ and Playwright (local or global).
@@ -36,11 +37,15 @@ if (!existsSync(join(ROOT, "index.html"))) { console.error("check-fit: build the
 // ── Which pages ──
 const { buildProgram } = require("../curriculum/index.js");
 const program = buildProgram({ strict: true });
+const ONLY = args.includes("--only") ? args[args.indexOf("--only") + 1] : "";
 const urls = [];
-program.lessons.forEach((l, i) => { if (ALL || i % 12 === 0) urls.push(l.url); });
-program.tests.forEach((t) => urls.push(t.url));
-program.practice.forEach((s, i) => { if (ALL || i % 3 === 0) urls.push(s.url); });
-urls.push("/placement/math/", "/facts/");
+if (ONLY) urls.push(ONLY);
+else {
+  program.lessons.forEach((l, i) => { if (ALL || i % 12 === 0) urls.push(l.url); });
+  program.tests.forEach((t) => urls.push(t.url));
+  program.practice.forEach((s, i) => { if (ALL || i % 3 === 0) urls.push(s.url); });
+  urls.push("/placement/math/", "/facts/", "/reading-sample/");
+}
 
 // ── A tiny static server ──
 const TYPES = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json" };

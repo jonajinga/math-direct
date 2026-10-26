@@ -17,7 +17,7 @@
     doBox: $("tp-do"), doText: $("tp-do-text"), answerBox: $("tp-answer"), answerText: $("tp-answer-text"),
     confirmBox: $("tp-confirm"), confirmText: $("tp-confirm-text"), correctBox: $("tp-correct"), correctText: $("tp-correct-text"),
     touched: $("tp-touched"), testNote: $("tp-test-note"), signal: $("tp-signal"),
-    btnMore: $("btn-more"), btnShow: $("btn-show"), btnClear: $("btn-clear"), btnError: $("btn-error"), btnOver: $("btn-over"),
+    btnMore: $("btn-more"), btnShow: $("btn-show"), btnClear: $("btn-clear"), btnDot: $("btn-dot"), btnError: $("btn-error"), btnOver: $("btn-over"),
     btnNext: $("btn-next"), btnFirm: $("btn-firm"), btnGoOn: $("btn-goon"), btnBigBack: $("btn-big-back"),
     moreList: $("more-list"), outlineList: $("tp-outline-list"), outlineLinks: $("tp-outline-links"),
     childList: $("sheet-child-list"), childText: $("sheet-child-text"), leaveTitle: $("sheet-leave-title"), leaveText: $("sheet-leave-text"), leaveGo: $("sheet-leave-go"),
@@ -342,6 +342,9 @@
     drop: ["Drop", "Pause, then drop your hand or nod. The child answers on the signal."],
     rhythm: ["Rhythm", "Tap a steady beat. The child says one number on each tap."],
     watch: ["Watch", "Watch and listen for the whole answer."],
+    hold: ["Hold", "Press and hold Dot. The child says the sound as long as the dot rests under it."],
+    tap: ["Tap", "Press Dot and let go at once. The child says the sound short."],
+    sweep: ["Sweep", "Tap Dot once at the start. The dot runs under the word, and the child says it fast."],
   };
   function renderSignal(st) {
     var box = el.signal;
@@ -374,6 +377,7 @@
     // A teacher's demonstration touch on a model step rings the picture
     // and nothing more; the child's answer on a test step also locks the group.
     window.MDV.bind(stage, onChoose, { feedback: false, lockAfterPick: st.cue === "test" });
+    if (window.MDDot) MDDot.attach(stage, announce);
     if (st.flash) startFlash(st.flash);
 
     el.exTitle.textContent = seg.title;
@@ -513,8 +517,11 @@
     var canOver = MODE === "lesson" && !!seg && seg.kind !== "delayed" && seg.kind !== "independent";
     var marks = st ? hasMarks(st.screen) : false;
     var showAgain = !!(st && (st.flash || touched));
-    el.btnShow.hidden = !showAgain;
-    el.btnClear.hidden = showAgain || !marks;
+    // In a reading step the tool slot holds Dot.
+    var dotStep = !!(el.btnDot && stage.querySelector(".mdv-text[data-dot]:not([data-dot='none'])"));
+    if (el.btnDot) el.btnDot.hidden = !dotStep;
+    el.btnShow.hidden = dotStep || !showAgain;
+    el.btnClear.hidden = dotStep || showAgain || !marks;
     var overNow = errorState && canOver;
     el.btnOver.hidden = !overNow;
     el.btnError.hidden = overNow;
@@ -626,17 +633,21 @@
 
   // Shrink wide equations and number rows so they fit on one line.
   function fitStage() {
-    var eqs = stage.querySelectorAll(".mdv-eq, .mdv-num, .mdv-col");
+    var cs = window.getComputedStyle(stage);
+    var availW = stage.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+    var availH = stage.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
+    var eqs = stage.querySelectorAll(".mdv-eq, .mdv-num, .mdv-col, .mdv-text");
     for (var i = 0; i < eqs.length; i++) {
       var e = eqs[i];
       e.style.fontSize = "";
       var tries = 0;
-      while (e.scrollWidth > stage.clientWidth - 8 && tries < 25) {
+      while ((e.scrollWidth > e.clientWidth + 1 || e.scrollWidth > availW || e.scrollHeight > availH) && tries < 25) {
         var fs = parseFloat(window.getComputedStyle(e).fontSize);
         e.style.fontSize = (fs * 0.9) + "px";
         tries++;
       }
     }
+    if (window.MDDot) MDDot.layout();
   }
 
   function startFlash(ms) {
@@ -653,6 +664,7 @@
     stage.innerHTML = window.MDV.render(st.screen || []);
     fitStage();
     window.MDV.bind(stage, onChoose, { feedback: false, lockAfterPick: st.cue === "test" });
+    if (window.MDDot) MDDot.attach(stage, announce);
     touched = null;
     el.touched.hidden = true;
     el.touched.textContent = "";
@@ -1328,6 +1340,22 @@
   el.btnGoOn.addEventListener("click", function () { advance(); });
   el.btnShow.addEventListener("click", showAgain);
   el.btnClear.addEventListener("click", clearMarks);
+  // Dot: press and hold. The pointer, or Space or Enter on the button.
+  function dotDown() { if (!el.btnDot || el.btnDot.hidden) return; el.btnDot.classList.add("is-held"); if (window.MDDot) MDDot.press(); }
+  function dotUp() { if (!el.btnDot) return; el.btnDot.classList.remove("is-held"); if (window.MDDot) MDDot.release(); }
+  function dotStepShown() { return !!(el.btnDot && !el.btnDot.hidden && !el.shell.hidden); }
+  if (el.btnDot) {
+    el.btnDot.addEventListener("pointerdown", function (e) { if (e.button) return; e.preventDefault(); dotDown(); });
+    el.btnDot.addEventListener("pointerup", dotUp);
+    el.btnDot.addEventListener("pointercancel", dotUp);
+    el.btnDot.addEventListener("pointerleave", dotUp);
+    el.btnDot.addEventListener("keydown", function (e) { if ((e.key === " " || e.key === "Enter") && !e.repeat) { e.preventDefault(); dotDown(); } });
+    el.btnDot.addEventListener("keyup", function (e) { if (e.key === " " || e.key === "Enter") { e.preventDefault(); dotUp(); } });
+    el.btnDot.addEventListener("click", function (e) { e.preventDefault(); });
+  }
+  document.addEventListener("keyup", function (e) {
+    if (e.key === " " && dotStepShown() && !anySheetOpen()) { e.preventDefault(); dotUp(); }
+  });
   el.btnMore.addEventListener("click", function () { syncBar(); openSheet("sheet-more"); });
   el.btnBigBack.addEventListener("click", function () { bigPicture(false); });
   el.moreList.addEventListener("click", function (e) {
@@ -1383,7 +1411,8 @@
       case "x": case "X": case "e": case "E": if (isTest && !errorState) { e.preventDefault(); mark("error"); } break;
       case "ArrowLeft": e.preventDefault(); back(); break;
       case "s": case "S": e.preventDefault(); startOver(); break;
-      case " ": e.preventDefault(); showAgain(); break;
+      case " ": e.preventDefault(); if (dotStepShown()) { if (!e.repeat) dotDown(); } else showAgain(); break;
+      case "d": case "D": if (dotStepShown()) { e.preventDefault(); if (window.MDDot) MDDot.step(); } break;
       case "c": case "C": e.preventDefault(); clearMarks(); break;
       case "o": case "O": e.preventDefault(); openSheet("sheet-outline"); break;
       case "b": case "B": e.preventDefault(); bigPicture(true); break;
@@ -1410,6 +1439,15 @@
       lastHeight = el.teacher.clientHeight;
       fitPanel();
     }).observe(el.teacher);
+    // The stage changes size when the layout tightens or the phone turns:
+    // the pictures and the dot's track are laid out again for it.
+    var lastStage = "";
+    new ResizeObserver(function () {
+      var now = stage.clientWidth + "x" + stage.clientHeight;
+      if (now === lastStage || el.shell.hidden || !currentStep()) return;
+      lastStage = now;
+      fitStage();
+    }).observe(stage);
   } else {
     window.addEventListener("resize", function () { if (!el.shell.hidden) fitPanel(); });
   }
@@ -1432,7 +1470,7 @@
     DATA = data;
     MODE = data.mode;
     HOOKS = hooks || {};
-    rehearsing = MODE === "lesson" && /[?&]rehearse=1/.test(window.location.search);
+    rehearsing = (MODE === "lesson" && /[?&]rehearse=1/.test(window.location.search)) || !!data.rehearse;
     reset();
     setSitting();
     setLeaveSheet();

@@ -50,6 +50,9 @@ bodyClass: page-runner
       <button type="button" class="rn-btn rn-btn--icon" id="btn-clear" aria-label="Clear marks" hidden>
         {% include "partials/icons/clear-marks.njk" %}<span class="rn-btn__label">Clear</span>
       </button>
+      <button type="button" class="rn-btn rn-btn--icon rn-btn--dot" id="btn-dot" aria-label="Dot. Press and hold to move the dot under the next sound." hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="16" x2="20" y2="16"/><path d="M16 12 L20 16 L16 20"/><circle cx="8" cy="16" r="3.5" fill="currentColor" stroke="none"/></svg><span class="rn-btn__label">Dot</span>
+      </button>
     </div>
     <div class="rn-slot">
       <button type="button" class="rn-btn rn-btn--error" id="btn-error" disabled>Error</button>
@@ -97,7 +100,8 @@ bodyClass: page-runner
       <div><dt><kbd>X</kbd> <kbd>E</kbd></dt><dd>Error</dd></div>
       <div><dt><kbd>&larr;</kbd></dt><dd>Back one step</dd></div>
       <div><dt><kbd>S</kbd></dt><dd>Start the exercise over</dd></div>
-      <div><dt><kbd>Space</kbd></dt><dd>Show again</dd></div>
+      <div><dt><kbd>Space</kbd></dt><dd>Show again. In reading, hold it to move the dot.</dd></div>
+      <div><dt><kbd>D</kbd></dt><dd>Move the dot one sound on</dd></div>
       <div><dt><kbd>C</kbd></dt><dd>Clear marks</dd></div>
       <div><dt><kbd>O</kbd></dt><dd>Outline</dd></div>
       <div><dt><kbd>B</kbd></dt><dd>Big picture</dd></div>
@@ -142,5 +146,6 @@ bodyClass: page-runner
 {% block scripts %}
 <script src="/assets/js/progress.js?v={{ build.version }}"></script>
 <script src="/assets/js/visuals.js?v={{ build.version }}"></script>
+<script src="/assets/js/dot.js?v={{ build.version }}"></script>
 <script src="/assets/js/lesson-engine.js?v={{ build.version }}" defer></script>
 {% endblock %}

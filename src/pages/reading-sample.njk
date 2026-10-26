@@ -1,0 +1,10 @@
+---
+layout: layouts/runner.njk
+title: Reading sample
+description: A sample reading lesson that shows the child's letters, the arrow, and the dot. Nothing taught from it is recorded.
+permalink: /reading-sample/
+exitUrl: /lessons/
+eleventyExcludeFromCollections: true
+noindex: true
+---
+<script id="runner-data" type="application/json">{"mode":"lesson","subject":"reading","rehearse":true,"exitUrl":"/lessons/","lesson":{{ readingSample | dump | safe }}}</script>

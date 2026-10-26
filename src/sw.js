@@ -20,6 +20,7 @@ var CORE_ASSETS = [
   "/assets/js/progress.js",
   "/assets/js/visuals.js",
   "/assets/js/lesson-engine.js",
+  "/assets/js/dot.js",
   "/assets/js/lessons-index.js",
   "/assets/js/records.js",
   "/assets/js/search.js",

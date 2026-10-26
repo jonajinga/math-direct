@@ -817,6 +817,40 @@
 
   R.blank = function () { return '<div class="mdv"></div>'; };
 
+  // ── Reading: letters, the arrow, and the dot ──
+  // A word is a list of tokens (see curriculum/lib/v.js). The alphabet's
+  // marks depend on the fade stage: full shows joined pairs, macrons, and
+  // small silent letters; light keeps the joined pairs; plain shows none.
+  // The dot (src/assets/js/dot.js) rests under each token that has a
+  // data-stop, or under each word of a line.
+  function tokenText(word) { var out = ""; for (var i = 0; i < word.length; i++) out += word[i].s; return out; }
+  R.text = function (v) {
+    var prompts = v.prompts || "full", kind = v.kind || "word", dot = v.dot || "none";
+    var html = '<div class="mdv mdv-text mdv-text--' + esc(kind) + '" data-dot="' + esc(dot) + '" data-prompts="' + esc(prompts) + '">';
+    var lines = v.lines || [];
+    for (var li = 0; li < lines.length; li++) {
+      html += '<div class="mdv-text__line">';
+      for (var wi = 0; wi < lines[li].length; wi++) {
+        var word = lines[li][wi];
+        html += '<span class="mdv-text__word" data-say="' + esc(tokenText(word)) + '">';
+        for (var ti = 0; ti < word.length; ti++) {
+          var t = word[ti], cls = "mdv-tok";
+          if (prompts !== "plain" && t.joined) cls += " mdv-tok--joined";
+          if (prompts === "full" && t.macron) cls += " mdv-tok--macron";
+          if (prompts === "full" && t.silent) cls += " mdv-tok--silent";
+          if (t.punct) cls += " mdv-tok--punct";
+          var stop = t.silent || t.punct ? "" : ' data-stop="' + (t.stop ? "tap" : "hold") + '"';
+          html += '<span class="' + cls + '"' + stop + (t.say ? ' data-say="' + esc(t.say) + '"' : "") + ">" + esc(t.s) + "</span>";
+        }
+        html += "</span>";
+      }
+      html += "</div>";
+    }
+    if (dot === "sound" || dot === "word" || dot === "fast") html += '<span class="mdv-text__track" aria-hidden="true"><span class="mdv-text__ball"></span><span class="mdv-text__rail"></span><span class="mdv-text__head"></span></span>';
+    if (dot !== "none") html += '<span class="mdv-text__dot" aria-hidden="true" hidden></span>';
+    return html + "</div>";
+  };
+
   function render(spec, o) {
     if (!spec) return "";
     if (Array.isArray(spec)) {
@@ -942,6 +976,14 @@
       case "coins": return list((v.list || []).map(function (c) { return "a " + c; }));
       case "measure": return "a " + (v.icon || "stick") + " " + v.len + " units long";
       case "blank": return "";
+      case "text": {
+        var lines = (v.lines || []).map(function (line) { return line.map(tokenText).join(" "); });
+        var arrow = v.dot === "sound" || v.dot === "word" || v.dot === "fast" ? ", with an arrow under it" : "";
+        if (v.kind === "sound") return "the letters " + lines[0] + arrow;
+        if (v.kind === "word") return "the word " + lines[0] + arrow;
+        if (v.kind === "words") return "the words " + list(lines);
+        return (lines.length > 1 ? "lines of text: " : "a line of text: ") + lines.join(" ");
+      }
       default: return "";
     }
   }

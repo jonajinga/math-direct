@@ -62,7 +62,24 @@ function hasTap(screen) {
   })(screen);
   return found;
 }
+function textOf(screen) {
+  let found = null;
+  (function walk(v) {
+    if (!v || found) return;
+    if (Array.isArray(v)) return v.forEach(walk);
+    if (v.t === "text") { found = v; return; }
+    if (v.items && v.t !== "pattern" && v.t !== "size") walk(v.items);
+  })(screen);
+  return found;
+}
 export function inferSignal(screen, say, answer) {
+  const tx = textOf(screen);
+  if (tx) {
+    if (tx.dot === "fast") return "sweep";
+    if (tx.dot === "word") return "hold";
+    if (tx.dot === "sound") { const t = tx.lines[0] && tx.lines[0][0] && tx.lines[0][0][0]; return t && t.stop ? "tap" : "hold"; }
+    return "watch";
+  }
   if (hasTap(screen) || /^\(Touches/.test(answer || "")) return "touch";
   if (/\bcount\b/i.test(say || "")) return "rhythm";
   if (/get ready\.?$/i.test(say || "")) return "drop";
@@ -91,9 +108,10 @@ export function note(screen, say, opts = {}) {
 // Correction for a spoken answer: model, lead, test.
 //   fix("Five.", "How many dots?")
 //   -> "My turn: five. Say it with me: five. Your turn. How many dots?"
-export function fix(answer, question, preface) {
+// keep: true keeps the answer's capital, for a name such as "Sam".
+export function fix(answer, question, preface, opts = {}) {
   const end = answer.endsWith("?") ? "?" : ".";
-  const a = lowerFirst(answer.replace(/[.?]$/, ""));
+  const a = opts.keep ? answer.replace(/[.?]$/, "") : lowerFirst(answer.replace(/[.?]$/, ""));
   return `${preface ? preface + " " : ""}My turn: ${a}${end} Say it with me: ${a}${end} Your turn. ${question}`;
 }
 

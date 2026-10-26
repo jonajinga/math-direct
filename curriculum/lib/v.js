@@ -65,7 +65,33 @@ export const V = {
   col2: (...items) => ({ t: "stack", items }),
   // A plus/minus or comparison sign alone, large.
   sign: (s) => ({ t: "sign", s }),
+
+  // ── Reading: letters in the child's alphabet ──
+  // A word is a list of tokens: { s: "m" } a letter; { s: "th", joined: true }
+  // letters that make one sound; { s: "e", macron: true } a long vowel, marked;
+  // { s: "e", silent: true } a letter that says nothing; { s: "was", whole: true }
+  // a word read whole. stop: true marks a stop sound, so the dot taps.
+  // dot: sound | word | fast | line | none, how the dot moves. prompts: full |
+  // light | plain, the alphabet's fade stage (light keeps the joined pairs only).
+  sound: (tokens, o = {}) => ({ t: "text", kind: "sound", lines: [[tokens]], dot: "sound", ...o }),
+  word: (tokens, o = {}) => ({ t: "text", kind: "word", lines: [[tokens]], dot: "word", ...o }),
+  words: (list, o = {}) => ({ t: "text", kind: "words", lines: list.map((w) => [w]), dot: "none", ...o }),
+  line: (words, o = {}) => ({ t: "text", kind: "line", lines: [words], dot: "line", ...o }),
+  passage: (lines, o = {}) => ({ t: "text", kind: "story", lines, dot: "line", ...o }),
 };
+
+// Token helpers for the child's alphabet.
+export const T = {
+  l: (s, o = {}) => ({ s, ...o }),
+  j: (s, o = {}) => ({ s, joined: true, ...o }),
+  m: (s, o = {}) => ({ s, macron: true, ...o }),
+  q: (s, o = {}) => ({ s, silent: true, ...o }),
+  w: (s, o = {}) => ({ s, whole: true, ...o }),
+  // Punctuation, carried by the word it follows; the dot never rests on it.
+  p: (s) => ({ s, punct: true }),
+};
+// The plain spelling of a token list.
+export function spelling(tokens) { return (tokens || []).map((t) => t.s).join(""); }
 
 // A shape token for patterns and sorting.
 export function tok(s, c, o = {}) {

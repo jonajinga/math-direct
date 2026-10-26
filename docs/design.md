@@ -86,6 +86,35 @@ five or more. Failed parts can be given again alone, and the record merges.
 The next step stays on the latest due test until it is passed.
 `npm run check:program` exercises all of this in a browser.
 
+## The reading stage
+
+A reading step shows letters instead of pictures: `V.sound`, `V.word`,
+`V.words`, `V.line`, and `V.passage` in `curriculum/lib/v.js`, each a list of
+lines of words, and each word a list of tokens (`T.l` a letter, `T.j` letters
+joined for one sound, `T.m` a long vowel with its macron, `T.q` a silent
+letter, `T.w` a word read whole, `T.p` punctuation; `stop: true` marks a stop
+sound). The renderer (`R.text` in `src/assets/js/visuals.js`) draws the
+tokens in the child font with the lesson alphabet's marks: a bar under a
+joined pair, a line over a long vowel, a silent letter at about half size.
+The visual's `prompts` stage fades them: `full`, then `light` (the joined
+bars only), then `plain` print. The validator checks every text visual's
+shape and stage.
+
+Under a sound or a word runs the arrow: a ball, a rail, and a head, sized
+from the rendered word, with a stop under every token that makes a sound.
+`src/assets/js/dot.js` moves the dot. The parent presses and holds the Dot
+button in the tool slot (or holds Space, or steps with D): on the press the
+dot moves to the next stop and rests there while held; a release keeps it
+there; a quick tap at the start sweeps the whole word; after the last stop
+a press goes to the end of the arrow, and the next back to the start. A
+`fast` step sweeps on every press; a `line` or passage has a stop under
+each word and no arrow. A stop sound shows a tap. Every move is announced.
+The signals for reading are hold, tap, and sweep, inferred from the visual
+by `inferSignal` in `curriculum/lib/steps.js` unless a step names its own.
+`/reading-sample/` is a hand-built lesson of every mode, listed nowhere and
+recorded nowhere, that `npm run check:dot` and the fit and accessibility
+checks walk.
+
 ## Two children
 
 A lesson can be taught to two children at once: the runner's More sheet

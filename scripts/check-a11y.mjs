@@ -37,7 +37,7 @@ await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const BASE = "http://127.0.0.1:" + server.address().port;
 
 const SIZES = [[390, 844], [320, 568]];
-const PAGES = ["/", "/lessons/", "/k/", "/practice/", "/records/", "/more/", "/search/?q=count", "/guide/", "/curriculum/", "/about/", "/privacy/", "/terms/", "/offline/", "/404.html", "/placement/", "/placement/math/", "/facts/", "/timed/"];
+const PAGES = ["/", "/lessons/", "/k/", "/practice/", "/records/", "/more/", "/search/?q=count", "/guide/", "/curriculum/", "/about/", "/privacy/", "/terms/", "/offline/", "/404.html", "/placement/", "/placement/math/", "/facts/", "/timed/", "/reading-sample/"];
 const fails = [];
 let runs = 0;
 
@@ -186,6 +186,13 @@ for (const [w, h] of SIZES) {
   }
   if (!turnAudited) { console.log(`FAIL ${size} no turn alone was reached in a lesson for two`); fails.push(`${size} turn alone`); }
   await audit(page, `${size} lesson finish for two`);
+  // A reading step with the dot held.
+  await page.goto(BASE + "/reading-sample/", { waitUntil: "load" });
+  await page.waitForTimeout(300);
+  await page.evaluate(() => { document.getElementById("btn-dot").classList.add("is-held"); window.MDDot.press(); });
+  await page.waitForTimeout(250);
+  await audit(page, `${size} reading step, dot held`);
+  await page.evaluate(() => { window.MDDot.release(); document.getElementById("btn-dot").classList.remove("is-held"); });
   await page.goto(BASE + "/k/", { waitUntil: "load" });
   await page.waitForTimeout(250);
   await page.click("[data-mark-toggle]");
