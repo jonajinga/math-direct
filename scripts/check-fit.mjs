@@ -44,7 +44,7 @@ else {
   program.lessons.forEach((l, i) => { if (ALL || i % 12 === 0) urls.push(l.url); });
   program.tests.forEach((t) => urls.push(t.url));
   program.practice.forEach((s, i) => { if (ALL || i % 3 === 0) urls.push(s.url); });
-  urls.push("/placement/math/", "/facts/", "/reading-sample/");
+  urls.push("/placement/math/", "/facts/", "/reading-sample/", "/quick-sounds/");
 }
 
 // ── A tiny static server ──

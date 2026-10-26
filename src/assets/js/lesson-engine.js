@@ -719,6 +719,12 @@
       if (sitting.group && P.recordFactFor) sitting.children.forEach(function (c) { if (forChildOk(st, c.id)) P.recordFactFor(c.id, st.fact, r === "firm", ms); });
       else P.recordFact(st.fact, r === "firm", ms);
     }
+    // A sound, in reading, is recorded like a fact: the mark and the seconds it took.
+    if (st.sound && P && P.recordSound && !cur && !rehearsing) {
+      var sms = Date.now() - stepShown;
+      if (sitting.group && P.recordSoundFor) sitting.children.forEach(function (c) { if (forChildOk(st, c.id)) P.recordSoundFor(c.id, st.sound, r === "firm", sms); });
+      else P.recordSound(st.sound, r === "firm", sms);
+    }
     saveSession();
     if (r === "firm" || MODE === "test" || MODE === "placement" || MODE === "timed" || seg.kind === "independent") {
       announce(r === "firm" ? "Marked firm." : "Marked as an error.");

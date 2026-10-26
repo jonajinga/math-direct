@@ -54,7 +54,10 @@ check("a part of 5 or more allows one error, fewer allows none", parts.every((p)
 check("remedy links open the exercise", parts.every((p) => p.remedy.every((r) => /#ex\d+$/.test(r.url))));
 const withOwn = program.lessons.filter((l) => l.independent);
 check("most lessons end with On your own", withOwn.length / program.lessons.length > 0.9, withOwn.length + " of " + program.lessons.length);
-check("On your own has 3 to 8 items, each a touch", withOwn.every((l) => l.independent.steps.length >= 3 && l.independent.steps.length <= 8 && l.independent.steps.every((s) => /^\(Touches/.test(s.answer))));
+const subjectOfLevel = Object.fromEntries(program.levels.map((l) => [l.id, l.subject]));
+const ownMath = withOwn.filter((l) => subjectOfLevel[l.level] === "math"), ownRead = withOwn.filter((l) => subjectOfLevel[l.level] === "reading");
+check("On your own has 3 to 8 items, each a touch in math", ownMath.every((l) => l.independent.steps.length >= 3 && l.independent.steps.length <= 8 && l.independent.steps.every((s) => /^\(Touches/.test(s.answer))));
+check("On your own in reading has 3 to 8 items, each read from the stage", ownRead.length > 0 && ownRead.every((l) => l.independent.steps.length >= 3 && l.independent.steps.length <= 8 && l.independent.steps.every((s) => (Array.isArray(s.screen) ? s.screen : [s.screen]).some((v) => v && v.t === "text"))));
 check("every test step carries a signal", program.lessons.every((l) => l.exercises.every((e) => e.steps.every((s) => s.cue !== "test" || s.signal))));
 
 // ── A lesson in the browser ──
@@ -283,8 +286,59 @@ check("the finish screen shows a card for each child", (await page.evaluate(() =
 check("the finish screen keeps the pair on the lesson links and sends the test to one child", await page.evaluate((b) => { const again = document.querySelector('#runner-finish .finish__links a[href*="lesson-040"]'); const primary = document.querySelector("#runner-finish .action-bar a.btn--primary"); return !!again && again.getAttribute("href").indexOf("with=" + b) !== -1 && !!primary && /test/.test(primary.getAttribute("href")) && primary.getAttribute("href").indexOf("with=") === -1; }, kids.b));
 check("each child has their own mark row", (await page.evaluate(() => document.querySelectorAll("#runner-finish [data-mark-child]").length)) === 2);
 
+// ── Reading 1 ──
+const pickBtn = async () => (await visible("#btn-goon")) ? "#btn-goon" : (await visible("#btn-firm")) ? "#btn-firm" : "#btn-next";
+await page.goto(BASE + "/reading-1/lesson-040/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+const r0 = await state();
+check("a reading lesson opens on a sound with the Dot button in the tool slot", (await visible("#btn-dot")) && r0.segs.length >= 6, String(r0.segs.length));
+for (let i = 0; i < 12; i++) { if ((await visible("#btn-firm")) && (await page.evaluate(() => !!document.querySelector("#child-stage .mdv-text--sound")))) break; await page.click(await pickBtn()); await page.waitForTimeout(30); }
+const soundId = await page.evaluate(() => { const m = window.mdRunner; const st = m.segments()[m.pos().seg].steps[m.pos().step]; return st.sound; });
+check("the first test is a sound with a signal", !!soundId && /Hold|Tap/.test(await page.textContent("#tp-signal")), soundId + " " + (await page.textContent("#tp-signal")));
+await page.click("#btn-error");
+await page.waitForTimeout(60);
+check("a missed sound shows its correction", /My turn/.test(await page.textContent("#tp-correct-text")));
+await page.click("#btn-goon");
+const srec = await page.evaluate((id) => window.mathProgress.getActiveProfile().sounds[id], soundId);
+check("a missed sound is recorded with its seconds", !!srec && srec.r[srec.r.length - 1] === 0 && typeof srec.t[srec.t.length - 1] === "number", JSON.stringify(srec));
+let sawOwnR = false, ownReading = true, sawDelayedR = false;
+const stages = new Set();
+for (let i = 0; i < 400; i++) {
+  if (await visible("#runner-finish")) break;
+  const cue = await page.textContent("#tp-cue");
+  if (cue === "On your own") { sawOwnR = true; if (!(await page.evaluate(() => !!document.querySelector("#child-stage .mdv-text")))) ownReading = false; }
+  if (/Missed items/.test(await page.textContent("#tp-ex-title"))) sawDelayedR = true;
+  const pr = await page.evaluate(() => { const t = document.querySelector("#child-stage .mdv-text"); return t ? t.getAttribute("data-prompts") : null; });
+  if (pr) stages.add(pr);
+  await page.click(await pickBtn());
+  await page.waitForTimeout(10);
+}
+check("the reading lesson has On your own items the child reads", sawOwnR && ownReading);
+check("the delayed test came for the missed sound", sawDelayedR);
+check("lesson 40 shows the full alphabet", stages.has("full") && !stages.has("plain"), [...stages].join(","));
+check("the reading lesson finished and is recorded under reading", (await visible("#runner-finish")) && (await page.evaluate(() => { const P = window.mathProgress; const p = P.getActiveProfile(); return !!(p.last.reading && p.last.reading.id === "reading-1-040") && P.currentLevel("reading") === "reading-1" && P.currentLevel("math") !== "reading-1"; })));
+await page.goto(BASE + "/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+check("Today shows a card for reading and one for math", (await page.evaluate(() => document.querySelectorAll("#today-next .next-card").length)) >= 2, String(await page.evaluate(() => document.querySelectorAll("#today-next .next-card").length)));
+await page.goto(BASE + "/records/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+// The missed sound was retested in the lesson and said right, so it is learning, not shaky; the chart still names it as missed recently.
+check("Records shows the sound chart with the missed sound marked", await page.evaluate((id) => { const g = document.querySelector(".sound-grid"); if (!g) return false; const li = [...g.querySelectorAll("li")].find((x) => x.getAttribute("data-sound") === id); if (!li) return false; const letters = li.querySelector(".sound-grid__letters").textContent; const line = g.parentNode.textContent; return !/fc-(later|new)/.test(li.className) && new RegExp("Missed recently: [^.]*" + letters).test(line); }, soundId), await page.evaluate(() => { const g = document.querySelector(".sound-grid"); return g ? g.parentNode.textContent.replace(/\s+/g, " ").slice(-160) : "no grid"; }));
+await page.goto(BASE + "/quick-sounds/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+await page.click("[data-sounds]");
+await page.waitForTimeout(300);
+const firstQuick = await page.evaluate(() => window.mdRunner.segments()[0].steps[0].sound);
+check("Quick sounds puts the missed sound first", firstQuick === soundId, firstQuick + " vs " + soundId);
+check("Quick sounds shows the alphabet's marks and the Dot button", (await page.evaluate(() => document.querySelector("#child-stage .mdv-text").getAttribute("data-prompts") === "full")) && (await visible("#btn-dot")));
+const srecBefore = await page.evaluate((id) => window.mathProgress.getActiveProfile().sounds[id], soundId);
+await page.click("#btn-firm");
+const srec2 = await page.evaluate((id) => window.mathProgress.getActiveProfile().sounds[id], soundId);
+// The record keeps the last five marks.
+check("a sound marked in Quick sounds is recorded", srec2.r.length === Math.min(5, srecBefore.r.length + 1) && srec2.r[srec2.r.length - 1] === 1 && srec2.last !== srecBefore.last, JSON.stringify(srec2.r));
+
 check("no page errors", !errors.length, errors.join(" | "));
 await browser.close();
 server.close();
 if (fails.length) { console.error("check-program: " + fails.length + " check(s) failed."); process.exit(1); }
-console.log("check-program: scoring, retests, On your own, the test gate, signals, pace, adaptive review, the timed check, and a lesson for two children all hold.");
+console.log("check-program: scoring, retests, On your own, the test gate, signals, pace, adaptive review, the timed check, a lesson for two children, and a reading lesson all hold.");

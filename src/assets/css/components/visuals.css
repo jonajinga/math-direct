@@ -176,7 +176,8 @@
 .child-stage .mdv-choice .mdv-num { font-size: min(clamp(min(2.5rem, 19.2cqh), 24cqh, 6rem), calc(92cqw / (var(--chars, 2) * 0.44))); }
 
 /* ── Reading: letters, the arrow, and the dot ── */
-.mdv-text { position: relative; display: flex; flex-direction: column; align-items: center; max-width: 100%; font-family: var(--font-child); font-weight: 700; color: var(--v-ink); line-height: 1.15; }
+/* Lines sit 0.5em apart so the dot under one line clears the next. */
+.mdv-text { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.5em; max-width: 100%; font-family: var(--font-child); font-weight: 700; color: var(--v-ink); line-height: 1.15; }
 /* The arrow runs a little past the letters on each side, so the box is padded
    to hold it. A sound or a word is as wide as its letters, never capped, so
    the runner can measure it and shrink it until it fits the stage. */
@@ -185,7 +186,7 @@
 .child-stage .mdv-text--words { font-size: clamp(min(2rem, 14cqh), 18cqh, 5rem); }
 .child-stage .mdv-text--line { font-size: clamp(min(1.75rem, 12cqh), 15cqh, 4rem); padding-bottom: 0.5em; }
 .child-stage .mdv-text--story { font-size: clamp(min(1.5rem, 9cqh), 11cqh, 3.25rem); padding-bottom: 0.5em; width: 100%; align-items: stretch; }
-.mdv-text__line { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 0 0.45em; max-width: 100%; }
+.mdv-text__line { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 0.5em 0.45em; max-width: 100%; }
 .mdv-text--story .mdv-text__line { justify-content: flex-start; }
 .mdv-text__word { display: inline-flex; align-items: baseline; white-space: nowrap; letter-spacing: 0.04em; }
 .mdv-tok { position: relative; display: inline-block; }

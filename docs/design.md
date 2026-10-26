@@ -115,6 +115,41 @@ by `inferSignal` in `curriculum/lib/steps.js` unless a step names its own.
 recorded nowhere, that `npm run check:dot` and the fit and accessibility
 checks walk.
 
+## The reading program
+
+Reading 1 (`curriculum/tracks/reading1.js`) is generated like the math
+levels. Its data lives in `curriculum/reading/`: the sound sequence
+(`sounds.js`, hand-written in the order of Engelmann's program, each sound
+with how it is said, whether it is a stop sound, and its lesson), the word
+list (`words.js`, converted from Open Phonics by
+`scripts/convert-open-phonics.mjs`, each word with its sound groups and
+whether it is read whole), the sentences the old lessons showed
+(`sentences.js`, each placed at the first lesson where every word has been
+taught), and the tokenizer (`tokens.js`) that lays a word's sound groups over
+its spelling: joined pairs for one sound, a macron on a long vowel, a vowel
+team as the marked vowel and a small silent letter, a doubled or silent
+letter small, a soft c or g printed as it is, and the rest read whole.
+
+The tracks follow the daily formats of the program: Sounds (every lesson: a
+new sound every lesson or two, then a review of eight), Say it fast
+(auditory blending, until lesson 45), Say the sounds (segmenting, from
+lesson 9 to 50), Rhyming (10 to 55), Sounding out (a unit for each lesson
+that brings new words), Reading the fast way (from lesson 20, every lesson),
+Words read whole (the irregular words, as they arrive), and Sentences (from
+lesson 11: first reading word by word, sounding out and saying each fast,
+then the whole sentence the fast way). On your own, in reading, is a set of
+words the child reads alone. The alphabet's stage comes from the level's
+`prompts` schedule through `ctx.prompts`: full to lesson 74, light to 90,
+plain after. The validator checks that every sound a word needs and every
+word read whole has been taught by the lesson, and that each visual's stage
+matches the lesson's.
+
+Sounds are recorded like facts (`sounds` in the records store, automatic
+under two seconds), shown on Records as a sound chart in teaching order, and
+reviewed in Quick sounds (`/quick-sounds/`), which brings missed sounds up
+first. Mastery tests and practice sets come from the tracks' `testItems` as
+for math.
+
 ## Two children
 
 A lesson can be taught to two children at once: the runner's More sheet

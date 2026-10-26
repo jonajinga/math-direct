@@ -20,6 +20,14 @@
 .dash-bars b { text-align: right; }
 
 /* The fact chart scrolls sideways inside its own region. */
+/* The sound chart, in reading: one box for each sound, in the order taught. */
+.sound-grid { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 0 0 var(--sp-2); padding: 0; list-style: none; }
+.sound-grid li { position: relative; min-width: 2.75rem; min-height: 2.75rem; padding: 0.25rem 0.625rem 0.25rem 0.5rem; border: 2px solid var(--line-strong); border-radius: var(--r-1); display: flex; align-items: center; justify-content: center; font-family: var(--font-child); font-weight: 700; font-size: 1.25rem; line-height: 1; color: var(--ink); background: var(--surface); }
+.sound-grid li.fc-later { border-style: dashed; color: var(--ink-2); }
+.sound-grid li.fc-firm, .sound-grid li.fc-automatic { background: var(--firm-soft); border-color: var(--firm); }
+.sound-grid li.fc-shaky { background: var(--error-soft); border-color: var(--error); }
+.sound-grid li.fc-learning { background: var(--primary-soft); border-color: var(--primary); }
+.sound-grid__mark { position: absolute; right: 0.125rem; top: 0.0625rem; font-family: var(--font-ui); font-size: 0.6875rem; font-weight: 700; color: var(--ink-2); }
 .fact-region { margin-bottom: var(--sp-4); }
 .fact-region__cap { margin: 0 0 var(--sp-1); font-size: var(--fs-1); color: var(--ink-2); }
 .fact-grid-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: var(--sp-1); }

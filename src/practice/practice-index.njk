@@ -12,6 +12,19 @@ bodyClass: page-practice
 
 <div data-child-picker></div>
 
+{% for s in program.subjects %}
+{% if program.subjects.length > 1 %}<h2 class="section-title">{{ s.name }}</h2>{% endif %}
+{% if s.id == "reading" %}
+<ul class="rows">
+  <li>
+    <a class="row" href="/quick-sounds/">
+      <span class="row__main"><span class="row__title">Quick sounds</span><span class="row__sub">Twelve sounds the child has been taught. Missed sounds come up first.</span></span>
+      {% include "partials/icons/chevron-right.njk" %}
+    </a>
+  </li>
+</ul>
+{% endif %}
+{% if s.id == "math" %}
 <ul class="rows">
   <li>
     <a class="row" href="/facts/">
@@ -26,9 +39,7 @@ bodyClass: page-practice
     </a>
   </li>
 </ul>
-
-{% for s in program.subjects %}
-{% if program.subjects.length > 1 %}<h2 class="section-title">{{ s.name }}</h2>{% endif %}
+{% endif %}
 {% for level in program.levels %}{% if level.subject == s.id %}
 <details class="fold practice-level" id="{{ level.id }}" data-practice-level="{{ level.id }}">
   <summary>{{ level.name }}</summary>

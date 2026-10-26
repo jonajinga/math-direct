@@ -10,9 +10,10 @@ import prek from "./tracks/prek.js";
 import k from "./tracks/k.js";
 import first from "./tracks/first.js";
 import bridge from "./tracks/bridge.js";
+import reading1 from "./tracks/reading1.js";
 import { factStep } from "./tracks/k.js";
 
-export const LEVELS = [prek, k, first, bridge].filter(Boolean);
+export const LEVELS = [reading1, prek, k, first, bridge].filter(Boolean);
 
 // The subjects, in the order the app shows them. A level names its subject;
 // a subject appears only when a level of it is built.
@@ -110,6 +111,7 @@ export function buildProgram({ strict = true } = {}) {
       optional: !!level.optional,
       url: `/${level.slug}/`,
       firstLesson: built.lessons[0].url,
+      sounds: level.soundList || [],
       tracks: level.tracks.map((t) => ({
         id: t.id,
         name: t.name,
@@ -147,6 +149,19 @@ export function buildProgram({ strict = true } = {}) {
     facts[level.id].forEach((st) => validateItems([st], `fact ${st.key}`, errors));
   }
 
+  // Quick sounds: every sound of a reading level as a ready-made step, with
+  // the alphabet's marks shown, tagged with the lesson it is taught in.
+  const soundItems = {};
+  for (const level of LEVELS) {
+    if (!level.soundList) continue;
+    const track = level.tracks.find((t) => t.id === "sounds");
+    if (!track) continue;
+    soundItems[level.id] = trackItems(level, track, track.units, level.lessons, "quick", track.units.length)
+      .map((st) => ({ ...st, screen: st.screen.map((v) => (v.t === "text" ? { ...v, prompts: "full" } : v)) }))
+      .sort((a, b) => a.lesson - b.lesson);
+    soundItems[level.id].forEach((st) => validateItems([st], `quick sound ${st.sound}`, errors));
+  }
+
   if (strict && errors.length) {
     const head = errors.slice(0, 40).join("\n  ");
     throw new Error(`Curriculum check failed with ${errors.length} error(s):\n  ${head}${errors.length > 40 ? "\n  ..." : ""}`);
@@ -157,6 +172,7 @@ export function buildProgram({ strict = true } = {}) {
     tests: lv.tests,
     tracks: Object.fromEntries(lv.tracks.map((t) => [t.id, t.name])),
     facts: (facts[lv.id] || []).map((f) => ({ key: f.key, lesson: f.lesson })),
+    sounds: lv.sounds || [],
     minutes: lv.minutes,
     // One short row per lesson: minutes, the real objects it needs, what is new.
     brief: lv.lessonList.map((l) => [l.minutes, l.materials.join("; "), l.newUnits.map((u) => u.label).join(", ")]),
@@ -164,5 +180,5 @@ export function buildProgram({ strict = true } = {}) {
   const subjects = Object.keys(SUBJECTS)
     .filter((s) => levels.some((l) => l.subject === s))
     .map((s) => ({ ...SUBJECTS[s], levels: levels.filter((l) => l.subject === s).map((l) => l.id) }));
-  return { levels, lessons, tests, practice, placement, facts, summary, subjects, errors, warnings };
+  return { levels, lessons, tests, practice, placement, facts, soundItems, summary, subjects, errors, warnings };
 }

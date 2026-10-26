@@ -23,7 +23,7 @@ export function estimateMinutes(lesson) {
   for (const ex of lesson.exercises) {
     s += 10; // moving between exercises
     for (const st of ex.steps) {
-      let t = STEP_SECONDS[st.cue] || 10;
+      let t = st.secs || STEP_SECONDS[st.cue] || 10;
       if (st.skill === "count" || st.skill === "story") t += 8;
       if (st.answer && st.answer.length > 60) t += 6;
       s += t;
@@ -53,6 +53,10 @@ export function validateIndependent(level, lesson, errors) {
     validateStep(st, where, errors);
     checkReadable(level, lesson.number, st, where, errors);
     if (st.cue !== "test") errors.push(`${where}: not a test step`);
+    if (level.subject === "reading") {
+      if (!hasTextVisual(st.screen)) errors.push(`${where}: a reading item must show letters`);
+      return;
+    }
     if (tapGroups(st.screen) !== 1) errors.push(`${where}: needs exactly one group to touch`);
     if (!/^\(Touches/.test(st.answer || "")) errors.push(`${where}: the answer is not a touch`);
   });
@@ -73,7 +77,28 @@ function printedNumbers(screen) {
   return out;
 }
 
+function hasTextVisual(screen) {
+  let found = false;
+  walk(screen, (v) => { if (v.t === "text") found = true; });
+  return found;
+}
 export function checkReadable(level, n, st, where, errors) {
+  if (level.readableText) {
+    // Every sound the letters need, and every word read whole, has been taught.
+    const known = level.readableText(n);
+    walk(st.screen, (v) => {
+      if (v.t !== "text") return;
+      for (const line of v.lines) for (const w of line) for (const t of w) {
+        if (t.silent || t.punct) continue;
+        if (t.whole) { if (!known.words.has(t.s.toLowerCase())) errors.push(`${where}: shows the word ${t.s}, which is not taught until later`); }
+        else if (!known.sounds.has(t.sound)) errors.push(`${where}: shows ${t.s} (the sound ${t.sound}), which is not taught until later`);
+      }
+      if (v.prompts && level.prompts) {
+        const stage = (level.prompts.find((p) => n <= p.to) || {}).stage || "plain";
+        if (v.prompts !== stage) errors.push(`${where}: alphabet stage ${v.prompts}, but lesson ${n} is ${stage}`);
+      }
+    });
+  }
   if (!level.readable) return;
   const known = level.readable(n);
   for (const x of printedNumbers(st.screen)) {

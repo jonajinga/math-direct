@@ -96,7 +96,8 @@ export function test(screen, say, answer, correct, opts = {}) {
     confirm: opts.confirm || yes(answer),
     correct,
     signal: inferSignal(scr, say, answer),
-    ...(opts.skill === "story" ? { pause: 3 } : {}),
+    // A story problem gets a pause to think; a line of text read aloud does not.
+    ...(opts.skill === "story" && !textOf(scr) ? { pause: 3 } : {}),
     ...opts,
   };
 }

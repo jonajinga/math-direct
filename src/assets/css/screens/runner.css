@@ -104,9 +104,11 @@
 .tp-body.fit-5 .tp-box, .tp-body.fit-5 .tp-touched { padding-top: 0.125rem; padding-bottom: 0.125rem; }
 .tp-body.fit-5 .tp-pair { gap: 0.25rem; }
 
-.tp-stepline { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
+/* The title keeps room for a few words; the signal and the count wrap to a
+   second row when the line is short rather than squeeze the title. */
+.tp-stepline { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); min-width: 0; }
 .tp-ex__title {
-  flex: 1 1 auto;
+  flex: 1 1 6rem;
   min-width: 0;
   margin: 0;
   font-family: var(--font-ui);
@@ -116,10 +118,10 @@
   color: var(--ink);
 }
 .tp-ex__meta { margin: -0.25rem 0 0; font-size: var(--fs-1); color: var(--ink-2); }
-.tp-step-no { flex-shrink: 0; font-size: var(--fs-1); font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+.tp-step-no { flex-shrink: 0; margin-left: auto; font-size: var(--fs-1); font-weight: 600; color: var(--ink-2); white-space: nowrap; }
 
 /* The signal for a response: a small drawn glyph and its word. */
-.tp-signal { flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.3rem; font-size: var(--fs-1); font-weight: 700; color: var(--ink-2); white-space: nowrap; }
+.tp-signal { flex-shrink: 0; margin-left: auto; display: inline-flex; align-items: center; gap: 0.3rem; font-size: var(--fs-1); font-weight: 700; color: var(--ink-2); white-space: nowrap; }
 .tp-signal__glyph { position: relative; width: 1.1rem; height: 1.1rem; border: 2px solid var(--ink-2); border-radius: 50%; flex-shrink: 0; }
 .tp-signal__glyph--touch::after { content: ""; position: absolute; left: 50%; top: 50%; width: 0.4rem; height: 0.4rem; margin: -0.2rem 0 0 -0.2rem; border-radius: 50%; background: var(--ink-2); }
 .tp-signal__glyph--drop::after { content: ""; position: absolute; left: 50%; top: 0.1rem; width: 0; height: 0; margin-left: -0.25rem; border: 0.25rem solid transparent; border-top: 0.4rem solid var(--ink-2); }

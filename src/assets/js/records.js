@@ -143,6 +143,26 @@
       html += card("Recent lessons", '<ul class="recent-list">' + rows.join("") + "</ul>");
     }
 
+    // ── Sounds, in reading ──
+    levels.forEach(function (l) {
+      if (!l.sounds || !l.sounds.length) return;
+      var next = P.nextLesson(l.id, l.lessons);
+      var taught = l.sounds.filter(function (s) { return s.lesson < next; });
+      if (!taught.length && started.indexOf(l) === -1) return;
+      var body = '<p class="card__text"><span class="fk fk--automatic" aria-hidden="true">&#10003;&#10003;</span> automatic (three right in a row, each under two seconds) <span class="fk fk--firm" aria-hidden="true">&#10003;</span> firm (three right in a row) <span class="fk fk--learning" aria-hidden="true">&middot;</span> learning <span class="fk fk--shaky" aria-hidden="true">!</span> missed recently <span class="fk fk--new" aria-hidden="true"></span> taught, not yet tried. Dashed boxes are sounds not taught yet.</p>';
+      body += '<ul class="sound-grid" aria-label="' + esc(l.name) + ' sounds">';
+      l.sounds.forEach(function (s) {
+        var st = P.soundStatus(p.sounds && p.sounds[s.id]);
+        var cls = s.lesson >= next && st === "new" ? "fc-later" : "fc-" + st;
+        var glyph = st === "automatic" ? "&#10003;&#10003;" : st === "firm" ? "&#10003;" : st === "learning" ? "&middot;" : st === "shaky" ? "!" : "";
+        body += '<li class="' + cls + '" data-sound="' + esc(s.id) + '"><span class="sound-grid__letters">' + esc(s.letters) + '</span><span class="sound-grid__mark" aria-hidden="true">' + (cls === "fc-later" ? "" : glyph) + '</span><span class="sr-only">' + esc(s.say) + (s.note ? ", " + esc(s.note) : "") + ", " + (cls === "fc-later" ? "not taught yet" : st === "new" ? "not tried" : st) + "</span></li>";
+      });
+      body += "</ul>";
+      var missed = taught.filter(function (s) { return P.missedRecently(p.sounds && p.sounds[s.id]); });
+      if (missed.length) body += '<p class="dash-small">Missed recently: ' + missed.map(function (s) { return esc(s.letters); }).join(", ") + '. <a href="/quick-sounds/">Quick sounds</a> brings them up first.</p>';
+      html += card(esc(l.name) + " sounds", body);
+    });
+
     // ── Facts ──
     levels.forEach(function (l) {
       if (!l.facts.length) return;

@@ -331,6 +331,11 @@
   }
   // A sound is automatic when said within two seconds.
   function soundStatus(f) { return factStatus(f, 2); }
+  // Missed in the last five marks: the chart's "Missed recently", and the
+  // first sounds Quick sounds brings up.
+  function missedRecently(f) {
+    return !!(f && f.r && f.r.slice(-5).some(function (x) { return x === 0; }));
+  }
   // One-minute timed checks: { date, level, right, errors, goal }
   function recordTimed(rec) {
     update(function (p) { p.timed = (p.timed || []).concat([rec]).slice(-20); });
@@ -549,7 +554,7 @@
     recordLesson: recordLesson, recordLessonFor: recordLessonFor, lessonHistory: lessonHistory, nextLesson: nextLesson, nextStep: nextStep,
     lessonStatus: lessonStatus, setLessonStatus: setLessonStatus, testStatus: testStatus, setTestStatus: setTestStatus,
     recordTest: recordTest, recordPlacement: recordPlacement, getPlacement: getPlacement, recordFact: recordFact, recordFactFor: recordFactFor, factStatus: factStatus,
-    recordSound: recordSound, recordSoundFor: recordSoundFor, soundStatus: soundStatus, recordCheckout: recordCheckout, subjectOf: subjectOf, subjectOrder: subjectOrder,
+    recordSound: recordSound, recordSoundFor: recordSoundFor, soundStatus: soundStatus, missedRecently: missedRecently, recordCheckout: recordCheckout, subjectOf: subjectOf, subjectOrder: subjectOrder,
     recordItems: recordItems, recordItemsFor: recordItemsFor, itemHistory: itemHistory, recordTimed: recordTimed,
     addNote: addNote, addNoteFor: addNoteFor, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
     exportAllProfiles: exportAllProfiles, importProfiles: importProfiles,

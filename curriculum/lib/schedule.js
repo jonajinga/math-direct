@@ -38,6 +38,8 @@ function makeCtx(level, n, trackId, salt) {
     level,
     lesson: n,
     rand,
+    // The reading alphabet's stage at this lesson: full, light, or plain.
+    prompts: level.prompts ? ((level.prompts.find((p) => n <= p.to) || {}).stage || "plain") : undefined,
     // Units of any track in this level introduced on or before this lesson.
     known(id) {
       const t = level.tracks.find((x) => x.id === id);
@@ -261,7 +263,14 @@ function shuffled(rand, list) {
 }
 
 // Turn an item into one the child answers by touch, or return null.
+function hasText(screen) {
+  let found = false;
+  (function walk(v) { if (!v || found) return; if (Array.isArray(v)) return v.forEach(walk); if (v.t === "text") found = true; })(screen);
+  return found;
+}
 function toTappable(it, readable, rand) {
+  // In reading, the child reads the item alone; the parent only marks.
+  if (hasText(it.screen)) return it.cue === "test" ? { ...it, independent: true } : null;
   const groups = tapGroups(it.screen);
   if (groups > 1) return null;
   if (groups === 1) {
