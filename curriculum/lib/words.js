@@ -19,6 +19,15 @@ export function word(n) {
     const h = Math.floor(n / 100), r = n % 100;
     return r ? `${ONES[h]} hundred ${word(r)}` : `${ONES[h]} hundred`;
   }
+  if (!Number.isInteger(n)) return String(n);
+  if (n < 1000000) {
+    const th = Math.floor(n / 1000), r = n % 1000;
+    return r ? `${word(th)} thousand ${word(r)}` : `${word(th)} thousand`;
+  }
+  if (n < 1000000000) {
+    const m = Math.floor(n / 1000000), r = n % 1000000;
+    return r ? `${word(m)} million ${word(r)}` : `${word(m)} million`;
+  }
   return String(n);
 }
 

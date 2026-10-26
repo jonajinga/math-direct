@@ -1,0 +1,44 @@
+{
+  "reading-1": {
+    "lessons": 100,
+    "steps": 4833,
+    "tests": 10,
+    "parts": 61,
+    "hash": "bfec6ea9da8616f1"
+  },
+  "reading-2": {
+    "lessons": 50,
+    "steps": 3152,
+    "tests": 5,
+    "parts": 42,
+    "hash": "bca9bd05a8418ce0"
+  },
+  "prek": {
+    "lessons": 100,
+    "steps": 3157,
+    "tests": 10,
+    "parts": 74,
+    "hash": "90634895082c4488"
+  },
+  "k": {
+    "lessons": 140,
+    "steps": 5930,
+    "tests": 14,
+    "parts": 99,
+    "hash": "185e72c58b300bb1"
+  },
+  "first": {
+    "lessons": 150,
+    "steps": 6837,
+    "tests": 15,
+    "parts": 84,
+    "hash": "86015dad797b7c88"
+  },
+  "bridge": {
+    "lessons": 20,
+    "steps": 367,
+    "tests": 2,
+    "parts": 9,
+    "hash": "bcd33c3e6f6b1782"
+  }
+}

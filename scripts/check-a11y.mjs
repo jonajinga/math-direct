@@ -40,7 +40,7 @@ await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const BASE = "http://127.0.0.1:" + server.address().port;
 
 const SIZES = [[390, 844], [320, 568]];
-const PAGES = ["/", "/lessons/", "/k/", "/k/test-01/", "/practice/", "/practice/k/addition/", "/records/", "/more/", "/search/?q=count", "/guide/", "/curriculum/", "/about/", "/privacy/", "/terms/", "/offline/", "/404.html", "/placement/", "/placement/math/", "/facts/", "/timed/", "/reading-sample/", "/reading-1/", "/reading-1/lesson-040/", "/quick-sounds/", "/stories/", "/stories/sam-sat/", "/placement/reading/", "/reading-2/", "/reading-2/lesson-026/", "/guide/reading/", "/sounds/", "/words/", "/design/"];
+const PAGES = ["/", "/lessons/", "/k/", "/k/test-01/", "/practice/", "/practice/k/addition/", "/records/", "/more/", "/search/?q=count", "/guide/", "/curriculum/", "/about/", "/privacy/", "/terms/", "/offline/", "/404.html", "/placement/", "/placement/math/", "/facts/", "/timed/", "/reading-sample/", "/reading-1/", "/reading-1/lesson-040/", "/quick-sounds/", "/stories/", "/stories/sam-sat/", "/placement/reading/", "/reading-2/", "/reading-2/lesson-026/", "/guide/reading/", "/sounds/", "/words/", "/design/", "/math-sample/"];
 // Pages the runner walk below visits besides the list.
 const WALKED = ["/prek/lesson-074/", "/prek/lesson-001/", "/prek/lesson-002/", "/k/"];
 const fails = [];

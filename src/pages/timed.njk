@@ -1,27 +1,41 @@
 ---
 layout: layouts/runner.njk
 title: Timed facts
-description: A one-minute check of the First Grade addition and subtraction facts taught so far. The parent marks each answer; the next fact comes up at once.
+description: A one-minute check of the facts taught so far. The parent marks each answer; the next fact comes up at once.
 permalink: /timed/
 exitUrl: /practice/
 ---
-<div class="runner-start" id="timed-start" hidden>
+<div class="runner-start" id="timed-choose">
   <article class="finish">
     <p class="eyebrow">Timed facts</p>
     <h1 class="finish__title">One minute of facts</h1>
-    <p class="finish__lead">The screen shows one fact at a time, drawn from the First Grade facts taught so far. Say the fact. The child answers. Tap Firm or Error, and the next fact comes up at once. After one minute the screen shows how many were right, against a goal that rises as more facts are taught.</p>
+    <p class="finish__lead">The screen shows one fact at a time, drawn from the facts taught so far. Say the fact. The child answers. Tap Firm or Error, and the next fact comes up at once. After one minute the screen shows how many were right, against a goal that rises as more facts are taught.</p>
     <p class="finish__lead">A fact is automatic when the child answers it in under three seconds three times running. The fact chart on Records shows which are automatic, which are firm, and which are not yet.</p>
     <p class="finish__lead" id="timed-who"></p>
     <div class="btn-row btn-row--stack">
-      <button type="button" class="btn btn--primary btn--block btn--big" data-start-timed>Start the minute</button>
+      {% for level in program.summary %}{% if level.facts.length and level.timed %}
+      <button type="button" class="btn btn--primary btn--block btn--big" data-timed="{{ level.id }}">Start the minute: {{ level.name }}</button>
+      {% endif %}{% endfor %}
     </div>
     <ul class="finish__links"><li><a href="/practice/">All practice</a></li><li><a href="/records/">Records</a></li></ul>
   </article>
 </div>
-{% set first = program.summary | selectattr("id", "equalto", "first") | first %}
-<script id="runner-data" type="application/json">{"mode":"timed","exitUrl":"/practice/","seconds":60,"level":{"id":"first","name":"First Grade","lessons":{{ first.lessons }}},"facts":{{ program.facts.first | dump | safe }}}</script>
+<script id="timed-data" type="application/json">{"levels":{{ program.summary | dump | safe }},"facts":{{ program.facts | dump | safe }}}</script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+  var start = document.getElementById("timed-choose");
+  var data = JSON.parse(document.getElementById("timed-data").textContent);
+  // The level's facts and its goal go to the lesson engine as a timed check.
+  function go(levelId) {
+    var lv = data.levels.filter(function (l) { return l.id === levelId; })[0];
+    var runner = { mode: "timed", exitUrl: "/practice/", seconds: 60, level: { id: lv.id, name: lv.name, lessons: lv.lessons }, timed: lv.timed, facts: data.facts[levelId] };
+    start.hidden = true;
+    window.mdRunner.start(runner, { again: function () { go(levelId); } });
+    var more = document.getElementById("btn-more");
+    if (more) more.focus();
+  }
+  var btns = document.querySelectorAll("[data-timed]");
+  for (var i = 0; i < btns.length; i++) btns[i].addEventListener("click", function () { go(this.getAttribute("data-timed")); });
   var who = document.getElementById("timed-who");
   if (who && window.mathProgress && window.mathProgress.getActiveProfile()) who.textContent = "Child: " + window.mathProgress.getActiveProfile().name + ".";
 });

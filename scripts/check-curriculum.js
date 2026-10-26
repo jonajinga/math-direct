@@ -4,9 +4,50 @@
 //        npm run check -- --show prek 12   (print one lesson's script)
 
 import { buildProgram } from "../curriculum/index.js";
+import { createHash } from "node:crypto";
+import fs from "node:fs";
 
 const args = process.argv.slice(2);
 const program = buildProgram({ strict: false });
+
+// A snapshot of every level's structure (not its wording): the number of
+// lessons and steps, and a hash of each step's cue, skill, item, and picture
+// types. The check fails when a level in the snapshot has changed, so a
+// change to the shared framework cannot alter an existing level unnoticed.
+// Run `npm run check -- --snapshot` to record a change that is meant.
+const SNAPSHOT = "curriculum/snapshot.json";
+function signature(levelId) {
+  const ls = program.lessons.filter((l) => l.level === levelId);
+  const h = createHash("sha1");
+  for (const l of ls) {
+    for (const ex of l.exercises) {
+      h.update(`${l.number}|${ex.track}|${ex.kind}|`);
+      for (const st of ex.steps) h.update(`${st.cue}|${st.skill || ""}|${st.item || ""}|${(st.screen || []).map((v) => v.t).join(",")};`);
+    }
+    if (l.independent) for (const st of l.independent.steps) h.update(`own|${st.item || ""}|${(st.screen || []).map((v) => v.t).join(",")};`);
+  }
+  const tests = program.tests.filter((t) => t.level === levelId);
+  return { lessons: ls.length, steps: ls.reduce((a, l) => a + l.steps, 0), tests: tests.length, parts: tests.reduce((a, t) => a + t.parts.length, 0), hash: h.digest("hex").slice(0, 16) };
+}
+function snapshotCheck() {
+  const now = Object.fromEntries(program.levels.map((lv) => [lv.id, signature(lv.id)]));
+  if (args.includes("--snapshot")) {
+    fs.writeFileSync(SNAPSHOT, JSON.stringify(now, null, 2) + "\n");
+    console.log(`Snapshot written for ${Object.keys(now).length} levels.`);
+    return [];
+  }
+  if (!fs.existsSync(SNAPSHOT)) return [];
+  const was = JSON.parse(fs.readFileSync(SNAPSHOT, "utf8"));
+  const out = [];
+  for (const id of Object.keys(was)) {
+    const a = was[id], b = now[id];
+    if (!b) { out.push(`${id}: in the snapshot but no longer built`); continue; }
+    const diffs = ["lessons", "steps", "tests", "parts"].filter((k) => a[k] !== b[k]).map((k) => `${k} ${a[k]} to ${b[k]}`);
+    if (a.hash !== b.hash) diffs.push("the steps' structure");
+    if (diffs.length) out.push(`${id} changed: ${diffs.join(", ")} (if this is meant, run: npm run check -- --snapshot)`);
+  }
+  return out;
+}
 
 if (args[0] === "--show") {
   const [, level, n] = args;
@@ -45,6 +86,12 @@ console.log(`Placement sections: ${program.placement.length}`);
 if (program.warnings.length) {
   console.log(`\n${program.warnings.length} warning(s):`);
   for (const w of program.warnings.slice(0, 30)) console.log("  " + w);
+}
+const snapshotErrors = snapshotCheck();
+if (snapshotErrors.length) {
+  console.log(`\nSnapshot: ${snapshotErrors.length} level(s) changed:`);
+  for (const e of snapshotErrors) console.log("  " + e);
+  process.exit(1);
 }
 if (program.errors.length) {
   console.log(`\n${program.errors.length} error(s):`);

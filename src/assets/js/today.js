@@ -57,9 +57,28 @@
       '<a class="btn btn--primary btn--big btn--block" href="' + esc(step.url) + '">Start</a></div>';
   }
   function beginCard(subj) {
+    if (!subj.placementUrl) return '<div class="card next-card"><p class="eyebrow">' + esc(subj.name) + " · " + esc(p.name) + '</p><h2 class="card__title">Where to begin</h2>' +
+      '<p class="card__text">Choose a level by age. The first lessons are easy on purpose.</p>' +
+      '<div class="btn-row"><a class="btn btn--primary" href="/lessons/#' + esc(subj.id) + '">Choose a level</a></div></div>';
     return '<div class="card next-card"><p class="eyebrow">' + esc(subj.name) + " · " + esc(p.name) + '</p><h2 class="card__title">Where to begin</h2>' +
       '<p class="card__text">The placement test takes ten to twenty minutes and names the lesson to start with. Or choose a level by age.</p>' +
       '<div class="btn-row"><a class="btn btn--primary" href="' + esc(subj.placementUrl) + '">Take the placement test</a><a class="btn btn--secondary" href="/lessons/#' + esc(subj.id) + '">Choose a level</a></div></div>';
+  }
+  // A subject taught twice a week says the day it is next due.
+  function nextOn(subj, lastDate) {
+    if (!subj.cadence || subj.cadence >= 5 || !lastDate) return "";
+    var due = new Date(lastDate); due.setDate(due.getDate() + Math.round(7 / subj.cadence));
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    if (due <= today) return "Due today";
+    return "Next on " + due.toLocaleDateString(undefined, { weekday: "long" });
+  }
+  var CHEVRON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>';
+  function compactRow(subj, lv) {
+    if (!lv) return '<li><a class="row" href="/lessons/#' + esc(subj.id) + '"><span class="row__main"><span class="row__title">' + esc(subj.name) + ': choose a level</span></span>' + CHEVRON + "</a></li>";
+    var step = P.nextStep(lv.id, lv.lessons, lv.tests, lv.slug);
+    var last = P.lastResult(subj.id, p);
+    var when = nextOn(subj, last && last.summary ? last.summary.date : null);
+    return '<li><a class="row" href="' + esc(step.url) + '"><span class="row__main"><span class="row__title">' + esc(subj.name) + ": " + esc(lv.name) + ", " + esc(step.label) + "</span>" + (when ? '<span class="row__sub">' + esc(when) + "</span>" : "") + "</span>" + CHEVRON + "</a></li>";
   }
   function lastLine(last) {
     var m = /^(.+)-(\d{3})$/.exec(last.id), ll = m && levelOf(m[1]);
@@ -67,15 +86,19 @@
     return '<p class="today-last">' + day(s.date) + ": " + esc(ll ? ll.name : "") + " Lesson " + Number(m[2]) + ", " + s.firm + " right, " + s.errors + " error" + (s.errors === 1 ? "" : "s") + ". " +
       (s.repeat ? "Repeat it." : s.stillMissed && s.stillMissed.length ? "Reteach " + esc(s.stillMissed.join(", ")) + " first." : "Go on.") + "</p>";
   }
+  // The two subjects taught longest ago get full cards; the rest, a row each.
   if (anyProfileStarted) {
-    P.subjectOrder(subjects.map(function (s) { return s.id; }), p).forEach(function (sid) {
+    var compact = [];
+    P.subjectOrder(subjects.map(function (s) { return s.id; }), p).forEach(function (sid, i) {
       var subj = subjects.filter(function (s) { return s.id === sid; })[0];
       var lv = levelOf(P.currentLevel(sid, p));
+      if (i >= 2) { compact.push(compactRow(subj, lv)); return; }
       if (!lv) { html += beginCard(subj); return; }
       html += nextCard(subj, lv);
       var last = P.lastResult(sid, p);
       if (last) html += lastLine(last);
     });
+    if (compact.length) html += '<ul class="rows">' + compact.join("") + "</ul>";
   }
   html += '<ul class="today-links"><li><a href="/lessons/">All lessons</a></li><li><a href="/records/">Records</a></li><li><a href="' + esc(subjects.length === 1 ? subjects[0].placementUrl : "/placement/") + '">Placement test</a></li></ul>';
   host.innerHTML = html;

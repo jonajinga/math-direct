@@ -134,7 +134,7 @@
 .mdv-col__line { border-bottom: 0.08em solid var(--v-ink); }
 .mdv-col__labels { font-size: 0.3em; color: var(--ink-2); }
 .mdv-col__labels .mdv-col__d { width: 2.67em; }
-.mdv-col__carry { font-size: 0.45em; color: var(--v-accent); }
+.mdv-col__carry { font-size: 0.45em; color: var(--note-strong); }
 .mdv-col__carry .mdv-col__op { width: 1.78em; }
 .mdv-col__carry .mdv-col__d { width: 1.78em; }
 .mdv-col__d.is-struck { text-decoration: line-through; text-decoration-color: var(--v-accent); text-decoration-thickness: 0.06em; }
@@ -255,3 +255,28 @@
 /* Flash: dots shown briefly */
 .child-stage.is-flashed .mdv { visibility: hidden; }
 
+
+/* ── Grades 2 to 5 ── */
+.mdv-col__note { font-family: var(--font-ui); font-size: 0.32em; font-weight: 600; color: var(--ink-2); margin-left: 0.6em; white-space: nowrap; }
+.mdv-frac { display: inline-flex; align-items: center; gap: 0.15em; font-family: var(--font-child); font-weight: 700; line-height: 1; color: var(--v-ink); }
+.mdv-frac--lg { font-size: clamp(min(3rem, 22cqh), 28cqh, 8rem); }
+.mdv-frac--md { font-size: clamp(min(2rem, 13cqh), 16cqh, 4.5rem); }
+.mdv-frac--sm { font-size: clamp(min(1.5rem, 9cqh), 11cqh, 3rem); }
+.mdv-frac__stack { display: inline-flex; flex-direction: column; align-items: center; }
+.mdv-frac__n { padding: 0 0.15em 0.05em; border-bottom: 0.08em solid var(--v-ink); }
+.mdv-frac__d { padding: 0.05em 0.15em 0; }
+.child-stage .mdv-choice .mdv-frac { font-size: min(clamp(min(1.5rem, 11cqh), 14cqh, 3.5rem), calc(80cqw / (var(--chars, 3) * 0.6))); }
+.mdv-table { font-family: var(--font-child); font-weight: 700; font-size: clamp(min(1.25rem, 8cqh), 10cqh, 2.5rem); color: var(--v-ink); }
+.mdv-table table { border-collapse: collapse; background: var(--v-paper); }
+.mdv-table th, .mdv-table td { border: 0.08em solid var(--v-ink); padding: 0.15em 0.5em; text-align: center; line-height: 1.2; }
+.mdv-table th { background: var(--v-soft); font-family: var(--font-ui); font-size: 0.75em; }
+.mdv-prose { display: block; max-width: min(100%, 36rem); font-family: var(--font-ui); font-size: clamp(1rem, 5.5cqh, 1.5rem); line-height: 1.45; color: var(--v-ink); text-align: left; }
+.mdv-prose p { margin: 0 0 0.4em; }
+.mdv-prose p:last-child { margin-bottom: 0; }
+.mdv-poem { display: block; max-width: 100%; font-family: var(--font-ui); font-size: clamp(1.0625rem, 6cqh, 1.625rem); line-height: 1.5; color: var(--v-ink); text-align: left; }
+.mdv-poem__stanza { margin: 0 0 0.8em; }
+.mdv-poem__stanza:last-child { margin-bottom: 0; }
+.mdv-poem__line { display: block; white-space: pre-wrap; }
+.mdv-poem__gap { display: inline-block; vertical-align: baseline; }
+.mdv-poem__gap--all, .mdv-poem__rest { display: inline-block; width: calc(var(--n, 4) * 0.55em); height: 0.9em; border-bottom: 0.1em solid var(--v-line); vertical-align: -0.1em; }
+.mdv-poem__rule { display: block; width: calc(var(--n, 20) * 0.5em); max-width: 100%; height: 1.5em; border-bottom: 0.1em solid var(--v-line); }

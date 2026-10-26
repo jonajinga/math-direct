@@ -30,6 +30,7 @@ npm run check:program  # first-try scoring, retests, On your own, the test gate,
 npm run check:a11y     # axe-core over every screen at two sizes, plus contrast, target, reflow, and spacing probes
 npm run check:keys     # a keyboard walk of the runner and the app shell
 npm run check:import   # records from version 4 and from Open Phonics load into the store
+npm run check:hint     # every new picture draws, and a puzzle's hints come one at a time and are recorded
 npm run check:browser  # all of the browser checks above
 ```
 

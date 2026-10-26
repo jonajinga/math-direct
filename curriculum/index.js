@@ -12,15 +12,18 @@ import first from "./tracks/first.js";
 import bridge from "./tracks/bridge.js";
 import reading1 from "./tracks/reading1.js";
 import reading2 from "./tracks/reading2.js";
-import { factStep } from "./tracks/k.js";
+import { factList } from "./lib/facts.js";
 
 export const LEVELS = [reading1, reading2, prek, k, first, bridge].filter(Boolean);
 
 // The subjects, in the order the app shows them. A level names its subject;
 // a subject appears only when a level of it is built.
+// cadence: lessons a week, where a subject is not taught daily.
 const SUBJECTS = {
-  reading: { id: "reading", name: "Reading", guideUrl: "/guide/reading/", placementUrl: "/placement/reading/", placementNote: "Reading 1 and Reading 2." },
-  math: { id: "math", name: "Math", guideUrl: "/guide/", placementUrl: "/placement/math/", placementNote: "Pre-K through First Grade." },
+  reading: { id: "reading", name: "Reading", guideUrl: "/guide/reading/", placementUrl: "/placement/reading/", placementNote: "Reading 1 and Reading 2.", cadence: 5 },
+  math: { id: "math", name: "Math", guideUrl: "/guide/", placementUrl: "/placement/math/", placementNote: "Pre-K through First Grade.", cadence: 5 },
+  science: { id: "science", name: "Science", guideUrl: "/guide/science/", placementUrl: null, placementNote: "", cadence: 2 },
+  poetry: { id: "poetry", name: "Poetry", guideUrl: "/guide/poetry/", placementUrl: null, placementNote: "", cadence: 2 },
 };
 
 function practiceFor(level) {
@@ -113,6 +116,7 @@ export function buildProgram({ strict = true } = {}) {
       url: `/${level.slug}/`,
       firstLesson: built.lessons[0].url,
       sounds: level.soundList || [],
+      timed: level.timed || null,
       tracks: level.tracks.map((t) => ({
         id: t.id,
         name: t.name,
@@ -149,7 +153,7 @@ export function buildProgram({ strict = true } = {}) {
   const facts = {};
   for (const level of LEVELS) {
     if (!level.facts) continue;
-    facts[level.id] = level.facts.map((f) => ({ ...factStep(f.a, f.op, f.b), key: f.key, lesson: f.lesson, set: f.set || 1 }));
+    facts[level.id] = factList(level);
     facts[level.id].forEach((st) => validateItems([st], `fact ${st.key}`, errors));
   }
 
@@ -204,7 +208,8 @@ export function buildProgram({ strict = true } = {}) {
     id: lv.id, slug: lv.slug, subject: lv.subject, name: lv.name, lessons: lv.lessons, url: lv.url,
     tests: lv.tests,
     tracks: Object.fromEntries(lv.tracks.map((t) => [t.id, t.name])),
-    facts: (facts[lv.id] || []).map((f) => ({ key: f.key, lesson: f.lesson })),
+    facts: (facts[lv.id] || []).map((f) => ({ key: f.key, lesson: f.lesson, set: f.set })),
+    timed: lv.timed,
     sounds: lv.sounds || [],
     minutes: lv.minutes,
     // One short row per lesson: minutes, the real objects it needs, what is new.

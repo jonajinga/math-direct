@@ -1533,6 +1533,8 @@ export default {
   endsWith: "By the end of First Grade, the child counts and reads to 120, knows the addition and subtraction facts within 10 without counting and can work out any fact within 20, solves every kind of one-step story problem within 20, adds within 100 using tens and ones, tells time to the half hour, and reads simple graphs.",
   materials: ["Ten straws or craft sticks and a rubber band, for bundling tens (optional)", "About ten paper clips, or other small objects all the same size", "A few real coins (optional)"],
   facts: firstFacts,
+  // The one-minute check's goal: base, plus step for every per facts taught, up to max.
+  timed: { base: 8, per: 12, step: 2, max: 25 },
   readable(n) {
     return new Set(range(0, numMax(n)));
   },

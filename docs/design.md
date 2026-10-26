@@ -119,6 +119,71 @@ and About describes both programs. The manifest carries an `id` and two
 screenshots for the install prompt, and the service worker precaches
 Today's script, the maskable icon, and the pages it had missed.
 
+## The framework for grades 2 to 5 and four subjects
+
+The third pass widened the shared framework once, so that each later level
+is content rather than engineering. Nothing in the existing six levels
+changed: `curriculum/snapshot.json` holds a structural signature of each
+level (its lessons, steps, tests, and parts, and a hash of every step's cue,
+skill, item, and picture types, never its wording), and `npm run check`
+fails when a level in the snapshot differs; `npm run check -- --snapshot`
+records a change that is meant.
+
+**Pictures.** Eighteen types join the renderer (`curriculum/lib/v.js`
+builds them, `src/assets/js/visuals.js` draws and describes them, the
+validator checks their shape): `colx` (column work to six digits and many
+rows, with carries and trades), `mult` (partial products revealed in
+turn), `ldiv` (the long division bracket, step by step), `blocks`
+(thousands, hundreds, tens, ones), `frac` (notation, with mixed numbers),
+`bar` (fraction bars to twelfths, one or several), `nl` extended with a
+step, a denominator, labels every nth tick, and points, `grid` (arrays and
+the area model), `tape` (bar models), `graph` kinds `bar` and `plot`,
+`table`, `geo` (figures with side and angle labels and right-angle
+marks), `angle` (with a protractor), `coord`, `ruler`, `cubes`, `prose`
+(text in the interface face, at most eight lines of ninety characters),
+`poem` (stanzas with words faded by a seeded rule, first letters, or line
+rules), and `diagram` (hand-drawn SVGs in `src/assets/js/diagrams.js`,
+with labels that can be touched; a plant, a circuit, and a food chain are
+drawn, the rest come with the science lessons). `/math-sample/` shows every
+one, and `check-hint.mjs` walks it.
+
+**Numbers.** `word()` reaches the hundreds of millions.
+`curriculum/lib/numbers.js` says fractions, mixed numbers, and decimals as
+a child says them, parses an answer back to a value (`parseAnswer`), and
+wraps a level's `readable(n)`, which may now be a Set of whole numbers, a
+descriptor `{ max, frac, dec }`, or a predicate of its own, so that every
+caller sees `has(value)` and `sample(rand, value, k)`. On your own thus
+turns any readable spoken answer into a choice of three, with the others
+near it; the validator reads printed fractions and decimals the same way.
+
+**Puzzles.** An exercise kind `puzzle` holds one or two test steps with
+`hints` (one to three, none giving the answer away) and `secs` of about
+four minutes. On such a step the runner's tool slot shows Hint (Dot wins
+where both apply); each press, the H key, or the More row reveals the next
+hint in a box on the panel, and the count is kept with the item's record
+(`items[key].h`), the saved lesson, and the finish screen. The validator
+leaves a puzzle's time out of the pace warning and warns when puzzles take
+more than two fifths of a lesson. Mastery tests add a Problem solving part
+of two puzzles without hints wherever a level has a puzzle track.
+
+**Scheduler, tests, placement, facts.** `level.reviewSchedule` (pairs of
+`[upTo, every]` or a function) generalizes the review intervals;
+`track.maxGap` overrides the level's; `track.keep` is never dropped by
+the minutes cap. A test holds at most six parts: tracks with a new unit in
+the block, then the rest in turn from test to test; the final test sweeps
+the level. `level.partRange` sets the items a part holds. Placement takes
+six tracks a section. The fact helpers live in `curriculum/lib/facts.js`
+with × and ÷ and the rule a child uses for each; the one-minute check reads
+each level's `timed` goal, and its page offers every level that has one.
+
+**Subjects and records.** `SUBJECTS` names science and poetry, each with
+a cadence of two lessons a week; they appear once a level of theirs is
+built. Records are version 6: hints on items, `sightWords` shaped like
+sounds, and `poems` with a stage, a history, and the date a poem was by
+heart; a version 5 backup loads without loss. Today gives full cards to the
+two subjects taught longest ago and a row to each of the rest, with the day
+a twice-weekly subject is next due.
+
 ## The runner
 
 One screen, never scrolled while teaching. From the top: a one-line strip

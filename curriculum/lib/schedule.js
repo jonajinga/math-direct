@@ -12,6 +12,7 @@
 import { rng } from "./rand.js";
 import { stepSeconds } from "./validate.js";
 import { word } from "./words.js";
+import { parseAnswer, readableOf, valueVisual, answerWord, answerText } from "./numbers.js";
 
 function pad3(n) {
   return String(n).padStart(3, "0");
@@ -25,7 +26,15 @@ export function lessonUrl(level, n) {
   return `/${level.slug}/lesson-${pad3(n)}/`;
 }
 
+// How often a track returns for review, by how long ago its latest unit was
+// taught. A level may give reviewSchedule as [[upTo, every], ...] or as a
+// function of the lessons since; the default widens from 2 to 4.
 function reviewInterval(level, sinceLatest) {
+  if (typeof level.reviewSchedule === "function") return level.reviewSchedule(sinceLatest);
+  if (Array.isArray(level.reviewSchedule)) {
+    for (const [upTo, every] of level.reviewSchedule) if (sinceLatest < upTo) return every;
+    return level.reviewSchedule[level.reviewSchedule.length - 1][1];
+  }
   const base = level.reviewIntervals || [2, 3, 4];
   if (sinceLatest < 10) return base[0];
   if (sinceLatest < 25) return base[1];
@@ -178,7 +187,7 @@ export function buildLevel(level) {
       const hi = level.minutesBand[1] * 60;
       const secondsOf = (ex) => 10 + ex.steps.reduce((a, st) => a + stepSeconds(st), 0);
       let total = exercises.reduce((a, ex) => a + secondsOf(ex), 0);
-      const droppable = chosen.filter((w) => w.kind === "review" && !w.track.warmup && w.score !== undefined).sort((a, b) => a.score - b.score);
+      const droppable = chosen.filter((w) => w.kind === "review" && !w.track.warmup && !w.track.keep && w.score !== undefined).sort((a, b) => a.score - b.score);
       for (const w of droppable) {
         if (total <= hi || chosen.length <= (level.minExercises || 0)) break;
         const idx = exercises.findIndex((ex) => ex.track === w.track.id && ex.kind === "review");
@@ -230,9 +239,6 @@ export function buildLevel(level) {
 // that are answered aloud become a choice of three numbers when the numbers
 // can be read at this lesson.
 
-const WORD_TO_NUM = new Map();
-for (let i = 0; i <= 120; i++) WORD_TO_NUM.set(word(i), i);
-
 export function tapGroups(screen) {
   let groups = 0;
   (function walk(v) {
@@ -254,24 +260,6 @@ function hasMarks(screen) {
     if (v.items && v.t !== "pattern" && v.t !== "size") walk(v.items);
   })(screen);
   return found;
-}
-
-function numericAnswer(answer) {
-  const m = /^([A-Za-z-]+(?: hundred(?: [a-z-]+)?)?)\.$/.exec(String(answer || "").trim());
-  if (!m) return null;
-  const v = WORD_TO_NUM.get(m[1].toLowerCase());
-  return typeof v === "number" ? v : null;
-}
-
-function pickOthers(rand, pool, ans, k) {
-  const near = pool.filter((x) => x !== ans && Math.abs(x - ans) <= 3);
-  const wide = pool.filter((x) => x !== ans && Math.abs(x - ans) <= 10);
-  const any = pool.filter((x) => x !== ans);
-  const src = near.length >= k ? near : wide.length >= k ? wide : any;
-  const out = [];
-  const bag = src.slice();
-  while (out.length < k && bag.length) out.push(bag.splice(Math.floor(rand() * bag.length), 1)[0]);
-  return out.length === k ? out : null;
 }
 
 function shuffled(rand, list) {
@@ -301,19 +289,21 @@ function toTappable(it, readable, rand) {
     return { ...it, independent: true };
   }
   if (hasMarks(it.screen)) return null;
-  if (it.skill === "count" || it.skill === "subitize" || it.skill === "count-aloud") return null;
-  const ans = numericAnswer(it.answer);
-  if (ans === null || !readable.has(ans)) return null;
-  const pool = [...readable].filter((x) => typeof x === "number");
-  const others = pickOthers(rand, pool, ans, 2);
+  if (it.skill === "count" || it.skill === "subitize" || it.skill === "count-aloud" || it.skill === "puzzle") return null;
+  // A spoken number, fraction, or decimal the child can read becomes a
+  // choice of three; the others are near it.
+  const ans = parseAnswer(it.answer);
+  if (!ans || !readable || !readable.has(ans)) return null;
+  const others = readable.sample(rand, ans, 2);
   if (!others) return null;
   const opts = shuffled(rand, [ans, ...others]);
-  const choices = { t: "choices", opts: opts.map((v) => ({ t: "num", v, size: "md" })), ans: opts.indexOf(ans) };
+  const choices = { t: "choices", opts: opts.map((v) => valueVisual(v, "md")), ans: opts.indexOf(ans) };
+  const said = answerWord(ans), shown = answerText(ans);
   const screen = Array.isArray(it.screen) ? it.screen : [it.screen];
   const isSay = screen.length === 1 && screen[0] && screen[0].t === "say";
   if (it.skill === "read") {
     // The screen showed the number; now the child finds it among three.
-    return { ...it, independent: true, screen: [choices], say: `Touch ${word(ans)}.`, answer: `(Touches ${ans}.)`, confirm: `Yes, ${word(ans)}.`, signal: "touch" };
+    return { ...it, independent: true, screen: [choices], say: `Touch ${said}.`, answer: `(Touches ${shown}.)`, confirm: `Yes, ${said}.`, signal: "touch" };
   }
   // "Say the next number" becomes "touch the next number"; otherwise the
   // line ends with "Touch the answer."
@@ -323,15 +313,15 @@ function toTappable(it, readable, rand) {
     independent: true,
     screen: isSay ? [choices] : [...screen, choices],
     say,
-    answer: `(Touches ${ans}.)`,
-    confirm: `Yes, ${word(ans)}.`,
+    answer: `(Touches ${shown}.)`,
+    confirm: `Yes, ${said}.`,
     signal: "touch",
   };
 }
 
 export function buildIndependent(level, lesson, chosen) {
   const n = lesson.number;
-  const readable = level.readable ? level.readable(n) : new Set();
+  const readable = readableOf(level, n);
   const rand = rng(`${level.id}:${n}:own`);
   const perTrack = [];
   const seen = new Set();

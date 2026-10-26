@@ -17,7 +17,8 @@
     doBox: $("tp-do"), doText: $("tp-do-text"), answerBox: $("tp-answer"), answerText: $("tp-answer-text"),
     confirmBox: $("tp-confirm"), confirmText: $("tp-confirm-text"), correctBox: $("tp-correct"), correctText: $("tp-correct-text"),
     touched: $("tp-touched"), testNote: $("tp-test-note"), signal: $("tp-signal"),
-    btnMore: $("btn-more"), btnShow: $("btn-show"), btnClear: $("btn-clear"), btnDot: $("btn-dot"), btnError: $("btn-error"), btnOver: $("btn-over"),
+    btnMore: $("btn-more"), btnShow: $("btn-show"), btnClear: $("btn-clear"), btnDot: $("btn-dot"), btnHint: $("btn-hint"), btnError: $("btn-error"), btnOver: $("btn-over"),
+    hintBox: $("tp-hint"), hintText: $("tp-hint-text"),
     btnNext: $("btn-next"), btnFirm: $("btn-firm"), btnGoOn: $("btn-goon"), btnBigBack: $("btn-big-back"),
     moreList: $("more-list"), outlineList: $("tp-outline-list"), outlineLinks: $("tp-outline-links"),
     childList: $("sheet-child-list"), childText: $("sheet-child-text"), leaveTitle: $("sheet-leave-title"), leaveText: $("sheet-leave-text"), leaveGo: $("sheet-leave-go"),
@@ -31,6 +32,7 @@
   var segments = [];
   var pos = { seg: 0, step: 0 };
   var results = {}; // step uid -> { first: "firm" | "error", last: "firm" | "error", n: tries }
+  var hintsUsed = {}; // step uid -> hints shown on a puzzle
   var inserted = []; // steps added while teaching: retests after corrections { seg, at, from }, and turns { kind: "turn", seg, at, from, child }
   var sitting = { children: [], group: false }; // the child, or the two children, being taught: [{ id, name }]
   var moved = false; // the parent moved or marked something in this sitting
@@ -169,7 +171,7 @@
   }
 
   function kindName(k) {
-    return { "new": "new skill", firm: "practice", review: "review", delayed: "the items missed earlier", test: "test", practice: "practice", placement: "placement", checkout: "timed reading" }[k] || k;
+    return { "new": "new skill", firm: "practice", review: "review", delayed: "the items missed earlier", test: "test", practice: "practice", placement: "placement", checkout: "timed reading", puzzle: "puzzle" }[k] || k;
   }
 
   var testParts = [];
@@ -206,7 +208,7 @@
     segments = [{ title: sec.title, meta: "Placement section", kind: "placement", section: placement.idx, steps: sec.items.map(asTestStep) }];
     assignUids();
     pos = { seg: 0, step: 0 };
-    results = {};
+    results = {}; hintsUsed = {};
     setWhere("Placement test", sec.title);
     el.outlineLinks.innerHTML = "";
   }
@@ -230,7 +232,8 @@
     segments = [{ title: "Timed facts", meta: "One minute", kind: "timed", steps: order.map(function (f) { var st = asTestStep(f); delete st.lesson; return st; }) }];
     assignUids();
     var released2 = released.length;
-    DATA.goal = Math.min(25, 8 + Math.floor(released2 / 12) * 2);
+    var cfg = DATA.timed || { base: 8, per: 12, step: 2, max: 25 };
+    DATA.goal = Math.min(cfg.max, cfg.base + Math.floor(released2 / cfg.per) * cfg.step);
     setWhere(DATA.level ? DATA.level.name + " facts" : "Facts", "Timed check");
     el.outlineLinks.innerHTML = '<a href="/practice/">All practice</a>';
   }
@@ -414,6 +417,7 @@
     setBox(el.answerBox, el.answerText, numeralChains(st.answer || ""));
     setBox(el.confirmBox, el.confirmText, !testing && !own && st.cue === "test" ? st.confirm : "");
     setBox(el.correctBox, el.correctText, !testing && !own && st.cue === "test" ? numeralChains(st.correct) : "");
+    renderHint(st);
     el.correctBox.classList.remove("is-active");
     el.touched.hidden = true;
     el.touched.textContent = "";
@@ -457,7 +461,7 @@
     P.saveSession({
       kind: MODE, url: sittingUrl(), id: sessionId(),
       title: (where.level ? where.level + " · " : "") + where.name, where: where.ex, marks: markCount(),
-      pos: { seg: pos.seg, step: pos.step }, results: results, delayedAdded: delayedAdded, inserted: inserted,
+      pos: { seg: pos.seg, step: pos.step }, results: results, delayedAdded: delayedAdded, inserted: inserted, hints: hintsUsed,
       placement: MODE === "placement" ? placement : null, elapsed: Date.now() - startTime,
       with: otherChildId() || null, children: sitting.children.map(function (c) { return c.name; }),
     });
@@ -480,7 +484,7 @@
       placement = s.placement;
       loadPlacementSection();
     }
-    results = {};
+    results = {}; hintsUsed = {};
     for (var k in (s.results || {})) {
       var v = s.results[k];
       results[k] = typeof v === "string" ? { first: v, last: v, n: 1 } : v;
@@ -503,6 +507,7 @@
     pos = { seg: Math.min(s.pos.seg, segments.length - 1), step: 0 };
     pos.step = Math.min(s.pos.step, segments[pos.seg].steps.length - 1);
     startTime = Date.now() - (s.elapsed || 0);
+    hintsUsed = s.hints || {};
     resumed = true;
     render();
   }
@@ -542,9 +547,13 @@
     var showAgain = !!(st && (st.flash || touched));
     // In a reading step the tool slot holds Dot.
     var dotStep = !!(el.btnDot && stage.querySelector(".mdv-text[data-dot]:not([data-dot='none'])"));
+    // On a puzzle the tool slot holds Hint; Dot wins where both apply.
+    var hintStep = !!(st && st.hints && st.hints.length && MODE !== "test" && MODE !== "placement") && !dotStep;
+    var hintsLeft = hintStep ? st.hints.length - (hintsUsed[st.uid] || 0) : 0;
     if (el.btnDot) el.btnDot.hidden = !dotStep;
-    el.btnShow.hidden = dotStep || !showAgain;
-    el.btnClear.hidden = dotStep || showAgain || !marks;
+    if (el.btnHint) { el.btnHint.hidden = !hintStep; el.btnHint.disabled = hintStep && hintsLeft <= 0; el.btnHint.setAttribute("aria-label", hintStep ? (hintsLeft ? "Hint. " + hintsLeft + " left." : "Hint. None left.") : "Hint"); }
+    el.btnShow.hidden = dotStep || hintStep || !showAgain;
+    el.btnClear.hidden = dotStep || hintStep || showAgain || !marks;
     var overNow = errorState && canOver;
     el.btnOver.hidden = !overNow;
     el.btnError.hidden = overNow;
@@ -574,7 +583,7 @@
     var rows = el.moreList.querySelectorAll("[data-act]");
     for (var i = 0; i < rows.length; i++) {
       var a = rows[i].getAttribute("data-act");
-      rows[i].disabled = a === "back" ? (pos.seg === 0 && pos.step === 0) : a === "over" ? !canOver : a === "clear" ? !marks : a === "show" ? !st : false;
+      rows[i].disabled = a === "back" ? (pos.seg === 0 && pos.step === 0) : a === "over" ? !canOver : a === "clear" ? !marks : a === "show" ? !st : a === "hint" ? !(hintStep && hintsLeft > 0) : false;
     }
   }
 
@@ -707,6 +716,29 @@
     else stage.classList.remove("is-flashed");
     syncBar();
     fitPanel();
+  }
+
+  // Hints on a puzzle: each press shows the next one in a box on the panel,
+  // and the count is kept with the item's record.
+  function renderHint(st) {
+    if (!el.hintBox) return;
+    var n = st && st.hints ? (hintsUsed[st.uid] || 0) : 0;
+    if (!n) { el.hintBox.hidden = true; el.hintText.innerHTML = ""; return; }
+    el.hintText.innerHTML = st.hints.slice(0, n).map(function (h, i) { return "<b>Hint " + (i + 1) + ".</b> " + escapeHtml(h); }).join("<br>");
+    el.hintBox.hidden = false;
+  }
+  function showHint() {
+    var st = currentStep();
+    if (!st || !st.hints || !st.hints.length || MODE === "test" || MODE === "placement") return;
+    var n = hintsUsed[st.uid] || 0;
+    if (n >= st.hints.length) return;
+    hintsUsed[st.uid] = n + 1;
+    moved = true;
+    renderHint(st);
+    announce("Hint " + (n + 1) + ": " + st.hints[n]);
+    syncBar();
+    fitPanel();
+    saveSession();
   }
 
   function clearMarks() {
@@ -1006,6 +1038,7 @@
         var r = results[st.uid];
         if (!items[st.item]) items[st.item] = { first: r.first === "firm", last: r.last === "firm" };
         else items[st.item].last = r.last === "firm";
+        if (st.hints) items[st.item].hints = hintsUsed[st.uid] || 0;
       });
     });
     // A retest's result is the item's latest.
@@ -1125,7 +1158,10 @@
       summary.with = sitting.children.filter(function (x) { return x.id !== id; }).map(function (x) { return x.name; }).join(" and ");
       summary.turns = turns;
     }
-    return { child: c, id: id, summary: summary, main: main, retests: retests, own: own, delayed: delayed, turns: turns, exErrors: exErrors, stillMissed: stillMissed, repeat: repeat, ownTotal: ownTotal, ownLow: ownTotal > 0 && own.firm / ownTotal < 0.85, hadDelayed: delayed.firm + delayed.errors > 0 };
+    var hints = 0;
+    segments.forEach(function (s) { s.steps.forEach(function (st) { if (st.hints && forChildOk(st, id)) hints += hintsUsed[st.uid] || 0; }); });
+    summary.hints = hints;
+    return { child: c, id: id, hints: hints, summary: summary, main: main, retests: retests, own: own, delayed: delayed, turns: turns, exErrors: exErrors, stillMissed: stillMissed, repeat: repeat, ownTotal: ownTotal, ownLow: ownTotal > 0 && own.firm / ownTotal < 0.85, hadDelayed: delayed.firm + delayed.errors > 0 };
   }
   // The checkout's result for one child: words a minute, errors, the goal.
   function checkoutResult(childId) {
@@ -1138,6 +1174,7 @@
     var html = "<div><dt>Firm</dt><dd>" + r.main.firm + "</dd></div><div><dt>Errors</dt><dd>" + r.main.errors + "</dd></div>";
     if (sitting.group && r.turns.firm + r.turns.errors) html += "<div><dt>Alone</dt><dd>" + r.turns.firm + " of " + (r.turns.firm + r.turns.errors) + "</dd></div>";
     if (r.retests.firm + r.retests.errors) html += "<div><dt>Asked again</dt><dd>" + r.retests.firm + " of " + (r.retests.firm + r.retests.errors) + "</dd></div>";
+    if (r.hints) html += "<div><dt>Hints</dt><dd>" + r.hints + "</dd></div>";
     if (r.hadDelayed) html += "<div><dt>At the end</dt><dd>" + r.delayed.firm + " of " + (r.delayed.firm + r.delayed.errors) + "</dd></div>";
     if (r.ownTotal) html += "<div><dt>On your own</dt><dd>" + r.own.firm + " of " + r.ownTotal + "</dd></div>";
     if (r.summary.checkout) html += "<div><dt>Timed reading</dt><dd>" + r.summary.checkout.wpm + " a minute, " + r.summary.checkout.errors + (r.summary.checkout.errors === 1 ? " error" : " errors") + "</dd></div>";
@@ -1320,7 +1357,7 @@
   // Another set starts in place: new items, no page load.
   function restartPractice() {
     if (HOOKS.again) { HOOKS.again(); return; }
-    results = {};
+    results = {}; hintsUsed = {};
     pos = { seg: 0, step: 0 };
     startTime = Date.now();
     if (MODE === "timed") { initTimed(); el.finish.hidden = true; el.finish.innerHTML = ""; el.shell.hidden = false; render(); startTimed(); el.btnMore.focus(); return; }
@@ -1404,6 +1441,7 @@
       case "back": back(); break;
       case "over": startOver(); break;
       case "show": showAgain(); break;
+      case "hint": showHint(); break;
       case "clear": clearMarks(); break;
       case "outline": openAfterClose("sheet-outline"); break;
       case "big": bigPicture(true); break;
@@ -1481,6 +1519,7 @@
   el.btnOver.addEventListener("click", startOver);
   el.btnGoOn.addEventListener("click", function () { advance(); });
   el.btnShow.addEventListener("click", showAgain);
+  if (el.btnHint) el.btnHint.addEventListener("click", showHint);
   el.btnClear.addEventListener("click", clearMarks);
   // Dot: press and hold. The pointer, or Space or Enter on the button.
   function dotDown() { if (!el.btnDot || el.btnDot.hidden) return; el.btnDot.classList.add("is-held"); if (window.MDDot) MDDot.press(); }
@@ -1560,6 +1599,7 @@
       case " ": e.preventDefault(); if (dotStepShown()) { if (!e.repeat) dotDown(); } else showAgain(); break;
       case "d": case "D": if (dotStepShown()) { e.preventDefault(); if (window.MDDot) MDDot.step(); } break;
       case "c": case "C": e.preventDefault(); clearMarks(); break;
+      case "h": case "H": e.preventDefault(); showHint(); break;
       case "o": case "O": e.preventDefault(); openSheet("sheet-outline"); break;
       case "b": case "B": e.preventDefault(); bigPicture(true); break;
       case "m": case "M": e.preventDefault(); syncBar(); openSheet("sheet-more"); break;
@@ -1606,7 +1646,7 @@
   function reset() {
     segments = [];
     pos = { seg: 0, step: 0 };
-    results = {};
+    results = {}; hintsUsed = {};
     inserted = [];
     moved = false;
     errorState = false;
@@ -1695,6 +1735,8 @@
     pos: function () { return pos; },
     mode: function () { return MODE; },
     sitting: function () { return sitting; },
+    itemResults: function () { return itemResults(); },
+    hints: function () { return hintsUsed; },
   };
 
   var dataEl = document.getElementById("runner-data");
