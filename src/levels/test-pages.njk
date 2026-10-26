@@ -1,0 +1,14 @@
+---
+pagination:
+  data: program.tests
+  size: 1
+  addAllPagesToCollections: true
+  alias: test
+permalink: "{{ test.url }}"
+layout: layouts/runner.njk
+eleventyComputed:
+  title: "{{ test.levelName }} {{ test.title }}"
+  description: "{{ test.levelName }} mastery test after lesson {{ test.afterLesson }}: one part for each skill taught, with a reteaching plan for any part not passed."
+  exitUrl: "/{{ test.levelSlug }}/"
+---
+<script id="runner-data" type="application/json">{"mode":"test","exitUrl":"/{{ test.levelSlug }}/","test":{{ test | dump | safe }}}</script>

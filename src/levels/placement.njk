@@ -1,0 +1,23 @@
+---
+permalink: /placement/math/
+layout: layouts/runner.njk
+title: Math placement test
+description: A short spoken test that finds where in the math program a child should begin, from Pre-K through First Grade.
+exitUrl: /lessons/
+---
+{% set starts = { prek: -1, k: -1, first: -1 } %}
+<div class="runner-start" id="placement-start" hidden>
+  <article class="finish">
+    <p class="finish__kicker">Placement test</p>
+    <h1 class="finish__title">Where should we begin?</h1>
+    <p class="finish__lead">The placement test is a set of short sections, each checking one span of lessons. The child goes on until a section is not passed, and the test then names the lesson to start with. Most children finish in ten to twenty minutes.</p>
+    <p class="finish__lead">Read each question aloud, let the child answer, and mark Firm or Error. Do not correct or help. Choose a starting point by age; if the first section is too hard, the test moves back on its own.</p>
+    <div class="btn-row btn-row--stack">
+      {% for sec in program.placements.math %}{% if sec.from == 1 and sec.level != "bridge" %}
+      <button type="button" class="btn btn--primary btn--block" data-start="{{ loop.index0 }}">Start with {{ sec.levelName }}{% if sec.level == "prek" %} (about age 4){% elif sec.level == "k" %} (about age 5){% else %} (about age 6){% endif %}</button>
+      {% endif %}{% endfor %}
+    </div>
+    <ul class="finish__links"><li><a href="/lessons/">Back to the lessons</a></li></ul>
+  </article>
+</div>
+<script id="runner-data" type="application/json">{"mode":"placement","subject":"math","exitUrl":"/lessons/","sections":{{ program.placements.math | dump | safe }},"afterAll":{"level":"done","lesson":0,"url":"/lessons/","label":"second-grade work (every section was passed)"}}</script>

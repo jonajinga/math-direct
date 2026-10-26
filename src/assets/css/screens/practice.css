@@ -1,0 +1,4 @@
+/* ===== Practice ===== */
+.practice-level { margin-bottom: var(--sp-3); }
+.practice-level .fold__body { padding-top: var(--sp-2); }
+.practice-level .rows { margin-bottom: 0; }

@@ -1,0 +1,74 @@
+/* ===== Records ===== */
+.dash-name { margin: var(--sp-2) 0 var(--sp-3); }
+.dash-line { margin: 0 0 var(--sp-2); line-height: 1.5; }
+.dash-line--note { color: var(--ink-2); border-left: 3px solid var(--note); padding-left: var(--sp-3); font-size: var(--fs-2); }
+.dash-levels { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); margin: var(--sp-3) 0; }
+.dash-level { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-2); padding: var(--sp-4); }
+.dash-level.is-quiet { color: var(--ink-2); }
+.dash-level h3 { margin: 0 0 var(--sp-2); font-family: var(--font-ui); font-size: var(--fs-4); }
+.dash-level h3 a { color: inherit; text-decoration: none; }
+.dash-level .btn { margin-top: var(--sp-2); }
+.dash-small { font-size: var(--fs-2); color: var(--ink-2); line-height: 1.5; margin: var(--sp-2) 0 0; }
+.dash-tests { list-style: none; padding: 0; margin: var(--sp-2) 0 0; font-size: var(--fs-2); line-height: 1.5; }
+.dash-tests li { border-left: 3px solid var(--line-strong); padding-left: var(--sp-2); margin-bottom: var(--sp-1); }
+.dash-tests .is-pass { border-left-color: var(--firm); }
+.dash-tests .is-fail { border-left-color: var(--note); }
+.dash-h { margin: var(--sp-5) 0 var(--sp-2); font-size: var(--fs-5); }
+.dash-bars { list-style: none; padding: 0; margin: var(--sp-2) 0; }
+.dash-bars li { display: grid; grid-template-columns: minmax(7rem, 1fr) 2fr 2rem; gap: var(--sp-2); align-items: center; font-size: var(--fs-2); margin-bottom: var(--sp-1); }
+.dash-bar { height: 0.75rem; width: min(100%, calc(var(--n) * 1.25rem)); background: var(--note); border-radius: var(--r-full); }
+.dash-bars b { text-align: right; }
+
+/* The fact chart scrolls sideways inside its own region. */
+/* The sound chart, in reading: one box for each sound, in the order taught. */
+.sound-grid { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 0 0 var(--sp-2); padding: 0; list-style: none; }
+.sound-grid li { position: relative; min-width: 2.75rem; min-height: 2.75rem; padding: 0.25rem 0.625rem 0.25rem 0.5rem; border: 2px solid var(--line-strong); border-radius: var(--r-1); display: flex; align-items: center; justify-content: center; font-family: var(--font-child); font-weight: 700; font-size: 1.25rem; line-height: 1; color: var(--ink); background: var(--surface); }
+.sound-grid li.fc-later { border-style: dashed; color: var(--ink-2); }
+.sound-grid li.fc-firm, .sound-grid li.fc-automatic { background: var(--firm-soft); border-color: var(--firm); }
+.sound-grid li.fc-shaky { background: var(--error-soft); border-color: var(--error); }
+.sound-grid li.fc-learning { background: var(--primary-soft); border-color: var(--primary); }
+.sound-grid__mark { position: absolute; right: 0.125rem; top: 0.0625rem; font-family: var(--font-ui); font-size: 0.6875rem; font-weight: 700; color: var(--ink-2); }
+.fact-region { margin-bottom: var(--sp-4); }
+.fact-region__cap { margin: 0 0 var(--sp-1); font-size: var(--fs-1); color: var(--ink-2); }
+.fact-grid-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: var(--sp-1); }
+.fact-grid { border-collapse: collapse; font-size: var(--fs-1); }
+.fact-grid caption { text-align: left; font-size: var(--fs-2); font-weight: 700; padding-bottom: var(--sp-1); }
+.fact-grid th { padding: 0.125rem 0.25rem; color: var(--ink-2); font-weight: 700; min-width: 1.5rem; text-align: center; }
+.fact-grid td { width: 1.5rem; height: 1.5rem; border: 1px solid var(--surface); text-align: center; font-weight: 700; font-size: 0.75rem; line-height: 1; }
+.fc-firm, .fk--firm { background: var(--firm-soft); color: var(--firm-strong); }
+.fc-automatic, .fk--automatic { background: var(--firm); color: #fff; letter-spacing: -0.15em; }
+.fc-learning, .fk--learning { background: var(--primary-soft); color: var(--primary-strong); }
+.fc-shaky, .fk--shaky { background: var(--note-soft); color: var(--note-strong); }
+.fc-new, .fk--new { background: var(--surface-2); color: var(--ink-2); }
+.fc-later, .fc-none { background: transparent; }
+.fc-later { border: 1px dashed var(--line-strong) !important; }
+.fk { display: inline-flex; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; vertical-align: middle; margin: 0 0.125rem 0 0.5rem; font-size: 0.75rem; font-weight: 700; border-radius: 3px; }
+
+.dash-note-form { display: flex; gap: var(--sp-2); margin-bottom: var(--sp-2); }
+.dash-note-form input { flex: 1 1 auto; min-width: 0; }
+.dash-notes { list-style: none; padding: 0; margin: var(--sp-2) 0; }
+.dash-notes li { display: grid; grid-template-columns: 1fr auto; gap: var(--sp-1) var(--sp-3); align-items: center; border-bottom: 1px solid var(--line); padding: var(--sp-2) 0; }
+.dash-notes li span:first-child { grid-column: 1; }
+.dash-notes li .dash-small { grid-column: 1; margin: 0; }
+.dash-note-del { grid-column: 2; grid-row: 1 / span 2; }
+
+/* Recent lessons: a list on phones, columns from 40 em */
+.recent-list { list-style: none; margin: 0; padding: 0; }
+.recent { display: grid; grid-template-columns: 1fr; gap: 0.125rem; padding: var(--sp-2) 0; border-top: 1px solid var(--line); font-size: var(--fs-2); }
+.recent:first-child { border-top: 0; padding-top: 0; }
+.recent__date { color: var(--ink-2); font-size: var(--fs-1); }
+.recent__name { display: inline-flex; align-items: center; min-height: var(--tap); font-weight: 700; color: var(--primary); text-decoration: underline; text-underline-offset: 0.15em; }
+.recent__nums { color: var(--ink-2); }
+.recent__advice { font-weight: 600; }
+.dash-parts { margin-top: var(--sp-1); }
+.dash-parts summary { cursor: pointer; color: var(--primary); font-size: var(--fs-1); font-weight: 600; min-height: var(--tap); display: flex; align-items: center; }
+.dash-parts ul { margin: 0 0 var(--sp-2); padding-left: 1.25rem; font-size: var(--fs-1); color: var(--ink-2); }
+.dash-notes li { grid-template-columns: 1fr auto; }
+.dash-note-del { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+.card .dash-tests { margin-top: var(--sp-2); }
+.card .pbar__label { margin-bottom: var(--sp-1); }
+
+@media (min-width: 40em) {
+  .dash-levels { grid-template-columns: 1fr 1fr; }
+  .recent { grid-template-columns: 5rem 9rem 1fr auto; gap: var(--sp-3); align-items: baseline; }
+}

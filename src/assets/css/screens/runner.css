@@ -1,0 +1,393 @@
+/* ===== The runner: lessons, tests, placement, practice =====
+   One screen, never scrolled while teaching. From the top: a one-line strip
+   with a progress rail, the child's stage, the teacher's panel, and a control
+   bar with four fixed slots. The primary button is always the last slot and
+   never moves. Every menu and confirmation is a bottom sheet. */
+
+.runner-main { display: contents; }
+.page-runner { overflow: hidden; }
+
+.runner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 40% minmax(0, 1fr) auto;
+  grid-template-areas: "strip" "stage" "panel" "bar";
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--surface);
+}
+.runner[hidden] { display: none; }
+.rn-strip, .rn-stage, .rn-panel, .rn-bar { min-width: 0; }
+
+/* ── Strip: one line, and the rail beneath it ── */
+.rn-strip {
+  grid-area: strip;
+  padding: calc(var(--sp-2) + var(--safe-t)) calc(var(--sp-4) + var(--safe-r)) 0 calc(var(--sp-4) + var(--safe-l));
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+}
+.rn-where {
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-1);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* The rail: one span per exercise. Done is filled; the current one fills to
+   its fraction and carries a ring; errors are hatched, not only colored. */
+.rn-rail { display: flex; gap: 3px; height: 4px; margin: 0 0 -1px; }
+.rn-rail__seg { flex: 1 1 0; position: relative; background: var(--line); overflow: hidden; }
+.rn-rail__seg::after { content: ""; position: absolute; inset: 0; width: calc(var(--p, 0) * 100%); background: var(--primary); }
+.rn-rail__seg.is-done::after { width: 100%; background: var(--firm); }
+.rn-rail__seg.has-errors::after { background: repeating-linear-gradient(135deg, var(--note) 0 3px, var(--note-soft) 3px 5px); }
+.rn-rail__seg.is-current { outline: 1px solid var(--primary); outline-offset: 1px; }
+
+/* ── Stage: a size container; every picture is sized in cqh of it ── */
+.rn-stage {
+  grid-area: stage;
+  container: stage / size;
+  min-height: 0;
+  background: var(--stage-bg);
+  border-bottom: 1px solid var(--line);
+}
+.child-stage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 3cqh, 1.5rem);
+  padding: clamp(0.5rem, 3cqh, 1.25rem) clamp(0.5rem, 2cqw, 1.5rem);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+/* ── Panel ──
+   The script line is the largest text and never drops under 16 px. The
+   engine adds fit-1 to fit-4 to the body when the text does not fit: first
+   the meta line goes, then a waiting correction folds, then the boxes step
+   down to 14 px. The body scrolls only as a last resort. */
+.rn-panel {
+  grid-area: panel;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  container: panel / inline-size;
+}
+.tp-body {
+  --fs: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--sp-3) var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.tp-body > * { flex-shrink: 0; }
+.tp-body.fit-1 .tp-ex__meta { display: none; }
+.tp-body.fit-2 { --fs: 0.95; }
+.tp-body.fit-3 { --fs: 0.9; gap: 0.375rem; padding-top: var(--sp-2); padding-bottom: var(--sp-2); }
+.tp-body.fit-4 { --fs: 0.875; }
+.tp-body.fit-5 { gap: 0.25rem; padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.tp-body.fit-5 .tp-say { padding: 0.25rem 0.5rem; }
+.tp-body.fit-5 .tp-box, .tp-body.fit-5 .tp-touched { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+.tp-body.fit-5 .tp-pair { gap: 0.25rem; }
+
+/* The title keeps room for a few words; the signal and the count wrap to a
+   second row when the line is short rather than squeeze the title. */
+.tp-stepline { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); min-width: 0; }
+.tp-ex__title {
+  flex: 1 1 6rem;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: var(--fs-3);
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--ink);
+}
+.tp-ex__meta { margin: -0.25rem 0 0; font-size: var(--fs-1); color: var(--ink-2); }
+.tp-step-no { flex-shrink: 0; margin-left: auto; font-size: var(--fs-1); font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+
+/* The signal for a response: a small drawn glyph and its word. */
+.tp-signal { flex-shrink: 0; margin-left: auto; display: inline-flex; align-items: center; gap: 0.3rem; font-size: var(--fs-1); font-weight: 700; color: var(--ink-2); white-space: nowrap; }
+.tp-signal__glyph { position: relative; width: 1.1rem; height: 1.1rem; border: 2px solid var(--ink-2); border-radius: 50%; flex-shrink: 0; }
+.tp-signal__glyph--touch::after { content: ""; position: absolute; left: 50%; top: 50%; width: 0.4rem; height: 0.4rem; margin: -0.2rem 0 0 -0.2rem; border-radius: 50%; background: var(--ink-2); }
+.tp-signal__glyph--drop::after { content: ""; position: absolute; left: 50%; top: 0.1rem; width: 0; height: 0; margin-left: -0.25rem; border: 0.25rem solid transparent; border-top: 0.4rem solid var(--ink-2); }
+.tp-signal__glyph--rhythm::after { content: ""; position: absolute; left: 0.15rem; right: 0.15rem; top: 50%; height: 0; margin-top: -1px; border-top: 2px dotted var(--ink-2); }
+.tp-signal__glyph--hold::after { content: ""; position: absolute; left: 50%; top: 50%; width: 0.55rem; height: 0.55rem; margin: -0.275rem 0 0 -0.275rem; border-radius: 50%; background: var(--ink-2); }
+.tp-signal__glyph--tap::after { content: ""; position: absolute; left: 50%; top: 50%; width: 0.3rem; height: 0.3rem; margin: -0.15rem 0 0 -0.15rem; border-radius: 50%; background: var(--ink-2); }
+.tp-signal__glyph--sweep::after { content: ""; position: absolute; left: 0.15rem; right: 0.3rem; top: 50%; height: 0; margin-top: -1px; border-top: 2px solid var(--ink-2); }
+.tp-signal__glyph--sweep::before { content: ""; position: absolute; right: 0.08rem; top: 50%; width: 0; height: 0; margin-top: -0.2rem; border: 0.2rem solid transparent; border-left: 0.26rem solid var(--ink-2); }
+.tp-signal__glyph--watch { border-radius: 50% / 40%; }
+.tp-signal__glyph--watch::after { content: ""; position: absolute; left: 50%; top: 50%; width: 0.35rem; height: 0.35rem; margin: -0.175rem 0 0 -0.175rem; border-radius: 50%; border: 2px solid var(--ink-2); }
+.tp-signal__pause { font-weight: 600; }
+.tp-body.fit-1 .tp-signal__pause { display: none; }
+.tp-body.fit-3 .tp-signal__word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+.tp-body.fit-3 .tp-signal { gap: 0; }
+.tp-cue--timed { color: var(--note); }
+
+/* The cue names the kind of step; its color is one more cue, never the only one. */
+.tp-cue {
+  flex-shrink: 0;
+  font-size: var(--fs-1);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  padding: 0.2em 0.5em;
+  border: 2px solid currentColor;
+  border-radius: var(--r-1);
+}
+.tp-cue:empty { display: none; }
+.tp-cue--model { color: var(--primary); }
+.tp-cue--lead { color: var(--lead); }
+.tp-cue--test { color: var(--firm); }
+.tp-cue--note { color: var(--note); }
+.tp-cue--own { color: var(--ink); }
+.tp-cue--turn { color: var(--note); }
+
+.tp-say {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 4px solid var(--primary);
+  background: var(--surface-2);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: max(1rem, calc(var(--fs-say) * var(--fs)));
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+/* Each box is one run of text with its label at the start. */
+.tp-box {
+  padding: var(--sp-1) var(--sp-3);
+  border-left: 4px solid var(--line-strong);
+  font-size: max(0.875rem, calc(var(--fs-2) * var(--fs)));
+  line-height: 1.4;
+  color: var(--ink);
+}
+.tp-box p { display: inline; margin: 0; }
+.tp-label { display: inline-block; min-width: 3.25rem; margin-right: var(--sp-1); font-size: var(--fs-1); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-2); }
+.tp-do { border-left-color: var(--note); background: var(--note-soft); }
+.tp-do p { font-style: italic; }
+.tp-answer p { font-weight: 700; }
+.tp-confirm { border-left-color: var(--firm); }
+.tp-correct { border-left-color: var(--error); }
+.tp-correct.is-active { background: var(--error-soft); }
+.tp-correct.is-active p { font-weight: 600; }
+
+/* The child's answer and the confirmation sit side by side when both are short. */
+.tp-pair { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.tp-pair > .tp-box { flex: 1 1 auto; }
+.tp-pair:not(:has(> :not([hidden]))) { display: none; }
+
+/* A long correction waits behind one line until Error is pressed. */
+.tp-correct .tp-correct__wait { display: none; color: var(--ink-2); font-style: italic; }
+.tp-correct.is-folded #tp-correct-text { display: none; }
+.tp-correct.is-folded .tp-correct__wait { display: inline; }
+
+/* What the child touched, and whether it was right. The parent still marks. */
+.tp-touched {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-1);
+  font-size: max(0.875rem, calc(var(--fs-2) * var(--fs)));
+  font-weight: 700;
+  line-height: 1.4;
+}
+.tp-test-note { margin: 0; font-size: var(--fs-1); color: var(--ink-2); font-style: italic; }
+
+/* ── Control bar: four fixed slots ──
+   More · tool · Error · primary. Buttons that share a slot toggle hidden, so
+   the primary button's box never moves between steps. */
+.rn-bar {
+  grid-area: bar;
+  display: grid;
+  grid-template-columns: 3.25rem 3.25rem 6.5rem minmax(0, 1fr);
+  gap: var(--sp-2);
+  align-items: stretch;
+  min-height: var(--ctrl-h);
+  padding: var(--sp-2) calc(var(--sp-3) + var(--safe-r)) calc(var(--sp-2) + var(--safe-b)) calc(var(--sp-3) + var(--safe-l));
+  background: var(--surface-2);
+  border-top: 1px solid var(--line);
+}
+.rn-slot { display: grid; min-width: 0; }
+.rn-slot > .rn-btn { grid-area: 1 / 1; }
+.rn-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 3.5rem;
+  min-width: 0;
+  padding: 0 var(--sp-3);
+  border: 2px solid var(--line-strong);
+  border-radius: var(--r-1);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-4);
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.rn-btn:disabled { opacity: 0.4; cursor: default; }
+.rn-btn--icon { flex-direction: column; gap: 0.125rem; padding: 0; font-size: var(--fs-1); font-weight: 600; color: var(--ink-2); border-color: var(--line); background: transparent; }
+.rn-btn--icon svg { width: 1.375rem; height: 1.375rem; color: var(--ink); }
+.rn-btn--dot { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.rn-btn--dot.is-held { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
+.rn-btn--dot.is-held svg { color: var(--primary); }
+.rn-btn--next { background: var(--primary); border-color: var(--primary); color: #fff; }
+.rn-btn--next:hover:not(:disabled) { background: var(--primary-strong); border-color: var(--primary-strong); }
+.rn-btn--firm { background: var(--firm); border-color: var(--firm); color: #fff; }
+.rn-btn--error { border-color: var(--error); color: var(--error); }
+.rn-btn--error:hover:not(:disabled) { background: var(--error-soft); }
+.rn-btn--over { border-color: var(--ink-2); color: var(--ink); font-size: var(--fs-2); padding: 0 var(--sp-1); }
+/* A mark already made on this step */
+.rn-btn[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 5px currentColor; }
+.rn-btn--firm[aria-pressed="true"], .rn-btn--next[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 5px var(--ink); }
+/* The child's touch suggests a mark; a dot marks the suggested button. */
+.rn-btn.is-suggested { position: relative; }
+.rn-btn.is-suggested::after { content: ""; position: absolute; top: 0.2rem; right: 0.2rem; width: 0.75rem; height: 0.75rem; border-radius: 50%; background: var(--ink); border: 2px solid var(--surface); }
+
+/* Tight: when the panel's text would not fit even at the smallest step,
+   the stage gives up some room before the panel is allowed to scroll. */
+.runner.is-tight { grid-template-rows: auto 30% minmax(0, 1fr) auto; }
+.runner.is-tight-2 { grid-template-rows: auto 24% minmax(0, 1fr) auto; }
+
+/* Narrow phones: the same four slots, a little closer together. */
+@media (max-width: 22.5em) {
+  .rn-bar { gap: var(--sp-1); padding-left: calc(var(--sp-2) + var(--safe-l)); padding-right: calc(var(--sp-2) + var(--safe-r)); grid-template-columns: 2.75rem 2.75rem 5.75rem minmax(0, 1fr); }
+  .rn-btn { padding: 0 var(--sp-2); font-size: var(--fs-3); }
+  .rn-btn--over { font-size: 0.875rem; }
+  .tp-body { padding-left: var(--sp-3); padding-right: var(--sp-3); }
+  .rn-strip { padding-left: calc(var(--sp-3) + var(--safe-l)); padding-right: calc(var(--sp-3) + var(--safe-r)); }
+  .runner.is-tight { grid-template-rows: auto 26% minmax(0, 1fr) auto; }
+  .runner.is-tight-2 { grid-template-rows: auto 21% minmax(0, 1fr) auto; }
+}
+
+/* Big picture: the stage fills the screen; one button comes back. */
+.runner.is-big { grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "stage" "bar"; }
+.runner.is-big .rn-strip, .runner.is-big .rn-panel { display: none; }
+.runner.is-big .rn-bar { grid-template-columns: 1fr; }
+.runner.is-big .rn-bar > :not(.rn-btn--big-back) { display: none; }
+.runner.is-big .rn-btn--big-back { display: inline-flex; }
+
+/* ── Sheets used by the runner ── */
+.sheet__note { margin: 0; padding: var(--sp-3) var(--sp-4) var(--sp-4); font-size: var(--fs-2); color: var(--ink-2); }
+.sheet__note:empty { display: none; }
+.sheet__note a { color: var(--primary); text-decoration: underline; }
+.rn-outline .sheet__row { align-items: flex-start; }
+.rn-outline .sheet__row[aria-current="true"] { background: var(--primary-soft); }
+.rn-outline__n { flex-shrink: 0; min-width: 1.5rem; color: var(--primary); font-weight: 700; }
+.rn-outline small { display: block; font-weight: 400; color: var(--ink-2); font-size: var(--fs-1); }
+.keys { margin: 0; display: grid; gap: var(--sp-2); }
+.keys div { display: flex; align-items: center; gap: var(--sp-3); }
+.keys dt { flex: 0 0 6.5rem; }
+.keys dd { margin: 0; }
+.keys kbd, .sheet__row kbd { font-family: var(--font-ui); font-size: var(--fs-1); font-weight: 700; color: var(--ink-2); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0.05em 0.45em; background: var(--surface); }
+
+/* ── Finish and start screens ──
+   A scrolling article with its main action in a fixed bar at the bottom. */
+.runner-finish, .runner-start {
+  min-height: 100dvh;
+  padding: var(--sp-4) calc(var(--sp-4) + var(--safe-r)) calc(var(--actionbar-h) + var(--safe-b) + var(--sp-5)) calc(var(--sp-4) + var(--safe-l));
+  background: var(--page);
+  overflow-y: auto;
+}
+.runner-finish[hidden], .runner-start[hidden] { display: none; }
+.page-runner:has(.runner-finish:not([hidden])), .page-runner:has(.runner-start:not([hidden])) { overflow: auto; }
+.finish { max-width: var(--content-max); margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-2); padding: var(--sp-4); }
+.finish__kicker { margin: 0 0 var(--sp-1); font-size: var(--fs-1); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--primary); }
+.finish__title { margin: 0 0 var(--sp-3); font-size: var(--fs-6); line-height: 1.2; }
+.finish__lead { margin: 0 0 var(--sp-3); color: var(--ink-2); line-height: 1.5; font-size: var(--fs-2); }
+.finish__lead a { color: var(--primary); text-decoration: underline; }
+.finish__facts { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin: 0 0 var(--sp-3); }
+.finish__facts div { display: flex; align-items: baseline; gap: 0.3rem; }
+.finish__facts dt { font-size: var(--fs-1); color: var(--ink-2); }
+.finish__facts dd { margin: 0; font-size: var(--fs-4); font-weight: 700; }
+.finish__h2 { margin: var(--sp-3) 0 var(--sp-1); font-family: var(--font-ui); font-size: var(--fs-3); }
+/* One card for each child when two were taught together. */
+.finish__child { margin: var(--sp-3) 0 0; padding: var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-1); background: var(--surface-2); }
+.finish__child > .finish__h2 { margin-top: 0; font-size: var(--fs-4); }
+.finish__child .finish__facts { margin-bottom: var(--sp-2); }
+.finish__child .finish__advice { background: var(--surface); }
+.finish__list { margin: 0 0 var(--sp-3); padding-left: 1.25rem; line-height: 1.45; font-size: var(--fs-2); }
+.finish__list li + li { margin-top: 0.125rem; }
+.finish__list a, .finish__passed a { color: var(--primary); text-decoration: underline; }
+.finish__passed { margin: 0 0 var(--sp-3); font-size: var(--fs-2); line-height: 1.45; }
+.finish__advice { margin: var(--sp-3) 0; padding: var(--sp-3) var(--sp-4); border-left: 4px solid var(--primary); background: var(--surface-2); line-height: 1.5; font-size: var(--fs-2); border-radius: 0 var(--r-1) var(--r-1) 0; }
+.finish__advice p { margin: 0; }
+.finish__mark { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin: var(--sp-3) 0 0; font-size: var(--fs-2); }
+.finish__mark-label { color: var(--ink-2); }
+.finish__mark-btn { min-height: var(--tap); padding: 0 var(--sp-3); border: 2px solid var(--line-strong); border-radius: var(--r-1); background: var(--surface); color: var(--ink); font: inherit; font-size: var(--fs-2); font-weight: 600; cursor: pointer; }
+.finish__mark-btn[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-strong); }
+.finish__links { margin: var(--sp-3) 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); font-size: var(--fs-2); }
+.finish__links a { color: var(--primary); text-decoration: underline; min-height: var(--tap); display: inline-flex; align-items: center; }
+.finish__note { margin-top: var(--sp-3); border-top: 1px solid var(--line); padding-top: var(--sp-3); }
+.finish__note summary { min-height: var(--tap); display: flex; align-items: center; font-size: var(--fs-2); font-weight: 600; color: var(--primary); cursor: pointer; }
+.finish__note-body { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-2); }
+.finish__note textarea { font: inherit; font-size: var(--fs-3); padding: var(--sp-2) var(--sp-3); border: 2px solid var(--line-strong); border-radius: var(--r-1); background: var(--surface); color: var(--ink); }
+.finish__note .btn { align-self: flex-start; }
+.finish .btn-row { margin-top: var(--sp-3); }
+
+/* ── Phones held sideways: two columns, the bar under the panel ── */
+@media (orientation: landscape) and (max-height: 32.5em) {
+  .runner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "strip strip" "stage panel" "stage bar";
+  }
+  .rn-stage { border-bottom: 0; border-right: 1px solid var(--line); }
+  .rn-strip { padding-top: calc(var(--sp-1) + var(--safe-t)); }
+  .rn-where { margin-bottom: var(--sp-1); }
+  .tp-body { padding: var(--sp-2) var(--sp-3); gap: 0.375rem; }
+  .rn-bar { min-height: 3.5rem; padding-top: var(--sp-1); padding-bottom: calc(var(--sp-1) + var(--safe-b)); grid-template-columns: 2.75rem 2.75rem 6rem minmax(0, 1fr); }
+  .rn-btn { min-height: 2.75rem; font-size: var(--fs-3); }
+  .rn-btn--over { font-size: 0.875rem; }
+  .rn-btn--icon { font-size: 0.8125rem; }
+  .rn-btn--icon .rn-btn__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .runner.is-tight { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); grid-template-rows: auto minmax(0, 1fr) auto; }
+  .runner.is-tight-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+  .runner.is-big { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "stage" "bar"; }
+}
+
+/* ── Tablets upright: a taller stage, the panel capped and centred ── */
+@media (min-width: 40em) and (orientation: portrait) {
+  .runner { grid-template-rows: auto 45% minmax(0, 1fr) auto; }
+  .tp-body { padding-left: max(var(--sp-4), calc((100% - 44rem) / 2)); padding-right: max(var(--sp-4), calc((100% - 44rem) / 2)); }
+  .rn-bar { grid-template-columns: 3.5rem 3.5rem 7rem minmax(0, 14rem); justify-content: end; }
+}
+
+/* ── Wide screens: stage left, panel and bar right ── */
+@media (min-width: 64em) and (min-aspect-ratio: 4/3) {
+  .runner {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "strip strip" "stage panel" "stage bar";
+  }
+  .rn-stage { border-bottom: 0; border-right: 1px solid var(--line); }
+  .tp-body { padding: var(--sp-4) var(--sp-5); }
+  .rn-bar { grid-template-columns: 3.5rem 3.5rem 7rem minmax(0, 14rem); justify-content: end; }
+  .runner.is-big { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "stage" "bar"; }
+}
+
+/* Reduced motion: no transitions anywhere in the runner. */
+@media (prefers-reduced-motion: reduce) {
+  .runner *, .runner *::before, .runner *::after { transition: none !important; animation: none !important; }
+}

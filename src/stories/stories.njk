@@ -1,0 +1,41 @@
+---
+layout: layouts/app.njk
+title: Stories
+description: The reading program's stories, each listed with the lesson it becomes readable at, to read again at any time.
+permalink: /stories/
+bodyClass: page-stories
+---
+<header class="screen__head">
+  <h1 class="screen__title">Stories</h1>
+  <p class="screen__lead">Every story in the reading program, in order. Each is readable from the lesson named, when all its sounds and words have been taught. Open one to read it again the fast way, with its questions after.</p>
+</header>
+
+<div data-child-picker></div>
+
+<ul class="rows" id="story-list">
+  {% for story in program.stories %}
+  <li>
+    <a class="row" href="{{ story.url }}" data-story-level="{{ story.level }}" data-story-lesson="{{ story.lesson }}">
+      <span class="row__main"><span class="row__title">{{ story.title }}</span><span class="row__sub">{{ story.words }} words, {{ story.questions }} question{% if story.questions != 1 %}s{% endif %}. {% if story.lesson %}From {{ story.levelName }}, lesson {{ story.lesson }}.{% else %}Reading 2.{% endif %}<span data-story-ready hidden> Readable now.</span></span></span>
+      {% include "partials/icons/chevron-right.njk" %}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+
+<script src="/assets/js/progress.js?v={{ build.version }}"></script>
+<script>
+(function () {
+  // Stories the selected child can read now are marked.
+  var P = window.mathProgress;
+  if (!P || !P.getActiveProfile()) return;
+  var rows = document.querySelectorAll("[data-story-level]");
+  for (var i = 0; i < rows.length; i++) {
+    var level = rows[i].getAttribute("data-story-level"), lesson = Number(rows[i].getAttribute("data-story-lesson"));
+    if (!level || level === "null" || !lesson) continue;
+    var next = P.nextLesson(level, 999);
+    var tag = rows[i].querySelector("[data-story-ready]");
+    if (tag && lesson < next) tag.hidden = false;
+  }
+})();
+</script>

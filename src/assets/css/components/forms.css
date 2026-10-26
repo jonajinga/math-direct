@@ -1,0 +1,27 @@
+/* ===== Forms ===== */
+label, .label { display: block; font-weight: 700; font-size: var(--fs-2); margin-bottom: var(--sp-1); }
+.field { margin-bottom: var(--sp-3); }
+.field__help { margin: var(--sp-1) 0 0; color: var(--ink-2); font-size: var(--fs-1); }
+.field__error { margin: var(--sp-1) 0 0; color: var(--error); font-size: var(--fs-1); font-weight: 600; }
+
+.input, input[type="text"], input[type="search"], textarea, select {
+  width: 100%; min-height: var(--tap); padding: var(--sp-2) var(--sp-3);
+  border: 2px solid var(--line-strong); border-radius: var(--r-1);
+  background: var(--surface); color: var(--ink); font: inherit; font-size: max(1rem, 16px);
+}
+textarea { min-height: 5rem; resize: vertical; }
+input::placeholder, textarea::placeholder { color: var(--ink-2); opacity: 1; }
+
+/* A checkbox with its label as one tap target */
+.check { display: flex; align-items: center; gap: var(--sp-2); min-height: var(--tap); font-weight: 600; cursor: pointer; }
+.check input { width: 1.375rem; height: 1.375rem; margin: 0; accent-color: var(--primary); }
+
+/* Child chips: a radio group that looks like pills */
+.chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: 0 0 var(--sp-4); padding: 0; border: 0; }
+.chips legend { font-size: var(--fs-1); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); margin-bottom: var(--sp-2); padding: 0; }
+.chip { position: relative; display: inline-flex; align-items: center; gap: var(--sp-1); min-height: var(--tap); padding: 0 var(--sp-4); border: 2px solid var(--line-strong); border-radius: var(--r-full); background: var(--surface); color: var(--ink); font-weight: 700; font-size: var(--fs-2); cursor: pointer; }
+.chip input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.chip:has(input:checked) { background: var(--primary); border-color: var(--primary); color: #fff; }
+.chip:has(input:focus-visible) { outline: 3px solid var(--primary); outline-offset: 2px; box-shadow: 0 0 0 2px var(--surface); }
+.chip--add { border-style: dashed; color: var(--primary); }
+.chip svg { width: 1rem; height: 1rem; }

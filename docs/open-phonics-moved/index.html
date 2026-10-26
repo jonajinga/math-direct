@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open Phonics has moved</title>
+  <meta name="description" content="Open Phonics is now the reading program of Teach Direct. Save your records here and load them there.">
+  <meta name="robots" content="noindex">
+  <style>
+    :root { --ink: #14212b; --ink-2: #4a5a68; --paper: #fffdf7; --line: #d9dee3; --primary: #1b4f8a; --tap: 44px; }
+    * { box-sizing: border-box; }
+    html { background: #f2f4f6; }
+    body { margin: 0; font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); }
+    main { max-width: 36rem; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 12px; }
+    h2 { font-size: 1.125rem; margin: 24px 0 8px; }
+    p, li { margin: 0 0 12px; }
+    ol { padding-left: 1.25rem; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 16px 0; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: var(--tap); padding: 8px 20px; border-radius: 10px; border: 2px solid var(--primary); background: var(--primary); color: #fff; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+    .btn--secondary { background: #fff; color: var(--primary); }
+    .btn:focus-visible { outline: 3px solid #e26a2c; outline-offset: 2px; }
+    .row { display: flex; flex-wrap: wrap; gap: 12px; }
+    .muted { color: var(--ink-2); font-size: 0.9375rem; }
+    [hidden] { display: none !important; }
+    ul.plain { list-style: none; padding: 0; }
+    ul.plain li { padding: 6px 0; border-top: 1px solid var(--line); }
+    ul.plain li:first-child { border-top: 0; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Open Phonics has moved</h1>
+  <p>Open Phonics is now the reading program of <strong>Teach Direct</strong>, one app for reading and math, rebuilt for a phone: the same sounds, words, and stories, with each lesson scripted from a dot the parent moves under the letters.</p>
+  <p><a class="btn" href="https://NEW_HOST/" data-new-host>Open Teach Direct</a></p>
+
+  <section class="card" aria-labelledby="records-title">
+    <h2 id="records-title" style="margin-top:0">Your records</h2>
+    <p id="records-text">Looking for records in this browser.</p>
+    <ul class="plain" id="records-list" hidden></ul>
+    <div class="row">
+      <button class="btn" type="button" id="btn-export" hidden>Save a backup</button>
+    </div>
+    <p class="muted" id="records-note" hidden>The file is named open-phonics-backup.json. In Teach Direct, open More, tap Load a backup, and choose it. Each child's finished lessons become Reading 1 lessons 1 to 100 and Reading 2 lessons 1 to 50.</p>
+  </section>
+
+  <h2>What stays the same</h2>
+  <ol>
+    <li>The order of the sounds, from m and s to the vowel teams, and the thirty stories.</li>
+    <li>The word list, now with the lesson each word is first read at.</li>
+    <li>Your lessons finished here, once the backup is loaded there.</li>
+  </ol>
+  <h2>What is new</h2>
+  <ol>
+    <li>Lessons built from tracks, as Direct Instruction builds them: a new sound is modeled, said together, and tested, then firmed and reviewed.</li>
+    <li>The dot moves when you press and hold, so the pace is yours.</li>
+    <li>Marks for every answer, corrections on the spot, mastery tests, checkouts against the clock, and a placement test.</li>
+  </ol>
+  <p class="muted">The lessons on this address stay as they were until the move is finished. Nothing here is deleted by saving a backup.</p>
+</main>
+<script>
+(function () {
+  var NEW_HOST = (document.querySelector("[data-new-host]") || {}).getAttribute ? document.querySelector("[data-new-host]").getAttribute("href") : "";
+  var text = document.getElementById("records-text"), list = document.getElementById("records-list"), btn = document.getElementById("btn-export"), note = document.getElementById("records-note");
+  var profiles = [];
+  try { profiles = JSON.parse(localStorage.getItem("open-phonics-profiles") || "[]"); } catch (e) { profiles = []; }
+  if (!Array.isArray(profiles)) profiles = [];
+  if (!profiles.length) {
+    text.textContent = "No records were found in this browser. If you taught from another browser or device, open this page there to save its backup.";
+    return;
+  }
+  text.textContent = profiles.length === 1 ? "One child's records are here." : profiles.length + " children's records are here.";
+  list.innerHTML = profiles.map(function (p) {
+    var done = Array.isArray(p.completed) ? p.completed.length : 0;
+    return "<li><strong>" + String(p.name || "Child").replace(/[<>&]/g, "") + "</strong>: " + done + (done === 1 ? " lesson finished" : " lessons finished") + "</li>";
+  }).join("");
+  list.hidden = false;
+  btn.hidden = false;
+  note.hidden = false;
+  btn.addEventListener("click", function () {
+    var data = JSON.stringify({ app: "open-phonics", version: 2, exported: new Date().toISOString(), profiles: profiles }, null, 2);
+    var blob = new Blob([data], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "open-phonics-backup.json";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    btn.textContent = "Saved. Save again";
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+/* ===== Bottom tab bar =====
+   Fixed to the bottom of every app screen. Last in the document, so reading
+   order matches the screen. The active tab is shown three ways: a bar, a
+   filled icon, and bold text. */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  height: calc(var(--tabbar-h) + var(--safe-b));
+  padding: 0 var(--safe-r) var(--safe-b) var(--safe-l);
+  background: var(--surface);
+  border-top: 1px solid var(--line-strong);
+}
+.tabbar__list { display: flex; height: var(--tabbar-h); max-width: var(--content-max); margin: 0 auto; list-style: none; padding: 0; }
+.tabbar__list li { flex: 1 1 0; min-width: 0; }
+.tabbar__item {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  height: 100%; min-height: var(--tap);
+  color: var(--ink-2); font-size: var(--fs-1); font-weight: 600; line-height: 1; text-decoration: none;
+}
+.tabbar__item svg { width: 1.5rem; height: 1.5rem; }
+.tabbar__item .tabbar__icon--on { display: none; }
+.tabbar__item[aria-current="page"] { color: var(--primary); font-weight: 700; }
+.tabbar__item[aria-current="page"]::before { content: ""; position: absolute; top: 0; left: 20%; right: 20%; height: 3px; background: var(--primary); border-radius: 0 0 3px 3px; }
+.tabbar__item[aria-current="page"] .tabbar__icon--on { display: block; }
+.tabbar__item[aria-current="page"] .tabbar__icon--off { display: none; }
+.tabbar__item:focus-visible { outline-offset: -4px; box-shadow: none; }

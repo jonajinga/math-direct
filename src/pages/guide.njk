@@ -1,137 +1,187 @@
 ---
-layout: layouts/base.njk
-title: Teacher & Parent Guide
-description: How to use Math Direct lessons. Learn the DI methodology, session tips, error correction, visual aids, keyboard shortcuts, and when to advance or repeat.
+layout: layouts/app.njk
+title: Teaching Guide
+description: "How to teach Teach Direct lessons: how the program is built, how to begin, the lesson screen, signals, marking Firm and Error, corrections, mastery tests, practice, praise, and what to do when a child struggles."
 permalink: /guide/
 ---
-<div class="content-page">
-  <div class="content-page__inner">
-    <h1 class="content-page__title">Teacher &amp; Parent Guide</h1>
-    <p class="content-page__intro">Math Direct uses scripted lessons so any adult can deliver effective math instruction. This guide explains the methodology, how lessons work, and how to get the best results.</p>
+<div class="content">
+    <h1>Teaching guide</h1>
+    <p class="content__intro">You do not need training to teach these lessons. You need to read the script, watch the child, and follow a few rules about pace, correction, and mastery. This guide explains those rules and the reasons for them.</p>
 
     <div class="guide-section">
-      <h2 class="guide-section__title">What Is Direct Instruction?</h2>
-      <p>Direct Instruction (DI) is a teaching method developed by Siegfried Engelmann. It is based on a simple principle: if the student has not learned, the instruction has not been clear enough. DI lessons are carefully sequenced so that every new concept builds on what the child already knows. The instructor follows a script, and the child responds. This removes ambiguity and ensures consistent, effective teaching.</p>
+      <h2 class="guide-section__title">How the program is built</h2>
+      <p>Teach Direct follows the design of Siegfried Engelmann's Direct Instruction programs. Its starting belief is simple: if a child has not learned, the teaching was not yet clear enough. So every step is written to leave as little room for misunderstanding as possible.</p>
+      <p>There are three levels, <a href="/prek/">Pre-K</a>, <a href="/k/">Kindergarten</a>, and <a href="/first/">First Grade</a>, and an optional <a href="/bridge/">Bridge to Second Grade</a>. Each level is a list of skill tracks: counting, reading numbers, shapes, adding, and so on. A track runs across many lessons. Each lesson takes short exercises from several tracks, so a child might count, read numbers, add, and name shapes in the same ten minutes.</p>
+      <p>When a step is new, it is taught in full. For the next two lessons it is firmed. After that it returns for review at widening intervals and never drops away for long. This spacing is what makes learning last. Every ten lessons a <strong>mastery test</strong> checks each skill taught. The <a href="/curriculum/">scope and sequence</a> lists every step and the lesson where it begins.</p>
     </div>
 
     <div class="guide-section">
-      <h2 class="guide-section__title">How Lessons Work</h2>
-      <p>Each lesson follows a predictable cycle:</p>
-      <div class="guide-cards">
-        <div class="guide-card">
-          <h3 class="guide-card__title">Say</h3>
-          <p>Read the script aloud exactly as written. The words are chosen carefully to be clear and unambiguous.</p>
-        </div>
-        <div class="guide-card">
-          <h3 class="guide-card__title">Do</h3>
-          <p>The child responds by saying a number, pointing, counting, or writing. Every step requires active participation.</p>
-        </div>
-        <div class="guide-card">
-          <h3 class="guide-card__title">Praise</h3>
-          <p>When the child answers correctly, confirm immediately. Say "Yes, that's right" or "Good, 3 + 2 = 5."</p>
-        </div>
-        <div class="guide-card">
-          <h3 class="guide-card__title">Correct</h3>
-          <p>When the child makes an error, correct immediately, model the right answer, and have the child repeat it.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="guide-section">
-      <h2 class="guide-section__title">The Lesson Screen</h2>
-      <p>Every lesson is split into two panels:</p>
+      <h2 class="guide-section__title">Before you start</h2>
       <ul class="guide-tips">
-        <li><strong>Child display (top)</strong> &mdash; Shows large numbers, equations, and visual aids. This is what the child sees and responds to.</li>
-        <li><strong>Teacher panel (bottom)</strong> &mdash; Contains the script to read aloud, instructions for what the child should do, and feedback prompts for correct and incorrect responses.</li>
-      </ul>
-      <p>On phones in landscape mode, the layout switches to side-by-side with the child display on the left and teacher panel on the right.</p>
-    </div>
-
-    <div class="guide-section">
-      <h2 class="guide-section__title">Visual Aids</h2>
-      <p>Lessons include built-in visual tools that appear in the child display area. These make abstract number concepts concrete and visible:</p>
-      <div class="guide-cards">
-        <div class="guide-card">
-          <h3 class="guide-card__title">Dot Patterns</h3>
-          <p>Circles arranged in rows of 5 (tens-frame style). Dots appear under numbers and in the visual panel. Toggle them on/off with the dots button.</p>
-        </div>
-        <div class="guide-card">
-          <h3 class="guide-card__title">Number Lines</h3>
-          <p>A horizontal line with tick marks and labels. A hop dot highlights the target number. Used for counting, addition, and subtraction.</p>
-        </div>
-        <div class="guide-card">
-          <h3 class="guide-card__title">Tally Marks</h3>
-          <p>Groups of 5 vertical marks with a diagonal slash. Connects counting to grouping. Appears in counting and early addition lessons.</p>
-        </div>
-        <div class="guide-card">
-          <h3 class="guide-card__title">Place Value Charts</h3>
-          <p>A two-column grid showing tens and ones. Used in Phase 5+ to decompose two-digit numbers and build place value understanding.</p>
-        </div>
-      </div>
-      <p style="margin-top:var(--space-md)">Visual animations can be controlled with the play, pause, reset, and speed controls below the child display.</p>
-    </div>
-
-    <div class="guide-section">
-      <h2 class="guide-section__title">Session Tips</h2>
-      <ul class="guide-tips">
-        <li>Keep sessions short: 5&ndash;10 minutes per lesson is ideal. Young children learn best in brief, focused sessions.</li>
-        <li>Teach daily. Consistency matters more than session length. Five minutes every day beats thirty minutes once a week.</li>
-        <li>Sit beside the child so you both face the screen. Point to the visuals as you read the script.</li>
-        <li>Speak clearly and at a steady pace. Pause after each question to give the child time to think.</li>
-        <li>End on a success. If the child is struggling, go back to a task they can do well and finish there.</li>
-        <li>Stay positive. Errors are expected and useful. They tell you what needs more practice.</li>
+        <li><strong>Find the starting lesson.</strong> Give the <a href="/placement/">placement test</a>, or begin at lesson 1 of the level that fits the child's age. If the first lessons are too easy, move ahead five lessons at a time.</li>
+        <li><strong>Add each child.</strong> Tap Add under Child on the Today screen. Records are kept for each child separately. Check the name before you begin, so results go to the right child.</li>
+        <li><strong>Gather what you need.</strong> Each level lists the real objects it uses, such as ten small objects to count. You need nothing else.</li>
+        <li><strong>Set up the screen.</strong> On a tablet or computer, sit beside the child. The child looks at the large picture; you read the panel. On a phone held upright, the child's picture is on top and your panel is below.</li>
+        <li><strong>Plan the time.</strong> One lesson a day, four or five days a week. Pre-K lessons take about ten minutes, Kindergarten fifteen to twenty, and First Grade twenty to thirty.</li>
       </ul>
     </div>
 
     <div class="guide-section">
-      <h2 class="guide-section__title">Error Correction</h2>
-      <p>Errors are a normal part of learning. When the child makes a mistake, use this protocol:</p>
+      <h2 class="guide-section__title">The lesson screen</h2>
+      <p>The large area is the child's screen. It shows only what the child needs to see: numbers, dots, pictures, shapes. It never shows words for the child to read. The panel is yours. For each step it shows:</p>
+      <div class="guide-cards">
+        <div class="guide-card"><h3 class="guide-card__title">The cue</h3><p><strong>My turn</strong>: you show the answer. <strong>Together</strong>: you and the child answer together. <strong>Your turn</strong>: the child answers alone, and you mark it. <strong>Set up</strong>: an instruction for you, such as laying out objects.</p></div>
+        <div class="guide-card"><h3 class="guide-card__title">What to say</h3><p>The words to read aloud, exactly as written. The wording is chosen so that every example means the same thing.</p></div>
+        <div class="guide-card"><h3 class="guide-card__title">Do</h3><p>What to do with your hands or voice: point, pause, touch each picture, hold a number long.</p></div>
+        <div class="guide-card"><h3 class="guide-card__title">Child</h3><p>The answer the child should give. A response in parentheses, such as "(Touches 7.)", is an action rather than words.</p></div>
+        <div class="guide-card"><h3 class="guide-card__title">If right</h3><p>A short confirmation to say, such as "Yes, seven."</p></div>
+        <div class="guide-card"><h3 class="guide-card__title">If wrong</h3><p>The correction for this exact item. Before you mark the answer, it shows in full when there is room; on a small screen a short note stands in its place. When you press Error, the whole correction appears in red in place of the confirmation.</p></div>
+      </div>
+      <p>The line at the top names the child, the level, the lesson, and the exercise. The thin rail under it shows the exercises: filled when done, hatched where there was an error. The controls sit at the bottom, in four places that never move. <strong>More</strong> opens a menu: back one step, start the exercise over, the outline of the lesson with the objects each exercise needs, a big picture, the keys, switching child, and leaving. The second place holds <strong>Show again</strong>, which brings back dots that were shown briefly, or <strong>Clear marks</strong>, which removes the rings a child makes when touching pictures to count them. <strong>Error</strong> is third. The main button is always last, under your thumb: <strong>Next</strong>, <strong>Firm</strong>, or <strong>Go on</strong>.</p>
+      <p>The first try is what counts. When you press Error, the correction appears, and the same item comes back two items later so the child can show it is firm; that retest is counted apart, and the lesson's record keeps the first answer as an error. Every item missed on its first try returns once more at the end of the lesson.</p>
+      <p>Most lessons end with <strong>On your own</strong>: three to eight items from skills taught in earlier lessons, each answered by one touch on the screen. Read each line once, give no help, and mark the answer. There is no correction during this part; a missed item joins the retest at the end. If more than one in six is missed, go over those items before the next lesson.</p>
+      <p>Every mark is saved as you make it. If you leave in the middle of a lesson, or the phone rings and the screen closes, the Today screen offers to continue where you stopped, for up to twelve hours. Finishing the lesson clears the saved sitting.</p>
+      <p>When the child touches an answer on the screen, the touched picture gets a ring and the panel tells you what was touched and whether it is right. The screen never shows the child a verdict. You still mark the answer: press Firm or Error as you judge it. Show again lets the child try once more before you mark.</p>
+      <p>The lesson screen is built to fit on one screen without scrolling. When a step has a lot of text, the panel hides the exercise details and makes the type a little smaller until everything fits. Long counting answers are shown to you as numerals, such as 105, 106, 107, so that a skipped number is easy to spot; you still say them as words.</p>
+    </div>
+
+    <div class="guide-section">
+      <h2 class="guide-section__title">How to present a step</h2>
+      <ul class="guide-tips">
+        <li><strong>Read the words as written</strong>, in a clear, ordinary voice. Do not add explanations. Extra talk makes a step less clear, not more.</li>
+        <li><strong>Use a signal.</strong> Every "Your turn" step names its signal beside the step count. The child answers on the signal, not before. This gives thinking time and stops guessing. Some steps add "pause 3 seconds": wait that long before the signal.</li>
+        <li><strong>Keep a steady pace.</strong> A brisk pace holds attention. Move on as soon as an answer is firm.</li>
+        <li><strong>Watch, not just listen.</strong> When a child counts objects, watch that each touch goes with one number. When a child touches a picture to answer, watch that it is the first touch, not a second try.</li>
+      </ul>
+      <h3>The four signals</h3>
+      <ul class="signal-list">
+        <li>
+          <svg viewBox="0 0 64 48" aria-hidden="true"><rect x="4" y="6" width="56" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="32" cy="24" r="6" fill="currentColor"/><path d="M40 36 l6 -6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <div><strong>Touch.</strong> The child answers by touching the screen. Say the line, then wait. The first touch is the answer; the screen tells you what was touched.</div>
+        </li>
+        <li>
+          <svg viewBox="0 0 64 48" aria-hidden="true"><path d="M32 6 v22" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M24 22 l8 10 l8 -10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 40 h36" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <div><strong>Drop.</strong> Say the line, hold your hand up for about a second, then drop it or nod. The child answers as your hand drops. Mark Error for an answer before the drop.</div>
+        </li>
+        <li>
+          <svg viewBox="0 0 64 48" aria-hidden="true"><circle cx="12" cy="30" r="4" fill="currentColor"/><circle cx="25" cy="30" r="4" fill="currentColor"/><circle cx="38" cy="30" r="4" fill="currentColor"/><circle cx="51" cy="30" r="4" fill="currentColor"/><path d="M12 18 l0 8 M25 18 l0 8 M38 18 l0 8 M51 18 l0 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <div><strong>Rhythm.</strong> For counting. Tap a steady beat on the table, about one tap a second. The child says one number on each tap. A skipped or doubled number breaks the beat, and you will hear it.</div>
+        </li>
+        <li>
+          <svg viewBox="0 0 64 48" aria-hidden="true"><path d="M6 24 c10 -14 42 -14 52 0 c-10 14 -42 14 -52 0 z" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="32" cy="24" r="6" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
+          <div><strong>Watch.</strong> Say the line and watch and listen for the whole answer, such as a story problem's number or the name of a shape. Give no hint while you wait.</div>
+        </li>
+      </ul>
+      <p>The day after a new skill is taught, its firming exercise begins with the lead again, "Say it with me." The next day the lead is brief, and after that the child does it alone. A step marked "Missed last time" is one the child missed in a recent lesson; it comes first in its exercise. Watch it closely.</p>
+    </div>
+
+    <div class="guide-section">
+      <h2 class="guide-section__title">Marking Firm and Error</h2>
+      <p>On every "Your turn" step, tap <strong>Firm</strong> or <strong>Error</strong>. When the child touches a picture to answer, the program marks it for you; you can change the mark.</p>
+      <p>Mark <strong>Firm</strong> only for an answer that is right, given on the signal, and given without help. Mark <strong>Error</strong> for a wrong answer, and also for one that is late, that sounds like a guess, that needed a hint, or that was only partly right. This is strict on purpose. A skill is firm when the child is sure of it, and a later lesson will build on it.</p>
+    </div>
+
+    <div class="guide-section">
+      <h2 class="guide-section__title">Correcting an error</h2>
       <div class="guide-feedback-row">
-        <div class="guide-feedback guide-feedback--praise">
-          <h3>Correct Response</h3>
-          <p>"Yes! 4 + 3 = 7. Good job." Confirm the answer and move on. Brief, specific praise works best.</p>
-        </div>
         <div class="guide-feedback guide-feedback--correct">
-          <h3>Incorrect Response</h3>
-          <p>"Let's try that again. 4 + 3. Count with me: 4... 5, 6, 7. What is 4 + 3?" Wait for the child to say "7." Then say "Yes, 4 + 3 = 7."</p>
+          <h3>The correction</h3>
+          <p><strong>Model</strong> the answer ("My turn: seven"), <strong>lead</strong> ("Say it with me: seven"), and <strong>test</strong> again ("Your turn. How many?"). The panel shows the words for each item.</p>
+        </div>
+        <div class="guide-feedback guide-feedback--praise">
+          <h3>Then start over</h3>
+          <p>After correcting, press <strong>Start exercise over</strong> (on a phone, <strong>Start over</strong>) to go back to the beginning of that exercise. Doing the whole exercise again shows whether the child can now do it among the other items, not only right after hearing the answer.</p>
         </div>
       </div>
-      <p style="margin-top:var(--space-md)">The correction cycle is: <strong>stop &rarr; model &rarr; test &rarr; confirm</strong>. Always return to the missed item later in the lesson to check retention.</p>
+      <p>Every item the child missed comes back at the end of the lesson as a delayed test. If it is still missed then, the summary tells you which exercise to reteach at the start of the next lesson.</p>
+      <p>Correct calmly and without comment. An error is information about the teaching, not a fault in the child.</p>
     </div>
 
     <div class="guide-section">
-      <h2 class="guide-section__title">When to Move On vs. Repeat</h2>
-      <p><strong>Move to the next lesson</strong> when the child completes the lesson with no more than one or two errors on the practice set. The child should respond confidently without long pauses.</p>
-      <p><strong>Repeat the lesson</strong> if the child makes frequent errors, guesses randomly, or cannot complete the practice items independently. Repeat the lesson the next day. If the child struggles a second time, go back one or two lessons to rebuild the prerequisite skill.</p>
-      <p>There is no penalty for repeating. Mastery-based progression means the child moves forward only when ready.</p>
+      <h2 class="guide-section__title">Teaching two children</h2>
+      <p>You can teach a lesson to two children at once. In a lesson, open <strong>More</strong>, choose <strong>Teach two children</strong>, and pick the second child. The lesson starts over with both, and the strip at the top names them.</p>
+      <p>On each "Your turn" step, both children answer together on your signal. Mark <strong>Firm</strong> only when both are right. If either child is wrong, mark <strong>Error</strong>, give the correction to both, and go on; the item comes back for both. At the end of each exercise, each child takes one turn alone, on the item the pair missed or on the last item. The child who has made more errors goes first. The cue names the child, such as "Mia alone"; read the line and mark that child's answer. The On your own items are shared out, one child at a time, so neither can copy the other.</p>
+      <p>Each child's record keeps the answers both gave together and the answers that child gave alone. The screen at the end shows a card for each child, with its own advice and its own mark. Mastery tests, the placement test, and practice are given to one child at a time. To go back to one child, open <strong>More</strong> and choose <strong>Teach one child</strong>.</p>
     </div>
 
     <div class="guide-section">
-      <h2 class="guide-section__title">Keyboard Shortcuts</h2>
-      <p>When inside a lesson, these keyboard shortcuts are available:</p>
-      <div class="sg-shortcuts">
-        <div class="sg-shortcut"><kbd>&#8594;</kbd> or <kbd>N</kbd><span>Next step</span></div>
-        <div class="sg-shortcut"><kbd>&#8592;</kbd> or <kbd>P</kbd><span>Previous step</span></div>
-        <div class="sg-shortcut"><kbd>Space</kbd><span>Reveal answer</span></div>
-        <div class="sg-shortcut"><kbd>D</kbd><span>Toggle dots</span></div>
-        <div class="sg-shortcut"><kbd>?</kbd><span>Show shortcut help</span></div>
-      </div>
-    </div>
-
-    <div class="guide-section">
-      <h2 class="guide-section__title">Progress Tracking</h2>
-      <p>Math Direct tracks lesson completion locally in your browser. No accounts or sign-ups required.</p>
+      <h2 class="guide-section__title">After the lesson</h2>
+      <p>The finish screen gives the pace: answers a minute during the exercises. Direct Instruction aims for about ten a minute on firm work; new teaching is slower. A pace well under that usually means waiting too long between steps, or talk that is not in the script.</p>
+      <p>When the last step is done, you see a summary for yourself, not for the child. It gives the number of firm answers, the errors and where they were, and one piece of advice:</p>
       <ul class="guide-tips">
-        <li>Completed lessons are marked with a green check on the <a href="/lessons/">Lessons</a> dashboard.</li>
-        <li>You can create multiple learner profiles to track different children separately.</li>
-        <li>Use the <strong>Export</strong> button to save progress to a file. Use <strong>Import</strong> to restore it on another device.</li>
-        <li>Progress is never sent to a server. It stays on your device.</li>
+        <li><strong>Go on</strong> when everything was firm by the end.</li>
+        <li><strong>Go on, but reteach one exercise first</strong> when an item was still missed at the end.</li>
+        <li><strong>Repeat the lesson</strong> when more than one answer in four needed correcting, or when several items were still missed at the end. Repeating is normal and costs little. Pushing ahead on a weak step costs much more later.</li>
+      </ul>
+      <p>The advice is a guide, not a rule. Under it, <strong>Mark this lesson</strong> lets you record the lesson as finished or to repeat, whatever the advice said.</p>
+    </div>
+
+    <div class="guide-section">
+      <h2 class="guide-section__title">Changing a mark yourself</h2>
+      <p>You can set any lesson's mark by hand: for instance, when a lesson was taught away from the screen, when the wrong child was selected, or when you want to go back over an earlier lesson. Open the level's page, choose <strong>Change marks</strong>, and tap the lesson. Then choose one of these:</p>
+      <ul class="guide-tips">
+        <li><strong>Mark finished</strong> records the lesson as done. Marking a later lesson finished moves the child on to the lesson after it.</li>
+        <li><strong>Mark to repeat</strong> puts the lesson on the Records screen's list of lessons to repeat.</li>
+        <li><strong>Reset to not started</strong> erases the lesson's record for that child, so it shows as never taught.</li>
+      </ul>
+      <p>Mastery tests can be marked the same way: passed, to give again, or not given. Choose <strong>Done</strong> when you have finished. Teaching a lesson again replaces any mark you set by hand with the new result. The same sheet offers <strong>Rehearse</strong>, which runs the lesson without a child so you can read through it first; a rehearsal records nothing.</p>
+    </div>
+
+    <div class="guide-section">
+      <h2 class="guide-section__title">Mastery tests</h2>
+      <p>A mastery test follows every tenth lesson. It has one part for each skill taught in those ten lessons, with four to eight items drawn from every step the part covers; the last test of a level covers the whole level. Give the test as written, <strong>without correcting or helping</strong>. Mark each answer and go on. The panel hides the corrections during a test.</p>
+      <p>A part is passed with every item right, or with one error in a part of five or more. The results screen names each part that was not passed and the exercise to teach again; the link opens the lesson at that exercise. Teach it, then choose <strong>Give that part again</strong>: only the failed parts are given, and the record keeps the parts already passed. The Today screen keeps pointing at the test until every part is passed or you mark the test passed by hand.</p>
+      <p>A part is passed with no errors, or with one error when it has four or more items. For any part not passed, the results list the exact lessons and exercises to reteach, with links. Reteach those, give that part again, and go on when it is passed.</p>
+    </div>
+
+    <div class="guide-section">
+      <h2 class="guide-section__title">Practice and fact review</h2>
+      <p>In First Grade, facts are released a few at a time, six to a set, mixed each day with facts the child already knows. A fact is <strong>firm</strong> after three right answers in a row, and <strong>automatic</strong> when each of those took under three seconds; the fact chart on Records shows both. The <strong>Timed facts</strong> check on Practice gives one minute of facts: say each one, mark it, and the next comes up at once. The result is facts right in a minute, against a goal that rises as more facts are released.</p>
+      <p><a href="/practice/">Practice</a> gives ten items from any one skill track, drawn only from lessons the child has finished. Use it on a day without a lesson, or for a skill that keeps showing errors. The <a href="/facts/">fact review</a> drills the addition and subtraction facts taught so far, with missed facts coming up first. A fact counts as firm after three right answers in a row. The fact chart on the Records screen shows where each fact stands.</p>
+    </div>
+
+    <div class="guide-section">
+      <h2 class="guide-section__title">Praise</h2>
+      <p>Praise briefly, and name what was done: "Yes, seven." "You started at the top." "You stopped right on twelve." Specific praise tells the child what was right, so it teaches. General excitement teaches nothing and can make an answer feel like a performance. That is why the program has no points, stickers, or celebrations.</p>
+    </div>
+
+    <div class="guide-section">
+      <h2 class="guide-section__title">When a child struggles</h2>
+      <ul class="guide-tips">
+        <li>Repeat the lesson the next day. Most difficulty clears on the second teaching.</li>
+        <li>If the same skill fails twice, look at its track on the level page and reteach the lesson where that step began.</li>
+        <li>Check "Where the errors are" on the Records screen. Errors that cluster in one skill point to the step to reteach.</li>
+        <li>Shorten the session rather than skipping exercises. Stop on a success.</li>
+        <li>If many skills are weak, give the placement test again. Starting a little earlier is no loss.</li>
       </ul>
     </div>
 
-    <div class="content-page__cta">
-      <a href="/lessons/" class="btn btn--cta">Start Teaching</a>
-      <a href="/curriculum/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">View Curriculum</a>
+    <div class="guide-section">
+      <h2 class="guide-section__title">Records</h2>
+      <p>Lesson results, test results, fact records, the placement result, and your notes are saved for each child in this browser. Nothing is sent anywhere. Use <strong>Save a backup</strong> on the <a href="/records/">Records</a> screen now and then, and <strong>Load a backup</strong> to carry records to another device. Clearing the browser's data for this site erases the records.</p>
     </div>
-  </div>
+
+    <div class="guide-section">
+      <h2 class="guide-section__title">Keyboard shortcuts</h2>
+      <p>With a keyboard attached, these keys work during lessons, tests, and practice:</p>
+      <div class="shortcut-grid">
+        <div class="shortcut-item"><kbd>&#8594;</kbd> or <kbd>Enter</kbd><span>Next step. On a "Your turn" step, mark Firm and go on.</span></div>
+        <div class="shortcut-item"><kbd>F</kbd><span>Mark Firm</span></div>
+        <div class="shortcut-item"><kbd>X</kbd> or <kbd>E</kbd><span>Mark Error and show the correction</span></div>
+        <div class="shortcut-item"><kbd>&#8592;</kbd><span>Go back one step</span></div>
+        <div class="shortcut-item"><kbd>S</kbd><span>Start the exercise over</span></div>
+        <div class="shortcut-item"><kbd>Space</kbd><span>Show again: bring back the dots shown briefly</span></div>
+        <div class="shortcut-item"><kbd>C</kbd><span>Clear marks</span></div>
+        <div class="shortcut-item"><kbd>O</kbd><span>Outline</span></div>
+        <div class="shortcut-item"><kbd>B</kbd><span>Big picture</span></div>
+        <div class="shortcut-item"><kbd>M</kbd><span>More</span></div>
+        <div class="shortcut-item"><kbd>?</kbd><span>The list of keys</span></div>
+        <div class="shortcut-item"><kbd>Esc</kbd><span>Close a sheet, or leave the lesson</span></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <a href="/lessons/" class="btn btn--primary">Go to the lessons</a>
+      <a href="/placement/" class="btn btn--secondary">Placement test</a>
+    </div>
 </div>

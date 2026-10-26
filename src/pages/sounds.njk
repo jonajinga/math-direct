@@ -1,0 +1,46 @@
+---
+layout: layouts/app.njk
+title: Sounds
+description: "Every sound and word part the reading program teaches: the letters, how to say the sound, a word it is heard in, and the lesson it comes in."
+permalink: /sounds/
+---
+<style>
+  .snd { display: grid; grid-template-columns: 4.5rem 1fr; gap: 0 var(--sp-3); align-items: center; padding: var(--sp-2) 0; border-top: 1px solid var(--line); }
+  .snd:first-child { border-top: 0; }
+  .snd__letters { font-family: var(--font-child); font-weight: 700; font-size: 1.75rem; line-height: 1.2; color: var(--ink); letter-spacing: 0.04em; }
+  .snd__letters .j { border-bottom: 0.1em solid currentColor; letter-spacing: -0.02em; }
+  .snd__letters .m { text-decoration: overline; text-decoration-thickness: 0.09em; text-underline-offset: 0.1em; }
+  .snd__say { font-weight: 700; }
+  .snd__meta { color: var(--ink-2); font-size: var(--fs-1); }
+  .snd-list { list-style: none; margin: 0; padding: 0; }
+</style>
+<div class="content">
+  <h1>Sounds</h1>
+  <p class="content__intro">Every sound and word part the reading lessons teach, in the order they come. For each: the letters as the child sees them, how to say the sound, a word it is heard in, and the lesson it begins in. Say a sound as it is said in a word, never as a letter name: mmm, not em.</p>
+
+  <div class="guide-section">
+    <h2 class="guide-section__title">How to say a sound</h2>
+    <ul class="guide-tips">
+      <li><strong>A continuous sound is held.</strong> Hold it for about two seconds, mmm, sss, aaa, while the dot rests under the letters. The panel says Hold.</li>
+      <li><strong>A stop sound is short.</strong> Say t, d, c, g, h, k, p, b, j, ch, qu, x as a quick sound with no "uh" after it: t, not tuh. The dot taps, and the panel says Tap.</li>
+      <li><strong>Some sounds are whispered.</strong> s, t, c, f, sh, h, k, p, ch, x, ck, and the th of thing are said with air and no voice. The rest use the voice.</li>
+      <li><strong>The marks fade.</strong> In Reading 1 the letters carry marks: a bar joins two letters that make one sound, a line over a vowel means the long sound, and a small letter is silent. The macron and the small letters go after lesson 74, the bars after lesson 90, and Reading 2 is in ordinary letters.</li>
+    </ul>
+  </div>
+
+  {% for level in program.summary %}{% if level.sounds.length %}
+  <div class="guide-section">
+    <h2 class="guide-section__title">{{ level.name }}</h2>
+    <ul class="snd-list">
+      {% for s in level.sounds %}
+      <li class="snd">
+        <span class="snd__letters" aria-label="{{ s.letters }}">{% if s.letters.length > 1 and s.id != "th2" %}<span class="j">{{ s.letters }}</span>{% elif s.id in ["ā","ē","ī","ō","ū","ȳ"] %}<span class="m">{{ s.letters }}</span>{% else %}{{ s.letters }}{% endif %}</span>
+        <span><span class="snd__say">{{ s.say }}</span>{% if s.note %}, {{ s.note }}{% endif %}<br><span class="snd__meta">Lesson {{ s.lesson }}</span></span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}{% endfor %}
+
+  <p class="muted small">The order follows Engelmann's program, as Open Phonics did. Quick sounds under Practice reviews the sounds a child has been taught, and the sound chart on Records shows which are firm.</p>
+</div>

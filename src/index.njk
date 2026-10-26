@@ -1,116 +1,47 @@
 ---
-layout: layouts/base.njk
-title: Teach Children Math
-description: Free, open-source math app with 150 scripted lessons, 341 practice problems, and interactive flashcards. Built on Direct Instruction methodology for ages 5-10.
-bodyClass: page-home
+layout: layouts/app.njk
+title: Today
+description: Scripted lessons for ages 4 to 7, built on Direct Instruction. You read the script; the child answers.
+bodyClass: page-today
+eleventyComputed:
+  seoTitle: "Teach Direct"
 ---
-<section class="hero">
-  <div class="hero__inner">
-    <h1 class="hero__title">Teach Children Math</h1>
-    <p class="hero__subtitle">150 scripted lessons. 341 practice problems. Interactive flashcards. Built on proven Direct Instruction methodology. Free, open source, no accounts required.</p>
-    <div class="hero__actions">
-      <a href="/lessons/" class="btn btn--cta">Start Lessons</a>
-      <a href="/guide/" class="btn btn--outline">Teacher Guide</a>
-    </div>
+<header class="screen__head">
+  <h1 class="screen__title">Today</h1>
+</header>
+
+<section class="card card--quiet" data-moved-notice data-new-host="{{ meta.newHost }}" hidden>
+  <h2 class="card__title">This app is now Teach Direct</h2>
+  <p class="card__text">It lives at <a href="https://{{ meta.newHost }}/">{{ meta.newHost }}</a>. The records on this address stay here. To take them along, save a backup under More and load it there.</p>
+</section>
+
+<section class="today-welcome" id="today-welcome" hidden>
+  <p>Teach Direct holds scripted lessons a parent teaches from a phone. The reading program takes a child from the first sounds to stories read the fast way; the math program teaches a child of four to seven to count, read numbers, add, and subtract. You read a short script, and the child answers. Every lesson, test, and review is planned for you.</p>
+  <ol class="how-list">
+    <li><strong>Read the script.</strong> Each new skill is shown, done together, and then done alone.</li>
+    <li><strong>Mark each answer.</strong> Tap Firm or Error. An error shows you the correction to give.</li>
+    <li><strong>Check for mastery.</strong> Every ten lessons, a short test checks each skill.</li>
+  </ol>
+  <div class="btn-row">
+    <a class="btn btn--primary btn--big" href="{% if program.subjects.length == 1 %}{{ program.subjects[0].placementUrl }}{% else %}/placement/{% endif %}">Take the placement test</a>
+    <a class="btn btn--secondary btn--big" href="/lessons/">Choose a level</a>
   </div>
 </section>
 
-{# Stats bar #}
-<section class="home-stats">
-  <div class="home-stats__inner">
-    <div class="home-stat">
-      <span class="home-stat__number">150</span>
-      <span class="home-stat__label">Lessons</span>
-    </div>
-    <div class="home-stat">
-      <span class="home-stat__number">2,400+</span>
-      <span class="home-stat__label">Teaching Steps</span>
-    </div>
-    <div class="home-stat">
-      <span class="home-stat__number">341</span>
-      <span class="home-stat__label">Practice Problems</span>
-    </div>
-    <div class="home-stat">
-      <span class="home-stat__number">7</span>
-      <span class="home-stat__label">Phases</span>
-    </div>
+<div data-child-picker></div>
+
+<section id="today-next" aria-live="polite"></section>
+
+<section class="card card--quiet" data-install-card hidden>
+  <h2 class="card__title">Install Teach Direct</h2>
+  <p class="card__text">It opens like an app and works without a connection.</p>
+  <div class="btn-row">
+    <button type="button" class="btn btn--primary" data-install>Install</button>
+    <button type="button" class="btn btn--quiet" data-install-dismiss>Not now</button>
   </div>
 </section>
 
-<section class="home-section">
-  <div class="home-section__inner">
-    <h2 class="home-section__title">How It Works</h2>
-    <div class="method-cards">
-      <div class="method-card">
-        <span class="method-card__number">1</span>
-        <h3 class="method-card__title">Read the Script</h3>
-        <p class="method-card__text">Each lesson tells you exactly what to say and do. No teaching experience needed. Just read and follow.</p>
-      </div>
-      <div class="method-card">
-        <span class="method-card__number">2</span>
-        <h3 class="method-card__title">Child Follows Visuals</h3>
-        <p class="method-card__text">Numbers, dot patterns, and number lines guide the learner through each concept with immediate feedback.</p>
-      </div>
-      <div class="method-card">
-        <span class="method-card__number">3</span>
-        <h3 class="method-card__title">Practice &amp; Review</h3>
-        <p class="method-card__text">Each lesson is 90% review and 10% new material. Flashcards and practice sets reinforce every skill.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="home-section home-section--alt">
-  <div class="home-section__inner">
-    <h2 class="home-section__title">7 Phases, From Counting to Arithmetic</h2>
-    <p class="home-section__subtitle">Every phase builds on the last. Master one before moving to the next.</p>
-    <div class="phase-cards">
-      {% for phase in phases %}
-      <a href="/phases/{{ phase.slug }}/" class="phase-card">
-        <span class="phase-card__badge">Phase {{ phase.id }}</span>
-        <h3 class="phase-card__title">{{ phase.title | replace("Phase " + phase.id + ": ", "") }}</h3>
-        <p class="phase-card__desc">Lessons {{ phase.lessonRange }}. {{ phase.description | truncate(100) }}</p>
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-<section class="home-section">
-  <div class="home-section__inner">
-    <h2 class="home-section__title">Practice &amp; Flashcards</h2>
-    <p class="home-section__subtitle">Reinforce what you learn with interactive problem sets and customizable flashcard decks.</p>
-    <div class="method-cards">
-      <div class="method-card">
-        <span class="method-card__number" style="background:var(--green-50);color:var(--green-700)">25</span>
-        <h3 class="method-card__title">Practice Sets</h3>
-        <p class="method-card__text">Interactive problem sets for every phase. Instant feedback, scoring, and streak tracking.</p>
-      </div>
-      <div class="method-card">
-        <span class="method-card__number" style="background:var(--amber-50);color:var(--amber-700)">341</span>
-        <h3 class="method-card__title">Problems</h3>
-        <p class="method-card__text">Counting, comparing, addition, subtraction, place value, regrouping, and word problems.</p>
-      </div>
-      <div class="method-card">
-        <span class="method-card__number" style="background:var(--rose-50);color:var(--rose-700)">&#x2764;</span>
-        <h3 class="method-card__title">Flashcards</h3>
-        <p class="method-card__text">Filter by phase, type, and difficulty. Wrong answers re-enter the deck for extra practice.</p>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:var(--space-xl);display:flex;gap:var(--space-md);justify-content:center;flex-wrap:wrap">
-      <a href="/practice/" class="btn btn--cta">Practice Sets</a>
-      <a href="/flashcards/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">Flashcards</a>
-    </div>
-  </div>
-</section>
-
-<section class="home-section home-section--alt">
-  <div class="home-section__inner" style="text-align:center">
-    <h2 class="home-section__title">100% Free. No Accounts. No Tracking.</h2>
-    <p style="color:var(--text-secondary);margin-bottom:var(--space-lg);max-width:36rem;margin-left:auto;margin-right:auto">Math Direct is open source and works entirely in your browser. Progress is saved locally on your device. No sign-ups, no ads, no data collection.</p>
-    <div style="display:flex;gap:var(--space-md);justify-content:center;flex-wrap:wrap">
-      <a href="/lessons/" class="btn btn--cta">Start Teaching</a>
-      <a href="/features/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">See All Features</a>
-    </div>
-  </div>
-</section>
+<script id="today-data" type="application/json">{{ program.summary | dump | safe }}</script>
+<script id="today-subjects" type="application/json">{{ program.subjects | dump | safe }}</script>
+<script src="/assets/js/progress.js?v={{ build.version }}"></script>
+<script src="/assets/js/today.js?v={{ build.version }}" defer></script>

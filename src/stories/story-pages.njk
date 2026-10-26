@@ -1,0 +1,14 @@
+---
+pagination:
+  data: program.stories
+  size: 1
+  addAllPagesToCollections: true
+  alias: story
+permalink: "{{ story.url }}"
+layout: layouts/runner.njk
+eleventyComputed:
+  title: "Story: {{ story.title }}"
+  description: "{{ story.title }}, read line by line the fast way, with its questions after."
+  exitUrl: "/stories/"
+---
+<script id="runner-data" type="application/json">{"mode":"practice","ordered":true,"subject":"reading","exitUrl":"/stories/","exitLabel":"All stories","count":{{ story.items.length }},"set":{"title":{{ story.title | dump | safe }},"level":{{ story.level | dump | safe }},"levelName":{% if story.levelName %}{{ story.levelName | dump | safe }}{% else %}"Reading"{% endif %},"items":{{ story.items | dump | safe }}}}</script>

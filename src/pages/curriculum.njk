@@ -1,94 +1,39 @@
 ---
-layout: layouts/base.njk
-title: Curriculum
-description: 150 structured math lessons across 7 phases covering counting, addition, subtraction, place value, and mental math for ages 5-10.
+layout: layouts/app.njk
+title: Scope and sequence
+description: Every skill track in Teach Direct, the lesson where each step is taught, and the standard it meets.
 permalink: /curriculum/
 ---
-<div class="content-page">
-  <div class="content-page__inner" style="max-width:72rem">
-    <h1 class="content-page__title">Curriculum Overview</h1>
-    <p class="content-page__intro">Math Direct covers foundational math skills through 150 scripted lessons organized into 7 sequential phases. Each phase builds on the one before it.</p>
+<div class="content">
+  <h1>Scope and sequence</h1>
+  <p class="content__intro">Every skill the program teaches, and the lesson where each step begins. Skills are taught in tracks; each lesson draws short exercises from several. A step is taught, practiced for the next lessons, and then reviewed at widening intervals for the rest of the level.</p>
+  <p class="muted small">Standards are from the Common Core for Kindergarten and First Grade and from the Head Start Early Learning Outcomes Framework (ELOF) for Pre-K.</p>
 
-    <div class="curriculum-stats">
-      <div class="curriculum-stat">
-        <span class="curriculum-stat__number">150</span>
-        <span class="curriculum-stat__label">Lessons</span>
-      </div>
-      <div class="curriculum-stat">
-        <span class="curriculum-stat__number">2,400+</span>
-        <span class="curriculum-stat__label">Teaching Steps</span>
-      </div>
-      <div class="curriculum-stat">
-        <span class="curriculum-stat__number">341</span>
-        <span class="curriculum-stat__label">Practice Problems</span>
-      </div>
-      <div class="curriculum-stat">
-        <span class="curriculum-stat__number">7</span>
-        <span class="curriculum-stat__label">Phases</span>
-      </div>
-      <div class="curriculum-stat">
-        <span class="curriculum-stat__number">K&ndash;4</span>
-        <span class="curriculum-stat__label">Grades</span>
-      </div>
-    </div>
-
-    {% for phase in phases %}
-    <div class="guide-section">
-      <h2 class="guide-section__title">
-        <a href="/phases/{{ phase.slug }}/" style="color:inherit;text-decoration:none">Phase {{ phase.id }}: {{ phase.title | replace("Phase " + phase.id + ": ", "") }}</a>
-      </h2>
-      <p class="curriculum-phase-meta">Lessons {{ phase.lessonRange }} &middot; {{ phase.conceptsIntroduced.length }} concepts</p>
-      <p>{{ phase.description }}</p>
-
-      {# Concepts table #}
-      {% if phase.conceptsIntroduced.length > 0 %}
-      <table class="curriculum-table">
-        <thead>
-          <tr>
-            <th>Concept</th>
-            <th>Lesson</th>
-            <th>Type</th>
-            <th>Example</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for c in phase.conceptsIntroduced %}
-          <tr>
-            <td><strong>{{ c.symbol }}</strong></td>
-            <td><a href="/lessons/lesson-{{ c.lesson | pad }}/">{{ c.lesson }}</a></td>
-            <td>{{ c.type }}</td>
-            <td>{{ c.example }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% endif %}
-
-      {# Skills #}
-      <h3 style="font-size:0.8125rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-secondary);margin-top:var(--space-md)">Skills Developed</h3>
-      <ul class="guide-tips">
-        {% for skill in phase.skills %}
-        <li>{{ skill }}</li>
-        {% endfor %}
-      </ul>
-
-      {# Practice + Flashcard links #}
-      {% set phasePractice = collections.practice | where("data.phase", phase.id) %}
-      {% if phasePractice.length > 0 %}
-      <div class="phase-links" style="margin-top:var(--space-md);border-top:none;padding-top:0">
-        <span class="phase-links__label">Practice:</span>
-        {% for item in phasePractice %}
-        <a href="{{ item.url }}" class="phase-links__link">{{ item.data.title }}</a>
-        {% endfor %}
-        <a href="/flashcards/?phase={{ phase.id }}" class="phase-links__link phase-links__link--fc">Flashcards</a>
-      </div>
-      {% endif %}
-    </div>
-    {% endfor %}
-
-    <div class="content-page__cta">
-      <a href="/lessons/" class="btn btn--cta">Browse All Lessons</a>
-      <a href="/roadmap/" class="btn btn--outline" style="color:var(--text-primary);border-color:var(--border-color)">View Roadmap</a>
-    </div>
+  <div class="stats">
+    <div class="stat"><span class="stat__number">{{ program.lessons.length }}</span><span class="stat__label">Lessons</span></div>
+    <div class="stat"><span class="stat__number">{{ program.tests.length }}</span><span class="stat__label">Mastery tests</span></div>
+    <div class="stat"><span class="stat__number">{{ program.levels.length }}</span><span class="stat__label">Levels</span></div>
+    <div class="stat"><span class="stat__number">4&ndash;7</span><span class="stat__label">Ages</span></div>
   </div>
+
+  {% for s in program.subjects %}
+  {% if program.subjects.length > 1 %}<h2 class="section-title">{{ s.name }}</h2>{% endif %}
+  {% for level in program.levels %}{% if level.subject == s.id %}
+  <details class="fold" id="{{ level.id }}"{% if loop.first %} open{% endif %}>
+    <summary><h2 class="fold__h">{{ level.name }}</h2></summary>
+    <div class="fold__body">
+      <p class="scope__facts">{{ level.lessons }} lessons · {{ level.minutes }} minutes each · {% if level.optional %}{{ level.age }}{% else %}for a child of {{ level.age }}{% endif %} · <a href="{{ level.url }}">Open the level</a></p>
+      <p>{{ level.endsWith }}</p>
+      {% for t in level.tracks %}
+      <div class="scope__track">
+        <h3>{{ t.name }}</h3>
+        <p class="scope__std">{{ t.standard }}</p>
+        <p class="scope__sum">{{ t.summary }}</p>
+        <ul class="scope__units">{% for u in t.units %}<li><a class="scope__unit" href="/{{ level.slug }}/lesson-{{ u.lesson | pad(3) }}/"><span class="scope__n">{{ u.lesson }}</span><span>{{ u.label }}</span></a></li>{% endfor %}</ul>
+      </div>
+      {% endfor %}
+    </div>
+  </details>
+  {% endif %}{% endfor %}
+  {% endfor %}
 </div>

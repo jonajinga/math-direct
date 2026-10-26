@@ -15,12 +15,6 @@ export default function (eleventyConfig) {
     return content.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim().substring(0, 500);
   });
 
-  eleventyConfig.addFilter("truncate", (str, len, end) => {
-    if (!str) return "";
-    if (str.length <= len) return str;
-    return str.substring(0, len).replace(/\s+\S*$/, "") + (end || "...");
-  });
-
   // Filter array by key (supports nested keys like "data.phase")
   eleventyConfig.addFilter("where", (arr, key, value) => {
     if (!Array.isArray(arr)) return [];
@@ -31,6 +25,8 @@ export default function (eleventyConfig) {
   });
 
   // Pad number with leading zero
+  eleventyConfig.addFilter("min", (arr) => Math.min(...arr));
+
   eleventyConfig.addFilter("pad", (num, size) => {
     let s = String(num);
     while (s.length < (size || 2)) s = "0" + s;
@@ -47,6 +43,15 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter("htmlDateString", (dateObj) => {
     if (!dateObj) return "";
     return new Date(dateObj).toISOString();
+  });
+
+  // Which bottom tab a page belongs to. Level and lesson pages belong to Lessons.
+  eleventyConfig.addFilter("tabActive", (pageUrl, tab, levels) => {
+    if (!pageUrl) return false;
+    if (pageUrl === tab.url) return true;
+    if (tab.url === "/lessons/") return (levels || []).some((l) => pageUrl.startsWith(l.url));
+    if (tab.url === "/practice/") return pageUrl.startsWith("/practice/") || pageUrl === "/facts/";
+    return false;
   });
 
   // Dump (JSON stringify for template data injection)
@@ -74,22 +79,20 @@ export default function (eleventyConfig) {
         const importOrder = [
           "reset.css",
           "tokens.css",
-          "utilities.css",
-          "components/header.css",
-          "components/nav.css",
-          "components/hamburger-panel.css",
-          "components/footer.css",
+          "base.css",
           "components/buttons.css",
-          "components/lesson-card.css",
-          "components/number-display.css",
-          "pages/home.css",
-          "pages/dashboard.css",
-          "pages/parent-guide.css",
-          "pages/about.css",
-          "pages/contact.css",
-          "pages/lesson.css",
-          "pages/practice.css",
-          "pages/flashcards.css",
+          "components/tabbar.css",
+          "components/action-bar.css",
+          "components/sheet.css",
+          "components/cards.css",
+          "components/forms.css",
+          "components/visuals.css",
+          "screens/today.css",
+          "screens/lessons.css",
+          "screens/practice.css",
+          "screens/records.css",
+          "screens/content.css",
+          "screens/runner.css",
         ];
         let combined = "";
         for (const file of importOrder) {
@@ -108,6 +111,7 @@ export default function (eleventyConfig) {
   // Passthrough Copy
   eleventyConfig.addPassthroughCopy("src/assets/js");
   eleventyConfig.addPassthroughCopy("src/assets/img");
+  eleventyConfig.addPassthroughCopy("src/assets/fonts");
   eleventyConfig.addPassthroughCopy({ "src/manifest.json": "manifest.json" });
   eleventyConfig.addPassthroughCopy({ "src/sw.js": "sw.js" });
   eleventyConfig.addPassthroughCopy({ "src/robots.txt": "robots.txt" });
@@ -121,6 +125,7 @@ export default function (eleventyConfig) {
 
   // Watch Targets
   eleventyConfig.addWatchTarget("src/assets/css/");
+  eleventyConfig.addWatchTarget("curriculum/");
 
   return {
     dir: {

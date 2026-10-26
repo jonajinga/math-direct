@@ -1,0 +1,258 @@
+/* ===== Visual aids (rendered by assets/js/visuals.js) ===== */
+
+:root {
+  --v-red: #e0453a;
+  --v-blue: #2f74d0;
+  --v-yellow: #f2c230;
+  --v-green: #3a9a4a;
+  --v-purple: #8b5cc8;
+  --v-orange: #ef8a25;
+  --v-gray: #9a948e;
+  --v-brown: #9a6a3c;
+  --v-pink: #ec7bb0;
+  --v-ink: #14212b;
+  --v-line: #6b7684;
+  --v-soft: #f7f8fa;
+  --v-paper: #ffffff;
+  --v-dot: #2f74d0;
+  --v-dot2: #e0453a;
+  --v-accent: #c2410c;
+  --v-ten: #f2c230;
+  --v-one: #3a9a4a;
+  --v-hour: #0b4f8a;
+  --v-minute: #e0453a;
+  --v-box: #d4a373;
+}
+
+
+.mdv {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.mdv-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Sizes inside the child's stage. The stage is a size container, so every
+   length here is a share of its height (cqh) or width (cqw), whatever the
+   layout. --vis-h: the tallest a drawing may be. --cell: one counted object.
+   Each SVG carries --ar (width / height) and, for countable things, --cw
+   (cells wide). */
+.child-stage { --stage-max: 80cqh; --vis-h: calc(var(--stage-max) * 0.85); --cell: min(32cqh, 10rem, 16cqw); }
+.child-stage .mdv-svg { width: min(100%, calc(var(--vis-h) * var(--ar, 1))); height: auto; }
+.child-stage .mdv-cells { width: min(100%, calc(var(--cell) * var(--cw, 1)), calc(var(--vis-h) * var(--ar, 1))); }
+.child-stage .mdv--md { --vis-h: calc(var(--stage-max) * 0.7); }
+.child-stage .mdv--sm { --vis-h: calc(var(--stage-max) * 0.45); --cell: min(15cqh, 4.5rem); }
+.child-stage .mdv-dots { --cell: min(18cqh, 5rem); }
+.child-stage .mdv-shape { --vis-h: calc(var(--stage-max) * 0.7); }
+.child-stage .mdv-say { --vis-h: calc(var(--stage-max) * 0.35); }
+.child-stage .mdv-scene { --vis-h: calc(var(--stage-max) * 0.8); }
+.child-stage .mdv-choice { --vis-h: calc(var(--stage-max) * 0.42); --cell: min(20cqh, 6rem); }
+.child-stage .mdv-choice .mdv-shape { --vis-h: calc(var(--stage-max) * 0.32); }
+.child-stage .mdv-row__item > .mdv { --vis-h: calc(var(--stage-max) * 0.5); --cell: min(15cqh, 4.5rem); }
+.child-stage .mdv-frame { width: min(100%, calc(var(--vis-h) * var(--ar, 1)), 30rem); }
+
+/* When the screen holds more than one visual, each gets a share of the height. */
+.child-stage:has(> .mdv + .mdv) { --vis-h: calc(var(--stage-max) * 0.42); --cell: min(16cqh, 5rem); }
+.child-stage:has(> .mdv + .mdv) .mdv-eq { font-size: clamp(min(2rem, 12.8cqh), 16cqh, 5rem); }
+.child-stage:has(> .mdv + .mdv) .mdv-num--lg { font-size: clamp(min(2.5rem, 16cqh), 20cqh, 6rem); }
+.child-stage:has(> .mdv + .mdv) .mdv-col { font-size: min(clamp(min(1.5rem, 8.8cqh), 11cqh, 3rem), calc(var(--stage-max) * 0.16)); }
+.mdv-row .mdv-num--lg, .mdv-row .mdv-sign { font-size: clamp(min(2rem, 12cqh), 15cqh, 4.5rem); }
+.mdv-frames--2 .mdv-frame { max-width: 48%; }
+.child-stage .mdv-frames--2 .mdv-frame { width: min(48%, calc(var(--vis-h) * var(--ar, 1))); }
+.mdv-choice .mdv-digital span { font-size: min(clamp(min(1.1rem, 7.2cqh), 9cqh, 2.25rem), 30cqw); border-width: 2px; }
+.child-stage .mdv-col { font-size: min(clamp(min(2.5rem, 16cqh), 20cqh, 6rem), calc(var(--vis-h) / 4.4)); }
+
+/* Numerals */
+.mdv-num {
+  gap: clamp(1.5rem, 8cqw, 5rem);
+  font-family: var(--font-child);
+  font-weight: 700;
+  color: var(--v-ink);
+  line-height: 1;
+}
+.mdv-num__item { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.mdv-num--lg { font-size: clamp(min(5rem, 35.2cqh), 44cqh, 12rem); }
+.mdv-num--md { font-size: clamp(min(3rem, 19.2cqh), 24cqh, 6rem); }
+.mdv-num--sm { font-size: clamp(min(2rem, 11.2cqh), 14cqh, 3.5rem); }
+.mdv-num .mdv-numdots { width: auto; height: 1.6rem; }
+.mdv-sign { color: var(--v-accent); }
+
+.mdv-blank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1em;
+  height: 1.1em;
+  padding: 0 0.1em;
+  border: 0.06em dashed var(--v-ink);
+  color: var(--v-accent);
+  font-family: var(--font-child);
+  font-weight: 700;
+  line-height: 1;
+}
+.mdv-blank--write { color: transparent; }
+
+/* Sequences */
+.mdv-seq { gap: 0.5rem; flex-wrap: wrap; font-family: var(--font-child); font-weight: 700; font-size: clamp(min(2rem, 12.8cqh), 16cqh, 4rem); color: var(--v-ink); }
+.mdv-seq__box { min-width: 1.6em; padding: 0.15em 0.2em; border: 3px solid var(--v-line); text-align: center; line-height: 1.1; }
+.mdv-seq__box.is-hl { border-color: var(--v-accent); color: var(--v-accent); }
+.mdv-seq__box.is-blank { border-style: dashed; color: var(--v-accent); }
+
+/* Equations */
+.mdv-eq {
+  gap: 0.25em;
+  font-family: var(--font-child);
+  font-weight: 700;
+  font-size: clamp(min(3rem, 25.6cqh), 32cqh, 8rem);
+  color: var(--v-ink);
+  line-height: 1;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.mdv-eq__op { color: var(--v-accent); padding: 0 0.05em; }
+.child-stage .mdv-eq { font-size: var(--eq-size, clamp(min(3rem, 25.6cqh), 32cqh, 8rem)); }
+
+/* Column problems */
+.mdv-col {
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: var(--font-child);
+  font-weight: 700;
+  font-size: clamp(min(2.5rem, 17.6cqh), 22cqh, 6rem);
+  color: var(--v-ink);
+  line-height: 1.1;
+}
+.mdv-col__row { display: flex; align-items: center; }
+.mdv-col__op { width: 0.8em; color: var(--v-accent); text-align: left; }
+.mdv-col__d { width: 0.8em; text-align: center; display: inline-block; }
+.mdv-col__line { border-bottom: 0.08em solid var(--v-ink); }
+.mdv-col__labels { font-size: 0.3em; color: var(--ink-2); }
+.mdv-col__labels .mdv-col__d { width: 2.67em; }
+.mdv-col__carry { font-size: 0.45em; color: var(--v-accent); }
+.mdv-col__carry .mdv-col__op { width: 1.78em; }
+.mdv-col__carry .mdv-col__d { width: 1.78em; }
+.mdv-col__d.is-struck { text-decoration: line-through; text-decoration-color: var(--v-accent); text-decoration-thickness: 0.06em; }
+.mdv-col__d.is-blank { color: var(--v-accent); }
+
+/* Choices: big touch targets */
+.mdv-choices {
+  display: grid;
+  gap: clamp(0.5rem, 2cqw, 1.25rem);
+  width: 100%;
+  max-width: 54rem;
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+}
+.mdv-choices--2 { --cols: 2; max-width: 40rem; }
+.mdv-choices--3 { --cols: 3; }
+.mdv-choices--4 { --cols: 4; }
+.mdv-choices--5, .mdv-choices--6 { --cols: 3; }
+.mdv-choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.4rem, 1.5cqw, 1rem);
+  background: var(--v-paper);
+  border: 3px solid var(--v-line);
+  min-height: min(5rem, 28cqh);
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.mdv-choice:hover, .mdv-choice:focus-visible { border-color: var(--v-ink); outline: none; }
+.mdv-choice.is-picked { border-color: var(--v-ink); box-shadow: 0 0 0 4px var(--v-ink); }
+.is-done .mdv-choice { cursor: default; }
+/* A choice is a width container of its own, so a numeral inside it is also
+   capped by the cell's width: Comic Neue digits are about 0.44 em wide, and
+   --chars is the widest item in characters. Heights (cqh) still come from
+   the stage. In a narrow landscape stage a three-digit number thus shrinks
+   instead of crossing the cell's border. */
+.child-stage .mdv-choice { container-type: inline-size; }
+.child-stage .mdv-choice .mdv-num { font-size: min(clamp(min(2.5rem, 19.2cqh), 24cqh, 6rem), calc(92cqw / (var(--chars, 2) * 0.44))); }
+
+/* ── Reading: letters, the arrow, and the dot ── */
+/* Lines sit 0.5em apart so the dot under one line clears the next. */
+.mdv-text { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.5em; max-width: 100%; font-family: var(--font-child); font-weight: 700; color: var(--v-ink); line-height: 1.15; }
+/* The arrow runs a little past the letters on each side, so the box is padded
+   to hold it. A sound or a word is as wide as its letters, never capped, so
+   the runner can measure it and shrink it until it fits the stage. */
+.child-stage .mdv-text--sound, .child-stage .mdv-text--word { font-size: clamp(min(3rem, 24cqh), 32cqh, 9rem); padding: 0 1.1em 0.6em; max-width: none; width: max-content; }
+.child-stage .mdv-text--words { max-width: none; width: max-content; }
+.child-stage .mdv-text--words { font-size: clamp(min(2rem, 14cqh), 18cqh, 5rem); }
+.child-stage .mdv-text--line { font-size: clamp(min(1.75rem, 12cqh), 15cqh, 4rem); padding-bottom: 0.5em; }
+.child-stage .mdv-text--story { font-size: clamp(min(1.5rem, 9cqh), 11cqh, 3.25rem); padding-bottom: 0.5em; width: 100%; align-items: stretch; }
+.mdv-text__line { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 0.5em 0.45em; max-width: 100%; }
+.mdv-text--story .mdv-text__line { justify-content: flex-start; }
+.mdv-text__word { display: inline-flex; align-items: baseline; white-space: nowrap; letter-spacing: 0.04em; }
+.mdv-tok { position: relative; display: inline-block; }
+.mdv-tok--joined { letter-spacing: -0.02em; }
+.mdv-tok--joined::after { content: ""; position: absolute; left: 0.04em; right: 0.06em; bottom: -0.03em; height: 0.075em; border-radius: 0.04em; background: currentColor; }
+.mdv-tok--macron::before { content: ""; position: absolute; left: 0.08em; right: 0.1em; top: 0.28em; height: 0.075em; border-radius: 0.04em; background: currentColor; }
+.mdv-tok--silent { font-size: 0.55em; }
+.mdv-tok--punct { margin-left: -0.04em; }
+.mdv-text__track { position: absolute; height: 0.3em; pointer-events: none; }
+.mdv-text__ball { position: absolute; left: 0; top: 50%; width: 0.28em; height: 0.28em; margin-top: -0.14em; border-radius: 50%; background: var(--v-ink); }
+.mdv-text__rail { position: absolute; left: 0.14em; right: 0.24em; top: 50%; height: 0.07em; margin-top: -0.035em; background: var(--v-ink); }
+.mdv-text__head { position: absolute; right: 0; top: 50%; width: 0; height: 0; margin-top: -0.17em; border-top: 0.17em solid transparent; border-bottom: 0.17em solid transparent; border-left: 0.28em solid var(--v-ink); }
+.mdv-text__dot { position: absolute; left: 0; top: 0; width: 0.34em; height: 0.34em; margin: -0.17em 0 0 -0.17em; border-radius: 50%; background: var(--v-red); box-shadow: 0 0 0 0.05em var(--v-paper); transition: left 0.18s ease-out, top 0.18s ease-out, transform 0.12s ease-out; pointer-events: none; }
+.mdv-text__dot.is-held { transform: scale(1.3); }
+.mdv-text__dot.is-sweep { transition-duration: 0.6s, 0.6s, 0.12s; transition-timing-function: linear, linear, ease-out; }
+.mdv-text__dot.is-instant { transition: none; }
+.mdv-text__dot.is-tap { animation: mdv-tap 0.26s ease-out; }
+@keyframes mdv-tap { 0% { transform: scale(1.3) translateY(0); } 50% { transform: scale(1.1) translateY(-0.14em); } 100% { transform: scale(1.3) translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .mdv-text__dot { transition: none; animation: none; } }
+
+/* Rows of visuals */
+.mdv-row { gap: clamp(1rem, 4cqw, 3rem); flex-wrap: wrap; width: 100%; }
+.mdv-row__item { display: flex; justify-content: center; min-width: 0; }
+/* A row of single pictures (sorting) wraps several to a line, not one. */
+.child-stage .mdv-row__item > .mdv-obj .mdv-cells { width: min(calc(var(--cell) * var(--cw, 1)), calc(var(--vis-h) * var(--ar, 1))); }
+.mdv-row:has(> :nth-child(6)) { gap: 0.5rem 0.75rem; }
+/* A short row, such as two blocks and a sign, stays on one line and shrinks. */
+.mdv-row:not(:has(> :nth-child(6))):not(:has(.mdv-choices)) { flex-wrap: nowrap; }
+.child-stage .mdv-row__item .mdv-cells { max-width: 100%; }
+.mdv-row .mdv-choices { flex: 1 1 22rem; }
+.mdv-stack { flex-direction: column; gap: 1rem; width: 100%; }
+
+/* Marking objects as they are counted */
+.mdv-mark { cursor: pointer; }
+.mdv-mark__ring { stroke: transparent; stroke-width: 6; }
+.mdv-mark.is-marked .mdv-mark__ring { stroke: var(--v-accent); fill: rgba(234, 88, 12, 0.08); }
+.mdv-markable { touch-action: manipulation; }
+
+/* Picking a row, a line position, or a size */
+.mdv-pickable .mdv-tap { cursor: pointer; }
+.mdv-rowpick__bg { stroke: transparent; stroke-width: 5; }
+.mdv-tap:hover .mdv-rowpick__bg, .mdv-tap:focus .mdv-rowpick__bg { stroke: var(--v-line); }
+.mdv-tap.is-picked .mdv-rowpick__bg { stroke: var(--v-ink); stroke-width: 7; }
+.is-done .mdv-tap { cursor: default; }
+.mdv-tap:focus { outline: none; }
+
+/* Arriving objects in stories */
+.mdv-arrive { opacity: 0.92; }
+
+/* Frames */
+.mdv-frames { gap: 0.5rem 2%; flex-wrap: wrap; }
+
+/* Digital clock */
+.mdv-digital span {
+  font-family: var(--font-child);
+  font-weight: 700;
+  font-size: min(clamp(min(3rem, 22.4cqh), 28cqh, 7rem), 19cqw);
+  padding: 0.1em 0.4em;
+  border: 4px solid var(--v-ink);
+  color: var(--v-ink);
+  letter-spacing: 0.05em;
+}
+.mdv-row__item > .mdv-digital span { font-size: min(clamp(min(3rem, 22.4cqh), 28cqh, 7rem), 9cqw); }
+.mdv-row__item:has(> .mdv-digital) { flex-shrink: 0; }
+
+
+/* Flash: dots shown briefly */
+.child-stage.is-flashed .mdv { visibility: hidden; }
+

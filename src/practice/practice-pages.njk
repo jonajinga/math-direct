@@ -1,0 +1,14 @@
+---
+pagination:
+  data: program.practice
+  size: 1
+  addAllPagesToCollections: true
+  alias: set
+permalink: "{{ set.url }}"
+layout: layouts/runner.njk
+eleventyComputed:
+  title: "{{ set.levelName }} practice: {{ set.title }}"
+  description: "{{ set.summary }}"
+  exitUrl: "/practice/"
+---
+<script id="runner-data" type="application/json">{"mode":"practice","useProgress":true,"count":10,"exitUrl":"/practice/","set":{{ set | dump | safe }}}</script>
