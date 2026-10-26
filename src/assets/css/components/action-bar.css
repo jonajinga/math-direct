@@ -1,0 +1,16 @@
+/* ===== Action bar =====
+   A screen's main action, fixed just above the tab bar: one secondary button
+   on the left and one primary on the right. */
+.action-bar {
+  position: fixed; left: 0; right: 0; z-index: 39;
+  bottom: calc(var(--tabbar-h) + var(--safe-b));
+  min-height: var(--actionbar-h);
+  padding: var(--sp-2) calc(var(--sp-4) + var(--safe-r)) var(--sp-2) calc(var(--sp-4) + var(--safe-l));
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+.action-bar__inner { display: flex; gap: var(--sp-2); align-items: center; max-width: var(--content-max); margin: 0 auto; }
+.action-bar__inner > .btn { flex: 1 1 0; min-width: 0; }
+.action-bar__inner > .btn--primary { flex: 2 1 0; }
+.action-bar__inner > .btn:only-child { flex: 1 1 0; }
+.page-runner .action-bar { bottom: 0; padding-bottom: calc(var(--sp-2) + var(--safe-b)); }

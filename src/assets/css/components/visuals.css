@@ -10,46 +10,20 @@
   --v-gray: #9a948e;
   --v-brown: #9a6a3c;
   --v-pink: #ec7bb0;
-  --v-ink: #1c1917;
-  --v-line: #a8a29e;
-  --v-soft: #f5f5f4;
+  --v-ink: #14212b;
+  --v-line: #6b7684;
+  --v-soft: #f7f8fa;
   --v-paper: #ffffff;
   --v-dot: #2f74d0;
   --v-dot2: #e0453a;
-  --v-accent: #ea580c;
+  --v-accent: #c2410c;
   --v-ten: #f2c230;
   --v-one: #3a9a4a;
-  --v-hour: #1e3a5f;
+  --v-hour: #0b4f8a;
   --v-minute: #e0453a;
   --v-box: #d4a373;
 }
 
-[data-theme="dark"] {
-  --v-ink: #f5f5f4;
-  --v-line: #78716c;
-  --v-soft: #292524;
-  --v-paper: #1c1917;
-  --v-dot: #60a5fa;
-  --v-dot2: #f87171;
-  --v-accent: #fb923c;
-  --v-hour: #93c5fd;
-  --v-minute: #fca5a5;
-  --v-box: #a16207;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --v-ink: #f5f5f4;
-    --v-line: #78716c;
-    --v-soft: #292524;
-    --v-paper: #1c1917;
-    --v-dot: #60a5fa;
-    --v-dot2: #f87171;
-    --v-accent: #fb923c;
-    --v-hour: #93c5fd;
-    --v-minute: #fca5a5;
-    --v-box: #a16207;
-  }
-}
 
 .mdv {
   display: flex;
@@ -65,46 +39,48 @@
   overflow: visible;
 }
 
-/* Sizes inside the child view.
-   --vis-h: the tallest a drawing may be. --cell: the size of one counted object.
-   Each SVG carries --ar (width / height) and, for countable things, --cw (cells wide). */
-.child-stage { --vis-h: calc(var(--stage-max, 36vh) * 0.85); --cell: min(18vh, 10rem); }
+/* Sizes inside the child's stage. The stage is a size container, so every
+   length here is a share of its height (cqh) or width (cqw), whatever the
+   layout. --vis-h: the tallest a drawing may be. --cell: one counted object.
+   Each SVG carries --ar (width / height) and, for countable things, --cw
+   (cells wide). */
+.child-stage { --stage-max: 80cqh; --vis-h: calc(var(--stage-max) * 0.85); --cell: min(32cqh, 10rem, 16cqw); }
 .child-stage .mdv-svg { width: min(100%, calc(var(--vis-h) * var(--ar, 1))); height: auto; }
 .child-stage .mdv-cells { width: min(100%, calc(var(--cell) * var(--cw, 1)), calc(var(--vis-h) * var(--ar, 1))); }
-.child-stage .mdv--md { --vis-h: calc(var(--stage-max, 36vh) * 0.7); }
-.child-stage .mdv--sm { --vis-h: calc(var(--stage-max, 36vh) * 0.45); --cell: min(8vh, 4.5rem); }
-.child-stage .mdv-dots { --cell: min(10vh, 5rem); }
-.child-stage .mdv-shape { --vis-h: calc(var(--stage-max, 36vh) * 0.7); }
-.child-stage .mdv-say { --vis-h: calc(var(--stage-max, 36vh) * 0.35); }
-.child-stage .mdv-scene { --vis-h: calc(var(--stage-max, 36vh) * 0.8); }
-.child-stage .mdv-choice { --vis-h: calc(var(--stage-max, 36vh) * 0.42); --cell: min(11vh, 6rem); }
-.child-stage .mdv-choice .mdv-shape { --vis-h: calc(var(--stage-max, 36vh) * 0.32); }
-.child-stage .mdv-row__item > .mdv { --vis-h: calc(var(--stage-max, 36vh) * 0.5); --cell: min(8vh, 4.5rem); }
+.child-stage .mdv--md { --vis-h: calc(var(--stage-max) * 0.7); }
+.child-stage .mdv--sm { --vis-h: calc(var(--stage-max) * 0.45); --cell: min(15cqh, 4.5rem); }
+.child-stage .mdv-dots { --cell: min(18cqh, 5rem); }
+.child-stage .mdv-shape { --vis-h: calc(var(--stage-max) * 0.7); }
+.child-stage .mdv-say { --vis-h: calc(var(--stage-max) * 0.35); }
+.child-stage .mdv-scene { --vis-h: calc(var(--stage-max) * 0.8); }
+.child-stage .mdv-choice { --vis-h: calc(var(--stage-max) * 0.42); --cell: min(20cqh, 6rem); }
+.child-stage .mdv-choice .mdv-shape { --vis-h: calc(var(--stage-max) * 0.32); }
+.child-stage .mdv-row__item > .mdv { --vis-h: calc(var(--stage-max) * 0.5); --cell: min(15cqh, 4.5rem); }
 .child-stage .mdv-frame { width: min(100%, calc(var(--vis-h) * var(--ar, 1)), 30rem); }
 
 /* When the screen holds more than one visual, each gets a share of the height. */
-.child-stage:has(> .mdv + .mdv) { --vis-h: calc(var(--stage-max, 36vh) * 0.42); --cell: min(9vh, 5rem); }
-.child-stage:has(> .mdv + .mdv) .mdv-eq { font-size: clamp(2rem, 9vh, 5rem); }
-.child-stage:has(> .mdv + .mdv) .mdv-num--lg { font-size: clamp(2.5rem, 11vh, 6rem); }
-.child-stage:has(> .mdv + .mdv) .mdv-col { font-size: min(clamp(1.5rem, 6vh, 3rem), calc(var(--stage-max, 36vh) * 0.16)); }
-.mdv-row .mdv-num--lg, .mdv-row .mdv-sign { font-size: clamp(2rem, 8vh, 4.5rem); }
+.child-stage:has(> .mdv + .mdv) { --vis-h: calc(var(--stage-max) * 0.42); --cell: min(16cqh, 5rem); }
+.child-stage:has(> .mdv + .mdv) .mdv-eq { font-size: clamp(min(2rem, 12.8cqh), 16cqh, 5rem); }
+.child-stage:has(> .mdv + .mdv) .mdv-num--lg { font-size: clamp(min(2.5rem, 16cqh), 20cqh, 6rem); }
+.child-stage:has(> .mdv + .mdv) .mdv-col { font-size: min(clamp(min(1.5rem, 8.8cqh), 11cqh, 3rem), calc(var(--stage-max) * 0.16)); }
+.mdv-row .mdv-num--lg, .mdv-row .mdv-sign { font-size: clamp(min(2rem, 12cqh), 15cqh, 4.5rem); }
 .mdv-frames--2 .mdv-frame { max-width: 48%; }
 .child-stage .mdv-frames--2 .mdv-frame { width: min(48%, calc(var(--vis-h) * var(--ar, 1))); }
-.mdv-choice .mdv-digital span { font-size: min(clamp(1.1rem, 5vh, 2.25rem), 6.5vw); border-width: 2px; }
-.child-stage .mdv-col { font-size: min(clamp(2.5rem, 11vh, 6rem), calc(var(--vis-h) / 4.4)); }
+.mdv-choice .mdv-digital span { font-size: min(clamp(min(1.1rem, 7.2cqh), 9cqh, 2.25rem), 30cqw); border-width: 2px; }
+.child-stage .mdv-col { font-size: min(clamp(min(2.5rem, 16cqh), 20cqh, 6rem), calc(var(--vis-h) / 4.4)); }
 
 /* Numerals */
 .mdv-num {
-  gap: clamp(1.5rem, 8vw, 5rem);
+  gap: clamp(1.5rem, 8cqw, 5rem);
   font-family: var(--font-child);
   font-weight: 700;
-  color: var(--child-text-color, var(--v-ink));
+  color: var(--v-ink);
   line-height: 1;
 }
 .mdv-num__item { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
-.mdv-num--lg { font-size: clamp(5rem, 22vh, 12rem); }
-.mdv-num--md { font-size: clamp(3rem, 12vh, 6rem); }
-.mdv-num--sm { font-size: clamp(2rem, 7vh, 3.5rem); }
+.mdv-num--lg { font-size: clamp(min(5rem, 35.2cqh), 44cqh, 12rem); }
+.mdv-num--md { font-size: clamp(min(3rem, 19.2cqh), 24cqh, 6rem); }
+.mdv-num--sm { font-size: clamp(min(2rem, 11.2cqh), 14cqh, 3.5rem); }
 .mdv-num .mdv-numdots { width: auto; height: 1.6rem; }
 .mdv-sign { color: var(--v-accent); }
 
@@ -124,7 +100,7 @@
 .mdv-blank--write { color: transparent; }
 
 /* Sequences */
-.mdv-seq { gap: 0.5rem; flex-wrap: wrap; font-family: var(--font-child); font-weight: 700; font-size: clamp(2rem, 8vh, 4rem); color: var(--v-ink); }
+.mdv-seq { gap: 0.5rem; flex-wrap: wrap; font-family: var(--font-child); font-weight: 700; font-size: clamp(min(2rem, 12.8cqh), 16cqh, 4rem); color: var(--v-ink); }
 .mdv-seq__box { min-width: 1.6em; padding: 0.15em 0.2em; border: 3px solid var(--v-line); text-align: center; line-height: 1.1; }
 .mdv-seq__box.is-hl { border-color: var(--v-accent); color: var(--v-accent); }
 .mdv-seq__box.is-blank { border-style: dashed; color: var(--v-accent); }
@@ -134,14 +110,14 @@
   gap: 0.25em;
   font-family: var(--font-child);
   font-weight: 700;
-  font-size: clamp(3rem, 16vh, 8rem);
+  font-size: clamp(min(3rem, 25.6cqh), 32cqh, 8rem);
   color: var(--v-ink);
   line-height: 1;
   flex-wrap: nowrap;
   white-space: nowrap;
 }
 .mdv-eq__op { color: var(--v-accent); padding: 0 0.05em; }
-.child-stage .mdv-eq { font-size: var(--eq-size, clamp(3rem, 16vh, 8rem)); }
+.child-stage .mdv-eq { font-size: var(--eq-size, clamp(min(3rem, 25.6cqh), 32cqh, 8rem)); }
 
 /* Column problems */
 .mdv-col {
@@ -149,7 +125,7 @@
   align-items: flex-end;
   font-family: var(--font-child);
   font-weight: 700;
-  font-size: clamp(2.5rem, 11vh, 6rem);
+  font-size: clamp(min(2.5rem, 17.6cqh), 22cqh, 6rem);
   color: var(--v-ink);
   line-height: 1.1;
 }
@@ -157,7 +133,7 @@
 .mdv-col__op { width: 0.8em; color: var(--v-accent); text-align: left; }
 .mdv-col__d { width: 0.8em; text-align: center; display: inline-block; }
 .mdv-col__line { border-bottom: 0.08em solid var(--v-ink); }
-.mdv-col__labels { font-size: 0.3em; color: var(--text-secondary); }
+.mdv-col__labels { font-size: 0.3em; color: var(--ink-2); }
 .mdv-col__labels .mdv-col__d { width: 2.67em; }
 .mdv-col__carry { font-size: 0.45em; color: var(--v-accent); }
 .mdv-col__carry .mdv-col__op { width: 1.78em; }
@@ -168,7 +144,7 @@
 /* Choices: big touch targets */
 .mdv-choices {
   display: grid;
-  gap: clamp(0.5rem, 2vw, 1.25rem);
+  gap: clamp(0.5rem, 2cqw, 1.25rem);
   width: 100%;
   max-width: 54rem;
   grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
@@ -181,20 +157,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(0.4rem, 1.5vw, 1rem);
+  padding: clamp(0.4rem, 1.5cqw, 1rem);
   background: var(--v-paper);
   border: 3px solid var(--v-line);
-  min-height: 5rem;
+  min-height: min(5rem, 28cqh);
   cursor: pointer;
   transition: border-color 0.15s, background-color 0.15s;
 }
-.mdv-choice:hover, .mdv-choice:focus-visible { border-color: var(--v-blue); outline: none; }
-.mdv-choice.is-right { border-color: var(--green-600); background: rgba(22, 163, 74, 0.08); }
-.mdv-choice.is-wrong { border-color: var(--rose-500); background: rgba(197, 48, 48, 0.08); }
-.child-stage .mdv-choice .mdv-num { font-size: clamp(2.5rem, 12vh, 6rem); }
+.mdv-choice:hover, .mdv-choice:focus-visible { border-color: var(--v-ink); outline: none; }
+.mdv-choice.is-picked { border-color: var(--v-ink); box-shadow: 0 0 0 4px var(--v-ink); }
+.is-done .mdv-choice { cursor: default; }
+/* A choice is a width container of its own, so a numeral inside it is also
+   capped by the cell's width: Comic Neue digits are about 0.44 em wide, and
+   --chars is the widest item in characters. Heights (cqh) still come from
+   the stage. In a narrow landscape stage a three-digit number thus shrinks
+   instead of crossing the cell's border. */
+.child-stage .mdv-choice { container-type: inline-size; }
+.child-stage .mdv-choice .mdv-num { font-size: min(clamp(min(2.5rem, 19.2cqh), 24cqh, 6rem), calc(92cqw / (var(--chars, 2) * 0.44))); }
 
 /* Rows of visuals */
-.mdv-row { gap: clamp(1rem, 4vw, 3rem); flex-wrap: wrap; width: 100%; }
+.mdv-row { gap: clamp(1rem, 4cqw, 3rem); flex-wrap: wrap; width: 100%; }
 .mdv-row__item { display: flex; justify-content: center; min-width: 0; }
 /* A row of single pictures (sorting) wraps several to a line, not one. */
 .child-stage .mdv-row__item > .mdv-obj .mdv-cells { width: min(calc(var(--cell) * var(--cw, 1)), calc(var(--vis-h) * var(--ar, 1))); }
@@ -215,49 +197,30 @@
 .mdv-pickable .mdv-tap { cursor: pointer; }
 .mdv-rowpick__bg { stroke: transparent; stroke-width: 5; }
 .mdv-tap:hover .mdv-rowpick__bg, .mdv-tap:focus .mdv-rowpick__bg { stroke: var(--v-line); }
-.mdv-tap.is-right .mdv-rowpick__bg { stroke: var(--green-600); fill: rgba(22, 163, 74, 0.08); }
-.mdv-tap.is-wrong .mdv-rowpick__bg { stroke: var(--rose-500); fill: rgba(197, 48, 48, 0.08); }
+.mdv-tap.is-picked .mdv-rowpick__bg { stroke: var(--v-ink); stroke-width: 7; }
+.is-done .mdv-tap { cursor: default; }
 .mdv-tap:focus { outline: none; }
 
 /* Arriving objects in stories */
 .mdv-arrive { opacity: 0.92; }
 
 /* Frames */
-.mdv-frames { gap: 1rem; flex-wrap: wrap; }
+.mdv-frames { gap: 0.5rem 2%; flex-wrap: wrap; }
 
 /* Digital clock */
 .mdv-digital span {
   font-family: var(--font-child);
   font-weight: 700;
-  font-size: min(clamp(3rem, 14vh, 7rem), 19vw);
+  font-size: min(clamp(min(3rem, 22.4cqh), 28cqh, 7rem), 19cqw);
   padding: 0.1em 0.4em;
   border: 4px solid var(--v-ink);
   color: var(--v-ink);
   letter-spacing: 0.05em;
 }
-.mdv-row__item > .mdv-digital span { font-size: min(clamp(3rem, 14vh, 7rem), 9vw); }
+.mdv-row__item > .mdv-digital span { font-size: min(clamp(min(3rem, 22.4cqh), 28cqh, 7rem), 9cqw); }
 .mdv-row__item:has(> .mdv-digital) { flex-shrink: 0; }
 
-/* Writing */
-.mdv-write__guide { fill: none; stroke: var(--v-line); stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; opacity: 0.35; }
-.mdv-write__ink {
-  fill: none;
-  stroke: var(--v-blue);
-  stroke-width: 9;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 400;
-  stroke-dashoffset: 400;
-  animation: mdvWrite 1.6s ease forwards;
-  animation-delay: calc(var(--i) * 1.7s + 0.3s);
-}
-@keyframes mdvWrite { to { stroke-dashoffset: 0; } }
-.child-stage .mdv-write { --vis-h: calc(var(--stage-max, 36vh) * 0.8); }
-.mdv-trace__path { fill: none; stroke: #9a9a9a; stroke-width: 5; stroke-dasharray: 3 7; stroke-linecap: round; }
 
 /* Flash: dots shown briefly */
 .child-stage.is-flashed .mdv { visibility: hidden; }
 
-@media (prefers-reduced-motion: reduce) {
-  .mdv-write__ink { animation-duration: 0.01s; animation-delay: 0s; }
-}

@@ -6,8 +6,8 @@ import {
 } from "./common.js";
 const isAre = (n) => (n === 1 ? "is" : "are");
 import {
-  compare as prekCompare, position as prekPosition, numerals as prekNumerals, retrack, writingTrack,
-  SHAPE_INFO, TAKE_VERBS, STROKES,
+  compare as prekCompare, position as prekPosition, numerals as prekNumerals, retrack,
+  SHAPE_INFO, TAKE_VERBS,
 } from "./prek.js";
 
 const range = (a, b) => { const o = []; for (let i = a; i <= b; i++) o.push(i); return o; };
@@ -262,13 +262,6 @@ const countObjects = {
     if (u.type === "out") return [this.outItem(r, r.int(12, 18), 20)];
     return this.countItem(r, u, 5);
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const u = r.pick(intro.filter((x) => x.type === "count"));
-    const n = r.int(4, Math.min(u.max, 15));
-    const icon = r.pick(["apple", "star", "ball", "flower", "fish"]);
-    return { kind: "write", prompt: `Count the ${plural(icon)}. Write how many.`, show: V.obj(icon, n, { arr: u.arr === "circle" ? "row" : u.arr, seed: ctx.lesson, cols: 4, size: "sm" }), answer: String(n) };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -342,34 +335,7 @@ const numerals = {
     const picks = [last[0], ...r.sample(pool.filter((x) => x !== last[0]), 2)];
     return [readNum(picks[0]), readNum(picks[1]), touchNum(picks[2], others(r, pool, picks[2], 2), r)];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const pool = this.pool(intro);
-    const d = r.pick(pool.filter((x) => x > 0));
-    const opts = r.shuffle([d, d, ...others(r, pool, d, 4)]);
-    return { kind: "circle", prompt: `Circle every ${d}.`, opts: opts.map((x) => V.num(x, { size: "sm" })), ans: opts.map((x, i) => (x === d ? i : -1)).filter((i) => i >= 0) };
-  },
 };
-
-// ─────────────────────────────────────────────────────────────
-// Writing numbers 0 to 20
-// ─────────────────────────────────────────────────────────────
-
-const writing = writingTrack([
-  { id: "w1", lesson: 4, d: 1, label: "Write 1" },
-  { id: "w4", lesson: 8, d: 4, label: "Write 4" },
-  { id: "w7", lesson: 12, d: 7, label: "Write 7" },
-  { id: "w0", lesson: 16, d: 0, label: "Write 0" },
-  { id: "w2", lesson: 20, d: 2, label: "Write 2" },
-  { id: "w3", lesson: 24, d: 3, label: "Write 3" },
-  { id: "w5", lesson: 28, d: 5, label: "Write 5" },
-  { id: "w6", lesson: 32, d: 6, label: "Write 6" },
-  { id: "w8", lesson: 37, d: 8, label: "Write 8" },
-  { id: "w9", lesson: 42, d: 9, label: "Write 9" },
-  { id: "w10", lesson: 47, d: 10, label: "Write 10" },
-  { id: "w13", lesson: 76, d: 13, label: "Write the teen numbers" },
-  { id: "w20", lesson: 98, d: 20, label: "Write 20" },
-], { summary: "Write the numbers 0 to 20, starting each one at the top. Numbers that are easy to write come first.", standard: "K.CC.3" });
 
 // ─────────────────────────────────────────────────────────────
 // Five-frames and ten-frames
@@ -452,11 +418,6 @@ const frames = {
     if (u.id === "fivemore") return [this.howMany(r.int(6, 9), 10, 2000), this.howMany(r.int(6, 9), 10, 2000)];
     if (u.id === "ten") return [this.howMany(10, 10, 2000)];
     return [this.howMany(r.int(2, 5), 5, 2000)];
-  },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const n = r.int(intro.some((u) => u.id === "fivemore") ? 6 : 1, intro.some((u) => u.id === "ten") ? 10 : 5);
-    return { kind: "write", prompt: "How many dots? Write the number.", show: V.frame(n > 5 ? 10 : 5, n), answer: String(n) };
   },
 };
 
@@ -555,17 +516,6 @@ const compare = {
     if (has("count")) return [this.countItem(r, false)[1], this.countItem(r, true)[1]];
     return [prekCompare.moreTest(r, 8, "cookie"), prekCompare.moreTest(r, 8, "duck", { fewer: true })];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    if (intro.some((u) => u.id === "greater")) {
-      let a = r.int(1, 10), b = r.int(1, 10);
-      while (a === b) b = r.int(1, 10);
-      const less = intro.some((u) => u.id === "less") && r() < 0.5;
-      const ans = less ? Math.min(a, b) : Math.max(a, b);
-      return { kind: "circle", prompt: `Circle the number that is ${less ? "less" : "greater"}.`, opts: [V.num(a, { size: "sm" }), V.num(b, { size: "sm" })], ans: [[a, b].indexOf(ans)] };
-    }
-    return prekCompare.worksheet(intro, ctx);
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -632,11 +582,6 @@ const teens = {
     const u = units[units.length - 1];
     if (u.id === "t20") return [test(V.say(), "Ten and ten is how many?", "Twenty.", fix("Twenty.", "Ten and ten is how many?"), { skill: "teens", item: "tenand:20" }), this.splitItem(r.int(11, 19))];
     return [this.tenAndItem(r.pick(u.set)), this.splitItem(r.pick(u.set))];
-  },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const n = r.pick(this.pool(intro));
-    return { kind: "write", prompt: "Ten and some more. How many dots in all? Write the number.", show: V.frame(10, n, { frames: 2 }), answer: String(n) };
   },
 };
 
@@ -808,16 +753,6 @@ const addition = {
     if (u.id === "pluszero") return [factStep(r.int(1, 9), "+", 0), this.plusOneItem(r, 9)];
     return [factStep(r.int(2, 8), "+", 2), factStep(r.int(2, 8), "+", 2)];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const has = (id) => intro.some((u) => u.id === id);
-    let a, b;
-    if (has("plustwo") && r() < 0.4) { a = r.int(1, 8); b = 2; }
-    else if (has("countall")) { const t = r.int(3, has("countall10") ? 10 : 5); a = r.int(1, t - 1); b = t - a; }
-    else { a = r.int(1, 9); b = 1; }
-    const icon = r.pick(["apple", "star", "ball"]);
-    return { kind: "write", prompt: "Add. Write the answer in the box.", show: [V.eq(a, "+", b, "=", "_"), V.row(V.obj(icon, a, { size: "sm" }), V.obj(icon, b, { size: "sm" }))], answer: String(a + b) };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -917,13 +852,6 @@ const subtraction = {
     const n = r.int(2, 9);
     return [factStep(r.int(1, 9), "−", 0), factStep(n, "−", n)];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const max = intro.some((u) => u.id === "takeaway10") ? 10 : 5;
-    const a = r.int(3, max), b = r.int(1, a - 1);
-    const icon = r.pick(["apple", "cookie", "star"]);
-    return { kind: "write", prompt: "Cross out to take away. Write how many are left.", show: [V.eq(a, "−", b, "=", "_"), V.obj(icon, a, { size: "sm" })], answer: String(a - b) };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -991,12 +919,6 @@ const pairs = {
     const u = units[units.length - 1];
     if (u.id === "partner") return [this.partnerItem(r), this.partnerItem(r)];
     return [this.partItem(r, r.pick(u.ns)), this.partItem(r, r.pick(u.ns))];
-  },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const n = r.pick(intro.flatMap((u) => u.ns));
-    const a = r.int(1, n - 1);
-    return { kind: "write", prompt: `${Word(n)} is ${word(a)} and how many more? Write the number.`, show: this.splitVis(n, a), answer: String(n - a) };
   },
 };
 
@@ -1083,13 +1005,6 @@ export const families = {
     if (u.id === "small") return [this.smallItem(r, 10)[1], this.bigItem(r, 10)[1]];
     if (u.id === "big") return this.bigItem(r, 10);
     return [this.partsItem(r, 10)];
-  },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const [a, b, c] = this.fam(r, 10);
-    const missSmall = intro.some((u) => u.id === "small") && r() < 0.5;
-    if (!intro.some((u) => u.id === "big")) return [];
-    return { kind: "write", prompt: "Find the missing number in the family.", show: V.family(a, b, c, missSmall ? "b" : "c"), answer: String(missSmall ? b : c) };
   },
 };
 
@@ -1238,7 +1153,7 @@ const measure = {
       return test(V.size("big", bigFirst ? [1, 0.55] : [0.55, 1], { icon: "cup", tap: true, ans, holds: true }), `Touch the cup that holds ${want}.`, `(Touches the ${want === "more" ? "bigger" : "smaller"} cup.)`,
         fixPoint(`The bigger cup holds more water. The smaller cup holds less. (Touch the one that holds ${want}.)`, `Touch the cup that holds ${want}.`), { skill: "measure", item: `holds:${want}`, confirm: `Yes, that cup holds ${want}.` });
     }
-    const words = { long: ["longer", "shorter", "pencil"], tall: ["taller", "shorter", "tower"], heavy: ["heavier", "lighter", null] }[kind];
+    const words = { long: ["longer", "shorter", "stick"], tall: ["taller", "shorter", "tower"], heavy: ["heavier", "lighter", null] }[kind];
     const want = r() < 0.5 ? 0 : 1;
     const flip = r() < 0.5;
     const bigIndex = flip ? 1 : 0;
@@ -1246,7 +1161,7 @@ const measure = {
     const items = flip ? [0.5, 1] : [1, 0.5];
     const vis = kind === "heavy"
       ? V.size("heavy", items, { names: (() => { const p = r.pick([["melon", "grape"], ["block", "feather"], ["rock", "leaf"]]); return flip ? [p[1], p[0]] : p; })(), tap: true, ans })
-      : V.size(kind, items, { icon: kind === "long" ? r.pick(["pencil", "ribbon", "snake"]) : r.pick(["tower", "tree"]), tap: true, ans });
+      : V.size(kind, items, { icon: kind === "long" ? r.pick(["stick", "ribbon", "snake"]) : r.pick(["tower", "tree"]), tap: true, ans });
     const what = kind === "heavy" ? "one" : vis.icon;
     const rule = {
       long: ["When the ends start at the same place, the one that goes farther is longer.", "When the ends start at the same place, the one that does not go as far is shorter."],
@@ -1292,7 +1207,7 @@ const measure = {
       };
     }
     const intros = {
-      long: [V.size("long", [1, 0.6], { icon: "pencil" }), "My turn. To compare length, I line up the ends. This pencil goes farther. It is longer. This one is shorter."],
+      long: [V.size("long", [1, 0.6], { icon: "stick" }), "My turn. To compare length, I line up the ends. This stick goes farther. It is longer. This one is shorter."],
       tall: [V.size("tall", [0.5, 1], { icon: "tower" }), "My turn. These towers stand on the same floor. This one goes higher. It is taller. This one is shorter."],
       heavy: [V.size("heavy", [1, 0.5], { names: ["melon", "grape"] }), "My turn. On a scale, the heavier side goes down. The melon is heavier. The grape is lighter."],
       holds: [V.size("big", [1, 0.55], { icon: "cup", holds: true }), "My turn. Which cup holds more water? The bigger cup holds more. The smaller cup holds less."],
@@ -1378,7 +1293,7 @@ const shapes = {
     const solid = r() < 0.5 && this.solidKnown(intro).length;
     const vis = solid ? V.solid(r.pick(this.solidKnown(intro))) : this.shapeVis(r, r.pick(this.flatKnown(intro)));
     const ans = solid ? "Solid." : "Flat.";
-    return test(vis, "Is this shape flat or solid?", ans, fix(ans, "Is this shape flat or solid?", solid ? "It is not flat like paper. You could hold it in your hand." : "It is flat, like a drawing on paper."), { skill: "shape", item: "flatsolid" });
+    return test(vis, "Is this shape flat or solid?", ans, fix(ans, "Is this shape flat or solid?", solid ? "It is not flat like a picture. You could hold it in your hand." : "It is flat, like a picture."), { skill: "shape", item: "flatsolid" });
   },
   newEx(u, ctx, intro) {
     const r = ctx.rand;
@@ -1404,7 +1319,7 @@ const shapes = {
     if (u.id === "sides") {
       return {
         title: u.label, steps: [
-          model(V.shape("triangle", { c: "red" }), "Shapes have sides and corners. A side is a straight edge. A corner is where two sides meet. My turn. I touch and count the sides of this triangle: one, two, three. Three sides. And three corners.", { do: "Trace each side as you count." }),
+          model(V.shape("triangle", { c: "red" }), "Shapes have sides and corners. A side is a straight edge. A corner is where two sides meet. My turn. I touch and count the sides of this triangle: one, two, three. Three sides. And three corners.", { do: "Touch each side as you count." }),
           model(V.shape("square", { c: "blue" }), "A square: one, two, three, four. Four sides and four corners."),
           lead(V.shape("hexagon", { c: "yellow" }), "Count the sides of the hexagon with me.", "One, two, three, four, five, six. Six."),
           this.sidesItem(r), this.sidesItem(r), this.sidesItem(r),
@@ -1431,7 +1346,7 @@ const shapes = {
     if (u.id === "flatsolid") {
       return {
         title: u.label, steps: [
-          model(V.row(V.shape("square", { c: "blue", size: "md" }), V.solid("cube", { c: "blue", size: "md" })), "My turn. This square is flat, like a drawing on paper. This cube is solid. You could pick it up. A square is flat. A cube is solid."),
+          model(V.row(V.shape("square", { c: "blue", size: "md" }), V.solid("cube", { c: "blue", size: "md" })), "My turn. This square is flat, like a picture. This cube is solid. You could pick it up. A square is flat. A cube is solid."),
           model(V.row(V.shape("circle", { c: "red", size: "md" }), V.solid("sphere", { c: "red", size: "md" })), "A circle is flat. A sphere is solid."),
           lead(V.solid("cylinder"), "Is this flat or solid? Say it with me.", "Solid."),
           this.flatSolidItem(r, intro), this.flatSolidItem(r, intro), this.flatSolidItem(r, intro),
@@ -1440,7 +1355,7 @@ const shapes = {
     }
     return {
       title: u.label, steps: [
-        model(V.row(V.shape("triangle", { c: "green", size: "md", rot: 0 }), V.shape("triangle", { c: "green", size: "md", rot: 180 })), "Shapes can be put together to make new shapes. My turn. If I put two triangles together along their long sides, they make a square.", { do: "If you have paper, cut a square corner to corner to show this." }),
+        model(V.row(V.shape("triangle", { c: "green", size: "md", rot: 0 }), V.shape("triangle", { c: "green", size: "md", rot: 180 })), "Shapes can be put together to make new shapes. My turn. If I put two triangles together along their long sides, they make a square."),
         model(V.row(V.shape("square", { c: "blue", size: "md" }), V.shape("square", { c: "blue", size: "md" })), "Two squares side by side make a rectangle."),
         lead(V.row(V.shape("square", { c: "blue", size: "md" }), V.shape("square", { c: "blue", size: "md" })), "Two squares side by side make what shape? Say it with me.", "A rectangle."),
         test(V.row(V.shape("triangle", { c: "red", size: "md" }), V.shape("triangle", { c: "red", size: "md", rot: 180 })), "Two triangles like these, put together, make what shape?", "A square.", fix("A square.", "Two triangles put together make what shape?"), { skill: "shape", item: "compose:tri" }),
@@ -1467,13 +1382,6 @@ const shapes = {
     if (u.id === "flatsolid") return [this.flatSolidItem(r, units), this.flatSolidItem(r, units)];
     if (u.id === "compose") return [test(V.row(V.shape("triangle", { c: "red", size: "md" }), V.shape("triangle", { c: "red", size: "md", rot: 180 })), "Two triangles like these, put together, make what shape?", "A square.", fix("A square.", "Two triangles put together make what shape?"), { skill: "shape", item: "compose:tri" })];
     return [this.nameItem(r, r.pick(this.flatKnown(units))), this.nameItem(r, r.pick(this.flatKnown(units)))];
-  },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const flat = this.flatKnown(intro);
-    const s = r.pick(flat);
-    const opts = r.shuffle([s, s, ...r.sample(flat.filter((x) => x !== s), 3)]);
-    return { kind: "circle", prompt: `Circle every ${s}.`, opts: opts.map((x) => this.shapeVis(r, x)), ans: opts.map((x, i) => (x === s ? i : -1)).filter((i) => i >= 0) };
   },
 };
 
@@ -1590,11 +1498,6 @@ const facts = {
     const r = ctx.rand;
     return r.seq(this.pool(units), 4).map(([a, op, b]) => factStep(a, op, b));
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const [a, op, b] = r.pick(this.pool(intro));
-    return { kind: "write", prompt: "Write the answer.", show: V.eq(a, op, b, "=", "_"), answer: String(op === "+" ? a + b : a - b) };
-  },
 };
 
 // Facts the K fact review may draw on, with the lesson where each becomes fair game.
@@ -1615,24 +1518,24 @@ export default {
   slug: "k",
   name: "Kindergarten",
   longName: "Kindergarten",
-  age: "about 5",
+  age: "about five",
   lessons: 140,
-  minutes: "15 to 20",
-  minExercises: 6,
-  minReviewSteps: 4,
-  maxExercises: 7,
-  maxSteps: 60,
+  minutes: "12 to 15",
+  minutesBand: [12, 15],
+  minExercises: 8,
+  minReviewSteps: 6,
+  maxExercises: 9,
+  maxSteps: 90,
   maxGap: 10,
-  worksheetItems: 4,
   reviewIntervals: [2, 4, 5],
   placementPoints: [1, 35, 70, 105],
   tagline: "Counting to 100, numbers to 20, adding and subtracting within 10, ways to make 10, measuring, and shapes.",
-  description: "Kindergarten covers the counting, number, and shape work of the Common Core kindergarten standards: counting to 100, reading and writing numbers to 20, teen numbers as ten and some more, adding and subtracting within 10, ways to make 10, number families, story problems, measuring, sorting, and flat and solid shapes.",
-  endsWith: "By the end of Kindergarten, the child counts to 100 by ones and tens, reads and writes numbers to 20, adds and subtracts within 10 with objects or by counting on and back, knows the addition and subtraction facts within 5 without counting, finds the partner that makes 10, solves spoken story problems, and names flat and solid shapes.",
-  materials: ["Twenty small objects, such as blocks, buttons, or beans", "A pencil and the printed worksheets", "A few household objects shaped like a ball, a block, a can, and a cone"],
+  description: "Kindergarten covers the counting, number, and shape work of the Common Core kindergarten standards: counting to 100, reading numbers to 20, teen numbers as ten and some more, adding and subtracting within 10, ways to make 10, number families, story problems, measuring, sorting, and flat and solid shapes.",
+  endsWith: "By the end of Kindergarten, the child counts to 100 by ones and tens, reads numbers to 20, adds and subtracts within 10 with objects or by counting on and back, knows the addition and subtraction facts within 5 without counting, finds the partner that makes 10, solves spoken story problems, and names flat and solid shapes.",
+  materials: ["Twenty small objects, such as blocks, buttons, or beans", "A few household objects shaped like a ball, a block, a can, and a cone"],
   facts: kFacts,
   readable(n) {
     return new Set(K_NUMS.filter((u) => u.lesson <= n).flatMap((u) => u.ds));
   },
-  tracks: [countAloud, countObjects, numerals, writing, frames, compare, teens, addition, subtraction, pairs, families, stories, facts, measure, shapes, position, ordinals],
+  tracks: [countAloud, countObjects, numerals, frames, compare, teens, addition, subtraction, pairs, families, stories, facts, measure, shapes, position, ordinals],
 };

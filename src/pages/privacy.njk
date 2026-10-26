@@ -1,51 +1,35 @@
 ---
-layout: layouts/base.njk
-title: Privacy Policy
-description: Math Direct collects no personal data. No accounts, no tracking, no cookies. Progress is stored locally on your device.
+layout: layouts/app.njk
+title: Privacy
+description: Math Direct collects no personal data. No accounts, no tracking, no cookies. Records stay on your device.
 permalink: /privacy/
 ---
-<div class="content-page">
-  <div class="content-page__inner">
-    <h1 class="content-page__title">Privacy Policy</h1>
-    <p class="content-page__intro">Math Direct is designed with privacy as a core principle. We collect no personal information, require no accounts, and use no third-party tracking.</p>
+<div class="content prose">
+  <h1>Privacy</h1>
+  <p class="content__intro">Math Direct collects nothing about you. There are no accounts, no tracking, and no cookies.</p>
 
-    <div class="guide-section">
-      <h2 class="guide-section__title">No Accounts</h2>
-      <p>Math Direct does not require you to create an account, provide an email address, or share any personal information. You can use every feature of the site without identifying yourself.</p>
-    </div>
+  <h2>No accounts</h2>
+  <p>You do not create an account or give an email address. Every part of the app works without identifying yourself.</p>
 
-    <div class="guide-section">
-      <h2 class="guide-section__title">No Tracking</h2>
-      <p>We do not use Google Analytics, Facebook Pixel, or any other third-party tracking tools. We do not collect usage data, behavioral data, or device fingerprints. Your activity on this site is not monitored or recorded.</p>
-    </div>
+  <h2>No tracking</h2>
+  <p>The app uses no analytics and no third-party scripts. Nothing you do is monitored or recorded by anyone.</p>
 
-    <div class="guide-section">
-      <h2 class="guide-section__title">No Cookies</h2>
-      <p>Math Direct does not set cookies. The only browser storage used is <strong>localStorage</strong>, which stores each child's lesson results, test results, fact records, placement result, and notes, along with your theme preference, directly on your device. This data never leaves your browser and is never transmitted to any server.</p>
-    </div>
+  <h2>What your browser keeps</h2>
+  <p>The app keeps its records in your browser's storage, on your device. They never leave it. They are:</p>
+  <ul>
+    <li>Each child's name, as you typed it</li>
+    <li>Lessons finished, with the firm answers and errors each time a lesson was taught</li>
+    <li>Mastery test and placement test results</li>
+    <li>The last few results for each addition and subtraction fact</li>
+    <li>Notes you write</li>
+    <li>A sitting you left in the middle, kept for twelve hours so you can continue it</li>
+    <li>Whether you dismissed the Install card</li>
+  </ul>
+  <p>You can erase them from the <a href="/more/">More</a> screen or by clearing the browser's data for this site.</p>
 
-    <div class="guide-section">
-      <h2 class="guide-section__title">Local Storage</h2>
-      <p>Math Direct uses localStorage to save:</p>
-      <ul class="guide-tips">
-        <li>Each child's name, as you entered it</li>
-        <li>Lessons finished, with the number of firm answers and errors each time a lesson was taught</li>
-        <li>Mastery test and placement test results</li>
-        <li>The last few results for each addition and subtraction fact</li>
-        <li>Notes you write</li>
-        <li>Theme preference (light or dark) and whether to print worksheet answer keys</li>
-      </ul>
-      <p>This data is stored entirely on your device. You can clear it at any time through your browser settings or by using the erase button on the <a href="/teacher/">teacher dashboard</a>.</p>
-    </div>
+  <h2>Open source</h2>
+  <p>The whole program is on <a href="https://github.com/jonajinga/math-direct">GitHub</a>, so anyone can check these statements.</p>
 
-    <div class="guide-section">
-      <h2 class="guide-section__title">Open Source</h2>
-      <p>Math Direct is open-source software. You can review the entire codebase on <a href="https://github.com/jonajinga/math-direct">GitHub</a> to verify these privacy claims for yourself.</p>
-    </div>
-
-    <div class="guide-section">
-      <h2 class="guide-section__title">Contact</h2>
-      <p>If you have questions about this privacy policy, email <a href="mailto:hello@mathdirect.com">hello@mathdirect.com</a>.</p>
-    </div>
-  </div>
+  <h2>Questions</h2>
+  <p>Email <a href="mailto:{{ meta.email }}">{{ meta.email }}</a>.</p>
 </div>

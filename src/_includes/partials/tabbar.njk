@@ -1,0 +1,11 @@
+<nav class="tabbar" id="tabbar" tabindex="-1" aria-label="Main">
+  <ul class="tabbar__list">
+    {% for t in nav.tabs %}
+    {% set active = page.url | tabActive(t, program.levels) %}
+    <li><a href="{{ t.url }}" class="tabbar__item"{% if active %} aria-current="page"{% endif %}>
+      <span class="tabbar__icon" aria-hidden="true">{% include "partials/icons/tab-" + t.icon + ".njk" %}</span>
+      <span class="tabbar__label">{{ t.label }}</span>
+    </a></li>
+    {% endfor %}
+  </ul>
+</nav>

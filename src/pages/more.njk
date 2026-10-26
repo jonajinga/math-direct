@@ -1,0 +1,73 @@
+---
+layout: layouts/app.njk
+title: More
+description: The teaching guide, the scope and sequence, the placement test, search, backups, and the pages about Math Direct.
+permalink: /more/
+bodyClass: page-more
+---
+<header class="screen__head">
+  <h1 class="screen__title">More</h1>
+</header>
+
+<h2 class="section-title">Teaching</h2>
+<ul class="rows">
+  <li><a class="row" href="/guide/"><span class="row__main"><span class="row__title">Teaching guide</span><span class="row__sub">How to present, signal, mark, and correct</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+  <li><a class="row" href="/curriculum/"><span class="row__main"><span class="row__title">Scope and sequence</span><span class="row__sub">Every skill and the lesson where it begins</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+  <li><a class="row" href="/placement/"><span class="row__main"><span class="row__title">Placement test</span><span class="row__sub">Finds the lesson to begin with</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+  <li><a class="row" href="/search/"><span class="row__main"><span class="row__title">Search</span><span class="row__sub">Lessons, skills, and pages</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+</ul>
+
+<h2 class="section-title">What you need</h2>
+<ul class="rows">
+  {% for level in program.levels %}
+  <li><details class="fold" style="border:0;margin:0"><summary>{{ level.name }}</summary><div class="fold__body"><ul class="prose"><li>A phone, tablet, or computer for the lesson screen</li>{% for m in level.materials %}<li>{{ m }}</li>{% endfor %}</ul></div></details></li>
+  {% endfor %}
+</ul>
+
+<h2 class="section-title">Children and records</h2>
+<div data-child-picker></div>
+<ul class="rows">
+  <li><a class="row" href="/records/"><span class="row__main"><span class="row__title">Records</span><span class="row__sub">Each child's results, and renaming or removing a child</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+  <li><button class="row" type="button" id="btn-export-progress"><span class="row__main"><span class="row__title">Save a backup</span><span class="row__sub">A file with every child's records, to keep or to load on another device</span></span>{% include "partials/icons/download.njk" %}</button></li>
+  <li><button class="row" type="button" id="btn-import-progress"><span class="row__main"><span class="row__title">Load a backup</span><span class="row__sub">Records in the file are added to the records here</span></span>{% include "partials/icons/upload.njk" %}</button><input type="file" id="import-progress-input" accept=".json" hidden aria-label="Backup file"></li>
+  <li><button class="row row--danger" type="button" id="btn-reset-progress"><span class="row__main"><span class="row__title">Erase this child's records</span><span class="row__sub">Lessons, tests, and facts. Notes are kept.</span></span>{% include "partials/icons/x.njk" %}</button></li>
+</ul>
+<p class="muted small">Records live in this browser only. Clearing the browser's site data erases them, so save a backup now and then.</p>
+
+<h2 class="section-title">This app</h2>
+<ul class="rows">
+  <li><button class="row" type="button" data-install hidden><span class="row__main"><span class="row__title">Install the app</span><span class="row__sub">Opens like an app and works without a connection</span></span>{% include "partials/icons/chevron-right.njk" %}</button></li>
+  <li><button class="row" type="button" data-sheet-open="sheet-ios-install" id="ios-install-row" hidden><span class="row__main"><span class="row__title">Add to the Home Screen</span><span class="row__sub">On an iPhone or iPad</span></span>{% include "partials/icons/chevron-right.njk" %}</button></li>
+</ul>
+
+<h2 class="section-title">About</h2>
+<ul class="rows">
+  <li><a class="row" href="/about/"><span class="row__main"><span class="row__title">About Math Direct</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+  <li><a class="row" href="/privacy/"><span class="row__main"><span class="row__title">Privacy</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+  <li><a class="row" href="/terms/"><span class="row__main"><span class="row__title">Terms of use</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+</ul>
+<p class="muted small">Math Direct is free and open source. Build {{ build.version }}.</p>
+<script src="/assets/js/progress.js?v={{ build.version }}"></script>
+
+<dialog class="sheet" id="sheet-ios-install" aria-labelledby="ios-install-title">
+  <form method="dialog" class="sheet__form">
+    <div class="sheet__head"><h2 class="sheet__title" id="ios-install-title">Add to the Home Screen</h2></div>
+    <div class="sheet__body">
+      <ol class="prose">
+        <li>In Safari, tap the Share button: the square with an arrow.</li>
+        <li>Tap <strong>Add to Home Screen</strong>.</li>
+        <li>Tap <strong>Add</strong>. Math Direct opens from your Home Screen like an app and works without a connection.</li>
+      </ol>
+    </div>
+    <div class="sheet__foot"><button type="submit" class="btn btn--primary" value="ok">Done</button></div>
+  </form>
+</dialog>
+<script>
+(function () {
+  var ua = navigator.userAgent || "";
+  var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  var row = document.getElementById("ios-install-row");
+  if (row && ios && !standalone) row.hidden = false;
+})();
+</script>

@@ -1,0 +1,39 @@
+---
+layout: layouts/app.njk
+title: Records
+description: Each child's next step, lessons, mastery tests by part, the skills where errors cluster, the pace, a chart of which facts are firm, and notes. All records stay in this browser.
+permalink: /records/
+bodyClass: page-records
+actionBar: true
+---
+<header class="screen__head">
+  <h1 class="screen__title">Records</h1>
+  <p class="screen__lead">Each child's results, kept only in this browser.</p>
+</header>
+<div id="profile-selector"></div>
+<div id="dash"></div>
+<p class="muted small">Backups, loading, and erasing are under <a href="/more/">More</a>.</p>
+
+<dialog class="sheet" id="sheet-note" aria-labelledby="sheet-note-title">
+  <form method="dialog" class="sheet__form">
+    <div class="sheet__head"><h2 class="sheet__title" id="sheet-note-title">Add a note</h2></div>
+    <div class="sheet__body">
+      <div class="field">
+        <label for="note-text">Note</label>
+        <textarea id="note-text" rows="3" maxlength="500" placeholder="For example: confused six and nine; tired today."></textarea>
+        <p class="field__error" id="note-error" hidden></p>
+      </div>
+    </div>
+    <div class="sheet__foot"><button type="submit" class="btn btn--secondary" value="cancel">Cancel</button><button type="submit" class="btn btn--primary" value="save">Save note</button></div>
+  </form>
+</dialog>
+
+<div class="action-bar">
+  <div class="action-bar__inner">
+    <button type="button" class="btn btn--primary" id="btn-add-note">Add note</button>
+  </div>
+</div>
+
+<script id="dash-data" type="application/json">{{ program.summary | dump | safe }}</script>
+<script src="/assets/js/progress.js?v={{ build.version }}"></script>
+<script src="/assets/js/records.js?v={{ build.version }}" defer></script>

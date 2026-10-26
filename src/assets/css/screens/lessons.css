@@ -1,0 +1,47 @@
+/* ===== Lessons: the level list and a level's lessons ===== */
+.level-row__name { display: flex; align-items: center; gap: var(--sp-2); }
+.level-row .pbar { margin-top: var(--sp-2); }
+
+.level-needs { margin: 0 0 var(--sp-4); font-size: var(--fs-2); color: var(--ink-2); }
+.level-needs strong { color: var(--ink); }
+
+/* The level screen's lesson grid. Each chip is a lesson. */
+.lesson-group { margin-bottom: var(--sp-4); }
+.lesson-group__title { font-family: var(--font-ui); font-size: var(--fs-1); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); margin: 0 0 var(--sp-2); }
+.lgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--sp-2); margin: 0; padding: 0; list-style: none; }
+.lchip {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  min-height: 3.5rem; border: 2px solid var(--line-strong); border-radius: var(--r-1);
+  background: var(--surface); color: var(--ink); font-weight: 700; font-size: var(--fs-4); text-decoration: none;
+}
+.lchip__mark { position: absolute; top: 2px; right: 3px; width: 0.9rem; height: 0.9rem; display: none; }
+.lchip.is-done { background: var(--firm-soft); border-color: var(--firm); color: var(--firm-strong); }
+.lchip.is-done .lchip__mark--done { display: block; color: var(--firm); }
+.lchip.is-repeat { background: var(--note-soft); border-color: var(--note); color: var(--note-strong); }
+.lchip.is-repeat .lchip__mark--repeat { display: block; color: var(--note); }
+.lchip.is-next { border-color: var(--primary); box-shadow: inset 0 0 0 2px var(--primary); }
+.lchip.is-next::after { content: "Next"; position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--primary-strong); line-height: 1; }
+.lchip.is-next { padding-bottom: 0.5rem; }
+.is-marking .lchip { outline: 2px dashed var(--primary); outline-offset: -2px; }
+
+/* A mastery test row after each group of ten */
+.test-row { display: flex; align-items: center; gap: var(--sp-3); min-height: 3.25rem; margin-top: var(--sp-2); padding: var(--sp-2) var(--sp-3); border: 2px dashed var(--line-strong); border-radius: var(--r-1); background: var(--surface-2); color: var(--ink); text-decoration: none; font-weight: 700; }
+.test-row.is-done { border-color: var(--firm); border-style: solid; background: var(--firm-soft); }
+.test-row.is-repeat { border-color: var(--note); border-style: solid; background: var(--note-soft); }
+.test-row .status { margin-left: auto; }
+.is-marking .test-row { outline: 2px dashed var(--primary); outline-offset: -2px; }
+
+/* The mark sheet */
+.mark-choices { display: flex; flex-direction: column; gap: var(--sp-2); margin: 0 0 var(--sp-3); }
+.mark-help { margin: 0; color: var(--ink-2); font-size: var(--fs-1); }
+
+/* Tracks */
+.track { padding: var(--sp-3) 0; border-top: 1px solid var(--line); }
+.track__name { font-weight: 700; }
+.track__std { display: block; color: var(--ink-2); font-size: var(--fs-1); }
+.track p { margin: var(--sp-1) 0 var(--sp-2); font-size: var(--fs-2); color: var(--ink-2); }
+.track__units { margin: 0; padding-left: 1.25rem; font-size: var(--fs-2); line-height: 1.7; columns: 2 14rem; }
+
+@media (min-width: 40em) {
+  .lgrid { grid-template-columns: repeat(10, 1fr); }
+}

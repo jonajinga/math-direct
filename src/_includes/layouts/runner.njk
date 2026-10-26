@@ -2,36 +2,28 @@
 layout: layouts/base.njk
 bodyClass: page-runner
 ---
+{#- The runner fills one screen: a one-line strip and progress rail at the
+    top, the child's stage, the teacher's panel, and a control bar at the
+    bottom with four fixed slots. Menus and confirmations are bottom sheets. -#}
+<main id="main-content" tabindex="-1" class="runner-main">
 {{ content | safe }}
 <div class="runner" id="runner-shell">
-  <section class="child-view" aria-label="Child's screen">
-    <div class="child-stage" id="child-stage" aria-live="polite"></div>
+  <header class="rn-strip">
+    <p class="rn-where" id="rn-where"></p>
+    <div class="rn-rail" id="rn-rail" role="progressbar" aria-label="Progress through the lesson" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+  </header>
+
+  <section class="rn-stage" aria-label="Child's screen">
+    <p class="sr-only" id="stage-alt"></p>
+    <div class="child-stage" id="child-stage"></div>
   </section>
 
-  <section class="teacher" aria-label="Teacher's panel">
-    <header class="tp-head">
-      <div class="tp-head__row">
-        <a class="tp-icon-btn tp-exit" href="{{ exitUrl or '/lessons/' }}" title="Leave" aria-label="Leave">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </a>
-        <span class="tp-where"><span class="tp-where__level" id="tp-where-level"></span><span class="tp-where__name" id="tp-where-name"></span></span>
-        <div class="tp-student" data-student-select></div>
-        <button type="button" class="tp-icon-btn" id="btn-outline" aria-expanded="false" aria-controls="tp-outline" title="Lesson outline (O)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-          <span class="tp-icon-btn__label">Outline</span>
-        </button>
-        <button type="button" class="tp-icon-btn theme-toggle tp-head__theme" aria-label="Switch to dark mode" onclick="this.blur()">
-          <span class="theme-toggle__light">{% include "partials/icons/moon.njk" %}</span>
-          <span class="theme-toggle__dark">{% include "partials/icons/sun.njk" %}</span>
-        </button>
-      </div>
-      <div class="tp-progress" id="tp-progress" aria-label="Exercises"></div>
-    </header>
-
+  <section class="rn-panel" aria-label="Teacher's panel">
     <div class="tp-body" id="tp-body">
       <div class="tp-stepline">
         <span class="tp-cue" id="tp-cue"></span>
         <h1 class="tp-ex__title" id="tp-ex-title"></h1>
+        <span class="tp-signal" id="tp-signal" hidden></span>
         <span class="tp-step-no" id="tp-step-no"></span>
       </div>
       <p class="tp-ex__meta" id="tp-ex-meta"></p>
@@ -42,49 +34,110 @@ bodyClass: page-runner
         <div class="tp-box tp-confirm" id="tp-confirm" hidden><span class="tp-label">If right</span><p id="tp-confirm-text"></p></div>
       </div>
       <div class="tp-box tp-correct" id="tp-correct" hidden><span class="tp-label">If wrong</span><p id="tp-correct-text"></p><p class="tp-correct__wait">Press Error to see the correction.</p></div>
+      <p class="tp-touched" id="tp-touched" hidden></p>
       <p class="tp-test-note" id="tp-test-note" hidden>This is a test. Do not correct or help. Mark each answer and go on.</p>
     </div>
-
-    <footer class="tp-controls">
-      <button type="button" class="tp-btn tp-btn--quiet tp-btn--icon" id="btn-back" title="Back (Left arrow)" aria-label="Back">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-        <span class="tp-btn__label">Back</span>
-      </button>
-      <div class="tp-controls__main">
-        <button type="button" class="tp-btn tp-btn--error" id="btn-error" title="Error (X)" hidden>Error</button>
-        <button type="button" class="tp-btn tp-btn--firm" id="btn-firm" title="Firm (F or Right arrow)" hidden>Firm</button>
-        <button type="button" class="tp-btn tp-btn--next" id="btn-next" title="Next (Right arrow)">Next</button>
-        <button type="button" class="tp-btn tp-btn--quiet" id="btn-over" title="Start the exercise over (S)" hidden><span class="tp-btn__long">Start exercise over</span><span class="tp-btn__short">Start over</span></button>
-        <button type="button" class="tp-btn tp-btn--next" id="btn-goon" title="Go on (Right arrow)" hidden>Go on</button>
-      </div>
-      <div class="tp-controls__aux">
-        <button type="button" class="tp-btn tp-btn--quiet tp-btn--icon" id="btn-show" title="Show again (Space)" aria-label="Show again" hidden>
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-          <span class="tp-btn__label">Show again</span>
-        </button>
-        <button type="button" class="tp-btn tp-btn--quiet tp-btn--icon" id="btn-clear" title="Clear the marks" aria-label="Clear marks" hidden>
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
-          <span class="tp-btn__label">Clear marks</span>
-        </button>
-      </div>
-    </footer>
   </section>
 
-  <aside class="tp-outline" id="tp-outline" hidden aria-label="Outline">
-    <div class="tp-outline__head">
-      <h2>Outline</h2>
-      <button type="button" class="tp-icon-btn theme-toggle" aria-label="Switch to dark mode" onclick="this.blur()">
-        <span class="theme-toggle__light">{% include "partials/icons/moon.njk" %}</span>
-        <span class="theme-toggle__dark">{% include "partials/icons/sun.njk" %}</span>
+  <div class="rn-bar" role="group" aria-label="Lesson controls">
+    <button type="button" class="rn-btn rn-btn--icon" id="btn-more" aria-haspopup="dialog" aria-controls="sheet-more">
+      {% include "partials/icons/more.njk" %}<span class="rn-btn__label">More</span>
+    </button>
+    <div class="rn-slot" id="rn-tool">
+      <button type="button" class="rn-btn rn-btn--icon" id="btn-show" aria-label="Show again" hidden>
+        {% include "partials/icons/show-again.njk" %}<span class="rn-btn__label">Show</span>
       </button>
-      <button type="button" class="tp-icon-btn" id="tp-outline-close" aria-label="Close outline">&times;</button>
+      <button type="button" class="rn-btn rn-btn--icon" id="btn-clear" aria-label="Clear marks" hidden>
+        {% include "partials/icons/clear-marks.njk" %}<span class="rn-btn__label">Clear</span>
+      </button>
     </div>
-    <ol class="tp-outline__list" id="tp-outline-list"></ol>
-    <p class="tp-outline__keys">Keys: Right arrow or F, Firm and next. X, Error. Left arrow, back. S, start the exercise over. Space, show again. O, outline.</p>
-  </aside>
+    <div class="rn-slot">
+      <button type="button" class="rn-btn rn-btn--error" id="btn-error" disabled>Error</button>
+      <button type="button" class="rn-btn rn-btn--over" id="btn-over" hidden>Start over</button>
+    </div>
+    <div class="rn-slot rn-slot--main">
+      <button type="button" class="rn-btn rn-btn--next" id="btn-next">Next</button>
+      <button type="button" class="rn-btn rn-btn--firm" id="btn-firm" hidden>Firm</button>
+      <button type="button" class="rn-btn rn-btn--next" id="btn-goon" hidden>Go on</button>
+    </div>
+    <button type="button" class="rn-btn rn-btn--next rn-btn--big-back" id="btn-big-back" hidden>Back to the lesson</button>
+  </div>
 </div>
 
+<div class="sr-only" id="rn-live" aria-live="polite" aria-atomic="true"></div>
+
+<dialog class="sheet" id="sheet-more" aria-labelledby="sheet-more-title">
+  <div class="sheet__head"><h2 class="sheet__title" id="sheet-more-title">More</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  <ul class="sheet__list" id="more-list">
+    <li><button type="button" class="sheet__row" data-act="back">{% include "partials/icons/arrow-left.njk" %}Back one step<kbd>&larr;</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="over">{% include "partials/icons/repeat.njk" %}Start the exercise over<kbd>S</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="show">{% include "partials/icons/show-again.njk" %}Show again<kbd>Space</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="clear">{% include "partials/icons/clear-marks.njk" %}Clear marks<kbd>C</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="outline">{% include "partials/icons/list.njk" %}Outline<kbd>O</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="big">{% include "partials/icons/expand.njk" %}Big picture<kbd>B</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="keys">{% include "partials/icons/keyboard.njk" %}Keys<kbd>?</kbd></button></li>
+    <li><button type="button" class="sheet__row" data-act="child">{% include "partials/icons/child.njk" %}Switch child</button></li>
+    <li><button type="button" class="sheet__row" data-act="with">{% include "partials/icons/child.njk" %}<span id="more-with-label">Teach two children</span></button></li>
+    <li><button type="button" class="sheet__row" data-act="leave">{% include "partials/icons/leave.njk" %}Leave<kbd>Esc</kbd></button></li>
+  </ul>
+</dialog>
+
+<dialog class="sheet" id="sheet-outline" aria-labelledby="sheet-outline-title">
+  <div class="sheet__head"><h2 class="sheet__title" id="sheet-outline-title">Outline</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  <ol class="sheet__list rn-outline" id="tp-outline-list"></ol>
+  <p class="sheet__note" id="tp-outline-links"></p>
+</dialog>
+
+<dialog class="sheet" id="sheet-keys" aria-labelledby="sheet-keys-title">
+  <div class="sheet__head"><h2 class="sheet__title" id="sheet-keys-title">Keys</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  <div class="sheet__body">
+    <dl class="keys">
+      <div><dt><kbd>&rarr;</kbd> <kbd>Enter</kbd></dt><dd>Next, Firm, or Go on</dd></div>
+      <div><dt><kbd>F</kbd></dt><dd>Firm</dd></div>
+      <div><dt><kbd>X</kbd> <kbd>E</kbd></dt><dd>Error</dd></div>
+      <div><dt><kbd>&larr;</kbd></dt><dd>Back one step</dd></div>
+      <div><dt><kbd>S</kbd></dt><dd>Start the exercise over</dd></div>
+      <div><dt><kbd>Space</kbd></dt><dd>Show again</dd></div>
+      <div><dt><kbd>C</kbd></dt><dd>Clear marks</dd></div>
+      <div><dt><kbd>O</kbd></dt><dd>Outline</dd></div>
+      <div><dt><kbd>B</kbd></dt><dd>Big picture</dd></div>
+      <div><dt><kbd>M</kbd></dt><dd>More</dd></div>
+      <div><dt><kbd>?</kbd></dt><dd>This list</dd></div>
+      <div><dt><kbd>Esc</kbd></dt><dd>Close a sheet, or leave</dd></div>
+    </dl>
+  </div>
+</dialog>
+
+<dialog class="sheet" id="sheet-child" aria-labelledby="sheet-child-title">
+  <div class="sheet__head"><h2 class="sheet__title" id="sheet-child-title">Switch child</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  <div class="sheet__body"><p id="sheet-child-text">The marks are saved. The lesson starts again for the child you pick.</p></div>
+  <ul class="sheet__list" id="sheet-child-list"></ul>
+</dialog>
+
+<dialog class="sheet" id="sheet-with" aria-labelledby="sheet-with-title">
+  <div class="sheet__head"><h2 class="sheet__title" id="sheet-with-title">Teach two children</h2><button type="button" class="icon-btn sheet__close" data-sheet-close aria-label="Close">{% include "partials/icons/x.njk" %}</button></div>
+  <div class="sheet__body"><p id="sheet-with-text">Both children answer together, and you mark each answer once for both. Each exercise ends with a turn for each child alone. The marks made so far are dropped, and the lesson starts over.</p></div>
+  <ul class="sheet__list" id="sheet-with-list"></ul>
+</dialog>
+
+<dialog class="sheet" id="sheet-leave" aria-labelledby="sheet-leave-title">
+  <form method="dialog" class="sheet__form">
+    <div class="sheet__head"><h2 class="sheet__title" id="sheet-leave-title">Leave this lesson?</h2></div>
+    <div class="sheet__body"><p id="sheet-leave-text">The marks are saved. You can continue later from Today.</p></div>
+    <div class="sheet__foot"><button type="submit" class="btn btn--secondary" value="stay">Stay</button><a class="btn btn--danger" id="sheet-leave-go" href="{{ exitUrl or '/lessons/' }}">Leave</a></div>
+  </form>
+</dialog>
+
+<dialog class="sheet" id="sheet-continue" aria-labelledby="sheet-continue-title">
+  <form method="dialog" class="sheet__form">
+    <div class="sheet__head"><h2 class="sheet__title" id="sheet-continue-title">Continue where you left off?</h2></div>
+    <div class="sheet__body"><p id="sheet-continue-text"></p></div>
+    <div class="sheet__foot"><button type="submit" class="btn btn--secondary" value="restart">Start from the beginning</button><button type="submit" class="btn btn--primary" value="continue" autofocus>Continue</button></div>
+  </form>
+</dialog>
+
 <div class="runner-finish" id="runner-finish" hidden></div>
+</main>
 
 {% block scripts %}
 <script src="/assets/js/progress.js?v={{ build.version }}"></script>

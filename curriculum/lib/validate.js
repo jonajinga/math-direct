@@ -29,7 +29,33 @@ export function estimateMinutes(lesson) {
       s += t;
     }
   }
+  if (lesson.independent) s += 10 + lesson.independent.steps.length * STEP_SECONDS.test;
   return Math.round(s / 60);
+}
+
+// One touch answers each On your own item: exactly one group to touch, no
+// pictures to mark one by one.
+function tapGroups(screen) {
+  let groups = 0;
+  walk(screen, (v) => {
+    if (v.t === "choices" && Array.isArray(v.opts)) groups++;
+    else if (v.tap && v.t !== "obj" && typeof v.ans === "number") groups++;
+  });
+  return groups;
+}
+export function validateIndependent(level, lesson, errors) {
+  const own = lesson.independent;
+  if (!own) return;
+  const L = `${level.id} lesson ${lesson.number}, On your own`;
+  if (own.steps.length < 3 || own.steps.length > 8) errors.push(`${L}: ${own.steps.length} items, not 3 to 8`);
+  own.steps.forEach((st, i) => {
+    const where = `${L}, item ${i + 1}`;
+    validateStep(st, where, errors);
+    checkReadable(level, lesson.number, st, where, errors);
+    if (st.cue !== "test") errors.push(`${where}: not a test step`);
+    if (tapGroups(st.screen) !== 1) errors.push(`${where}: needs exactly one group to touch`);
+    if (!/^\(Touches/.test(st.answer || "")) errors.push(`${where}: the answer is not a touch`);
+  });
 }
 
 // Every number printed on the child's screen.
@@ -142,13 +168,26 @@ export function validateLevel(level, built) {
         validateStep(st, `${E}, step ${i + 1}`, errors);
         checkReadable(level, lesson.number, st, `${E}, step ${i + 1}`, errors);
       });
+      (ex.spare || []).forEach((st, i) => {
+        validateStep(st, `${E}, spare item ${i + 1}`, errors);
+        checkReadable(level, lesson.number, st, `${E}, spare item ${i + 1}`, errors);
+      });
       steps += ex.steps.length;
       seen[ex.track] = seen[ex.track] || [];
       seen[ex.track].push(lesson.number);
     });
     lesson.steps = steps;
+    validateIndependent(level, lesson, errors);
     lesson.minutes = estimateMinutes(lesson);
+    const responses = lesson.exercises.reduce((a, e) => a + e.steps.filter((st) => st.cue === "test").length, 0) + (lesson.independent ? lesson.independent.steps.length : 0);
+    lesson.responses = responses;
     if (steps > (level.maxSteps || 80)) errors.push(`${L}: ${steps} steps, more than the ${level.maxSteps} allowed`);
+    // Direct Instruction density: a band of minutes, and several answers a minute.
+    if (level.minutesBand && lesson.number > 3) {
+      const [lo, hi] = level.minutesBand;
+      if (lesson.minutes < lo - 2 || lesson.minutes > hi + 2) warnings.push(`${L}: about ${lesson.minutes} minutes, outside ${lo} to ${hi}`);
+    }
+    if (lesson.minutes >= 4 && responses / lesson.minutes < 2.5) warnings.push(`${L}: ${responses} answers in about ${lesson.minutes} minutes, fewer than three a minute`);
   }
   // Gaps: once a track has begun, it must come back often.
   for (const t of level.tracks) {
@@ -169,17 +208,6 @@ export function validateLevel(level, built) {
     }
   }
   return { errors, warnings };
-}
-
-export function validateWorksheet(items, where, errors) {
-  items.forEach((it, i) => {
-    const w = `${where}, worksheet item ${i + 1}`;
-    if (!it.prompt) errors.push(`${w}: no direction`);
-    if (/!/.test(it.prompt || "")) errors.push(`${w}: exclamation mark in the direction`);
-    if (it.kind === "circle" && (!it.opts || !it.ans || !it.ans.length || it.ans.some((a) => a < 0 || a >= it.opts.length))) errors.push(`${w}: circle item without a valid answer`);
-    if ((it.kind === "write" || it.kind === "mark") && !it.answer) errors.push(`${w}: no answer for the key`);
-    validateStep({ cue: "note", say: it.prompt, screen: [].concat(it.show || [], it.opts || []) }, w, errors);
-  });
 }
 
 export function validateItems(items, where, errors) {

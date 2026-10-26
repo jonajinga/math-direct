@@ -1,49 +1,23 @@
 <!DOCTYPE html>
-<html lang="{{ meta.language }}" data-theme="">
+<html lang="{{ meta.language }}">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script>(function(){try{var t=localStorage.getItem("theme-preference");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}})();</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   {% include "partials/seo-head.njk" %}
-  <link rel="preconnect" href="https://fonts.bunny.net">
-  <link href="https://fonts.bunny.net/css?family=comic-neue:700|source-sans-3:400,500,600,700|lora:400,500,600,700" rel="stylesheet">
+  <link rel="preload" href="/assets/fonts/source-sans-3-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/source-sans-3-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/global.css?v={{ build.version }}">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="{{ meta.themeColor }}">
-  <link rel="alternate" type="application/rss+xml" title="{{ meta.title }}" href="/feed.xml">
-  {% block head %}{% endblock %}
 </head>
-<body class="{{ bodyClass or '' }}" style="background:var(--bg-page);min-height:100vh;display:flex;flex-direction:column;font-family:var(--font-ui);color:var(--text-primary);overflow-x:hidden;transition:background-color 0.2s,color 0.2s">
+<body class="{% if appShell %}page-app {% endif %}{% if actionBar %}has-actionbar {% endif %}{{ bodyClass or '' }}">
   <a href="#main-content" class="skip-link">Skip to content</a>
-  {% include "partials/header.njk" %}
-  {% include "partials/hamburger-panel.njk" %}
-  <main id="main-content" tabindex="-1" style="flex:1;display:flex;flex-direction:column">
-    {{ content | safe }}
-  </main>
-  {% include "partials/footer.njk" %}
-
-  {# Search overlay #}
-  <div class="search-overlay" id="search-overlay">
-    <div class="search-panel">
-      <div class="search-panel__header">
-        <input type="search" id="search-input" class="search-panel__input" placeholder="Search lessons, concepts, and pages" autocomplete="off">
-        <button class="search-panel__close" onclick="closeSearch && closeSearch()" aria-label="Close search">&times;</button>
-      </div>
-      <span class="search-panel__count" id="search-count"></span>
-      <div class="search-panel__results" id="search-results"></div>
-      <div class="search-panel__hint">Press <kbd>Ctrl+K</kbd> to search, <kbd>Esc</kbd> to close</div>
-    </div>
-  </div>
-
-  <script src="/assets/js/theme.js?v={{ build.version }}" defer></script>
-  <script src="/assets/js/nav.js?v={{ build.version }}" defer></script>
+  {% if appShell %}<a href="#tabbar" class="skip-link">Skip to menu</a>{% endif %}
+  {{ content | safe }}
+  <div id="md-toasts"></div>
   <script>if("serviceWorker"in navigator){navigator.serviceWorker.register("/sw.js")}</script>
-  <script src="/assets/js/pwa-install.js?v={{ build.version }}" defer></script>
-  <script src="/assets/js/search.js?v={{ build.version }}" defer></script>
-  {% block scripts %}{% endblock %}
-  {# Umami Analytics — uncomment and replace with your actual values:
-  <script defer src="https://YOUR-UMAMI-DOMAIN/script.js" data-website-id="YOUR-WEBSITE-ID"></script>
-  #}
+  <script src="/assets/js/app.js?v={{ build.version }}" defer></script>
 </body>
 </html>

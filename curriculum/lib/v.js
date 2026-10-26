@@ -60,8 +60,6 @@ export const V = {
   coins: (list, o = {}) => ({ t: "coins", list, ...o }),
   // Measuring: an object of length len (in units) with units shown below.
   measure: (icon, len, o = {}) => ({ t: "measure", icon, len, ...o }),
-  // Watch me write: an animated numeral.
-  write: (d) => ({ t: "write", d: String(d) }),
   // Several visuals in a row or column.
   row: (...items) => ({ t: "row", items }),
   col2: (...items) => ({ t: "stack", items }),

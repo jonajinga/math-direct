@@ -1,142 +1,87 @@
-/* ===== Design Tokens ===== */
+/* ===== Tokens =====
+   One light theme. Every color has one job. Text colors are measured against
+   white, the page, and the child's stage (ratios in docs/design.md). */
+
+@font-face { font-family: "Source Sans 3"; font-style: normal; font-weight: 400; font-display: swap; src: url("/assets/fonts/source-sans-3-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Source Sans 3"; font-style: normal; font-weight: 600; font-display: swap; src: url("/assets/fonts/source-sans-3-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Source Sans 3"; font-style: normal; font-weight: 700; font-display: swap; src: url("/assets/fonts/source-sans-3-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Lora"; font-style: normal; font-weight: 600; font-display: swap; src: url("/assets/fonts/lora-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Lora"; font-style: normal; font-weight: 700; font-display: swap; src: url("/assets/fonts/lora-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Comic Neue"; font-style: normal; font-weight: 700; font-display: swap; src: url("/assets/fonts/comic-neue-latin-700-normal.woff2") format("woff2"); }
+
 :root {
-  /* Brand — Deep Blue */
-  --blue-50: #eff6ff;
-  --blue-100: #dbeafe;
-  --blue-200: #bfdbfe;
-  --blue-400: #60a5fa;
-  --blue-500: #3b82f6;
-  --blue-600: #2563eb;
-  --blue-700: #1d4ed8;
-  --blue-800: #1e3a5f;
-  --blue-900: #1e2a4a;
-  --blue-950: #0f172a;
+  /* Ink */
+  --ink: #14212b;          /* text, child numerals: 16.4:1 on white */
+  --ink-2: #3f4a57;        /* secondary text and labels: 9.0:1 */
+  --ink-3: #5f6b78;        /* icons only, never small text: 5.4:1 */
 
-  /* Accent — Warm Orange */
-  --orange-400: #fb923c;
-  --orange-500: #f97316;
-  --orange-600: #ea580c;
+  /* One accent for the primary action, links, and focus */
+  --primary: #0b4f8a;      /* 8.4:1 on white; white on it 8.4:1 */
+  --primary-strong: #083d6b;
+  --primary-soft: #e3eef8;
 
-  /* Neutrals — simple warm grays */
-  --stone-50: #fafaf9;
-  --stone-100: #f5f5f4;
-  --stone-200: #e7e5e4;
-  --stone-300: #d6d3d1;
-  --stone-400: #a8a29e;
-  --stone-500: #78716c;
-  --stone-600: #57534e;
-  --stone-700: #44403c;
-  --stone-800: #292524;
-  --stone-900: #1c1917;
-  --stone-950: #0c0a09;
+  /* Meanings */
+  --firm: #166534;         /* Firm, finished: 7.1:1 on white */
+  --firm-strong: #14532d;  /* text on --firm-soft: 8.3:1 */
+  --firm-soft: #dcfce7;
+  --error: #991b1b;        /* Error: 8.3:1 on white */
+  --error-strong: #7f1d1d; /* text on --error-soft: 8.1:1 */
+  --error-soft: #fee2e2;
+  --lead: #5b21b6;         /* the "Together" cue: 9.0:1 */
+  --note: #9a3412;         /* set-up cue, to repeat: 7.3:1 on white */
+  --note-strong: #7c2d12;  /* text on --note-soft: 8.3:1 */
+  --note-soft: #fef3c7;
 
-  /* Semantic surfaces — light mode */
-  --bg-page: #f5f5f4;
-  --bg-surface: #ffffff;
-  --bg-surface-alt: #fafaf9;
-  --bg-header: #1e3a5f;
-  --bg-child-view: #fffef7;
-  --child-text-color: #1c1917;
-  --text-primary: #1c1917;
-  --text-secondary: #57534e;
-  --text-on-header: #ffffff;
-  --border-color: #e7e5e4;
+  /* Surfaces */
+  --page: #f3f5f7;
+  --surface: #ffffff;
+  --surface-2: #f7f8fa;
+  --stage-bg: #fffdf6;
 
-  /* Feedback */
-  --green-50: #f0fdf4;
-  --green-200: #bbf7d0;
-  --green-500: #1a7a3a;
-  --green-600: #15803d;
-  --green-800: #14532d;
-  --green-900-20: rgba(20, 83, 45, 0.2);
+  /* Lines */
+  --line: #d5dae0;         /* decorative hairlines */
+  --line-strong: #6b7684;  /* control borders and rails: 4.6:1 on white */
 
-  --rose-50: #fef2f2;
-  --rose-200: #fecaca;
-  --rose-400: #e06c75;
-  --rose-500: #c53030;
-  --rose-600: #b91c1c;
-  --rose-800: #7f1d1d;
-  --rose-900-20: rgba(127, 29, 29, 0.2);
+  /* Type */
+  --font-ui: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-heading: "Lora", Georgia, "Times New Roman", serif;
+  --font-child: "Comic Neue", "Comic Sans MS", sans-serif;
+  --fs-1: 0.8125rem;  /* 13 px, the smallest text anywhere */
+  --fs-2: 0.9375rem;  /* 15 */
+  --fs-3: 1rem;       /* 16 */
+  --fs-4: 1.125rem;   /* 18 */
+  --fs-5: 1.25rem;    /* 20 */
+  --fs-6: 1.5rem;     /* 24 */
+  --fs-7: 1.875rem;   /* 30 */
+  --fs-8: 2.25rem;    /* 36 */
+  --fs-say: clamp(1.0625rem, 1rem + 0.5vw, 1.25rem);
 
-  --amber-50: #fffbeb;
-  --amber-100-80: rgba(254, 243, 199, 0.8);
-  --amber-400: #f59e0b;
-  --amber-500: #d97706;
-  --amber-600: #b45309;
-  --amber-900-20: rgba(120, 53, 15, 0.2);
+  /* Space */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
 
-  /* Visual aids */
-  --dot-color: #3b82f6;
-  --dot-border: #ffffff;
-  --highlight-color: #f97316;
-  --track-color: #1c1917;
-
-  /* Typography */
-  --font-ui: 'Source Sans 3', 'Source Sans Pro', system-ui, -apple-system, sans-serif;
-  --font-heading: 'Lora', Georgia, 'Times New Roman', serif;
-  --font-child: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
-
-  /* Spacing */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
-  --space-2xl: 3rem;
-  --space-3xl: 4rem;
-
-  /* Radii — squared edges */
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
-  --radius-full: 9999px;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.06);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.06);
-
-  /* Transitions */
-  --transition-colors: color 0.2s, background-color 0.2s, border-color 0.2s;
+  /* Shape */
+  --r-1: 6px;
+  --r-2: 12px;
+  --r-3: 20px;
+  --r-full: 9999px;
+  --shadow-1: 0 1px 2px rgba(20, 33, 43, 0.06), 0 1px 1px rgba(20, 33, 43, 0.04);
+  --shadow-2: 0 -8px 24px rgba(20, 33, 43, 0.12);
 
   /* Layout */
-  --container-max: 72rem;
-  --header-height: 3.5rem;
-}
-
-/* ===== Dark Mode ===== */
-[data-theme="dark"] {
-  --bg-page: #0c0a09;
-  --bg-surface: #1c1917;
-  --bg-surface-alt: #292524;
-  --bg-header: #0f172a;
-  --bg-child-view: #1c1917;
-  --child-text-color: #f5f5f4;
-  --text-primary: #e7e5e4;
-  --text-secondary: #a8a29e;
-  --border-color: #44403c;
-  --dot-border: #1c1917;
-  --track-color: #e7e5e4;
-
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg-page: #0c0a09;
-    --bg-surface: #1c1917;
-    --bg-surface-alt: #292524;
-    --bg-header: #0f172a;
-    --bg-child-view: #1c1917;
-    --child-text-color: #f5f5f4;
-    --text-primary: #e7e5e4;
-    --text-secondary: #a8a29e;
-    --border-color: #44403c;
-    --dot-border: #1c1917;
-    --track-color: #e7e5e4;
-  }
+  --tap: 2.75rem;        /* 44 px: the smallest control */
+  --tabbar-h: 3.5rem;
+  --actionbar-h: 4rem;
+  --ctrl-h: 4.5rem;
+  --content-max: 48rem;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --vh: 1vh;
 }

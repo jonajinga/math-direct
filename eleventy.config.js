@@ -45,6 +45,15 @@ export default function (eleventyConfig) {
     return new Date(dateObj).toISOString();
   });
 
+  // Which bottom tab a page belongs to. Level and lesson pages belong to Lessons.
+  eleventyConfig.addFilter("tabActive", (pageUrl, tab, levels) => {
+    if (!pageUrl) return false;
+    if (pageUrl === tab.url) return true;
+    if (tab.url === "/lessons/") return (levels || []).some((l) => pageUrl.startsWith(l.url));
+    if (tab.url === "/practice/") return pageUrl.startsWith("/practice/") || pageUrl === "/facts/";
+    return false;
+  });
+
   // Dump (JSON stringify for template data injection)
   eleventyConfig.addFilter("dump", (obj) => {
     return JSON.stringify(obj);
@@ -70,21 +79,20 @@ export default function (eleventyConfig) {
         const importOrder = [
           "reset.css",
           "tokens.css",
-          "utilities.css",
-          "components/header.css",
-          "components/nav.css",
-          "components/hamburger-panel.css",
-          "components/footer.css",
+          "base.css",
           "components/buttons.css",
+          "components/tabbar.css",
+          "components/action-bar.css",
+          "components/sheet.css",
+          "components/cards.css",
+          "components/forms.css",
           "components/visuals.css",
-          "pages/home.css",
-          "pages/dashboard.css",
-          "pages/parent-guide.css",
-          "pages/about.css",
-          "pages/contact.css",
-          "pages/runner.css",
-          "pages/worksheet.css",
-          "pages/levels.css",
+          "screens/today.css",
+          "screens/lessons.css",
+          "screens/practice.css",
+          "screens/records.css",
+          "screens/content.css",
+          "screens/runner.css",
         ];
         let combined = "";
         for (const file of importOrder) {
@@ -103,6 +111,7 @@ export default function (eleventyConfig) {
   // Passthrough Copy
   eleventyConfig.addPassthroughCopy("src/assets/js");
   eleventyConfig.addPassthroughCopy("src/assets/img");
+  eleventyConfig.addPassthroughCopy("src/assets/fonts");
   eleventyConfig.addPassthroughCopy({ "src/manifest.json": "manifest.json" });
   eleventyConfig.addPassthroughCopy({ "src/sw.js": "sw.js" });
   eleventyConfig.addPassthroughCopy({ "src/robots.txt": "robots.txt" });

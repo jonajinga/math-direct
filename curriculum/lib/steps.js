@@ -49,14 +49,37 @@ export function lead(screen, say, answer, opts = {}) {
   return { cue: "lead", screen: arr(screen), say, answer, ...opts };
 }
 
+// The signal the parent gives for a response: a touch on the screen, a hand
+// drop after "Get ready", a rhythm for a counting chain, or a watch for the
+// child's action.
+function hasTap(screen) {
+  let found = false;
+  (function walk(v) {
+    if (!v || found) return;
+    if (Array.isArray(v)) return v.forEach(walk);
+    if (v.tap || v.t === "choices") found = true;
+    if (v.items && v.t !== "pattern" && v.t !== "size") walk(v.items);
+  })(screen);
+  return found;
+}
+export function inferSignal(screen, say, answer) {
+  if (hasTap(screen) || /^\(Touches/.test(answer || "")) return "touch";
+  if (/\bcount\b/i.test(say || "")) return "rhythm";
+  if (/get ready\.?$/i.test(say || "")) return "drop";
+  return "watch";
+}
+
 export function test(screen, say, answer, correct, opts = {}) {
+  const scr = arr(screen);
   return {
     cue: "test",
-    screen: arr(screen),
+    screen: scr,
     say,
     answer,
     confirm: opts.confirm || yes(answer),
     correct,
+    signal: inferSignal(scr, say, answer),
+    ...(opts.skill === "story" ? { pause: 3 } : {}),
     ...opts,
   };
 }

@@ -1,11 +1,11 @@
-// Builds the whole program: every level's lessons, worksheets, mastery tests,
-// practice items, the placement test, and the scope and sequence. Eleventy
+// Builds the whole program: every level's lessons, mastery tests, practice
+// items, the placement test, and the scope and sequence. Eleventy
 // calls this at build time (src/_data/program.js); `npm run check` calls it
 // to validate without building the site.
 
-import { buildLevel, worksheetFor, trackItems } from "./lib/schedule.js";
+import { buildLevel, trackItems } from "./lib/schedule.js";
 import { buildMasteryTests, buildPlacement } from "./lib/tests.js";
-import { validateLevel, validateItems, validateWorksheet, checkReadable } from "./lib/validate.js";
+import { validateLevel, validateItems, checkReadable } from "./lib/validate.js";
 import prek from "./tracks/prek.js";
 import k from "./tracks/k.js";
 import first from "./tracks/first.js";
@@ -54,14 +54,7 @@ export function buildProgram({ strict = true } = {}) {
 
   for (const level of LEVELS) {
     const built = buildLevel(level);
-    for (const lesson of built.lessons) {
-      lesson.worksheet = worksheetFor(level, lesson);
-      lesson.worksheetOptional = !!level.worksheetOptional;
-      lesson.worksheetUrl = lesson.url + "worksheet/";
-      validateWorksheet(lesson.worksheet, lesson.id, errors);
-      lesson.worksheet.forEach((it, i) => checkReadable(level, lesson.number, { screen: [].concat(it.show || [], it.opts || []) }, `${lesson.id} worksheet item ${i + 1}`, errors));
-      lesson.totalLessons = level.lessons;
-    }
+    for (const lesson of built.lessons) lesson.totalLessons = level.lessons;
     const v = validateLevel(level, built);
     errors.push(...v.errors);
     warnings.push(...v.warnings);
@@ -123,6 +116,8 @@ export function buildProgram({ strict = true } = {}) {
         minutes: l.minutes,
         newUnits: l.newUnits,
         tracks: l.exercises.map((e) => e.trackName),
+        materials: [...new Set(l.exercises.map((e) => e.materials).filter(Boolean))],
+        independent: l.independent ? l.independent.steps.length : 0,
         testAfter: l.testAfter || null,
       })),
       tests: mt.map((t) => ({ id: t.id, url: t.url, title: t.title, afterLesson: t.afterLesson })),
@@ -140,7 +135,7 @@ export function buildProgram({ strict = true } = {}) {
   const facts = {};
   for (const level of LEVELS) {
     if (!level.facts) continue;
-    facts[level.id] = level.facts.map((f) => ({ ...factStep(f.a, f.op, f.b), key: f.key, lesson: f.lesson }));
+    facts[level.id] = level.facts.map((f) => ({ ...factStep(f.a, f.op, f.b), key: f.key, lesson: f.lesson, set: f.set || 1 }));
     facts[level.id].forEach((st) => validateItems([st], `fact ${st.key}`, errors));
   }
 
@@ -154,7 +149,9 @@ export function buildProgram({ strict = true } = {}) {
     tests: lv.tests,
     tracks: Object.fromEntries(lv.tracks.map((t) => [t.id, t.name])),
     facts: (facts[lv.id] || []).map((f) => ({ key: f.key, lesson: f.lesson })),
+    minutes: lv.minutes,
+    // One short row per lesson: minutes, the real objects it needs, what is new.
+    brief: lv.lessonList.map((l) => [l.minutes, l.materials.join("; "), l.newUnits.map((u) => u.label).join(", ")]),
   }));
-  const worksheetLessons = lessons.filter((l) => l.worksheet && l.worksheet.length);
-  return { levels, lessons, worksheetLessons, tests, practice, placement, facts, summary, errors, warnings };
+  return { levels, lessons, tests, practice, placement, facts, summary, errors, warnings };
 }

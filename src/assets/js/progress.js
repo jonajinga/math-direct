@@ -8,6 +8,8 @@
 //     facts: { "3+2": { r: [1,0,1], last } }, last five results for each fact
 //     placement: { level, lesson, url, label, date },
 //     notes: [{ id, text, date, ref }],
+//     items: { itemKey: { r: [1,0,1], last } },   last five first-try results for each item
+//     timed: [{ date, right, errors, goal }],
 //     legacy: { completed: [1, 2, ...] } }      progress from the old 150-lesson program
 (function () {
   var PROFILES_KEY = "math-direct-profiles";
@@ -33,6 +35,8 @@
     if (!p.lessons) p.lessons = {};
     if (!p.tests) p.tests = {};
     if (!p.facts) p.facts = {};
+    if (!p.items) p.items = {};
+    if (!p.timed) p.timed = [];
     if (!Array.isArray(p.completed)) p.completed = [];
     if (!Array.isArray(p.redo)) p.redo = [];
     // Old program: completed held lesson numbers 1 to 150.
@@ -49,14 +53,19 @@
 
   function getProfiles() { return read().map(normalize); }
 
-  function update(fn) {
+  // Change one child's record. With no id, the active child's.
+  function updateProfile(id, fn) {
     var profiles = getProfiles();
-    var id = getActiveId();
-    var p = profiles.find(function (x) { return x.id === id; }) || profiles[0];
+    id = id || getActiveId();
+    var p = profiles.find(function (x) { return x.id === id; }) || (id ? null : profiles[0]);
     if (!p) return null;
     fn(p);
     write(profiles);
     return p;
+  }
+  function update(fn) { return updateProfile(null, fn); }
+  function getProfile(id) {
+    return getProfiles().find(function (p) { return p.id === id; }) || null;
   }
 
   function getActiveProfile() {
@@ -80,6 +89,44 @@
     var profiles = getProfiles().filter(function (p) { return p.id !== id; });
     write(profiles);
     if (getActiveId() === id) setActiveId(profiles.length ? profiles[0].id : "");
+    clearSession(id);
+  }
+
+  // A sitting left in the middle: one per child, kept for twelve hours.
+  //   { kind, url, id, title, where, marks, pos, results, delayedAdded, inserted, placement, elapsed, childId, with, savedAt }
+  //   "with" names the second child when a lesson is taught to two at once.
+  var SESSION_KEY = "math-direct-sessions";
+  var SESSION_HOURS = 12;
+  function readSessions() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "{}") || {}; } catch (e) { return {}; }
+  }
+  function writeSessions(all) {
+    try { localStorage.setItem(SESSION_KEY, JSON.stringify(all)); } catch (e) {}
+  }
+  function saveSession(s) {
+    var p = getActiveProfile();
+    if (!p || !s) return;
+    var all = readSessions();
+    s.childId = p.id;
+    s.savedAt = new Date().toISOString();
+    all[p.id] = s;
+    writeSessions(all);
+  }
+  function loadSession(childId) {
+    var p = childId ? { id: childId } : getActiveProfile();
+    if (!p) return null;
+    var s = readSessions()[p.id];
+    if (!s) return null;
+    if (Date.now() - new Date(s.savedAt).getTime() > SESSION_HOURS * 3600 * 1000) { clearSession(p.id); return null; }
+    return s;
+  }
+  function clearSession(childId) {
+    var p = childId ? { id: childId } : getActiveProfile();
+    if (!p) return;
+    var all = readSessions();
+    if (!all[p.id]) return;
+    delete all[p.id];
+    writeSessions(all);
   }
   function renameProfile(id, name) {
     var profiles = getProfiles();
@@ -103,8 +150,9 @@
   function markIncomplete(id) {
     update(function (p) { p.completed = p.completed.filter(function (c) { return c !== id; }); });
   }
-  function recordLesson(id, summary) {
-    update(function (p) {
+  // A lesson taught to two children at once is recorded for each of them.
+  function recordLessonFor(childId, id, summary) {
+    updateProfile(childId, function (p) {
       p.lessons[id] = (p.lessons[id] || []).concat([summary]).slice(-5);
       // A new teaching replaces any mark the teacher set by hand.
       p.redo = p.redo.filter(function (c) { return c !== id; });
@@ -112,6 +160,7 @@
       p.lastLesson = { id: id, date: summary.date };
     });
   }
+  function recordLesson(id, summary) { recordLessonFor(null, id, summary); }
   function lessonHistory(id) {
     var p = getActiveProfile();
     return p && p.lessons[id] ? p.lessons[id] : [];
@@ -128,8 +177,8 @@
     return h && h.length && h[h.length - 1].repeat ? "repeat" : "new";
   }
   // The teacher's own mark. "new" resets the lesson: its record is erased.
-  function setLessonStatus(id, status) {
-    update(function (p) {
+  function setLessonStatus(id, status, childId) {
+    updateProfile(childId, function (p) {
       p.completed = p.completed.filter(function (c) { return c !== id; });
       p.redo = p.redo.filter(function (c) { return c !== id; });
       if (status === "done") p.completed.push(id);
@@ -158,18 +207,49 @@
   function nextStep(levelId, total, tests, slug) {
     var n = nextLesson(levelId, total);
     var p = getActiveProfile();
-    var due = (tests || []).filter(function (t) { return t.afterLesson === n - 1; })[0];
-    if (due && p) {
-      var h = p.tests[due.id];
-      var passed = h && h.length && h[h.length - 1].passed;
-      if (!passed) return { url: due.url, label: due.title, test: true };
-    }
+    // The latest test that falls before the next lesson, and after where the
+    // child began the level, must be passed or marked passed before going on.
+    // A passed test covers the ones before it.
+    var from = p && p.placement && p.placement.level === levelId ? p.placement.lesson : 1;
+    var due = (tests || []).filter(function (t) { return t.afterLesson < n && t.afterLesson >= from; });
+    var last = due[due.length - 1];
+    if (last && p && testStatus(last.id, p) !== "passed") return { url: last.url, label: last.title, test: true };
     return { url: "/" + slug + "/lesson-" + String(n).padStart(3, "0") + "/", label: "Lesson " + n, test: false };
   }
 
   // ── Tests, placement, facts ──
   function recordTest(id, summary) {
-    update(function (p) { p.tests[id] = (p.tests[id] || []).concat([summary]).slice(-5); });
+    update(function (p) {
+      var h = p.tests[id] || [];
+      if (summary.partial && h.length && h[h.length - 1].parts && h[h.length - 1].parts.length) {
+        // Only some parts were given again: keep the other parts' last results.
+        var prev = h[h.length - 1];
+        var parts = prev.parts.map(function (old) {
+          var again = summary.parts.filter(function (x) { return x.track === old.track; })[0];
+          return again || old;
+        });
+        summary = { date: summary.date, minutes: summary.minutes, parts: parts, passed: parts.every(function (x) { return x.passed; }), retested: summary.parts.map(function (x) { return x.track; }) };
+      }
+      p.tests[id] = h.concat([summary]).slice(-5);
+    });
+  }
+  // Per-item results: the last five first-try results for each item key, as 1 or 0.
+  function recordItemsFor(childId, items, date) {
+    if (!items) return;
+    updateProfile(childId, function (p) {
+      p.items = p.items || {};
+      for (var k in items) {
+        var cur = p.items[k] || { r: [] };
+        cur.r = cur.r.concat([items[k].first ? 1 : 0]).slice(-5);
+        cur.last = date || new Date().toISOString();
+        p.items[k] = cur;
+      }
+    });
+  }
+  function recordItems(items, date) { recordItemsFor(null, items, date); }
+  function itemHistory(key, profile) {
+    var p = profile || getActiveProfile();
+    return p && p.items && p.items[key] ? p.items[key] : null;
   }
   // A test is "passed", "retake" (give it again), or "new" (not given).
   function testStatus(id, profile) {
@@ -186,26 +266,42 @@
   function recordPlacement(rec) {
     update(function (p) { p.placement = rec; });
   }
-  function recordFact(fact, firm) {
-    update(function (p) {
+  // Each fact keeps its last five results and, when known, how many seconds
+  // the child took to answer.
+  function recordFactFor(childId, fact, firm, ms) {
+    updateProfile(childId, function (p) {
       var f = p.facts[fact] || { r: [] };
       f.r = f.r.concat([firm ? 1 : 0]).slice(-5);
+      f.t = (f.t || []).concat([typeof ms === "number" ? Math.round(ms / 100) / 10 : null]).slice(-5);
       f.last = new Date().toISOString();
       p.facts[fact] = f;
     });
   }
-  // firm: last three results correct; shaky: any recent error; new: no record.
+  function recordFact(fact, firm, ms) { recordFactFor(null, fact, firm, ms); }
+  // automatic: the last three right and each under three seconds; firm: the
+  // last three right; learning: the last one right; shaky: the last one
+  // missed; new: no record.
+  var AUTOMATIC_SECONDS = 3;
   function factStatus(f) {
     if (!f || !f.r || !f.r.length) return "new";
     var last3 = f.r.slice(-3);
-    if (last3.length >= 3 && last3.every(function (x) { return x === 1; })) return "firm";
+    if (last3.length >= 3 && last3.every(function (x) { return x === 1; })) {
+      var t3 = (f.t || []).slice(-3);
+      if (t3.length >= 3 && t3.every(function (x) { return typeof x === "number" && x <= AUTOMATIC_SECONDS; })) return "automatic";
+      return "firm";
+    }
     return last3[last3.length - 1] === 1 ? "learning" : "shaky";
+  }
+  // One-minute timed checks: { date, level, right, errors, goal }
+  function recordTimed(rec) {
+    update(function (p) { p.timed = (p.timed || []).concat([rec]).slice(-20); });
   }
 
   // ── Notes ──
-  function addNote(text, ref) {
-    update(function (p) { p.notes.push({ id: newId(), text: text, date: new Date().toISOString(), ref: ref || "" }); });
+  function addNoteFor(childId, text, ref) {
+    updateProfile(childId, function (p) { p.notes.push({ id: newId(), text: text, date: new Date().toISOString(), ref: ref || "" }); });
   }
+  function addNote(text, ref) { addNoteFor(null, text, ref); }
   function deleteNote(id) {
     update(function (p) { p.notes = p.notes.filter(function (n) { return n.id !== id; }); });
   }
@@ -215,7 +311,7 @@
   }
 
   function resetProgress() {
-    update(function (p) { p.completed = []; p.redo = []; p.lessons = {}; p.tests = {}; p.facts = {}; p.placement = null; });
+    update(function (p) { p.completed = []; p.redo = []; p.lessons = {}; p.tests = {}; p.facts = {}; p.items = {}; p.timed = []; p.placement = null; });
   }
 
   // ── Export and import ──
@@ -259,7 +355,7 @@
     reader.onload = function (e) {
       try {
         var data = JSON.parse(e.target.result);
-        if (!data.profiles || !Array.isArray(data.profiles)) { alert("This file is not a Math Direct progress file."); return; }
+        if (!data.profiles || !Array.isArray(data.profiles)) { say("This file is not a Math Direct backup."); return; }
         var existing = getProfiles();
         data.profiles.forEach(function (p) {
           var match = existing.find(function (x) { return x.name === p.name; });
@@ -268,7 +364,7 @@
         });
         write(existing);
         window.location.reload();
-      } catch (err) { alert("The file could not be read."); }
+      } catch (err) { say("The file could not be read."); }
     };
     reader.readAsText(file);
   }
@@ -277,59 +373,77 @@
     return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
+  function say(text) { if (window.MD && MD.toast) MD.toast(text); }
   function confirmDelete(id, name) {
-    if (confirm('Delete "' + name + '" and all of this child\'s records? This cannot be undone.')) {
-      deleteProfile(id);
-      window.location.reload();
-    }
+    if (!window.MD) return;
+    MD.confirm({ title: "Remove " + name + "?", text: "Every lesson, test, and fact record for " + name + " is erased with the name. This cannot be undone.", ok: "Remove", cancel: "Keep", danger: true }).then(function (yes) {
+      if (yes) { deleteProfile(id); window.location.reload(); }
+    });
   }
   function promptRename(id) {
     var p = getProfiles().find(function (x) { return x.id === id; });
-    if (!p) return;
-    var name = prompt("New name:", p.name);
-    if (name && name.trim() && name.trim() !== p.name) { renameProfile(id, name.trim()); window.location.reload(); }
+    if (!p || !window.MD) return;
+    MD.ask({ title: "Rename " + p.name, label: "Name", value: p.name, ok: "Save" }).then(function (name) {
+      if (name && name !== p.name) { renameProfile(id, name); window.location.reload(); }
+    });
   }
   function promptAdd() {
-    var name = prompt("Child's name:");
-    if (name && name.trim()) { createProfile(name.trim()); window.location.reload(); }
+    if (!window.MD) return;
+    MD.ask({ title: "Add a child", label: "Name", placeholder: "For example, Mia", ok: "Add" }).then(function (name) {
+      if (name) { createProfile(name); window.location.reload(); }
+    });
   }
 
-  // A compact student picker: <select> plus an Add button.
-  function renderStudentSelect(container) {
+  // Child chips: one radio per child and an Add chip. Changing the child
+  // reloads the screen so everything on it shows that child.
+  function renderChildChips(container) {
     if (!container) return;
     var profiles = getProfiles(), active = getActiveProfile();
-    var html = '<label class="student-pick"><span class="student-pick__label">Teaching</span><select class="student-pick__select">';
+    var html = '<fieldset class="chips"><legend>Child</legend>';
     profiles.forEach(function (p) {
-      html += '<option value="' + p.id + '"' + (active && active.id === p.id ? " selected" : "") + ">" + escapeHtml(p.name) + "</option>";
+      var on = active && active.id === p.id;
+      html += '<label class="chip"><input type="radio" name="md-child" value="' + p.id + '"' + (on ? " checked" : "") + ">" + escapeHtml(p.name) + "</label>";
     });
-    html += '<option value="__add">Add a child</option></select></label>';
+    html += '<button type="button" class="chip chip--add" data-add-child>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button></fieldset>';
     container.innerHTML = html;
-    var sel = container.querySelector("select");
-    sel.addEventListener("change", function () {
-      if (sel.value === "__add") { sel.value = active ? active.id : ""; promptAdd(); return; }
-      switchProfile(sel.value);
+    container.addEventListener("change", function (e) {
+      if (e.target.name === "md-child" && e.target.checked && (!active || e.target.value !== active.id)) switchProfile(e.target.value);
     });
+    var add = container.querySelector("[data-add-child]");
+    if (add) add.addEventListener("click", promptAdd);
   }
 
-  // Full profile list with rename and delete (dashboard).
+  // The Records screen: chips plus Rename and Remove for the selected child.
   function renderProfileSelector() {
     var container = document.getElementById("profile-selector");
     if (!container) return;
-    var profiles = getProfiles(), active = getActiveProfile();
-    var html = '<div class="profile-selector"><div class="profile-selector__header"><span class="profile-selector__label">Children</span>' +
-      '<button class="profile-selector__add" id="btn-add-profile" type="button">+ Add a child</button></div><div class="profile-selector__list">';
-    profiles.forEach(function (p) {
-      var isActive = active && active.id === p.id;
-      html += '<div class="profile-item' + (isActive ? " is-active" : "") + '">' +
-        '<button class="profile-item__select" type="button" onclick="window.mathProgress.switchProfile(\'' + p.id + '\')"><span class="profile-item__name">' + escapeHtml(p.name) + '</span><span class="profile-item__count">' + p.completed.length + " lessons</span></button>" +
-        '<button class="profile-item__rename" type="button" onclick="window.mathProgress.promptRename(\'' + p.id + '\')" title="Rename" aria-label="Rename ' + escapeHtml(p.name) + '">&#9998;</button>' +
-        (isActive ? "" : '<button class="profile-item__delete" type="button" onclick="window.mathProgress.confirmDelete(\'' + p.id + "', '" + escapeHtml(p.name).replace(/'/g, "\\'") + '\')" title="Delete" aria-label="Delete ' + escapeHtml(p.name) + '">&times;</button>') +
-        "</div>";
-    });
-    html += "</div></div>";
-    container.innerHTML = html;
-    var add = document.getElementById("btn-add-profile");
-    if (add) add.addEventListener("click", promptAdd);
+    var active = getActiveProfile();
+    container.innerHTML = '<div data-child-chips></div>' +
+      '<div class="btn-row profile-tools"><button type="button" class="btn btn--secondary" id="btn-rename-profile">Rename</button>' +
+      (getProfiles().length > 1 ? '<button type="button" class="btn btn--danger" id="btn-delete-profile">Remove</button>' : "") + "</div>";
+    renderChildChips(container.querySelector("[data-child-chips]"));
+    var ren = document.getElementById("btn-rename-profile");
+    if (ren && active) ren.addEventListener("click", function () { promptRename(active.id); });
+    var del = document.getElementById("btn-delete-profile");
+    if (del && active) del.addEventListener("click", function () { confirmDelete(active.id, active.name); });
+  }
+
+  // The level the child is working in: the last lesson taught, else the
+  // placement result, else nothing.
+  function currentLevel() {
+    var p = getActiveProfile();
+    if (!p) return null;
+    if (p.lastLesson && p.lastLesson.id) { var m = /^(.+)-(\d{3})$/.exec(p.lastLesson.id); if (m) return m[1]; }
+    if (p.placement && p.placement.level) return p.placement.level;
+    return null;
+  }
+  // The last lesson taught, with its summary.
+  function lastResult() {
+    var p = getActiveProfile();
+    if (!p || !p.lastLesson || !p.lessons[p.lastLesson.id]) return null;
+    var h = p.lessons[p.lastLesson.id];
+    return { id: p.lastLesson.id, summary: h[h.length - 1] };
   }
 
   // One-time move of the oldest storage format.
@@ -350,16 +464,19 @@
   }
 
   window.mathProgress = {
-    getProfiles: getProfiles, getActiveProfile: getActiveProfile, createProfile: createProfile,
+    getProfiles: getProfiles, getActiveProfile: getActiveProfile, getProfile: getProfile, updateProfile: updateProfile, createProfile: createProfile,
     deleteProfile: deleteProfile, renameProfile: renameProfile, switchProfile: switchProfile,
     getCompleted: getCompleted, isComplete: isComplete, markComplete: markComplete, markIncomplete: markIncomplete,
-    recordLesson: recordLesson, lessonHistory: lessonHistory, nextLesson: nextLesson, nextStep: nextStep,
+    recordLesson: recordLesson, recordLessonFor: recordLessonFor, lessonHistory: lessonHistory, nextLesson: nextLesson, nextStep: nextStep,
     lessonStatus: lessonStatus, setLessonStatus: setLessonStatus, testStatus: testStatus, setTestStatus: setTestStatus,
-    recordTest: recordTest, recordPlacement: recordPlacement, recordFact: recordFact, factStatus: factStatus,
-    addNote: addNote, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
+    recordTest: recordTest, recordPlacement: recordPlacement, recordFact: recordFact, recordFactFor: recordFactFor, factStatus: factStatus,
+    recordItems: recordItems, recordItemsFor: recordItemsFor, itemHistory: itemHistory, recordTimed: recordTimed,
+    addNote: addNote, addNoteFor: addNoteFor, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
     exportAllProfiles: exportAllProfiles, importProfiles: importProfiles,
     confirmDelete: confirmDelete, promptRename: promptRename, promptAdd: promptAdd,
-    renderStudentSelect: renderStudentSelect, renderProfileSelector: renderProfileSelector,
+    renderProfileSelector: renderProfileSelector, renderChildChips: renderChildChips,
+    currentLevel: currentLevel, lastResult: lastResult,
+    saveSession: saveSession, loadSession: loadSession, clearSession: clearSession,
   };
 
   migrateLegacy();
@@ -367,8 +484,8 @@
 
   function onReady() {
     renderProfileSelector();
-    var picks = document.querySelectorAll("[data-student-select]");
-    for (var i = 0; i < picks.length; i++) renderStudentSelect(picks[i]);
+    var chips = document.querySelectorAll("[data-child-picker]");
+    for (var c = 0; c < chips.length; c++) renderChildChips(chips[c]);
 
     var exportBtn = document.getElementById("btn-export-progress");
     if (exportBtn) exportBtn.addEventListener("click", exportAllProfiles);
@@ -381,7 +498,20 @@
     var resetBtn = document.getElementById("btn-reset-progress");
     if (resetBtn) resetBtn.addEventListener("click", function () {
       var p = getActiveProfile();
-      if (confirm('Erase all lesson, test, and fact records for "' + (p ? p.name : "this child") + '"? Notes are kept. This cannot be undone.')) { resetProgress(); window.location.reload(); }
+      if (!window.MD) return;
+      MD.confirm({ title: "Erase " + (p ? p.name + "'s" : "this child's") + " records?", text: "Lessons, tests, facts, and the placement result are erased. Notes are kept. Save a backup first if you may want them back.", ok: "Erase", cancel: "Keep", danger: true }).then(function (yes) {
+        if (!yes) return;
+        // The records are held for a minute behind Undo before they are gone.
+        var keep = JSON.parse(JSON.stringify(getActiveProfile()));
+        resetProgress();
+        clearSession();
+        MD.toast("Records erased.", { action: "Undo", ms: 60000, onAction: function () {
+          var profiles = getProfiles();
+          var i = profiles.findIndex(function (x) { return x.id === keep.id; });
+          if (i !== -1) { profiles[i] = keep; write(profiles); }
+          MD.toast("Records restored.");
+        } });
+      });
     });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", onReady);

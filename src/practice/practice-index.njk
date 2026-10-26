@@ -1,37 +1,54 @@
 ---
-layout: layouts/base.njk
+layout: layouts/app.njk
 title: Practice
-description: Extra practice for every skill track in Math Direct, drawn only from what the child has been taught. The parent marks each answer; there are no scores.
+description: Extra practice for any skill, drawn only from what the child has been taught, and a quick review of the facts.
 permalink: /practice/
-bodyClass: page-level
+bodyClass: page-practice
 ---
-<div class="level-page">
-  <div class="level-page__inner">
-    <header class="level-head">
-      <div>
-        <h1 class="level-head__title">Practice</h1>
-        <p class="level-head__facts">Ten items at a time, from any skill track</p>
-      </div>
-      <div class="level-head__student" data-student-select></div>
-    </header>
-    <p class="level-lead">Practice is extra review for a skill that needs it, on a day without a lesson or after a lesson that went poorly. It works like a lesson: you read the question, the child answers, and you mark Firm or Error. The items come only from lessons the selected child has finished. There are no scores, streaks, or prizes; the point is the skill.</p>
-    <div class="placement-cta">
-      <div>
-        <h2>Quick facts</h2>
-        <p>A short drill on the addition and subtraction facts taught so far, with the facts the child has missed coming up more often.</p>
-      </div>
-      <a class="btn btn--cta" href="/facts/">Fact review</a>
-    </div>
-    {% for level in program.levels %}
-    <section class="practice-level" id="{{ level.id }}">
-      <h2>{{ level.name }}</h2>
-      <div class="practice-sets">
-        {% for set in program.practice %}{% if set.level == level.id %}
-        <a class="practice-set" href="{{ set.url }}"><strong>{{ set.title }}</strong><span>From lesson {{ set.startsAt }}. {{ set.summary }}</span></a>
-        {% endif %}{% endfor %}
-      </div>
-    </section>
-    {% endfor %}
+<header class="screen__head">
+  <h1 class="screen__title">Practice</h1>
+  <p class="screen__lead">Ten items from one skill, drawn only from lessons the child has finished. You read, the child answers, you mark.</p>
+</header>
+
+<div data-child-picker></div>
+
+<ul class="rows">
+  <li>
+    <a class="row" href="/facts/">
+      <span class="row__main"><span class="row__title">Quick facts</span><span class="row__sub">Twelve addition and subtraction facts. Missed facts come up first.</span></span>
+      {% include "partials/icons/chevron-right.njk" %}
+    </a>
+  </li>
+  <li data-timed-row hidden>
+    <a class="row" href="/timed/">
+      <span class="row__main"><span class="row__title">Timed facts</span><span class="row__sub">One minute of First Grade facts, counted against a goal.</span></span>
+      {% include "partials/icons/chevron-right.njk" %}
+    </a>
+  </li>
+</ul>
+
+{% for level in program.levels %}
+<details class="fold practice-level" id="{{ level.id }}" data-practice-level="{{ level.id }}">
+  <summary>{{ level.name }}</summary>
+  <div class="fold__body">
+    <ul class="rows">
+      {% for set in program.practice %}{% if set.level == level.id %}
+      <li><a class="row" href="{{ set.url }}"><span class="row__main"><span class="row__title">{{ set.title }}</span><span class="row__sub">From lesson {{ set.startsAt }}. {{ set.summary }}</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+      {% endif %}{% endfor %}
+    </ul>
   </div>
-</div>
+</details>
+{% endfor %}
+
 <script src="/assets/js/progress.js?v={{ build.version }}"></script>
+<script>
+(function () {
+  var P = window.mathProgress;
+  var level = P && P.currentLevel && P.currentLevel();
+  var open = document.querySelector(level ? '[data-practice-level="' + level + '"]' : "[data-practice-level]");
+  if (open) open.open = true;
+  // The timed check appears once the child is in First Grade.
+  var timed = document.querySelector("[data-timed-row]");
+  if (timed && P && (level === "first" || level === "bridge" || P.nextLesson("first", 150) > 1)) timed.hidden = false;
+})();
+</script>

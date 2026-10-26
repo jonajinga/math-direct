@@ -1,7 +1,7 @@
-// First Grade: 150 lessons, 20 to 30 minutes each, for children of about six.
+// First Grade: 150 lessons, 12 to 15 minutes each, for children of about six.
 
 import {
-  V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural, countTest, readNum, touchNum, touchChoice, iconSeq, favorNew, others, an,
+  V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural, countTest, readNum, touchNum, touchChoice, iconSeq, favorNew, others,
 } from "./common.js";
 import { factStep, families as kFamilies } from "./k.js";
 import { retrack, TAKE_VERBS } from "./prek.js";
@@ -145,56 +145,6 @@ const numerals = {
     const r = ctx.rand;
     const latest = units[units.length - 1];
     return r.sample(range(latest.lo, latest.hi), 3).map((d) => readNum(d));
-  },
-};
-
-const dictation = {
-  id: "dictation",
-  name: "Writing numbers",
-  summary: "Write numbers to 120 when they are said aloud, tens digit first.",
-  standard: "1.NBT.1",
-  units: [
-    { id: "d2", lesson: 4, max: 50, label: "Write two-digit numbers" },
-    { id: "d100", lesson: 14, max: 100, label: "Write numbers to 100" },
-    { id: "d120", lesson: 38, max: 120, label: "Write numbers to 120" },
-  ],
-  item(r, max) {
-    const n = r.int(max > 100 ? 101 : 21, max);
-    const ask = `Write ${word(n)} on your paper.`;
-    return test(V.say(), ask, `(Writes ${n}.)`, fixPoint(`${this.parts(n)} I write ${this.digits(n)}.`, ask), { skill: "write", item: `dict:${n}`, confirm: `Yes, ${word(n)}.` });
-  },
-  // "Twenty-eight is two tens and eight ones."
-  parts(n) {
-    const unit = (k, one, many) => `${k ? word(k) : "no"} ${k === 1 ? one : many}`;
-    const t = Math.floor((n % 100) / 10), o = n % 10;
-    if (n >= 100) return `${Word(n)} is one hundred, ${unit(t, "ten", "tens")}, and ${unit(o, "one", "ones")}.`;
-    return `${Word(n)} is ${unit(t, "ten", "tens")} and ${unit(o, "one", "ones")}.`;
-  },
-  // "a two, then an eight"
-  digits(n) {
-    return String(n).split("").map((d) => `${an(word(Number(d)))} ${word(Number(d))}`).join(", then ");
-  },
-  newEx(u, ctx) {
-    const r = ctx.rand;
-    const ex = u.max > 100 ? 113 : 46;
-    return {
-      title: u.label,
-      materials: "paper and a pencil",
-      steps: [
-        model(V.num(ex), `When I hear a number, I write the ${ex >= 100 ? "hundreds digit first, then the tens, then the ones" : "tens digit first, then the ones"}. My turn. ${Word(ex)}. I write ${this.digits(ex)}.`),
-        lead(V.say(), u.max > 100 ? "Write one hundred eight with me." : "Write thirty-two with me. Three tens, two ones.", u.max > 100 ? "(Writes 108.)" : "(Writes 32.)"),
-        this.item(r, u.max), this.item(r, u.max), this.item(r, u.max),
-      ],
-    };
-  },
-  reviewEx(intro, ctx) {
-    const r = ctx.rand;
-    const max = intro[intro.length - 1].max;
-    return { title: "Write the numbers I say", materials: "paper and a pencil", steps: [this.item(r, max), this.item(r, max), this.item(r, max)] };
-  },
-  testItems(units, ctx) {
-    const r = ctx.rand;
-    return [this.item(r, units[units.length - 1].max), this.item(r, units[units.length - 1].max)];
   },
 };
 
@@ -355,18 +305,6 @@ const placeValue = {
     if (u.id === "tenmore") return [this.tenMoreItem(r, max), this.tenMoreItem(r, max)];
     return [this.compareItem(r, max, u.id === "greater" ? [">"] : u.id === "less" ? ["<", ">"] : [">", "<", "="]), this.compareItem(r, max, [">", "<"])];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const max = numMax(ctx.lesson);
-    if (intro.some((u) => u.id === "greater")) {
-      const signs = intro.some((u) => u.id === "compare") ? [">", "<", "="] : intro.some((u) => u.id === "less") ? [">", "<"] : [">"];
-      const it = this.compareItem(r, max, signs);
-      const [a, , b] = it.screen[0].parts;
-      return { kind: "write", prompt: "Write >, <, or = in the box.", show: V.eq(a, "_", b), answer: a > b ? ">" : a < b ? "<" : "=" };
-    }
-    const n = r.int(11, Math.min(max, 99));
-    return { kind: "write", prompt: "How many tens and ones? Write the number.", show: V.pv(Math.floor(n / 10), n % 10), answer: String(n) };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -493,11 +431,6 @@ const addFacts = {
     const pool = addFactsFor(u.id);
     return [this.item(r, pool), this.item(r, pool), this.item(r, this.pool(units))];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const [a, b] = r.pick(this.pool(intro));
-    return { kind: "write", prompt: "Write the answer.", show: V.eq(a, "+", b, "=", "_"), answer: String(a + b) };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -578,11 +511,6 @@ const subFacts = {
     const pool = subFactsFor(units[units.length - 1].id);
     return [this.item(r, pool), this.item(r, pool), this.item(r, this.pool(units))];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const [a, b] = r.pick(this.pool(intro));
-    return { kind: "write", prompt: "Write the answer.", show: V.eq(a, "−", b, "=", "_"), answer: String(a - b) };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -592,7 +520,7 @@ const subFacts = {
 const families = {
   id: "families",
   name: "Number families",
-  summary: "Use number families to 20: add when the big number is missing, subtract when a small number is missing, and write the four facts of a family.",
+  summary: "Use number families to 20: add when the big number is missing, subtract when a small number is missing, and say the four facts of a family.",
   standard: "1.OA.4, 1.OA.6",
   units: [
     { id: "review", lesson: 3, max: 10, label: "Number families: review" },
@@ -648,13 +576,6 @@ const families = {
     if (u.id === "four") return [this.fourItem(r, 18)];
     return [kFamilies.smallItem(r, u.max)[1], kFamilies.bigItem(r, u.max)[1]];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const max = Math.max(...intro.map((u) => u.max));
-    const c = r.int(5, max), a = r.int(1, c - 1), b = c - a;
-    const miss = r.pick(["a", "c"]);
-    return { kind: "write", prompt: "Find the missing number in the family.", show: V.family(a, b, c, miss), answer: String(miss === "a" ? a : c) };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -681,19 +602,26 @@ const fluency = {
   },
   reviewEx(intro, ctx) {
     const r = ctx.rand;
-    const add = addFacts.pool(ctx.known("add-facts"));
-    const sub = subFacts.pool(ctx.known("sub-facts"));
-    const steps = [];
-    for (let i = 0; i < 6; i++) {
-      if (sub.length && i % 2 === 1) { const [a, b] = r.pick(sub); steps.push(factStep(a, "−", b, { say: `${Word(a)} minus ${word(b)}?` })); }
-      else { const [a, b] = r.pick(add); steps.push(factStep(a, "+", b, { say: `${Word(a)} plus ${word(b)}?` })); }
-    }
+    const n = ctx.lesson;
+    const released = releasedFacts(n);
+    const newest = released.filter((f) => f.lesson >= n - 1);
+    const known = released.filter((f) => f.lesson < n - 1);
+    // Half from the newest set, half from facts already known.
+    const picks = [];
+    const take = (pool, k) => { const bag = pool.slice(); while (picks.length < 8 && bag.length && k-- > 0) picks.push(bag.splice(Math.floor(r() * bag.length), 1)[0]); };
+    take(newest, 4);
+    take(known, 8 - picks.length);
+    take(newest, 8 - picks.length);
+    const steps = picks.map((f) => factStep(f.a, f.op === "+" ? "+" : "−", f.b, { say: `${Word(f.a)} ${f.op === "+" ? "plus" : "minus"} ${word(f.b)}?` }));
     return { title: "Quick facts", steps };
   },
   testItems(units, ctx) {
     const r = ctx.rand;
-    const add = addFacts.pool(ctx.known("add-facts"));
-    return r.sample(add, 4).map(([a, b]) => factStep(a, "+", b));
+    const released = releasedFacts(ctx.lesson);
+    const bag = released.slice();
+    const out = [];
+    while (out.length < 4 && bag.length) { const f = bag.splice(Math.floor(r() * bag.length), 1)[0]; out.push(factStep(f.a, f.op === "+" ? "+" : "−", f.b)); }
+    return out;
   },
 };
 
@@ -800,14 +728,6 @@ const equalSign = {
     if (u.id === "truefalse") return [this.tfItem(r), this.tfItem(r)];
     return [this.sameItem(8, 4, 4)];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    if (intro.some((u) => u.id === "unknown")) {
-      const it = this.unknownItem(r);
-      return { kind: "write", prompt: "Write the missing number.", show: V.eq(...it.screen[0].parts.map((p) => (p === "?" ? "_" : p))), answer: it.answer.replace(".", "") };
-    }
-    return [];
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -817,7 +737,7 @@ const equalSign = {
 // Each name with the word the story uses for that child after the first mention.
 const NAMES = [["Ana", "she"], ["Ben", "he"], ["Cora", "she"], ["Dev", "he"], ["Eli", "he"], ["Faye", "she"], ["Gus", "he"], ["Hana", "she"], ["Ivy", "she"], ["Jon", "he"],
   ["Kate", "she"], ["Lena", "she"], ["Max", "he"], ["Nell", "she"], ["Omar", "he"], ["Pia", "she"], ["Ray", "he"], ["Seth", "he"], ["Tess", "she"], ["Will", "he"]];
-const THINGS = ["stickers", "marbles", "shells", "crayons", "stamps", "acorns", "rocks", "beads", "cards", "buttons"];
+const THINGS = ["stickers", "marbles", "shells", "feathers", "stamps", "acorns", "rocks", "beads", "cards", "buttons"];
 
 const stories = {
   id: "stories",
@@ -899,7 +819,7 @@ const stories = {
     };
     const intros = {
       result: ["result+", "Listen. Ana had five shells. She found three more. How many shells does Ana have now? My turn. We make a number family. Ana got more, so the number she has now is the big number. It is missing, so we add. Five plus three equals eight. Ana has eight shells."],
-      parts: ["together", "Listen. Ben has six red crayons and four blue crayons. How many crayons does he have in all? My turn. The red crayons and the blue crayons are the small numbers. In all is the big number. It is missing, so we add. Six plus four equals ten. Ben has ten crayons."],
+      parts: ["together", "Listen. Ben has six red feathers and four blue feathers. How many feathers does he have in all? My turn. The red feathers and the blue feathers are the small numbers. In all is the big number. It is missing, so we add. Six plus four equals ten. Ben has ten feathers."],
       change: ["change+", "Listen. Cora had seven stamps. She got some more. Now she has twelve. How many did she get? My turn. Twelve is the big number. Seven is a small number. The other small number is missing, so we subtract. Twelve minus seven equals five. Cora got five stamps."],
       more: ["more", "Listen. Dev has eleven marbles. Eli has seven marbles. How many more marbles does Dev have than Eli? My turn. Dev has more, so eleven is the big number. Eli's seven is a small number. How many more is the other small number. It is missing, so we subtract. Eleven minus seven equals four. Dev has four more marbles than Eli."],
       fewer: ["fewer", "Listen. Faye has six rocks. Gus has ten rocks. How many fewer rocks does Faye have than Gus? My turn. Gus has more, so ten is the big number. Faye's six is a small number. How many fewer is the other small number. It is missing, so we subtract. Ten minus six equals four. Faye has four fewer rocks than Gus."],
@@ -1028,12 +948,6 @@ const twoDigit = {
     const u = units[units.length - 1];
     return [this.item(r, u.id, false), this.item(r, u.id, false)];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const id = r.pick(intro.map((u) => u.id));
-    const p = this.gen(r, id);
-    return { kind: "write", prompt: "Solve. You can draw tens and ones to help.", show: V.eq(p.a, p.op, p.b, "=", "_"), answer: String(p.ans) };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -1055,7 +969,7 @@ const length = {
     const sizes = r.shuffle([1, 0.7, 0.4]);
     const want = r() < 0.5 ? "longest" : "shortest";
     const ans = sizes.indexOf(want === "longest" ? 1 : 0.4);
-    return test(V.size("long", sizes, { icon: r.pick(["pencil", "ribbon"]), tap: true, ans }), `Touch the ${want} one.`, `(Touches the ${want} one.)`, fixPoint(`The ends are lined up. The ${want} one ${want === "longest" ? "goes farthest" : "stops first"}. (Touch it.)`, `Touch the ${want} one.`), { skill: "measure", item: `len:${want}` });
+    return test(V.size("long", sizes, { icon: r.pick(["stick", "ribbon"]), tap: true, ans }), `Touch the ${want} one.`, `(Touches the ${want} one.)`, fixPoint(`The ends are lined up. The ${want} one ${want === "longest" ? "goes farthest" : "stops first"}. (Touch it.)`, `Touch the ${want} one.`), { skill: "measure", item: `len:${want}` });
   },
   indirectItem(r) {
     const [x, y, z] = r.sample(["the rope", "the ribbon", "the string", "the stick", "the belt"], 3);
@@ -1066,7 +980,7 @@ const length = {
   },
   measureItem(r) {
     const n = r.int(3, 8);
-    return test(V.measure("pencil", n), "How many paper clips long is the pencil?", `${Word(n)} paper clips.`, fix(`${Word(n)} paper clips.`, "How many paper clips long is the pencil?", `I count the clips from one end of the pencil to the other. ${Chain(1, n)}`), { skill: "measure", item: `measure:${n}` });
+    return test(V.measure("stick", n), "How many paper clips long is the stick?", `${Word(n)} paper clips.`, fix(`${Word(n)} paper clips.`, "How many paper clips long is the stick?", `I count the clips from one end of the stick to the other. ${Chain(1, n)}`), { skill: "measure", item: `measure:${n}` });
   },
   newEx(u, ctx) {
     const r = ctx.rand;
@@ -1074,7 +988,7 @@ const length = {
       return {
         title: u.label, steps: [
           model(V.size("long", [0.7, 1, 0.4], { icon: "ribbon" }), "To put things in order by length, line up the ends. My turn. This ribbon is longest. This one is shortest. This one is in the middle."),
-          lead(V.size("long", [0.4, 0.7, 1], { icon: "pencil", tap: true, ans: 2 }), "Touch the longest pencil with me.", "(Touches the longest pencil.)"),
+          lead(V.size("long", [0.4, 0.7, 1], { icon: "stick", tap: true, ans: 2 }), "Touch the longest stick with me.", "(Touches the longest stick.)"),
           this.orderItem(r), this.orderItem(r), this.orderItem(r),
         ],
       };
@@ -1091,8 +1005,8 @@ const length = {
     if (u.id === "measure") {
       return {
         title: u.label, steps: [
-          model(V.measure("pencil", 5), "We can measure how long something is with units that are all the same size. My turn. These paper clips go from one end of the pencil to the other. One, two, three, four, five. The pencil is five paper clips long."),
-          lead(V.measure("pencil", 4), "Count the clips with me.", "One, two, three, four. Four paper clips."),
+          model(V.measure("stick", 5), "We can measure how long something is with units that are all the same size. My turn. These paper clips go from one end of the stick to the other. One, two, three, four, five. The stick is five paper clips long."),
+          lead(V.measure("stick", 4), "Count the clips with me.", "One, two, three, four. Four paper clips."),
           this.measureItem(r), this.measureItem(r),
           note(V.say(), "Now measure something real. Lay paper clips, or any small things that are all the same size, end to end along a spoon. How many paper clips long is the spoon?", { do: "Make sure the clips touch end to end.", materials: true }),
         ],
@@ -1101,7 +1015,7 @@ const length = {
     }
     return {
       title: u.label, steps: [
-        model(V.measure("pencil", 5), "When we measure, the units must touch end to end, with no gaps between them and no overlaps. If there are gaps, the count comes out too small. If they overlap, the count comes out too big."),
+        model(V.measure("stick", 5), "When we measure, the units must touch end to end, with no gaps between them and no overlaps. If there are gaps, the count comes out too small. If they overlap, the count comes out too big."),
         lead(V.say(), "Can there be gaps between the units? Say it with me.", "No."),
         test(V.say(), "Can the units overlap?", "No.", fix("No.", "Can the units overlap?", "Each unit starts right where the last one ends, so they do not overlap."), { skill: "measure", item: "overlap" }),
         this.measureItem(r),
@@ -1123,14 +1037,6 @@ const length = {
     if (u.id === "indirect") return [this.indirectItem(r)];
     return [this.measureItem(r)];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    if (intro.some((u) => u.id === "measure")) {
-      const n = r.int(3, 8);
-      return { kind: "write", prompt: "How many paper clips long?", show: V.measure("pencil", n), answer: String(n) };
-    }
-    return [];
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -1140,7 +1046,7 @@ const length = {
 const time = {
   id: "time",
   name: "Telling time",
-  summary: "Tell and write time to the hour and half hour on clock faces and digital clocks.",
+  summary: "Tell time to the hour and half hour on clock faces and digital clocks.",
   standard: "1.MD.3",
   units: [
     { id: "hands", lesson: 82, label: "The hour hand and the minute hand" },
@@ -1231,12 +1137,6 @@ const time = {
     if (!has("oclock")) return [test(V.clock(6, 0), "Which hand is the short hand?", "The hour hand.", fix("The hour hand.", "Which hand is the short hand?", "The short hand is the hour hand. The long hand is the minute hand."), { skill: "time", item: "hands" })];
     if (has("match")) return [this.matchItem(r), this.readItem(r, true)];
     return [this.readItem(r, has("half"), has("digital")), this.readItem(r, has("half"))];
-  },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    if (!intro.some((u) => u.id === "oclock")) return [];
-    const h = r.int(1, 12), m = intro.some((u) => u.id === "half") && r() < 0.5 ? 30 : 0;
-    return { kind: "write", prompt: "Write the time.", show: V.clock(h, m, { size: "sm" }), answer: `${h}:${m === 0 ? "00" : "30"}` };
   },
 };
 
@@ -1338,11 +1238,6 @@ const data = {
     if (u.id === "tally") return [this.tallyItem(r)];
     return [this.graphQ(r, u.id === "picture" ? "picture" : u.id === "chart" ? "chart" : "compare")];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const n = r.int(4, 14);
-    return { kind: "write", prompt: "How many tally marks? Write the number.", show: V.tally(n), answer: String(n) };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -1440,7 +1335,7 @@ const shapes = {
           model(V.row(V.shape("triangle", { c: "green", size: "md" }), V.shape("triangle", { c: "green", rot: 180, size: "md" })), "Two triangles can make a square, or a rectangle, or a bigger triangle, depending on how they fit."),
           lead(V.row(V.shape("square", { c: "blue", size: "md" }), V.shape("square", { c: "blue", size: "md" })), "Two squares side by side make what shape? Say it with me.", "A rectangle."),
           test(V.row(V.shape("semicircle", { c: "red", size: "md" }), V.shape("semicircle", { c: "red", rot: 180, size: "md" })), "Two half-circles make what shape?", "A circle.", fix("A circle.", "Two half-circles make what shape?", "Put the straight sides together, and the curved sides go all the way around."), { skill: "shape", item: "compose:circle" }),
-          note(V.say(), "If you have pattern blocks or paper shapes, let the child build a hexagon from triangles: six triangles make a hexagon.", { do: "This is optional, but worth doing once." }),
+          note(V.say(), "If you have pattern blocks, let the child build a hexagon from triangles: six triangles make a hexagon.", { do: "This is optional, but worth doing once." }),
         ],
       };
     }
@@ -1582,25 +1477,36 @@ const money = {
   },
 };
 
-// Facts the First Grade fact review may draw on.
+// Facts the First Grade fact review may draw on. A unit's facts are released
+// in sets of six, one set a lesson from the lesson the unit begins, so a new
+// strategy opens a few facts at a time, mixed with the facts already known.
+const SET_SIZE = 6;
 const firstFacts = [];
 const seenFact = new Set();
 for (const u of ADD_UNITS) {
   if (u.id === "three") continue;
+  let i = 0;
   for (const [a, b] of addFactsFor(u.id)) {
     const key = `${a}+${b}`;
     if (seenFact.has(key)) continue;
     seenFact.add(key);
-    firstFacts.push({ key, a, op: "+", b, ans: a + b, lesson: u.lesson });
+    firstFacts.push({ key, a, op: "+", b, ans: a + b, lesson: u.lesson + Math.floor(i / SET_SIZE), set: Math.floor(i / SET_SIZE) + 1, unit: u.id });
+    i++;
   }
 }
 for (const u of SUB_UNITS) {
+  let i = 0;
   for (const [a, b] of subFactsFor(u.id)) {
     const key = `${a}-${b}`;
     if (seenFact.has(key)) continue;
     seenFact.add(key);
-    firstFacts.push({ key, a, op: "−", b, ans: a - b, lesson: u.lesson });
+    firstFacts.push({ key, a, op: "−", b, ans: a - b, lesson: u.lesson + Math.floor(i / SET_SIZE), set: Math.floor(i / SET_SIZE) + 1, unit: u.id });
+    i++;
   }
+}
+// The facts released by a lesson, for the daily drill and the timed check.
+export function releasedFacts(n, op) {
+  return firstFacts.filter((f) => f.lesson <= n && (!op || f.op === op));
 }
 
 export { addFacts, subFacts, stories as firstStories, placeValue, numMax as firstNumMax };
@@ -1610,24 +1516,24 @@ export default {
   slug: "first",
   name: "First Grade",
   longName: "First Grade",
-  age: "about 6",
+  age: "about six",
   lessons: 150,
-  minutes: "20 to 30",
-  minExercises: 7,
-  maxExercises: 8,
-  minReviewSteps: 4,
-  maxSteps: 70,
+  minutes: "12 to 15",
+  minutesBand: [12, 15],
+  minExercises: 8,
+  maxExercises: 10,
+  minReviewSteps: 6,
+  maxSteps: 100,
   maxGap: 12,
-  worksheetItems: 5,
   reviewIntervals: [2, 4, 6],
   placementPoints: [1, 40, 80, 115],
   tagline: "Numbers to 120, tens and ones, facts to 20, story problems of every kind, time, graphs, and halves and fourths.",
-  description: "First Grade covers the Common Core first-grade standards: counting, reading, and writing to 120; tens and ones; addition and subtraction facts to 20 learned through strategies; the meaning of the equal sign; story problems of every kind; adding two-digit numbers; length, time, graphs, shapes, halves and fourths; and, as an option, coins.",
-  endsWith: "By the end of First Grade, the child counts, reads, and writes to 120, knows the addition and subtraction facts within 10 without counting and can work out any fact within 20, solves every kind of one-step story problem within 20, adds within 100 using tens and ones, tells time to the half hour, and reads simple graphs.",
-  materials: ["Paper and a pencil", "Ten straws or craft sticks and a rubber band, for bundling tens (optional)", "About ten paper clips", "A few real coins (optional)"],
+  description: "First Grade covers the Common Core first-grade standards: counting and reading to 120; tens and ones; addition and subtraction facts to 20 learned through strategies; the meaning of the equal sign; story problems of every kind; adding two-digit numbers; length, time, graphs, shapes, halves and fourths; and, as an option, coins.",
+  endsWith: "By the end of First Grade, the child counts and reads to 120, knows the addition and subtraction facts within 10 without counting and can work out any fact within 20, solves every kind of one-step story problem within 20, adds within 100 using tens and ones, tells time to the half hour, and reads simple graphs.",
+  materials: ["Ten straws or craft sticks and a rubber band, for bundling tens (optional)", "About ten paper clips, or other small objects all the same size", "A few real coins (optional)"],
   facts: firstFacts,
   readable(n) {
     return new Set(range(0, numMax(n)));
   },
-  tracks: [countAloud, numerals, dictation, placeValue, addFacts, subFacts, families, fluency, equalSign, stories, twoDigit, length, time, data, shapes, money],
+  tracks: [countAloud, numerals, placeValue, addFacts, subFacts, families, fluency, equalSign, stories, twoDigit, length, time, data, shapes, money],
 };

@@ -1,0 +1,19 @@
+---
+layout: layouts/app.njk
+title: Search
+description: Search the lessons, skills, and pages of Math Direct.
+permalink: /search/
+bodyClass: page-search
+excludeFromSitemap: true
+---
+<header class="screen__head">
+  <h1 class="screen__title">Search</h1>
+</header>
+<form class="search-form" role="search" action="/search/" method="get">
+  <label for="search-input" class="sr-only">Search lessons, skills, and pages</label>
+  <input type="search" id="search-input" name="q" placeholder="Lessons, skills, and pages" autocomplete="off" autofocus>
+  <button type="submit" class="btn btn--primary">Search</button>
+</form>
+<p class="search-count" id="search-count" aria-live="polite"></p>
+<ol class="search-results" id="search-results"></ol>
+<script src="/assets/js/search.js?v={{ build.version }}" defer></script>

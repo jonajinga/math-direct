@@ -10,26 +10,45 @@
     try { return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }); } catch (e) { return ""; }
   }
 
-  // ── Marks on the cards, the Continue button, and the progress bar ──
+  // ── Marks on the chips, the Continue button, and the progress bar ──
   function paint() {
     var profile = P.getActiveProfile();
     if (!profile) return;
 
-    var cards = document.querySelectorAll("[data-lesson-id]");
-    for (var i = 0; i < cards.length; i++) {
-      var id = cards[i].getAttribute("data-lesson-id");
+    var chips = document.querySelectorAll("[data-lesson-id]");
+    var levelOf = {};
+    for (var i = 0; i < chips.length; i++) {
+      var id = chips[i].getAttribute("data-lesson-id");
       var st = P.lessonStatus(id, profile);
-      cards[i].classList.toggle("is-done", st === "done");
-      cards[i].classList.toggle("is-repeat", st === "repeat");
-      cards[i].title = st === "done" ? "Finished" : st === "repeat" ? "To repeat" : "";
+      var m = /^(.+)-(\d{3})$/.exec(id);
+      if (m && levelOf[m[1]] === undefined) levelOf[m[1]] = null;
+      chips[i].classList.toggle("is-done", st === "done");
+      chips[i].classList.toggle("is-repeat", st === "repeat");
+      chips[i].classList.remove("is-next");
+      chips[i].setAttribute("aria-label", "Lesson " + chips[i].getAttribute("data-n") + (st === "done" ? ", finished" : st === "repeat" ? ", to repeat" : ""));
     }
+    // The next lesson of each level on the screen gets a ring.
+    Object.keys(levelOf).forEach(function (level) {
+      var box = document.querySelector('[data-level-actions][data-level="' + level + '"]');
+      var total = box ? Number(box.getAttribute("data-total")) : 999;
+      var next = P.nextLesson(level, total);
+      var chip = document.querySelector('[data-lesson-id="' + level + "-" + String(next).padStart(3, "0") + '"]');
+      if (chip && P.lessonStatus(chip.getAttribute("data-lesson-id"), profile) !== "done") {
+        chip.classList.add("is-next");
+        chip.setAttribute("aria-label", chip.getAttribute("aria-label") + ", next");
+      }
+    });
 
     var tests = document.querySelectorAll("[data-test-id]");
     for (var j = 0; j < tests.length; j++) {
       var ts = P.testStatus(tests[j].getAttribute("data-test-id"), profile);
       tests[j].classList.toggle("is-done", ts === "passed");
       tests[j].classList.toggle("is-repeat", ts === "retake");
-      tests[j].title = ts === "passed" ? "Passed" : ts === "retake" ? "To give again" : "";
+      var badge = tests[j].querySelector("[data-test-status]");
+      if (badge) {
+        badge.textContent = ts === "passed" ? "Passed" : ts === "retake" ? "Give again" : "Not given";
+        badge.className = "status " + (ts === "passed" ? "status--done" : ts === "retake" ? "status--repeat" : "status--plain");
+      }
     }
 
     var boxes = document.querySelectorAll("[data-level-actions]");
@@ -37,14 +56,13 @@
       var box = boxes[k];
       var level = box.getAttribute("data-level"), total = Number(box.getAttribute("data-total")), slug = box.getAttribute("data-slug");
       var next = P.nextLesson(level, total);
-      var btn = box.querySelector("[data-continue]");
-      if (btn) {
-        // Remember the button as the page drew it, so a reset can restore it.
+      var btn = document.querySelector("[data-continue]");
+      var anyDone = profile.completed.some(function (c) { return c.indexOf(level + "-") === 0; });
+      if (btn && box.closest(".page-level")) {
         if (!btn.hasAttribute("data-start-href")) {
           btn.setAttribute("data-start-href", btn.getAttribute("href"));
           btn.setAttribute("data-start-label", btn.textContent);
         }
-        var anyDone = profile.completed.some(function (c) { return c.indexOf(level + "-") === 0; });
         if (anyDone || next > 1) {
           var testsAttr = box.getAttribute("data-tests");
           var step = P.nextStep(level, total, testsAttr ? JSON.parse(testsAttr) : [], slug);
@@ -60,7 +78,7 @@
         var n = profile.completed.filter(function (c) { return c.indexOf(level + "-") === 0; }).length;
         bar.style.setProperty("--p", Math.min(1, n / total));
         var lbl = box.querySelector("[data-progress-label]");
-        if (lbl) lbl.textContent = n + " of " + total + " lessons finished";
+        if (lbl) lbl.textContent = n ? n + " of " + total + " lessons finished" : "Not started";
       }
     }
   }
@@ -73,7 +91,7 @@
     if (toggle) toggle.hidden = true;
     return;
   }
-  var note = document.querySelector("[data-mark-note]");
+  var note = document.getElementById("mark-note");
   var marking = false;
   var current = null;
 
@@ -83,6 +101,10 @@
     toggle.setAttribute("aria-pressed", on ? "true" : "false");
     toggle.textContent = on ? "Done" : "Change marks";
     if (note) note.hidden = !on;
+    var items = document.querySelectorAll("[data-lesson-id], [data-test-id]");
+    for (var i = 0; i < items.length; i++) {
+      if (on) items[i].setAttribute("role", "button"); else items[i].removeAttribute("role");
+    }
   }
   toggle.addEventListener("click", function () { setMarking(!marking); });
 
@@ -111,7 +133,7 @@
   function open(card) {
     var isTest = card.hasAttribute("data-test-id");
     var id = card.getAttribute(isTest ? "data-test-id" : "data-lesson-id");
-    var name = isTest ? card.querySelector(".lcard__new").textContent : "Lesson " + card.querySelector(".lcard__n").textContent;
+    var name = isTest ? card.getAttribute("data-name") : "Lesson " + card.getAttribute("data-n");
     var st = isTest ? P.testStatus(id) : P.lessonStatus(id);
     current = { id: id, isTest: isTest, name: name, status: st };
     document.getElementById("mark-title").textContent = name;
@@ -127,12 +149,14 @@
     });
     document.getElementById("mark-help").textContent = isTest
       ? "Resetting erases this test's results for " + P.getActiveProfile().name + "."
-      : "Resetting erases this lesson's record for " + P.getActiveProfile().name + ", so it shows as never taught.";
+      : "Resetting erases this lesson's record for " + P.getActiveProfile().name + ", so it shows as never taught. Rehearse runs the lesson without a child and records nothing.";
     var link = document.getElementById("mark-open");
     link.href = card.getAttribute("href");
     link.textContent = isTest ? "Open the test" : "Open the lesson";
+    var reh = document.getElementById("mark-rehearse");
+    if (reh) { reh.hidden = isTest; reh.href = card.getAttribute("href") + "?rehearse=1"; }
     dlg.returnValue = "";
-    dlg.showModal();
+    if (window.MD) MD.openSheet(dlg, card); else dlg.showModal();
   }
 
   document.addEventListener("click", function (e) {
@@ -147,15 +171,16 @@
     var v = dlg.returnValue;
     if (!current || !v) return;
     var who = P.getActiveProfile().name;
-    if (current.isTest) {
-      if (v === "new" && !window.confirm("Reset " + current.name + " for " + who + "? Its results will be erased.")) return;
-      P.setTestStatus(current.id, { done: "passed", repeat: "retake", "new": "new" }[v]);
-    } else {
-      if (v === "new" && P.lessonHistory(current.id).length &&
-        !window.confirm("Reset " + current.name + " for " + who + "? The record of its teaching will be erased.")) return;
-      P.setLessonStatus(current.id, v);
-    }
+    var cur = current;
     current = null;
-    paint();
+    function apply() {
+      if (cur.isTest) P.setTestStatus(cur.id, { done: "passed", repeat: "retake", "new": "new" }[v]);
+      else P.setLessonStatus(cur.id, v);
+      paint();
+    }
+    if (v !== "new" || !window.MD) { apply(); return; }
+    var hasRecord = cur.isTest ? P.testStatus(cur.id) !== "new" : P.lessonHistory(cur.id).length > 0;
+    if (!hasRecord) { apply(); return; }
+    MD.confirm({ title: "Reset " + cur.name + " for " + who + "?", text: cur.isTest ? "Its results are erased." : "The record of its teaching is erased.", ok: "Reset", cancel: "Keep", danger: true }).then(function (yes) { if (yes) apply(); });
   });
 })();

@@ -1,11 +1,12 @@
-// Pre-K: 100 lessons, about ten minutes each, for children of about four.
+// Pre-K: 100 lessons, 8 to 12 minutes each, for children of about four.
 
 import {
-  V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural, an, capFirst,
+  V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain, Chain, plural, capFirst,
   countTest, countAnswer, touchCount, readNum, touchNum, flashTest, touchChoice, iconSeq,
   favorNew, others,
 } from "./common.js";
 import { tok } from "../lib/v.js";
+import readiness, { readinessItems } from "./readiness.js";
 
 // ─────────────────────────────────────────────────────────────
 // Counting aloud
@@ -159,19 +160,6 @@ const countObjects = {
       ...touchCount(icons[1], r.int(2, u.max - 1), u.arr, { seed: 12 }),
     ];
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const u = intro[intro.length - 1];
-    const n = r.int(2, Math.min(u.max, 8));
-    const icon = r.pick(["apple", "star", "ball", "flower"]);
-    const opts = r.shuffle([n, ...others(r, [1, 2, 3, 4, 5, 6, 7, 8].filter((x) => x <= Math.max(4, u.max)), n, 2)]);
-    return {
-      kind: "circle",
-      prompt: `Circle the group with ${word(n)} ${plural(icon, n)}.`,
-      opts: opts.map((x) => V.obj(icon, x, { arr: "row", size: "sm" })),
-      ans: [opts.indexOf(n)],
-    };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -236,13 +224,6 @@ const countOut = {
     const u = units[units.length - 1];
     const icons = iconSeq(r, 2);
     return [this.item(icons[0], u.max, Math.min(10, u.max + 3), 3), this.item(icons[1], r.int(2, u.max - 1), Math.min(10, u.max + 3), 4)];
-  },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const u = intro[intro.length - 1];
-    const k = r.int(2, u.max);
-    const icon = r.pick(["ball", "apple", "star"]);
-    return { kind: "mark", prompt: `Color ${word(k)} ${plural(icon, k)}.`, show: V.obj(icon, Math.min(10, u.max + 3), { arr: "row", size: "sm" }), answer: `${Word(k)} colored` };
   },
 };
 
@@ -368,19 +349,6 @@ const numerals = {
     const picks = r.sample(pool, Math.min(3, pool.length));
     return picks.map((d, i) => (i === 1 && pool.length >= 3 ? touchNum(d, others(r, pool, d, 2), r) : readNum(d)));
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const pool = this.pool(intro);
-    if (pool.length < 3) return [];
-    const d = r.pick(pool.slice(-4));
-    const opts = r.shuffle([d, d, ...others(r, pool, d, 3)]);
-    return {
-      kind: "circle",
-      prompt: `Circle every ${d}.`,
-      opts: opts.map((x) => V.num(x, { size: "sm" })),
-      ans: opts.map((x, i) => (x === d ? i : -1)).filter((i) => i >= 0),
-    };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -458,21 +426,6 @@ const matchTrack = {
     const r = ctx.rand;
     const max = units[units.length - 1].max;
     return [...this.numToGroup(r.int(2, max), max, r).slice(1), ...this.groupToNum(r.int(2, max), max, r).slice(1)];
-  },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const max = intro[intro.length - 1].max;
-    const k = r.int(2, max);
-    const pool = [];
-    for (let i = 1; i <= max; i++) pool.push(i);
-    const opts = r.shuffle([k, ...others(r, pool, k, 2)]);
-    return {
-      kind: "circle",
-      prompt: `Look at the number. Circle the group with that many.`,
-      show: V.num(k, { size: "sm" }),
-      opts: opts.map((x) => V.dots(x, { arr: "row", size: "sm" })),
-      ans: [opts.indexOf(k)],
-    };
   },
 };
 
@@ -603,20 +556,6 @@ const compare = {
     if (has("spread")) out.push(this.moreTest(r, max, icons[1], { noLines: true, spread: 0 }));
     return out;
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const fewer = intro.some((u) => u.id === "fewer") && r() < 0.5;
-    let a = r.int(1, 5), b = r.int(1, 5);
-    while (a === b) b = r.int(1, 5);
-    const icon = r.pick(["apple", "star", "duck"]);
-    const ans = fewer ? (a < b ? 0 : 1) : (a > b ? 0 : 1);
-    return {
-      kind: "circle",
-      prompt: `Circle the group that has ${fewer ? "fewer" : "more"}.`,
-      opts: [V.obj(icon, a, { size: "sm" }), V.obj(icon, b, { size: "sm" })],
-      ans: [ans],
-    };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -684,7 +623,7 @@ const shapes = {
     const info = SHAPE_INFO[s];
     const known = intro.map((x) => x.s);
     const steps = [];
-    steps.push(model(shapeVis(info.yes[0]), `My turn. This is a ${s}. ${info.rule}`, { do: "Trace around the edge of the shape with your finger as you talk." }));
+    steps.push(model(shapeVis(info.yes[0]), `My turn. This is a ${s}. ${info.rule}`, { do: "Run your finger around the edge of the shape as you talk." }));
     for (const y of info.yes.slice(1)) {
       steps.push(model(shapeVis(y), y.note || `This is a ${s} too.`));
     }
@@ -718,19 +657,6 @@ const shapes = {
     const known = units.map((x) => x.s);
     const pool = Array.from(new Set([...known, "circle", "square", "triangle"]));
     return known.slice(-2).flatMap((s) => [this.touchTest(r, s, pool)]).concat(known.length > 1 ? [this.nameTest(r, known[known.length - 1])] : []);
-  },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const known = intro.map((x) => x.s);
-    const s = r.pick(known);
-    const pool = ["circle", "square", "triangle", "rectangle"].filter((x) => x !== s);
-    const opts = r.shuffle([s, s, ...r.sample(pool, 3)]);
-    return {
-      kind: "circle",
-      prompt: `Circle every ${s}.`,
-      opts: opts.map((x) => this.randomShape(r, x)),
-      ans: opts.map((x, i) => (x === s ? i : -1)).filter((i) => i >= 0),
-    };
   },
 };
 
@@ -843,20 +769,6 @@ const position = {
     if (known.includes("firstlast")) out.push(this.lineTest(r, "last"));
     return out;
   },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const rels = intro.map((x) => x.id).filter((x) => x !== "firstlast");
-    if (rels.length < 2) return [];
-    const rel = r.pick(rels);
-    const other = r.pick(rels.filter((x) => x !== rel));
-    const opts = r.shuffle([rel, other]);
-    return {
-      kind: "circle",
-      prompt: `Circle the picture where the ball is ${POS[rel].phrase} the ${POS[rel].ref}.`,
-      opts: opts.map((x) => V.scene(x, { obj: "ball", ref: POS[x].ref, size: "sm" })),
-      ans: [opts.indexOf(rel)],
-    };
-  },
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -865,7 +777,7 @@ const position = {
 
 const SIZE = {
   big: { a: "big", b: "small", icons: ["ball", "apple", "car", "fish", "duck", "star"], kind: "big" },
-  long: { a: "long", b: "short", icons: ["ribbon", "pencil", "snake"], kind: "long" },
+  long: { a: "long", b: "short", icons: ["ribbon", "stick", "snake"], kind: "long" },
   tall: { a: "tall", b: "short", icons: ["tower", "tree"], kind: "tall" },
   heavy: { a: "heavy", b: "light", icons: ["scale"], kind: "heavy" },
 };
@@ -926,7 +838,7 @@ const size = {
       steps.push(lead(this.pairVis("big", "car", false, 0), "Touch the big car with me.", "(Touches the big car.)"));
     } else if (u.id === "long") {
       steps.push(model(this.pairVis("long", "ribbon", false), "My turn. These ribbons start at the same place. This ribbon goes farther. It is long. This ribbon is short."));
-      steps.push(model(this.pairVis("long", "pencil", true), "This pencil is short. This pencil is long."));
+      steps.push(model(this.pairVis("long", "stick", true), "This stick is short. This stick is long."));
       steps.push(lead(this.pairVis("long", "snake", false, 0), "Touch the long snake with me.", "(Touches the long snake.)"));
     } else if (u.id === "tall") {
       steps.push(model(this.pairVis("tall", "tower", false), "My turn. These towers stand on the same floor. This tower goes up higher. It is tall. This tower is short."));
@@ -950,22 +862,6 @@ const size = {
   testItems(units, ctx) {
     const r = ctx.rand;
     return units.slice(-2).map((u) => this.touchTest(r, u.id, r() < 0.5));
-  },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const k = r.pick(intro.map((x) => x.id).filter((x) => x !== "heavy"));
-    if (!k) return [];
-    const info = SIZE[k];
-    const wantA = r() < 0.5;
-    const icon = r.pick(info.icons);
-    const flip = r() < 0.5;
-    const bigIndex = flip ? 1 : 0;
-    return {
-      kind: "circle",
-      prompt: `Circle the ${wantA ? info.a : info.b} ${icon}.`,
-      opts: (flip ? [0.5, 1] : [1, 0.5]).map((s) => V.size(k, [s], { icon, single: true, size: "sm" })),
-      ans: [wantA ? bigIndex : 1 - bigIndex],
-    };
   },
 };
 
@@ -1035,21 +931,6 @@ const patterns = {
   testItems(units, ctx) {
     const r = ctx.rand;
     return units.slice(-2).map((u) => this.nextTest(r, u.id)[1]);
-  },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const type = r.pick(intro.map((x) => x.id));
-    const p = this.build(r, type, 2);
-    const shown = p.seq.slice(0, p.seq.length - 1);
-    const next = p.seq[p.seq.length - 1];
-    const opts = r.shuffle(Array.from(new Set(p.core.map((c) => p.icons[c]))));
-    return {
-      kind: "circle",
-      prompt: "Say the pattern. Circle what comes next.",
-      show: V.pattern(shown.map((i) => ({ icon: i })), { blanks: 1, size: "sm" }),
-      opts: opts.map((i) => V.obj(i, 1, { size: "sm" })),
-      ans: [opts.indexOf(next)],
-    };
   },
 };
 
@@ -1133,18 +1014,6 @@ const sorting = {
   testItems(units, ctx) {
     const r = ctx.rand;
     return units.slice(-2).map((u) => this.oddTest(r, u.id)[0]);
-  },
-  worksheet(intro, ctx) {
-    const r = ctx.rand;
-    const by = r.pick(intro.map((x) => x.id));
-    const st = this.set(r, by);
-    const all = r.shuffle([...st.items.map((x) => ({ ...x, odd: false })), { ...st.odd, odd: true }]);
-    return {
-      kind: "circle",
-      prompt: "Circle the one that does not belong.",
-      opts: all.map((x) => (x.icon ? V.obj(x.icon, 1, { scale: x.scale, size: "sm" }) : V.shape(x.s, { c: x.c, scale: 0.7, size: "sm" }))),
-      ans: [all.findIndex((x) => x.odd)],
-    };
   },
 };
 
@@ -1245,104 +1114,31 @@ const stories = {
   },
 };
 
-// ─────────────────────────────────────────────────────────────
-// Writing numbers (optional)
-// ─────────────────────────────────────────────────────────────
-
-export const STROKES = {
-  0: "Start at the top. Go around and back up to the top.",
-  1: "Start at the top. Go straight down.",
-  2: "Start at the top. Go around like a hook, slant down to the bottom, then go across.",
-  3: "Start at the top. Go around to the middle, then around again to the bottom.",
-  4: "Start at the top. Go down, then across. Lift your pencil. Start at the top again and go straight down.",
-  5: "Start at the top. Go down to the middle, then around like a big belly. Lift your pencil. Make a line across the top.",
-  6: "Start at the top. Curve down to the bottom and go around into a circle.",
-  7: "Start at the top. Go across, then slant down.",
-  8: "Start at the top. Make an S, then go back up to the top.",
-  9: "Start at the top. Make a small circle, then go straight down.",
-};
-
-export function writingTrack(units, opts = {}) {
-  return {
-    id: "writing",
-    name: opts.name || "Writing numbers",
-    summary: opts.summary || "Watch, trace, and write numbers, starting at the top.",
-    standard: opts.standard || "ELOF: fine motor and number writing",
-    units,
-    worksheetOnly: false,
-    newEx(u, ctx, intro) {
-      const d = u.d;
-      const digits = String(d).split("");
-      const howTo = digits.map((x) => STROKES[x]).join(" Then, next to it: ");
-      return {
-        title: u.label,
-        steps: [
-          model(V.write(d), `My turn to write ${word(d)}. Watch. ${howTo}`, { do: "The number draws itself. Show again, the curved arrow, draws it again. Say each part as it is drawn." }),
-          lead(V.write(d), `Write ${word(d)} in the air with me. Make it big. ${howTo}`, `(Writes ${d} in the air.)`, { do: "Stand beside the child and write in the air together with one finger." }),
-          test(V.num(d), `Your turn. Write ${word(d)} in the air.`, `(Writes ${d} in the air, starting at the top.)`,
-            fixPoint(`Watch. ${howTo}`, `Write ${word(d)} in the air.`), { skill: "write", item: `write:${d}`, confirm: "Yes. You started at the top." }),
-          note(V.num(d), `On today's worksheet, trace each ${word(d)}. Then write ${an(word(d))} ${word(d)} by yourself.`, { do: "Watch the first one. If the child starts at the bottom, stop and show again." }),
-        ],
-      };
-    },
-    reviewEx(intro, ctx) {
-      const r = ctx.rand;
-      const d = favorNew(r, intro.map((u) => u.d), 1)[0];
-      return {
-        title: "Writing numbers",
-        steps: [
-          test(V.num(d), `Write ${word(d)} in the air.`, `(Writes ${d} in the air, starting at the top.)`, fixPoint(`Watch. ${String(d).split("").map((x) => STROKES[x]).join(" Then, next to it: ")}`, `Write ${word(d)} in the air.`), { skill: "write", item: `write:${d}` }),
-        ],
-      };
-    },
-    testItems(units) {
-      const d = units[units.length - 1].d;
-      const howTo = String(d).split("").map((x) => STROKES[x]).join(" Then, next to it: ");
-      return [test(V.say(), `Write the number ${word(d)} on paper.`, `(Writes ${d}, starting at the top.)`, fixPoint(`Watch. (Write it on paper.) ${howTo}`, `Write the number ${word(d)} on paper.`), { skill: "write", item: `write:${d}` })];
-    },
-    worksheet(intro, ctx) {
-      const r = ctx.rand;
-      const d = favorNew(r, intro.map((u) => u.d), 1)[0];
-      return { kind: "trace", d, prompt: `Trace each ${d}. Then write ${an(word(d))} ${d} by yourself.` };
-    },
-  };
-}
-
-const writing = writingTrack([
-  { id: "w1", lesson: 54, d: 1, label: "Write 1" },
-  { id: "w0", lesson: 64, d: 0, label: "Write 0" },
-  { id: "w7", lesson: 73, d: 7, label: "Write 7" },
-  { id: "w4", lesson: 79, d: 4, label: "Write 4" },
-  { id: "w3", lesson: 86, d: 3, label: "Write 3" },
-  { id: "w2", lesson: 91, d: 2, label: "Write 2" },
-  { id: "w5", lesson: 96, d: 5, label: "Write 5" },
-], { name: "Writing numbers (optional)", summary: "Watch, trace, and write the numbers 0 to 5 and 7. Writing is optional at this age; skip it if the child's hand is not ready." });
-
 export default {
   id: "prek",
   slug: "prek",
   name: "Pre-K",
   longName: "Pre-K",
-  age: "about 4",
+  age: "about four",
   lessons: 100,
-  minutes: "10 to 12",
-  minExercises: 4,
-  minReviewSteps: 3,
-  maxExercises: 6,
-  maxSteps: 46,
+  minutes: "8 to 12",
+  minutesBand: [8, 12],
+  minExercises: 6,
+  minReviewSteps: 5,
+  maxExercises: 8,
+  maxSteps: 70,
   placementPoints: [1, 35, 70],
   maxGap: 9,
-  worksheetItems: 3,
-  worksheetOptional: true,
   reviewIntervals: [2, 3, 4],
   tagline: "Counting to 20, reading numbers to 10, seeing small amounts at a glance, shapes, patterns, and the first story problems.",
   description: "Pre-K builds the foundation: counting aloud to 20, counting objects, seeing small amounts at a glance, reading numbers to 10, comparing groups, shapes, position and size words, patterns, sorting, and the first spoken story problems.",
   endsWith: "By the end of Pre-K, the child counts to 20, counts out up to 10 objects, reads the numbers 0 to 10, sees amounts to 5 at a glance, names four shapes, continues simple patterns, and solves spoken story problems within 5 with pictures.",
-  materials: ["Ten small objects, such as blocks or buttons", "Crayons or pencils for the optional worksheets"],
+  materials: ["Ten small objects, such as blocks or buttons"],
   readable(n) {
     return new Set(NUM_ORDER.filter(([, lesson]) => lesson <= n).map(([d]) => d));
   },
-  tracks: [countAloud, countObjects, subitize, numerals, compare, shapes, position, size, countOut, matchTrack, sorting, patterns, stories, writing],
+  readiness: readinessItems,
+  tracks: [readiness, countAloud, countObjects, subitize, numerals, compare, shapes, position, size, countOut, matchTrack, sorting, patterns, stories],
 };
 
 // Formats reused by later levels.
