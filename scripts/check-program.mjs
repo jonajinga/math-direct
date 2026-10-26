@@ -407,6 +407,22 @@ for (let i = 0; i < 300; i++) {
 const plRec = await page.evaluate(() => window.mathProgress.getPlacement("reading"));
 check("the reading placement test runs readiness, then the spans, and names the lesson to begin with", sectionsSeen.length === 3 && /readiness/.test(sectionsSeen[0]) && /Start at Reading 1, Lesson 20/.test(await page.textContent("#runner-finish")) && !!plRec && plRec.level === "reading-1" && plRec.lesson === 20 && plRec.subject === "reading", sectionsSeen.join(" | ") + " " + JSON.stringify(plRec));
 check("the reading placement leaves the math placement alone", await page.evaluate(() => { const p = window.mathProgress.getActiveProfile(); return !p.placements.math || p.placements.math.level !== "reading-1"; }));
+// ── Two children in reading: lines and questions go to one child at a time ──
+await page.goto(BASE + "/reading-1/lesson-041/?with=" + kids.b, { waitUntil: "load" });
+await page.waitForTimeout(300);
+const gr = await page.evaluate(() => { const m = window.mdRunner; const segs = m.segments(); const story = segs.find((s) => /^Story:/.test(s.title)); const sounds = segs.find((s) => s.track === "sounds"); return { group: m.sitting().group, storyTurns: story ? story.steps.filter((st) => st.cue === "test" && (st.skill === "story" || st.skill === "comprehension")).map((st) => st.forChild || "") : [], storyAdded: story ? !!story.turnsAdded : null, soundsTurns: sounds ? sounds.steps.filter((st) => st.forChild).length : -1 }; });
+check("with two children, story lines and questions alternate between them and no extra turn is added", gr.group && gr.storyTurns.length >= 6 && gr.storyTurns.every((c, i) => c === gr.storyTurns[i % 2]) && gr.storyTurns[0] !== gr.storyTurns[1] && [kids.a, kids.b].every((id) => gr.storyTurns.indexOf(id) !== -1) && gr.storyAdded === true && gr.soundsTurns === 0, JSON.stringify({ added: gr.storyAdded, sounds: gr.soundsTurns, first: gr.storyTurns.slice(0, 3) }));
+let rTurnCues = [], sawStoryTurn = false;
+for (let i = 0; i < 500; i++) {
+  if (await visible("#runner-finish")) break;
+  const title = await page.textContent("#tp-ex-title");
+  if (/^Story:/.test(title)) { const cue = await page.textContent("#tp-cue"); if (/alone/.test(cue)) { sawStoryTurn = true; rTurnCues.push(cue); } }
+  await page.click(await pickBtn());
+  await page.waitForTimeout(10);
+}
+check("each child read lines of the story alone, and the lesson for two finished", (await visible("#runner-finish")) && sawStoryTurn && rTurnCues.some((c) => c.indexOf(kids.aName) === 0) && rTurnCues.some((c) => c.indexOf(kids.bName) === 0), rTurnCues.slice(0, 4).join(" | "));
+check("the reading lesson for two is recorded for both children", await page.evaluate((k) => { const P = window.mathProgress; const a = P.getProfile(k.a), b = P.getProfile(k.b); return !!(a.lessons["reading-1-041"] && b.lessons["reading-1-041"] && a.last.reading && a.last.reading.id === "reading-1-041" && b.last.reading && b.last.reading.id === "reading-1-041"); }, kids));
+
 // ── A Reading 2 lesson: a story day, plain letters, recorded under reading ──
 await page.goto(BASE + "/reading-2/lesson-026/", { waitUntil: "load" });
 await page.waitForTimeout(300);

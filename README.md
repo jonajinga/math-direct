@@ -1,6 +1,6 @@
 # Teach Direct
 
-Free, scripted Direct Instruction lessons a parent teaches from a phone. The math program covers Pre-K, Kindergarten, and First Grade, with an optional bridge to second grade. The reading program, moved from Open Phonics, covers Reading 1 and Reading 2 on the same design. A parent or teacher reads the script; the child answers; the parent marks each answer Firm or Error. There are no games, points, or prizes.
+Free, scripted Direct Instruction lessons a parent teaches from a phone. The math program covers Pre-K, Kindergarten, and First Grade, with an optional bridge to second grade. The reading program, moved from Open Phonics, covers Reading 1 and Reading 2 on the same design, with a teaching guide at `/guide/reading/`, the sounds at `/sounds/`, the word list at `/words/`, and the stories at `/stories/`. A parent or teacher reads the script; the child answers; the parent marks each answer Firm or Error. There are no games, points, or prizes.
 
 The app was called Math Direct until the reading program joined it; its records in a browser are kept under the old name, and a Math Direct or Open Phonics backup loads into it.
 

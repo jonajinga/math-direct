@@ -14,7 +14,7 @@ const list = [
   { from: "/student/", to: "/records/" },
   { from: "/teacher/", to: "/records/" },
   { from: "/roadmap/", to: "/curriculum/" },
-  { from: "/parent-guide/", to: "/guide/" },
+  { from: "/parent-guide/", to: "/guide/reading/" },
   { from: "/features/", to: "/about/" },
   { from: "/support/", to: "/about/" },
   { from: "/contact/", to: "/about/" },
@@ -24,7 +24,7 @@ const list = [
 ];
 // Open Phonics addresses. They point at the reading pages as those are built.
 // The stories keep their addresses: /stories/ and /stories/<slug>/ are pages here.
-list.push({ from: "/pronunciation-guide/", to: "/curriculum/" }, { from: "/word-list/", to: "/curriculum/" });
+list.push({ from: "/pronunciation-guide/", to: "/sounds/" }, { from: "/word-list/", to: "/words/" });
 for (let i = 1; i <= 7; i++) list.push({ from: `/phases/phase-${i}/`, to: "/curriculum/" });
 for (let i = 1; i <= 150; i++) list.push({ from: `/lessons/lesson-${String(i).padStart(2, "0")}/`, to: "/lessons/" });
 for (const slug of OLD_PRACTICE) list.push({ from: `/practice/${slug}/`, to: "/practice/" });

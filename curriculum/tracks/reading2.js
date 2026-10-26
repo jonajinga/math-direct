@@ -557,6 +557,12 @@ export default {
   tracks: [sounds, blends, soundOut, fastWay, wholeWords, endings, sentences, stories, checkouts],
   storyLibrary,
   checkoutGoal,
+  // Every word of this level: taught in a lesson, or readable once its parts are, or read whole.
+  wordList: [
+    ...REGULAR.map((w) => ({ word: w.word, lesson: TAUGHT.get(w.word.toLowerCase()) || Math.max(1, wordAt(w)), whole: false, taught: TAUGHT.has(w.word.toLowerCase()) })),
+    ...IRREGULAR.map((w) => ({ word: w.word, lesson: Math.max(1, w.lesson - 100), whole: true })),
+    ...[...EXTRA.values()].map((x) => ({ word: x.word, lesson: x.lesson, whole: true })),
+  ],
   testTracks: ["sounds", "blends", "sound-out", "fast-way", "whole-words", "endings", "sentences", "stories"],
   testAlways: ["fast-way"],
   testPassage,

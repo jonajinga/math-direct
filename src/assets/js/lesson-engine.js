@@ -90,6 +90,17 @@
       if (ex.kind === "checkout") return { title: ex.title, meta: "Rate and accuracy · " + ex.words + " words", kind: "checkout", track: ex.track, n: ex.n, words: ex.words, goal: ex.goal, allowed: ex.allowed, passage: ex.passage, steps: ex.steps };
       return { title: ex.title, meta: ex.trackName + " · " + kindName(ex.kind), kind: ex.kind, track: ex.track, n: ex.n, materials: ex.materials, steps: ex.steps };
     });
+    // With two children, the lines of a sentence or story and the questions on
+    // it go to one child at a time, as Direct Instruction gives individual
+    // turns in reading; the other formats are answered in unison with a turn
+    // alone at the end of each exercise.
+    if (sitting.group) segments.forEach(function (seg) {
+      if (seg.kind !== "new" && seg.kind !== "firm" && seg.kind !== "review") return;
+      var turns = seg.steps.filter(function (st) { return st.cue === "test" && (st.skill === "story" || st.skill === "comprehension"); });
+      if (!turns.length) return;
+      turns.forEach(function (st, i) { st.forChild = sitting.children[i % 2].id; });
+      seg.turnsAdded = true;
+    });
     if (lesson.independent && lesson.independent.steps.length) {
       // With two children, the items are shared out one child at a time, so neither can copy.
       if (sitting.group) lesson.independent.steps.forEach(function (st, i) { st.forChild = sitting.children[i % 2].id; });

@@ -243,6 +243,13 @@ gate, the next-step logic, and Today read it by subject.
 
 ## Two children
 
+In reading, the lines of a sentence or a story and the questions after it
+go to one child at a time (`initLesson` sets `forChild` on those test
+steps in turn and marks the segment's turns as added), as Direct
+Instruction gives individual turns in reading; sounds, say it fast, and
+words are answered in unison with a turn alone at the end of each
+exercise, as in math. A checkout is read by each child in turn.
+
 A lesson can be taught to two children at once: the runner's More sheet
 offers "Teach two children", which reopens the lesson with `?with=<childId>`
 for the second child (the active child is the first). Every step is then

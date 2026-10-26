@@ -182,6 +182,18 @@ export function buildProgram({ strict = true } = {}) {
     }
   }
   stories.sort((a, b) => a.order - b.order);
+  // The word list: every word the reading levels read, by level and lesson.
+  const words = [];
+  for (const level of LEVELS) for (const w of level.wordList || []) words.push({ word: w.word, level: level.id, levelName: level.name, lesson: w.lesson, whole: !!w.whole, taught: w.taught !== false });
+  words.sort((a, b) => a.level.localeCompare(b.level) || a.lesson - b.lesson || a.word.toLowerCase().localeCompare(b.word.toLowerCase()));
+  // The same words grouped by level and lesson, for the word list page.
+  const wordGroups = [];
+  for (const level of LEVELS) {
+    if (!level.wordList) continue;
+    const byLesson = new Map();
+    for (const w of words) { if (w.level !== level.id) continue; if (!byLesson.has(w.lesson)) byLesson.set(w.lesson, []); byLesson.get(w.lesson).push(w); }
+    wordGroups.push({ level: level.id, levelName: level.name, count: words.filter((w) => w.level === level.id).length, lessons: [...byLesson.entries()].sort((a, b) => a[0] - b[0]).map(([lesson, list]) => ({ lesson, words: list })) });
+  }
 
   if (strict && errors.length) {
     const head = errors.slice(0, 40).join("\n  ");
@@ -201,5 +213,5 @@ export function buildProgram({ strict = true } = {}) {
   const subjects = Object.keys(SUBJECTS)
     .filter((s) => levels.some((l) => l.subject === s))
     .map((s) => ({ ...SUBJECTS[s], levels: levels.filter((l) => l.subject === s).map((l) => l.id) }));
-  return { levels, lessons, tests, practice, placement, placements, facts, soundItems, stories, summary, subjects, errors, warnings };
+  return { levels, lessons, tests, practice, placement, placements, facts, soundItems, stories, words, wordGroups, summary, subjects, errors, warnings };
 }

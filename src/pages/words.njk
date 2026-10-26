@@ -1,0 +1,29 @@
+---
+layout: layouts/app.njk
+title: Word list
+description: "Every word the reading lessons read, by level and by the lesson it is first read at, with the words read whole marked."
+permalink: /words/
+---
+<style>
+  .wl { display: flex; flex-wrap: wrap; gap: 0.25rem 0.625rem; margin: 0 0 var(--sp-2); padding: 0; list-style: none; }
+  .wl__lesson { margin: var(--sp-3) 0 var(--sp-1); font-size: var(--fs-1); font-weight: 700; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.04em; }
+  .wl li { font-family: var(--font-child); font-weight: 700; font-size: 1.125rem; letter-spacing: 0.03em; }
+  .wl li.is-whole { text-decoration: underline wavy; text-decoration-thickness: 0.06em; text-underline-offset: 0.15em; }
+  .wl li.is-later { color: var(--ink-2); font-weight: 400; }
+</style>
+<div class="content">
+  <h1>Word list</h1>
+  <p class="content__intro">Every word the reading lessons read, {{ program.words.length }} in all, under the lesson it is first read at. A word with a wavy line is read whole, because it does not follow its sounds. In Reading 2 a word in plain type is readable once its parts are taught, though no lesson teaches it by itself.</p>
+
+  {% for g in program.wordGroups %}
+  <details class="fold" id="{{ g.level }}"{% if loop.first %} open{% endif %}>
+    <summary><h2 class="fold__h">{{ g.levelName }} <span class="muted">({{ g.count }} words)</span></h2></summary>
+    <div class="fold__body">
+      {% for l in g.lessons %}
+      <p class="wl__lesson">Lesson {{ l.lesson }}</p>
+      <ul class="wl">{% for w in l.words %}<li class="{% if w.whole %}is-whole{% endif %}{% if not w.taught %} is-later{% endif %}">{{ w.word }}</li>{% endfor %}</ul>
+      {% endfor %}
+    </div>
+  </details>
+  {% endfor %}
+</div>

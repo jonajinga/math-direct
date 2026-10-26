@@ -15,6 +15,9 @@ bodyClass: page-more
   <li><a class="row" href="{{ s.guideUrl }}"><span class="row__main"><span class="row__title">Teaching guide{% if program.subjects.length > 1 %}: {{ s.name | lower }}{% endif %}</span><span class="row__sub">How to present, signal, mark, and correct</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
   {% endfor %}
   <li><a class="row" href="/curriculum/"><span class="row__main"><span class="row__title">Scope and sequence</span><span class="row__sub">Every skill and the lesson where it begins</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+  <li><a class="row" href="/sounds/"><span class="row__main"><span class="row__title">Sounds</span><span class="row__sub">Every sound and word part, how to say it, and its lesson</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+  <li><a class="row" href="/words/"><span class="row__main"><span class="row__title">Word list</span><span class="row__sub">Every word the reading lessons read, by lesson</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
+  <li><a class="row" href="/stories/"><span class="row__main"><span class="row__title">Stories</span><span class="row__sub">The thirty stories, each from the lesson its words are taught</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
   <li><a class="row" href="/placement/"><span class="row__main"><span class="row__title">Placement test</span><span class="row__sub">Finds the lesson to begin with</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
   <li><a class="row" href="/search/"><span class="row__main"><span class="row__title">Search</span><span class="row__sub">Lessons, skills, and pages</span></span>{% include "partials/icons/chevron-right.njk" %}</a></li>
 </ul>

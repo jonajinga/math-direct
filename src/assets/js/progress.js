@@ -549,7 +549,7 @@
   }
 
   window.mathProgress = {
-    getProfiles: getProfiles, getActiveProfile: getActiveProfile, getProfile: getProfile, updateProfile: updateProfile, createProfile: createProfile,
+    getProfiles: getProfiles, getActiveProfile: getActiveProfile, setActiveId: setActiveId, getProfile: getProfile, updateProfile: updateProfile, createProfile: createProfile,
     deleteProfile: deleteProfile, renameProfile: renameProfile, switchProfile: switchProfile,
     getCompleted: getCompleted, isComplete: isComplete, markComplete: markComplete, markIncomplete: markIncomplete,
     recordLesson: recordLesson, recordLessonFor: recordLessonFor, lessonHistory: lessonHistory, nextLesson: nextLesson, nextStep: nextStep,

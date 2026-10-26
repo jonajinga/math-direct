@@ -709,6 +709,8 @@ export default {
   tracks: [sounds, sayFast, saySounds, rhyming, soundOut, fastWay, wholeWords, sentences, stories, checkouts],
   storyLibrary,
   checkoutGoal,
+  // Every word read in this level, with the lesson it is first read at.
+  wordList: [...REGULAR.map((w) => ({ word: w.word, lesson: w.at, whole: false })), ...WHOLE.map((w) => ({ word: w.word, lesson: w.at, whole: true }))],
   // Mastery tests take these tracks, and from lesson 50 a passage read alone.
   testTracks: ["sounds", "sound-out", "fast-way", "whole-words", "sentences", "stories"],
   testAlways: ["fast-way"],
