@@ -48,6 +48,7 @@
   var segEntered = 0, segIndex = -1;
   var resumed = false;
   var timed = null; // the one-minute check: { ends, timer }
+  var checkout = null; // a reading checkout: { seg, started, errors, timer, round, results: [{ child, rec }], done }
 
   function key(s, i) { var st = segments[s] && segments[s].steps[i]; return st ? st.uid : s + ":" + i; }
   function firstOf(k) { var r = results[k]; return r ? r.first : null; }
@@ -79,13 +80,14 @@
   function withQuery() { return sitting.group ? "?with=" + encodeURIComponent(otherChildId()) : ""; }
   // Does a step count for this child? Unison steps count for both; a turn only for its child.
   function forChildOk(st, id) { return !id || !st.forChild || st.forChild === id; }
-  function isExercise(seg) { return !!seg && seg.kind !== "delayed" && seg.kind !== "independent"; }
+  function isExercise(seg) { return !!seg && seg.kind !== "delayed" && seg.kind !== "independent" && seg.kind !== "checkout"; }
   function thing() { return MODE === "test" ? "test" : MODE === "placement" ? "placement test" : MODE === "practice" || MODE === "timed" ? "practice" : "lesson"; }
 
   // ── Building scripts for each mode ──
   function initLesson() {
     var lesson = DATA.lesson;
     segments = lesson.exercises.map(function (ex) {
+      if (ex.kind === "checkout") return { title: ex.title, meta: "Rate and accuracy · " + ex.words + " words", kind: "checkout", track: ex.track, n: ex.n, words: ex.words, goal: ex.goal, allowed: ex.allowed, passage: ex.passage, steps: ex.steps };
       return { title: ex.title, meta: ex.trackName + " · " + kindName(ex.kind), kind: ex.kind, track: ex.track, n: ex.n, materials: ex.materials, steps: ex.steps };
     });
     if (lesson.independent && lesson.independent.steps.length) {
@@ -156,7 +158,7 @@
   }
 
   function kindName(k) {
-    return { "new": "new teaching", firm: "firming", review: "review", delayed: "delayed test", test: "test", practice: "practice", placement: "placement" }[k] || k;
+    return { "new": "new teaching", firm: "firming", review: "review", delayed: "delayed test", test: "test", practice: "practice", placement: "placement", checkout: "checkout" }[k] || k;
   }
 
   var testParts = [];
@@ -278,14 +280,15 @@
     segments = [{ title: set.title, meta: set.levelName + " practice", kind: "practice", steps: chosen }];
     assignUids();
     setWhere(set.levelName + " practice", set.title);
-    el.outlineLinks.innerHTML = '<a href="/practice/">All practice</a>';
+    el.outlineLinks.innerHTML = '<a href="' + escapeAttr(DATA.exitUrl || "/practice/") + '">' + escapeHtml(DATA.exitLabel || "All practice") + "</a>";
   }
 
   // ── The strip: one line that shortens itself rather than clip ──
   function renderStrip() {
     var seg = currentSeg();
     where.child = rehearsing ? "Rehearsal" : childName();
-    if (MODE === "lesson") { where.ex = "Exercise " + (pos.seg + 1) + " of " + segments.length; where.exShort = "Ex " + (pos.seg + 1) + " of " + segments.length; }
+    if (checkoutRunning()) { where.ex = "Checkout " + clockText(); where.exShort = where.ex; }
+    else if (MODE === "lesson") { where.ex = "Exercise " + (pos.seg + 1) + " of " + segments.length; where.exShort = "Ex " + (pos.seg + 1) + " of " + segments.length; }
     else if (MODE === "test") { where.ex = "Part " + (pos.seg + 1) + " of " + segments.length; where.exShort = where.ex; }
     else if (MODE === "placement") { where.ex = "Section " + (placement.idx + 1) + " of " + DATA.sections.length; where.exShort = where.ex; }
     else if (MODE === "timed") { where.ex = timed ? Math.max(0, Math.round((timed.ends - Date.now()) / 1000)) + " s left" : ""; where.exShort = where.ex; }
@@ -329,6 +332,7 @@
   // ── Rendering a step ──
   function cueLabel(c, seg, st) {
     if (MODE === "timed") return "Timed";
+    if (seg && seg.kind === "checkout") return "Checkout";
     if (MODE === "test" || MODE === "placement") return "Test item";
     if (st && st.forChild && sitting.group) return nameOf(st.forChild) + " alone";
     if (seg && seg.kind === "independent") return "On your own";
@@ -389,7 +393,9 @@
     var own = seg.kind === "independent";
     var turn = !!(st.forChild && sitting.group);
     el.cue.textContent = cueLabel(st.cue, seg, st);
-    el.cue.className = "tp-cue tp-cue--" + (testing ? "test" : turn ? "turn" : own ? "own" : st.cue);
+    var co = seg.kind === "checkout";
+    if (checkout && !checkout.done && checkout.seg !== pos.seg) stopCheckoutClock(true);
+    el.cue.className = "tp-cue tp-cue--" + (testing || co ? "test" : turn ? "turn" : own ? "own" : st.cue);
     el.say.textContent = st.say || "";
     setBox(el.doBox, el.doText, own ? "" : st["do"] || (seg.materials && pos.step === 0 ? "You will need: " + seg.materials + "." : ""));
     setBox(el.answerBox, el.answerText, numeralChains(st.answer || ""));
@@ -398,7 +404,7 @@
     el.correctBox.classList.remove("is-active");
     el.touched.hidden = true;
     el.touched.textContent = "";
-    el.testNote.textContent = MODE === "timed" ? "Mark each answer at once. The next fact comes up by itself." :
+    el.testNote.textContent = co ? checkoutNote(seg) : MODE === "timed" ? "Mark each answer at once. The next fact comes up by itself." :
       testing ? "This is a test. Do not correct or help. Mark each answer and go on." :
       own && turn ? "Read the line once. Give no help. Mark " + nameOf(st.forChild) + "'s answer." :
       own ? "Read the line once. Give no help. Mark the answer." :
@@ -407,6 +413,10 @@
       st.retestOf ? "Asked again after the correction. Mark it as before." :
       st.missedNote ? "Missed last time. Watch this one." : "";
     el.testNote.hidden = !el.testNote.textContent;
+    if (co && checkout && checkout.seg === pos.seg && checkout.results.length) {
+      el.touched.textContent = checkout.results.map(function (x) { return checkoutLine(x); }).join(" ");
+      el.touched.hidden = false;
+    }
     stepShown = Date.now();
     if (segIndex !== pos.seg) {
       var now = Date.now();
@@ -530,6 +540,18 @@
     el.btnFirm.hidden = errorState || !isTest;
     el.btnNext.hidden = errorState || isTest;
     el.btnNext.textContent = isLastStep() ? "Finish" : "Next";
+    if (seg && seg.kind === "checkout") {
+      // In a checkout the primary button runs the clock, and Error counts a word missed.
+      var running = checkoutRunning(), done = !!(checkout && checkout.seg === pos.seg && checkout.done);
+      el.btnOver.hidden = true;
+      el.btnGoOn.hidden = true;
+      el.btnFirm.hidden = true;
+      el.btnError.hidden = false;
+      el.btnError.disabled = !running;
+      el.btnError.setAttribute("aria-pressed", "false");
+      el.btnNext.hidden = false;
+      el.btnNext.textContent = done ? (isLastStep() ? "Finish" : "Next") : !running ? "Start" : pos.step === seg.steps.length - 1 ? "Stop" : "Next";
+    }
     var r = lastOf(key(pos.seg, pos.step));
     el.btnFirm.setAttribute("aria-pressed", r === "firm" ? "true" : "false");
     el.btnError.setAttribute("aria-pressed", r === "error" ? "true" : "false");
@@ -799,6 +821,81 @@
     inserted.push({ kind: "turn", seg: si, at: at, from: src.uid, child: childId });
   }
 
+  // ── Checkouts: the child reads a passage alone while the clock runs ──
+  function checkoutRunning() { return !!(checkout && checkout.seg === pos.seg && checkout.started && !checkout.done); }
+  function inCheckout() { var seg = currentSeg(); return !!(seg && seg.kind === "checkout" && !(checkout && checkout.seg === pos.seg && checkout.done)); }
+  function clockText() {
+    var s = checkout && checkout.started ? Math.round((Date.now() - checkout.started) / 1000) : 0;
+    return Math.floor(s / 60) + ":" + (s % 60 < 10 ? "0" : "") + (s % 60);
+  }
+  function checkoutChild() { return sitting.group ? sitting.children[checkout ? checkout.round : 0] : null; }
+  function checkoutNote(seg) {
+    var done = !!(checkout && checkout.seg === pos.seg && checkout.done);
+    if (done) return "The checkout is recorded. Tap Next to go on.";
+    var who = sitting.group ? nameOf((checkoutChild() || {}).id) + " reads alone. " : "The child reads alone. ";
+    if (!checkoutRunning()) return who + "Tap Start as the reading begins. Give no help.";
+    return who + "Tap Error for each word missed. Tap " + (pos.step === seg.steps.length - 1 ? "Stop at the end." : "Next at the end of the line.");
+  }
+  function checkoutLine(x) {
+    var r = x.rec;
+    return (x.child ? x.child.name + ": " : "") + r.wpm + " words a minute, " + r.errors + (r.errors === 1 ? " error" : " errors") + ". " +
+      (r.met ? "At the goal of " + r.goal + "." : "The goal is " + r.goal + " a minute with " + r.allowed + " errors or fewer.");
+  }
+  function startCheckoutClock() {
+    checkout.started = Date.now();
+    checkout.errors = 0;
+    checkout.timer = setInterval(function () { renderStrip(); }, 500);
+  }
+  function stopCheckoutClock(abandon) {
+    if (!checkout) return;
+    clearInterval(checkout.timer);
+    checkout.timer = null;
+    if (abandon) checkout = null;
+  }
+  function checkoutNext() {
+    var seg = currentSeg();
+    if (!checkout || checkout.seg !== pos.seg) checkout = { seg: pos.seg, started: 0, errors: 0, timer: null, round: 0, results: [], done: false };
+    if (!checkout.started) {
+      startCheckoutClock();
+      announce("Clock started.");
+      renderStrip();
+      syncBar();
+      el.testNote.textContent = checkoutNote(seg);
+      return;
+    }
+    if (pos.step < seg.steps.length - 1) { pos.step++; render(); return; }
+    // Stop: words a minute and errors, against the goal.
+    var seconds = Math.max(1, Math.round((Date.now() - checkout.started) / 100) / 10);
+    stopCheckoutClock(false);
+    var child = checkoutChild();
+    var wpm = Math.round((seg.words / seconds) * 60);
+    var rec = { date: new Date().toISOString(), level: DATA.lesson.level, lesson: DATA.lesson.number, words: seg.words, seconds: seconds, errors: checkout.errors, wpm: wpm, goal: seg.goal, allowed: seg.allowed, met: wpm >= seg.goal && checkout.errors <= seg.allowed };
+    if (P && !rehearsing) {
+      if (child && P.recordCheckoutFor) P.recordCheckoutFor(child.id, rec);
+      else if (P.recordCheckout) P.recordCheckout(rec);
+    }
+    checkout.results.push({ child: child, rec: rec });
+    announce("Clock stopped. " + checkoutLine(checkout.results[checkout.results.length - 1]));
+    if (sitting.group && checkout.round < sitting.children.length - 1) {
+      checkout.round++;
+      checkout.started = 0;
+      checkout.errors = 0;
+      pos.step = 0;
+      render();
+      return;
+    }
+    checkout.done = true;
+    moved = true;
+    render();
+  }
+  function checkoutError() {
+    if (!checkoutRunning()) return;
+    checkout.errors++;
+    el.btnError.setAttribute("aria-pressed", "true");
+    setTimeout(function () { el.btnError.setAttribute("aria-pressed", "false"); }, 200);
+    announce(checkout.errors + (checkout.errors === 1 ? " error." : " errors."));
+  }
+
   function startOver() {
     if (MODE !== "lesson") return;
     var seg = currentSeg();
@@ -1006,6 +1103,7 @@
       retestFirm: retests.firm, retestErrors: retests.errors,
       delayedFirm: delayed.firm, delayedErrors: delayed.errors, exercises: exErrors, stillMissed: stillMissed, repeat: repeat,
       independent: ownTotal ? { firm: own.firm, errors: own.errors } : null,
+      checkout: checkoutResult(id),
     };
     if (sitting.group) {
       summary.group = true;
@@ -1014,12 +1112,20 @@
     }
     return { child: c, id: id, summary: summary, main: main, retests: retests, own: own, delayed: delayed, turns: turns, exErrors: exErrors, stillMissed: stillMissed, repeat: repeat, ownTotal: ownTotal, ownLow: ownTotal > 0 && own.firm / ownTotal < 0.85, hadDelayed: delayed.firm + delayed.errors > 0 };
   }
+  // The checkout's result for one child: words a minute, errors, the goal.
+  function checkoutResult(childId) {
+    if (!checkout || !checkout.results.length) return null;
+    var x = checkout.results.filter(function (y) { return !childId || (y.child && y.child.id === childId); })[0];
+    if (!x) return null;
+    return { wpm: x.rec.wpm, errors: x.rec.errors, goal: x.rec.goal, allowed: x.rec.allowed, words: x.rec.words, seconds: x.rec.seconds, met: x.rec.met };
+  }
   function reportFacts(r) {
     var html = "<div><dt>Firm</dt><dd>" + r.main.firm + "</dd></div><div><dt>Errors</dt><dd>" + r.main.errors + "</dd></div>";
     if (sitting.group && r.turns.firm + r.turns.errors) html += "<div><dt>Alone</dt><dd>" + r.turns.firm + " of " + (r.turns.firm + r.turns.errors) + "</dd></div>";
     if (r.retests.firm + r.retests.errors) html += "<div><dt>Asked again</dt><dd>" + r.retests.firm + " of " + (r.retests.firm + r.retests.errors) + "</dd></div>";
     if (r.hadDelayed) html += "<div><dt>Retest</dt><dd>" + r.delayed.firm + " of " + (r.delayed.firm + r.delayed.errors) + "</dd></div>";
     if (r.ownTotal) html += "<div><dt>On your own</dt><dd>" + r.own.firm + " of " + r.ownTotal + "</dd></div>";
+    if (r.summary.checkout) html += "<div><dt>Checkout</dt><dd>" + r.summary.checkout.wpm + " a minute, " + r.summary.checkout.errors + (r.summary.checkout.errors === 1 ? " error" : " errors") + "</dd></div>";
     return html;
   }
   function reportAdvice(r, whom) {
@@ -1040,6 +1146,8 @@
       html += "<p><strong>" + (whom ? escapeHtml(whom) + " can go on to the next lesson." : "Go on to the next lesson.") + "</strong> Every item was firm by the end.</p>";
     }
     if (r.ownLow && !rehearsing) html += "<p>On your own, " + r.own.errors + " of " + r.ownTotal + " were missed. Before the next lesson, go over those items with " + (whom ? escapeHtml(whom) : "the child") + ".</p>";
+    var co = r.summary.checkout;
+    if (co && !rehearsing) html += "<p>" + (co.met ? "The checkout met its goal of " + co.goal + " words a minute with " + co.allowed + " errors or fewer." : "The checkout read " + co.wpm + " words a minute with " + co.errors + (co.errors === 1 ? " error" : " errors") + "; the goal is " + co.goal + " a minute with " + co.allowed + " or fewer. Read the passage again the fast way before the next lesson.") + "</p>";
     html += "</div>";
     return html;
   }
@@ -1186,7 +1294,7 @@
       html += '<div class="finish__advice"><p><strong>Every item was firm.</strong></p></div>';
     }
     html += "</article>";
-    showFinish(html, actionBar({ label: "Another set", act: "again" }, { label: "All practice", href: DATA.exitUrl || "/practice/" }));
+    showFinish(html, actionBar({ label: DATA.exitLabel ? "Again" : "Another set", act: "again" }, { label: DATA.exitLabel || "All practice", href: DATA.exitUrl || "/practice/" }));
   }
 
   // Another set starts in place: new items, no page load.
@@ -1339,9 +1447,17 @@
   }
 
   // ── Wire up ──
-  el.btnNext.addEventListener("click", function () { advance(); });
+  el.btnNext.addEventListener("click", function () {
+    var seg = currentSeg();
+    if (seg && seg.kind === "checkout" && !(checkout && checkout.seg === pos.seg && checkout.done)) return checkoutNext();
+    advance();
+  });
   el.btnFirm.addEventListener("click", function () { mark("firm"); });
-  el.btnError.addEventListener("click", function () { mark("error"); });
+  el.btnError.addEventListener("click", function () {
+    var seg = currentSeg();
+    if (seg && seg.kind === "checkout") return checkoutError();
+    mark("error");
+  });
   el.btnOver.addEventListener("click", startOver);
   el.btnGoOn.addEventListener("click", function () { advance(); });
   el.btnShow.addEventListener("click", showAgain);
@@ -1409,12 +1525,16 @@
       case "Enter":
         if (e.target.tagName === "BUTTON" && e.key === "Enter") return;
         e.preventDefault();
-        if (errorState) advance();
+        if (inCheckout()) checkoutNext();
+        else if (errorState) advance();
         else if (isTest) mark("firm");
         else advance();
         break;
       case "f": case "F": if (isTest && !errorState) { e.preventDefault(); mark("firm"); } break;
-      case "x": case "X": case "e": case "E": if (isTest && !errorState) { e.preventDefault(); mark("error"); } break;
+      case "x": case "X": case "e": case "E":
+        if (inCheckout()) { e.preventDefault(); checkoutError(); }
+        else if (isTest && !errorState) { e.preventDefault(); mark("error"); }
+        break;
       case "ArrowLeft": e.preventDefault(); back(); break;
       case "s": case "S": e.preventDefault(); startOver(); break;
       case " ": e.preventDefault(); if (dotStepShown()) { if (!e.repeat) dotDown(); } else showAgain(); break;

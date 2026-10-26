@@ -341,9 +341,10 @@
     update(function (p) { p.timed = (p.timed || []).concat([rec]).slice(-20); });
   }
   // Rate and accuracy checkouts in reading: { date, level, lesson, words, seconds, errors, wpm, goal }
-  function recordCheckout(rec) {
-    update(function (p) { p.checkouts = (p.checkouts || []).concat([rec]).slice(-40); });
+  function recordCheckoutFor(childId, rec) {
+    updateProfile(childId, function (p) { p.checkouts = (p.checkouts || []).concat([rec]).slice(-40); });
   }
+  function recordCheckout(rec) { recordCheckoutFor(null, rec); }
 
   // ── Notes ──
   function addNoteFor(childId, text, ref) {
@@ -554,7 +555,7 @@
     recordLesson: recordLesson, recordLessonFor: recordLessonFor, lessonHistory: lessonHistory, nextLesson: nextLesson, nextStep: nextStep,
     lessonStatus: lessonStatus, setLessonStatus: setLessonStatus, testStatus: testStatus, setTestStatus: setTestStatus,
     recordTest: recordTest, recordPlacement: recordPlacement, getPlacement: getPlacement, recordFact: recordFact, recordFactFor: recordFactFor, factStatus: factStatus,
-    recordSound: recordSound, recordSoundFor: recordSoundFor, soundStatus: soundStatus, missedRecently: missedRecently, recordCheckout: recordCheckout, subjectOf: subjectOf, subjectOrder: subjectOrder,
+    recordSound: recordSound, recordSoundFor: recordSoundFor, soundStatus: soundStatus, missedRecently: missedRecently, recordCheckout: recordCheckout, recordCheckoutFor: recordCheckoutFor, subjectOf: subjectOf, subjectOrder: subjectOrder,
     recordItems: recordItems, recordItemsFor: recordItemsFor, itemHistory: itemHistory, recordTimed: recordTimed,
     addNote: addNote, addNoteFor: addNoteFor, deleteNote: deleteNote, getNotes: getNotes, reset: resetProgress,
     exportAllProfiles: exportAllProfiles, importProfiles: importProfiles,

@@ -82,7 +82,7 @@ export function buildLevel(level) {
         must.push({ track, kind: "firm", units: [latest], intro, pri: 1, order, stage: since });
       } else if (track.warmup) {
         must.push({ track, kind: "review", units: intro, intro, pri: 1, order });
-      } else if (!track.retired || n <= track.retired) {
+      } else if (track.reviewEx && (!track.retired || n <= track.retired)) {
         const gap = n - (lastSeen[track.id] ?? 0);
         const want = track.reviewEvery || reviewInterval(level, since);
         may.push({ track, kind: "review", units: intro, intro, score: gap / want, order });
@@ -100,10 +100,11 @@ export function buildLevel(level) {
       if (w.score >= 1 || chosen.length < (level.minExercises || 0)) chosen.push(w);
     }
 
-    // Order: warm-up, new teaching, then the rest in track order.
+    // Order: warm-up, new teaching, then the rest in track order; a track
+    // marked last (the checkout) ends the lesson.
     chosen.sort((a, b) => {
-      const ra = a.track.warmup ? 0 : a.kind === "new" ? 1 : 2;
-      const rb = b.track.warmup ? 0 : b.kind === "new" ? 1 : 2;
+      const ra = a.track.last ? 3 : a.track.warmup ? 0 : a.kind === "new" ? 1 : 2;
+      const rb = b.track.last ? 3 : b.track.warmup ? 0 : b.kind === "new" ? 1 : 2;
       return ra - rb || a.order - b.order;
     });
 

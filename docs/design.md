@@ -150,6 +150,43 @@ reviewed in Quick sounds (`/quick-sounds/`), which brings missed sounds up
 first. Mastery tests and practice sets come from the tracks' `testItems` as
 for math.
 
+### Stories
+
+The thirty stories (`curriculum/reading/stories.js`, converted from Open
+Phonics: title, lines, questions, and nothing else) are placed by their
+words: a story comes two lessons after the last of its sounds and whole
+words is taught, and no two stories share a lesson. Thirteen fall within
+Reading 1; the rest wait for Reading 2 and are listed under it. A story's
+new day (the Stories track, `newEx`) reads the five words from it least
+practiced, then the title, then each line with the dot under each word,
+sounding out and saying it fast, and ends with the questions over the whole
+story on the stage. The next two lessons read it again the fast way with
+questions; later reviews take three lines and a question. A line is a
+sentence; a sentence of more than twelve words is broken at a comma in the
+conversion, and the validator refuses a longer line.
+
+The library at `/stories/` lists every story with its word count and the
+lesson it becomes readable at, marks the ones the selected child can read
+now, and opens each as an ordered practice set at `/stories/<slug>/`: the
+title and the lines the fast way, then the questions. The old Open Phonics
+addresses are the same.
+
+### Checkouts
+
+From lesson 40, every fifth lesson ends with a checkout (the Checkouts
+track, an exercise of `kind: "checkout"`): a passage the child reads alone
+while the clock runs. The passage is the story of a recent lesson when there
+is one, or else sentences read lately, about as many words as the goal.
+The goal rises from 24 words a minute at lesson 40 to 60 at lesson 100,
+with two errors or fewer (`checkoutGoal` in `reading1.js`; the numbers are
+parameters to set from real sittings). In the runner the segment's primary
+button reads Start, then Next for each line, then Stop; Error counts a word
+missed and the strip shows the clock. The result is read out, recorded with
+`recordCheckout` (`{ date, level, lesson, words, seconds, errors, wpm, goal,
+allowed, met }`, the last forty kept), shown on the finish screen, and
+listed on Records. With two children, each reads the passage in turn and
+each gets a record.
+
 ## Two children
 
 A lesson can be taught to two children at once: the runner's More sheet

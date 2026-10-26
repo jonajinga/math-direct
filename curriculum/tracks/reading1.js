@@ -9,6 +9,7 @@ import { model, lead, test, note, fix } from "../lib/steps.js";
 import { SOUNDS, SOUND_BY_ID, soundsTaughtBy } from "../reading/sounds.js";
 import WORDS from "../reading/words.js";
 import SENTENCES from "../reading/sentences.js";
+import STORIES from "../reading/stories.js";
 import { tokensFor, soundedOut, soundIdsOf } from "../reading/tokens.js";
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -372,17 +373,18 @@ const wholeWords = {
 };
 
 // ── Sentences: read word by word, then the fast way ──
-function sentenceWords(text) {
-  // "Sam sat at a mat." -> words with their punctuation as tokens.
+function sentenceWords(text, loose) {
+  // "Sam sat at a mat." -> words with their punctuation as tokens. A word
+  // the list does not have ends the sentence (null), unless loose, when it
+  // is shown whole, as the library shows a story from a later level.
   const parts = text.match(/[A-Za-z']+|[^A-Za-z'\s]+/g) || [];
   const words = [];
   for (const p of parts) {
     if (/[A-Za-z]/.test(p)) {
       const entry = BY_WORD.get(p.toLowerCase());
-      if (!entry) return null;
-      const t = tokensFor(p, entry.sounds, { irregular: entry.irregular });
-      if (!t) return null;
-      words.push({ word: p, entry, tokens: t });
+      const t = entry ? tokensFor(p, entry.sounds, { irregular: entry.irregular }) : null;
+      if (!t && !loose) return null;
+      words.push({ word: p, entry: entry || { word: p, lesson: 999, irregular: true }, tokens: t || [{ s: p, whole: true, sound: "word" }] });
     } else if (words.length) {
       words[words.length - 1].tokens = words[words.length - 1].tokens.concat([{ s: p, punct: true }]);
     } else {
@@ -464,6 +466,174 @@ const sentences = {
   },
 };
 
+// ── Stories: read twice, then talked about ──
+// A story is placed two lessons after the last of its sounds and whole
+// words is taught, and no two stories share a lesson. Its lines are
+// sentences; the parent reads the questions after the second reading.
+const plainText = (t) => t.replace(/!/g, ".");
+function soundsAt(entry) {
+  const t = TOKENS.get(entry.word);
+  if (!t) return 999;
+  if (entry.irregular) return entry.lesson;
+  return Math.max(...soundIdsOf(t).map((id) => SOUND_LESSON[id] ?? 999));
+}
+const toSent = (words) => ({ text: words.map((w) => w.tokens.map((t) => t.s).join("")).join(" "), words });
+const STORY_UNITS = (() => {
+  const list = [];
+  for (const story of STORIES) {
+    const title = sentenceWords(story.title);
+    const lines = story.lines.map((l) => sentenceWords(l));
+    if (!title || lines.some((l) => !l)) continue;
+    const at = Math.max(...[...title, ...lines.flat()].map((w) => soundsAt(w.entry))) + 2;
+    list.push({ story, title: toSent(title), lines: lines.map(toSent), at });
+  }
+  list.sort((a, b) => a.at - b.at || a.story.order - b.story.order);
+  let last = 0;
+  for (const u of list) { if (u.at <= last + 1) u.at = last + 2; last = u.at; }
+  return list.filter((u) => u.at <= LESSONS).map((u) => ({
+    id: u.story.slug, lesson: u.at, label: `Story: ${u.story.title}`, story: u.story, title: u.title, lines: u.lines,
+    words: u.lines.reduce((a, l) => a + l.words.length, 0),
+  }));
+})();
+const STORY_BY_SLUG = new Map(STORY_UNITS.map((u) => [u.id, u]));
+function lineFast(u, i, ctx) {
+  const s = u.lines[i];
+  return test(lineOf(s, ctx), "Read the line the fast way.", plainText(s.text), fix(plainText(s.text), "Read the line the fast way.", "", { keep: true }), {
+    skill: "story", item: `story:${u.id}:${i}`, secs: 3 + s.words.length, confirm: "Yes. " + plainText(s.text),
+    do: i === 0 ? "Press Dot to move the dot under each word as the child reads." : undefined,
+  });
+}
+function lineSlow(u, i, ctx) {
+  const s = u.lines[i];
+  return test(lineOf(s, ctx), "Read this line. Sound out each word, then say it fast.", plainText(s.text), fix(plainText(s.text), "Read the line.", "", { keep: true }), {
+    skill: "story", item: `story:${u.id}:${i}`, secs: 4 + s.words.length * 3, confirm: "Yes. " + plainText(s.text),
+    do: i === 0 ? "Press Dot to put the dot under the first word, and again for each word as the child reads it." : undefined,
+  });
+}
+function titleStep(u, ctx) {
+  const t = plainText(u.title.text);
+  return test(lineOf(u.title, ctx), "The title of the story. Read it the fast way.", t, fix(t, "Read the title.", "", { keep: true }), {
+    skill: "story", item: `title:${u.id}`, secs: 6, confirm: "Yes. " + t,
+  });
+}
+function questionStep(u, i, ctx) {
+  const q = u.story.questions[i];
+  const a = plainText(q.a);
+  return test(V.passage(u.lines.map((s) => s.words.map((w) => w.tokens)), { prompts: ctx.prompts }), q.q, a, `My turn: ${a} Your turn. ${q.q}`, {
+    skill: "comprehension", item: `q:${u.id}:${i}`, secs: 10, confirm: "Yes. " + a, signal: "watch",
+    do: i === 0 ? "The child answers from the story. Point to the line that tells it if the child is stuck." : undefined,
+  });
+}
+// The story's words least practiced: read before the story, as the word
+// attack comes before the story in Direct Instruction.
+function storyWordsToRead(u, n) {
+  const seen = new Set();
+  const out = [];
+  const lateness = (w) => Math.max(soundsAt(w.entry), w.entry.lesson);
+  for (const w of [...u.lines.flatMap((s) => s.words)].sort((a, b) => lateness(b) - lateness(a))) {
+    const k = w.word.toLowerCase();
+    if (seen.has(k) || w.entry.irregular || !TOKENS.get(w.entry.word)) continue;
+    seen.add(k);
+    out.push(w.entry);
+    if (out.length >= 5) break;
+  }
+  return out;
+}
+const stories = {
+  id: "stories",
+  name: "Stories",
+  summary: "A story read line by line, sounding out each word, with questions after; the next two lessons read it again the fast way. Each story comes two lessons after the last of its sounds.",
+  units: STORY_UNITS,
+  firmLessons: 2,
+  newEx(u, ctx) {
+    const steps = [];
+    const words = storyWordsToRead(u, ctx.lesson);
+    steps.push(note(V.words(words.map((w) => TOKENS.get(w.word)), { prompts: ctx.prompts }), `A new story, ${u.story.title}. First, the words from it that are newest.`, { do: "Read each word before the story, so the story goes well." }));
+    for (const w of words) steps.push(wordItem(w, ctx));
+    steps.push(titleStep(u, ctx));
+    steps.push(model(lineOf(u.lines[0], ctx), `My turn to read the first line. I sound out each word, then say it fast: ${u.lines[0].words.map((w) => (w.entry.irregular ? w.word : soundedOut(w.tokens) + ", " + w.word)).join("; ")}.`, { do: "Move the dot under each word as you read it." }));
+    steps.push(lead(lineOf(u.lines[0], ctx), "Read the first line with me. Sound out each word, then say it fast.", plainText(u.lines[0].text)));
+    u.lines.forEach((s, i) => steps.push(lineSlow(u, i, ctx)));
+    u.story.questions.forEach((q, i) => steps.push(questionStep(u, i, ctx)));
+    return { title: `Story: ${u.story.title}`, steps };
+  },
+  firmEx(intro, ctx, u) {
+    const steps = [titleStep(u, ctx)];
+    u.lines.forEach((s, i) => { const st = lineFast(u, i, ctx); if (i === 0) st.say = "Read the story again, the fast way. Read the first line."; steps.push(st); });
+    const qs = ctx.stage === 1 ? u.story.questions.slice(0, 2) : u.story.questions.slice(-1);
+    qs.forEach((q) => steps.push(questionStep(u, u.story.questions.indexOf(q), ctx)));
+    return { title: "The story again", steps };
+  },
+  reviewEx(intro, ctx) {
+    const r = ctx.rand;
+    const u = r.pick(intro.slice(-2));
+    const idx = r.sample(u.lines.map((s, i) => i), Math.min(3, u.lines.length)).sort((a, b) => a - b);
+    const steps = idx.map((i) => lineFast(u, i, ctx));
+    steps[0].say = `From ${u.story.title}. Read the line the fast way.`;
+    if (u.story.questions.length) steps.push(questionStep(u, u.story.questions.indexOf(r.pick(u.story.questions)), ctx));
+    return { title: "A story", steps };
+  },
+  testItems(units, ctx, count) {
+    const r = ctx.rand;
+    const all = units.slice(-3).flatMap((u) => u.lines.map((s, i) => [u, i]));
+    return r.sample(all, Math.min(count || 2, all.length)).map(([u, i]) => lineFast(u, i, ctx));
+  },
+};
+
+// ── Checkouts: rate and accuracy, from lesson 40, every fifth lesson ──
+// The child reads a passage alone while the clock runs; the parent counts
+// the errors. The goal rises from 24 words a minute at lesson 40 to 60 at
+// lesson 100, with two errors or fewer. The goals are parameters to set
+// from real sittings.
+export function checkoutGoal(n) { return Math.max(24, Math.min(60, Math.round(30 + (n - 50) * 0.6))); }
+const CHECKOUT_LESSONS = [];
+for (let n = 40; n <= LESSONS; n += 5) CHECKOUT_LESSONS.push(n);
+function checkoutPassage(n) {
+  // The story of a recent lesson; otherwise sentences read lately, newest first.
+  const story = [...STORY_UNITS].reverse().find((u) => u.lesson < n && u.lesson >= n - 8 && u.words >= 20);
+  if (story) return { title: story.story.title, lines: story.lines };
+  const target = checkoutGoal(n);
+  const lines = [];
+  let words = 0;
+  for (const u of [...SENTENCE_UNITS].reverse()) {
+    if (u.lesson >= n) continue;
+    for (const s of u.sentences) { if (words >= target) break; lines.push(s); words += s.words.length; }
+    if (words >= target) break;
+  }
+  return { title: "", lines };
+}
+const checkouts = {
+  id: "checkouts",
+  name: "Checkouts",
+  summary: "From lesson 40, every fifth lesson: the child reads a passage alone while the clock runs. Words a minute and errors are kept against a goal that rises with the lessons.",
+  units: CHECKOUT_LESSONS.map((n) => ({ id: "c" + n, lesson: n, label: `Checkout: ${checkoutGoal(n)} words a minute` })),
+  firmLessons: 0,
+  last: true,
+  newEx(u, ctx) {
+    const p = checkoutPassage(u.lesson);
+    const words = p.lines.reduce((a, s) => a + s.words.length, 0);
+    const steps = p.lines.map((s, i) => note(lineOf(s, ctx), plainText(s.text), {
+      secs: 2 + s.words.length * 1.5,
+      ...(i === 0 ? { do: (p.title ? `The story ${p.title}, read alone. ` : "Lines the child has read, read alone. ") + "Tap Start as the child begins, Error for each word missed, Next at the end of each line, and Stop at the end." } : {}),
+    }));
+    return { title: "Checkout", kind: "checkout", words, goal: checkoutGoal(u.lesson), allowed: 2, passage: p.title, steps };
+  },
+};
+
+// Every story, for the library under Practice: the lines the fast way and
+// the questions, at the alphabet stage of the lesson it is readable at.
+// A story whose words go past this level is listed for the next level.
+const STAGE_AT = (n) => (n <= 74 ? "full" : n <= 90 ? "light" : "plain");
+const storyLibrary = STORIES.map((story) => {
+  const u = STORY_BY_SLUG.get(story.slug);
+  const prompts = u ? STAGE_AT(u.lesson) : "plain";
+  const ctx = { prompts };
+  const unit = u || { id: story.slug, story, title: toSent(sentenceWords(story.title, true)), lines: story.lines.map((l) => toSent(sentenceWords(l, true))) };
+  const items = [titleStep(unit, ctx), ...unit.lines.map((s, i) => lineFast(unit, i, ctx)), ...story.questions.map((q, i) => questionStep(unit, i, ctx))];
+  items.forEach((it) => { it.lesson = 0; });
+  return { slug: story.slug, title: story.title, order: story.order, lesson: u ? u.lesson : null, words: unit.lines.reduce((a, s) => a + s.words.length, 0), questions: story.questions.length, items };
+});
+
 export default {
   id: "reading-1",
   slug: "reading-1",
@@ -477,7 +647,7 @@ export default {
   minExercises: 7,
   maxExercises: 10,
   minReviewSteps: 6,
-  maxSteps: 110,
+  maxSteps: 130,
   reviewIntervals: [2, 3, 5],
   tagline: "Sounds, sounding out, reading the fast way, and the first sentences and stories.",
   description: "Reading 1 is the first hundred lessons of reading, built on Engelmann's program: forty-odd sounds in a careful order, blending by ear, sounding out words as the dot moves under their sounds, reading the fast way, the words that must be learned whole, and sentences read twice. The child's letters carry marks that fade away by the end.",
@@ -490,5 +660,7 @@ export default {
   },
   // For the records chart and the quick sound review.
   soundList: SOUNDS.map((s) => ({ id: s.id, letters: s.letters, say: s.say, lesson: s.lesson, note: s.note || "" })),
-  tracks: [sounds, sayFast, saySounds, rhyming, soundOut, fastWay, wholeWords, sentences],
+  tracks: [sounds, sayFast, saySounds, rhyming, soundOut, fastWay, wholeWords, sentences, stories, checkouts],
+  storyLibrary,
+  checkoutGoal,
 };

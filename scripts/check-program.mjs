@@ -301,11 +301,16 @@ check("a missed sound shows its correction", /My turn/.test(await page.textConte
 await page.click("#btn-goon");
 const srec = await page.evaluate((id) => window.mathProgress.getActiveProfile().sounds[id], soundId);
 check("a missed sound is recorded with its seconds", !!srec && srec.r[srec.r.length - 1] === 0 && typeof srec.t[srec.t.length - 1] === "number", JSON.stringify(srec));
-let sawOwnR = false, ownReading = true, sawDelayedR = false;
+let sawOwnR = false, ownReading = true, sawDelayedR = false, sawCheckout = false, checkoutErrorTapped = false, checkoutStart = "";
 const stages = new Set();
 for (let i = 0; i < 400; i++) {
   if (await visible("#runner-finish")) break;
   const cue = await page.textContent("#tp-cue");
+  if (cue === "Checkout") {
+    // The checkout: Start runs the clock, Error counts a word missed, Stop ends it.
+    if (!sawCheckout) { sawCheckout = true; checkoutStart = await page.textContent("#btn-next"); }
+    if (!checkoutErrorTapped && !(await page.evaluate(() => document.getElementById("btn-error").disabled))) { await page.click("#btn-error"); checkoutErrorTapped = true; await page.waitForTimeout(30); }
+  }
   if (cue === "On your own") { sawOwnR = true; if (!(await page.evaluate(() => !!document.querySelector("#child-stage .mdv-text")))) ownReading = false; }
   if (/Missed items/.test(await page.textContent("#tp-ex-title"))) sawDelayedR = true;
   const pr = await page.evaluate(() => { const t = document.querySelector("#child-stage .mdv-text"); return t ? t.getAttribute("data-prompts") : null; });
@@ -316,6 +321,10 @@ for (let i = 0; i < 400; i++) {
 check("the reading lesson has On your own items the child reads", sawOwnR && ownReading);
 check("the delayed test came for the missed sound", sawDelayedR);
 check("lesson 40 shows the full alphabet", stages.has("full") && !stages.has("plain"), [...stages].join(","));
+check("the checkout came with a Start button and counted an error", sawCheckout && checkoutStart === "Start" && checkoutErrorTapped);
+const crec = await page.evaluate(() => (window.mathProgress.getActiveProfile().checkouts || [])[0]);
+check("the checkout is recorded with words a minute, the error, and the goal", !!crec && crec.level === "reading-1" && crec.lesson === 40 && crec.words > 0 && crec.errors === 1 && crec.wpm > 0 && crec.goal > 0 && crec.seconds > 0, JSON.stringify(crec));
+check("the finish screen reports the checkout", /Checkout/.test(await page.textContent("#runner-finish")) && /a minute/.test(await page.textContent("#runner-finish")));
 check("the reading lesson finished and is recorded under reading", (await visible("#runner-finish")) && (await page.evaluate(() => { const P = window.mathProgress; const p = P.getActiveProfile(); return !!(p.last.reading && p.last.reading.id === "reading-1-040") && P.currentLevel("reading") === "reading-1" && P.currentLevel("math") !== "reading-1"; })));
 await page.goto(BASE + "/", { waitUntil: "load" });
 await page.waitForTimeout(300);
@@ -324,6 +333,15 @@ await page.goto(BASE + "/records/", { waitUntil: "load" });
 await page.waitForTimeout(300);
 // The missed sound was retested in the lesson and said right, so it is learning, not shaky; the chart still names it as missed recently.
 check("Records shows the sound chart with the missed sound marked", await page.evaluate((id) => { const g = document.querySelector(".sound-grid"); if (!g) return false; const li = [...g.querySelectorAll("li")].find((x) => x.getAttribute("data-sound") === id); if (!li) return false; const letters = li.querySelector(".sound-grid__letters").textContent; const line = g.parentNode.textContent; return !/fc-(later|new)/.test(li.className) && new RegExp("Missed recently: [^.]*" + letters).test(line); }, soundId), await page.evaluate(() => { const g = document.querySelector(".sound-grid"); return g ? g.parentNode.textContent.replace(/\s+/g, " ").slice(-160) : "no grid"; }));
+check("Records lists the checkout", /words a minute/.test(await page.textContent("main")));
+await page.goto(BASE + "/stories/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+check("the Stories library lists every story, with the readable ones marked", (await page.evaluate(() => document.querySelectorAll("[data-story-level]").length)) === 30 && (await page.evaluate(() => [...document.querySelectorAll("[data-story-ready]")].filter((t) => !t.hidden).length)) === 4, String(await page.evaluate(() => [...document.querySelectorAll("[data-story-ready]")].filter((t) => !t.hidden).length)));
+await page.goto(BASE + "/stories/sam-sat/", { waitUntil: "load" });
+await page.waitForTimeout(300);
+check("a story opens on its title with the Dot button", (await page.evaluate(() => !!document.querySelector("#child-stage .mdv-text--line"))) && (await visible("#btn-dot")));
+for (let i = 0; i < 12; i++) { if (await visible("#runner-finish")) break; await page.click("#btn-firm"); await page.waitForTimeout(20); }
+check("a story read to the end reaches its questions and finishes", (await visible("#runner-finish")) && /8 of 8|All stories/.test(await page.textContent("#runner-finish")), (await page.textContent("#runner-finish")).replace(/\s+/g, " ").slice(0, 120));
 await page.goto(BASE + "/quick-sounds/", { waitUntil: "load" });
 await page.waitForTimeout(300);
 await page.click("[data-sounds]");

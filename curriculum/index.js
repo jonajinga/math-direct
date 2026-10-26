@@ -162,6 +162,21 @@ export function buildProgram({ strict = true } = {}) {
     soundItems[level.id].forEach((st) => validateItems([st], `quick sound ${st.sound}`, errors));
   }
 
+  // The stories, for the library under Practice: each with the level and
+  // lesson it is readable at, or none yet, and its lines and questions as
+  // ready-made steps.
+  const stories = [];
+  for (const level of LEVELS) {
+    for (const st of level.storyLibrary || []) {
+      if (stories.some((x) => x.slug === st.slug)) continue;
+      const placed = st.lesson !== null;
+      stories.push({ ...st, level: placed ? level.id : null, levelName: placed ? level.name : "", url: `/stories/${st.slug}/` });
+      validateItems(st.items, `story ${st.slug}`, errors);
+      if (placed) st.items.forEach((it, i) => checkReadable(level, st.lesson, it, `story ${st.slug} item ${i + 1}`, errors));
+    }
+  }
+  stories.sort((a, b) => a.order - b.order);
+
   if (strict && errors.length) {
     const head = errors.slice(0, 40).join("\n  ");
     throw new Error(`Curriculum check failed with ${errors.length} error(s):\n  ${head}${errors.length > 40 ? "\n  ..." : ""}`);
@@ -180,5 +195,5 @@ export function buildProgram({ strict = true } = {}) {
   const subjects = Object.keys(SUBJECTS)
     .filter((s) => levels.some((l) => l.subject === s))
     .map((s) => ({ ...SUBJECTS[s], levels: levels.filter((l) => l.subject === s).map((l) => l.id) }));
-  return { levels, lessons, tests, practice, placement, facts, soundItems, summary, subjects, errors, warnings };
+  return { levels, lessons, tests, practice, placement, facts, soundItems, stories, summary, subjects, errors, warnings };
 }

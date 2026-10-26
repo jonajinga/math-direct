@@ -22,6 +22,12 @@ bodyClass: page-practice
       {% include "partials/icons/chevron-right.njk" %}
     </a>
   </li>
+  <li>
+    <a class="row" href="/stories/">
+      <span class="row__main"><span class="row__title">Stories</span><span class="row__sub">{{ program.stories.length }} stories to read again, each from the lesson its words are taught.</span></span>
+      {% include "partials/icons/chevron-right.njk" %}
+    </a>
+  </li>
 </ul>
 {% endif %}
 {% if s.id == "math" %}

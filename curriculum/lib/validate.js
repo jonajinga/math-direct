@@ -156,6 +156,7 @@ export function validateStep(st, where, errors) {
       else v.lines.forEach((line) => {
         if (!Array.isArray(line) || !line.length) { errors.push(`${where}: a line with no words`); return; }
         line.forEach((w) => { if (!Array.isArray(w) || !w.length || w.some((t) => !t || typeof t.s !== "string" || !t.s)) errors.push(`${where}: a word with a bad token`); });
+        if (line.length > 12) errors.push(`${where}: a line of ${line.length} words, more than 12`);
       });
       if (!["sound", "word", "fast", "line", "none"].includes(v.dot || "none")) errors.push(`${where}: bad dot mode "${v.dot}"`);
       if (!["full", "light", "plain"].includes(v.prompts || "full")) errors.push(`${where}: bad alphabet stage "${v.prompts}"`);
@@ -196,6 +197,9 @@ export function validateLevel(level, built) {
         if (!cues.has("model")) errors.push(`${E}: new teaching without a model step`);
         if (!cues.has("lead")) errors.push(`${E}: new teaching without a lead step`);
         if (!cues.has("test")) errors.push(`${E}: new teaching without a test step`);
+      } else if (ex.kind === "checkout") {
+        if (!(ex.words > 0) || !(ex.goal > 0)) errors.push(`${E}: a checkout needs its word count and goal`);
+        if (ex.steps.some((s) => s.cue !== "note" || !hasTextVisual(s.screen))) errors.push(`${E}: a checkout shows lines of text and nothing else`);
       } else if (!ex.steps.some((s) => s.cue === "test")) {
         errors.push(`${E}: ${ex.kind} exercise without a test step`);
       }
