@@ -215,7 +215,12 @@
 .mdv-row:not(:has(> :nth-child(6))):not(:has(.mdv-choices)) { flex-wrap: nowrap; }
 .child-stage .mdv-row__item .mdv-cells { max-width: 100%; }
 .mdv-row .mdv-choices { flex: 1 1 22rem; }
-.mdv-stack { flex-direction: column; gap: 1rem; width: 100%; }
+.mdv-stack { flex-direction: column; gap: clamp(0.5rem, 2.5cqh, 1rem); width: 100%; }
+/* A stack of two or three pictures: each gets a share of the height. */
+.child-stage .mdv-stack > .mdv { --vis-h: calc(var(--stage-max) * 0.42); --cell: min(16cqh, 5rem); }
+.child-stage .mdv-stack:has(> :nth-child(3)) > .mdv { --vis-h: calc(var(--stage-max) * 0.28); }
+.child-stage .mdv-stack .mdv-eq { font-size: clamp(min(1.5rem, 9.6cqh), 12cqh, 4rem); }
+.child-stage .mdv-stack .mdv-choice { --vis-h: calc(var(--stage-max) * 0.3); }
 
 /* Marking objects as they are counted */
 .mdv-mark { cursor: pointer; }
@@ -270,8 +275,8 @@
 .mdv-table table { border-collapse: collapse; background: var(--v-paper); }
 .mdv-table th, .mdv-table td { border: 0.08em solid var(--v-ink); padding: 0.15em 0.5em; text-align: center; line-height: 1.2; }
 .mdv-table th { background: var(--v-soft); font-family: var(--font-ui); font-size: 0.75em; }
-.mdv-prose { display: block; max-width: min(100%, 36rem); font-family: var(--font-ui); font-size: clamp(1rem, 5.5cqh, 1.5rem); line-height: 1.45; color: var(--v-ink); text-align: left; }
-.mdv-prose p { margin: 0 0 0.4em; }
+.mdv-prose { display: block; max-width: min(100%, 36rem); font-family: var(--font-ui); font-size: clamp(0.875rem, 5.5cqh, 1.5rem); line-height: 1.35; color: var(--v-ink); text-align: left; }
+.mdv-prose p { margin: 0 0 0.3em; }
 .mdv-prose p:last-child { margin-bottom: 0; }
 .mdv-poem { display: block; max-width: 100%; font-family: var(--font-ui); font-size: clamp(1.0625rem, 6cqh, 1.625rem); line-height: 1.5; color: var(--v-ink); text-align: left; }
 .mdv-poem__stanza { margin: 0 0 0.8em; }

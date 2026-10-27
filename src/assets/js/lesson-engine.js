@@ -415,7 +415,7 @@
     el.say.textContent = st.say || "";
     setBox(el.doBox, el.doText, own ? "" : st["do"] || (seg.materials && pos.step === 0 ? "You will need: " + seg.materials + "." : ""));
     setBox(el.answerBox, el.answerText, numeralChains(st.answer || ""));
-    setBox(el.confirmBox, el.confirmText, !testing && !own && st.cue === "test" ? st.confirm : "");
+    setBox(el.confirmBox, el.confirmText, !testing && !own && st.cue === "test" ? numeralChains(st.confirm) : "");
     setBox(el.correctBox, el.correctText, !testing && !own && st.cue === "test" ? numeralChains(st.correct) : "");
     renderHint(st);
     el.correctBox.classList.remove("is-active");
@@ -633,11 +633,19 @@
   var TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
   function wordValue(w) {
     w = w.toLowerCase();
-    var total = 0, m = w.match(/^([a-z]+) hundred(?: (.+))?$/);
+    var total = 0, m = w.match(/^([a-z]+) thousand(?: (.+))?$/);
+    if (m) {
+      var th = ONES.indexOf(m[1]);
+      if (th < 1 || th > 9) return -1;
+      total = th * 1000;
+      if (!m[2]) return total;
+      w = m[2];
+    }
+    m = w.match(/^([a-z]+) hundred(?: (.+))?$/);
     if (m) {
       var h = ONES.indexOf(m[1]);
       if (h < 1 || h > 9) return -1;
-      total = h * 100;
+      total += h * 100;
       if (!m[2]) return total;
       w = m[2];
     }
@@ -651,11 +659,13 @@
   }
   function numeralChains(text) {
     if (!text) return text;
-    return text.replace(/[A-Za-z][A-Za-z -]*(?:, [A-Za-z][A-Za-z -]*){5,}/g, function (run) {
-      if (run.length < 70) return run;
-      var nums = run.split(", ").map(wordValue);
-      for (var i = 0; i < nums.length; i++) if (nums[i] < 0) return run;
-      return nums.join(", ");
+    return text.replace(/[A-Za-z][A-Za-z -]*(?:, [A-Za-z][A-Za-z -]*){2,}/g, function (run) {
+      if (run.length < 50) return run;
+      // The numbers at the end of the run; anything before them ("Yes") stays.
+      var items = run.split(", "), nums = items.map(wordValue), start = nums.length;
+      while (start > 0 && nums[start - 1] >= 0) start--;
+      if (nums.length - start < 3 || items.slice(start).join(", ").length < 50) return run;
+      return items.slice(0, start).concat(nums.slice(start)).join(", ");
     });
   }
 
@@ -680,7 +690,9 @@
     var cs = window.getComputedStyle(stage);
     var availW = stage.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
     var availH = stage.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
-    var eqs = stage.querySelectorAll(".mdv-eq, .mdv-num, .mdv-col, .mdv-text");
+    var eqs = stage.querySelectorAll(".mdv-eq, .mdv-num, .mdv-col, .mdv-text, .mdv-seq");
+    var svgs = stage.querySelectorAll(".mdv-svg");
+    for (var k = 0; k < svgs.length; k++) svgs[k].style.width = "";
     for (var i = 0; i < eqs.length; i++) {
       var e = eqs[i];
       e.style.fontSize = "";
@@ -690,6 +702,17 @@
         e.style.fontSize = (fs * 0.9) + "px";
         tries++;
       }
+    }
+    // Several pictures that each fit but overflow together: shrink them all
+    // a little at a time until the stage holds them.
+    var all = stage.querySelectorAll(".mdv-eq, .mdv-num, .mdv-col, .mdv-text, .mdv-seq, .mdv-svg"), t2 = 0;
+    while (stage.scrollHeight > stage.clientHeight + 1 && all.length && t2 < 12) {
+      for (var j = 0; j < all.length; j++) {
+        var x = all[j];
+        if (x.classList.contains("mdv-svg")) x.style.width = (x.getBoundingClientRect().width * 0.92) + "px";
+        else x.style.fontSize = (parseFloat(window.getComputedStyle(x).fontSize) * 0.92) + "px";
+      }
+      t2++;
     }
     if (window.MDDot) MDDot.layout();
   }

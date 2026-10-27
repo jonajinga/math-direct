@@ -14,7 +14,7 @@ exitUrl: /lessons/
     <p class="finish__lead">Read each question aloud, let the child answer, and mark Firm or Error. Do not correct or help. Choose a starting point by age; if the first section is too hard, the test moves back on its own.</p>
     <div class="btn-row btn-row--stack">
       {% for sec in program.placements.math %}{% if sec.from == 1 and sec.level != "bridge" %}
-      <button type="button" class="btn btn--primary btn--block" data-start="{{ loop.index0 }}">Start with {{ sec.levelName }}{% if sec.level == "prek" %} (about age 4){% elif sec.level == "k" %} (about age 5){% else %} (about age 6){% endif %}</button>
+      <button type="button" class="btn btn--primary btn--block" data-start="{{ loop.index0 }}">Start with {{ sec.levelName }} ({{ sec.age }})</button>
       {% endif %}{% endfor %}
     </div>
     <ul class="finish__links"><li><a href="/lessons/">Back to the lessons</a></li></ul>

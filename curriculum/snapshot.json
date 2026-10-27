@@ -34,6 +34,13 @@
     "parts": 84,
     "hash": "86015dad797b7c88"
   },
+  "second": {
+    "lessons": 150,
+    "steps": 6216,
+    "tests": 15,
+    "parts": 109,
+    "hash": "f11c0a421b217855"
+  },
   "bridge": {
     "lessons": 20,
     "steps": 367,

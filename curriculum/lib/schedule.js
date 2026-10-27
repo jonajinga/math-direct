@@ -92,6 +92,9 @@ export function buildLevel(level) {
         must.push({ track, kind: "firm", units: [latest], intro, pri: 1, order, stage: since });
       } else if (track.warmup) {
         must.push({ track, kind: "review", units: intro, intro, pri: 1, order });
+      } else if (track.puzzle && track.reviewEx) {
+        // A puzzle track comes in every lesson once it has begun.
+        must.push({ track, kind: "review", units: intro, intro, pri: 0.5, order });
       } else if (track.reviewEx && (!track.retired || n <= track.retired)) {
         const gap = n - (lastSeen[track.id] ?? 0);
         const want = track.reviewEvery || reviewInterval(level, since);
@@ -103,7 +106,7 @@ export function buildLevel(level) {
     // due, most overdue first, up to the maximum; then, if the lesson is still
     // short, the reviews closest to due.
     must.sort((a, b) => a.pri - b.pri || a.order - b.order);
-    const chosen = must.slice(0, Math.max(level.maxExercises, must.filter((w) => w.kind === "new" || w.track.warmup).length));
+    const chosen = must.slice(0, Math.max(level.maxExercises, must.filter((w) => w.kind === "new" || w.track.warmup || w.track.puzzle).length));
     may.sort((a, b) => b.score - a.score || a.order - b.order);
     for (const w of may) {
       if (chosen.length >= level.maxExercises) break;
@@ -138,8 +141,9 @@ export function buildLevel(level) {
         }
       } else {
         made = asList(w.track.reviewEx(w.units, ctx));
-        // Lengthen short reviews with more items from the same track.
-        const want = level.minReviewSteps || 0;
+        // Lengthen short reviews with more items from the same track; a
+        // puzzle is one problem and is left alone.
+        const want = w.track.puzzle ? 0 : level.minReviewSteps || 0;
         const ex = made[0];
         let salt = 0;
         while (ex && ex.steps.filter((s) => s.cue === "test").length < want && salt < 4) {
