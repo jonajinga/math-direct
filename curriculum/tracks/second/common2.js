@@ -7,8 +7,16 @@ export { V, model, lead, test, note, fix, fixPoint, fixChain, word, Word, chain,
 export const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 export const isAre = (n) => (n === 1 ? "is" : "are");
 
+// The correction for a problem the child works out, on the whiteboard or in
+// the head: the working is explained, the answer given, and the question
+// asked again. There is no "Say it with me": the answer is not a chant.
+export function fixWork(answer, question, preface) {
+  const a = answer.replace(/[.?]$/, "");
+  return `${preface ? preface + " " : ""}My turn: ${a.charAt(0).toLowerCase() + a.slice(1)}. Your turn. ${question}`;
+}
+
 // The child works on the whiteboard beside the phone.
-export const WHITEBOARD = "The child works it on the whiteboard. Ask for the answer when the child says done.";
+export const WHITEBOARD = "The child works it on the whiteboard, then says the answer.";
 
 // Names for story problems, each with its pronoun.
 export const NAMES = [["Ana", "she"], ["Ben", "he"], ["Cora", "she"], ["Dev", "he"], ["Eli", "he"], ["Faye", "she"], ["Gus", "he"], ["Hana", "she"], ["Ivy", "she"], ["Jon", "he"], ["Kai", "he"], ["Lila", "she"]];

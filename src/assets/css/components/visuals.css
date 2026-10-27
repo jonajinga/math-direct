@@ -215,7 +215,12 @@
 .mdv-row:not(:has(> :nth-child(6))):not(:has(.mdv-choices)) { flex-wrap: nowrap; }
 .child-stage .mdv-row__item .mdv-cells { max-width: 100%; }
 .mdv-row .mdv-choices { flex: 1 1 22rem; }
-.mdv-stack { flex-direction: column; gap: 1rem; width: 100%; }
+.mdv-stack { flex-direction: column; gap: clamp(0.5rem, 2.5cqh, 1rem); width: 100%; }
+/* A stack of two or three pictures: each gets a share of the height. */
+.child-stage .mdv-stack > .mdv { --vis-h: calc(var(--stage-max) * 0.42); --cell: min(16cqh, 5rem); }
+.child-stage .mdv-stack:has(> :nth-child(3)) > .mdv { --vis-h: calc(var(--stage-max) * 0.28); }
+.child-stage .mdv-stack .mdv-eq { font-size: clamp(min(1.5rem, 9.6cqh), 12cqh, 4rem); }
+.child-stage .mdv-stack .mdv-choice { --vis-h: calc(var(--stage-max) * 0.3); }
 
 /* Marking objects as they are counted */
 .mdv-mark { cursor: pointer; }

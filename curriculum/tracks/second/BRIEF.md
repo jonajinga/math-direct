@@ -121,7 +121,7 @@ no "Good" or "Great".
 
 From this grade the child often works on a whiteboard or paper beside the
 phone. For a column problem or a two-step story, say so in the `do` line:
-`do: "The child works it on the whiteboard. Ask for the answer when the child says done."`
+`do: "The child works it on the whiteboard, then says the answer."`
 (`WHITEBOARD` in `common2.js`). The screen still shows the problem.
 
 ## Puzzles (the puzzles module only)

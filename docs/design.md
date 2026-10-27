@@ -220,9 +220,10 @@ solving part of two puzzles without hints; the Puzzles practice set under
 Practice holds every family as the challenge set.
 
 From this grade the child works column problems and two-step stories on a
-whiteboard beside the phone; the Do line says so, and the parent asks for
-the answer when the child says done. The guide has a section on the
-whiteboard, the puzzles, and the Hint button.
+whiteboard beside the phone; the Do line says so, and the child says the
+answer when done. The correction for a worked problem explains the working
+and gives the answer, with no "Say it with me". The guide has a section on
+the whiteboard, the puzzles, and the Hint button.
 
 ## The runner
 

@@ -5,7 +5,7 @@
 // what the other tracks have taught by its lesson, has a twist, and rewards a
 // clever way of looking. Every answer is computed, never typed.
 
-import { V, model, test, note, fix, word, Word, favorNew, prose, WHITEBOARD, NAMES, cap, intWhere } from "./common2.js";
+import { V, model, test, note, fix, fixWork, word, Word, favorNew, prose, WHITEBOARD, NAMES, cap, intWhere } from "./common2.js";
 
 const INTRO = "Read the puzzle with the child. The child works it on the whiteboard. Hints are on the Hint button.";
 
@@ -38,7 +38,7 @@ function perms(list) {
 //   ask    the question, asked again after an error
 //   think  the way to the answer, said in the model and before the correction
 function puzzleStep(p) {
-  return test(p.screen, `${p.read} ${p.ask}`, p.answer, fix(p.answer, p.ask, p.think, { keep: !!p.keep }), {
+  return test(p.screen, `${p.read} ${p.ask}`, p.answer, p.keep ? fix(p.answer, p.ask, p.think, { keep: true }) : fixWork(p.answer, p.ask, p.think), {
     skill: "puzzle", item: p.key, secs: 200, signal: "watch", do: WHITEBOARD, hints: p.hints, ...(p.confirm ? { confirm: p.confirm } : {}),
   });
 }
@@ -148,7 +148,8 @@ function patterns(r, lesson) {
   const items = terms.map((t, i) => (blanks.includes(i) ? "?" : t));
   const missing = blanks.map((i) => terms[i]);
   const spoken = items.map((x) => (x === "?" ? "blank" : word(x)));
-  const read = `${cap(spoken.join(", "))}.`;
+  // The numbers are on the screen; a child reads them, so the script does not.
+  const read = "Read the numbers. Say blank for a blank.";
   const ask = blanks.length === 1 ? "What is the missing number?" : "What are the missing numbers?";
   let think;
   if (kind === "grow" || kind === "shrink") {

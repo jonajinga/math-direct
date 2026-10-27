@@ -3,7 +3,7 @@
 // See BRIEF.md. The child works each column problem on the whiteboard; the
 // screen shows the problem, and in a model the worked problem.
 
-import { V, model, lead, test, note, fix, fixPoint, word, Word, chain, favorNew, digits, hundreds, tens, ones, readableMax, intWhere, prose, WHITEBOARD, NAMES, cap } from "./common2.js";
+import { V, model, lead, test, note, fix, fixWork, fixPoint, word, Word, chain, favorNew, digits, hundreds, tens, ones, readableMax, intWhere, prose, WHITEBOARD, NAMES, cap } from "./common2.js";
 
 const PLACE = ["ones", "tens", "hundreds"];
 const UNIT = ["one", "ten", "hundred"];
@@ -40,14 +40,12 @@ function work(p) {
       let lead = say;
       if (out) {
         const newOnes = out === 1 ? `the new ${UNIT[i + 1]} goes` : `the ${word(out)} new ${PLACE[i + 1]} go`;
-        say += under ? ` That is ${COUNT[i + 1](out)} and ${word(under)} more.` : ` That is exactly ${COUNT[i + 1](out)}.`;
-        say += ` ${Word(under)} goes under the ${PLACE[i]}, and ${newOnes} to the top of the ${PLACE[i + 1]} column.`;
+        // Short, since the picture shows the carry: "eleven: one under the ones, the new ten above the tens."
+        say = `${head(i)}: ${plus(terms)} is ${word(sum)}: ${word(under)} under the ${PLACE[i]}, and ${newOnes.replace(/ goes?$/, "")} above the ${PLACE[i + 1]}.`;
         lead += ` ${Word(under)} goes down, and ${newOnes} up.`;
         carries[i + 1] = String(out);
       } else if (last && sum >= 10) {
         say += ` We write ${word(sum)}.`;
-      } else {
-        say += ` ${Word(under)} goes under the ${PLACE[i]}.`;
       }
       if (last) lead = `${head(i)}: ${plus(terms)}.`;
       cols.push({ i, say, lead, carries: carries.slice(), above: { ...above } });
@@ -61,14 +59,14 @@ function work(p) {
       const last = i === w - 1;
       let t = top[i], say, lead;
       if (t >= b) {
-        say = `${head(i)}: ${word(t)} minus ${word(b)} is ${word(t - b)}. ${Word(t - b)} goes under the ${PLACE[i]}.`;
+        say = `${head(i)}: ${word(t)} minus ${word(b)} is ${word(t - b)}.`;
         lead = last ? `${head(i)}: ${word(t)} minus ${word(b)}.` : `${head(i)}: ${word(t)} minus ${word(b)} is ${word(t - b)}.`;
       } else if (top[i + 1] > 0) {
         top[i + 1] -= 1;
         above[i + 1] = String(top[i + 1]);
         carries[i] = String(t + 10);
         const now = `${COUNT[i + 1](top[i + 1])} and ${COUNT[i](t + 10)}`;
-        say = `${head(i)}: ${word(t)} minus ${word(b)}. We cannot take ${word(b)} from ${word(t)}, so we trade one ${UNIT[i + 1]} for ten ${PLACE[i]}. Now we have ${now}. ${Word(t + 10)} minus ${word(b)} is ${word(t + 10 - b)}.`;
+        say = `${head(i)}: ${word(t)} minus ${word(b)}. We cannot, so we trade a ${UNIT[i + 1]}: ${word(t + 10)} minus ${word(b)} is ${word(t + 10 - b)}.`;
         lead = `${head(i)}: ${word(t)} minus ${word(b)}. Can we? No. Trade a ${UNIT[i + 1]}: ${now}. ${Word(t + 10)} minus ${word(b)} is ${word(t + 10 - b)}.`;
       } else {
         // Across a zero: no tens to trade, so a hundred becomes ten tens, and one of them becomes ten ones.
@@ -76,7 +74,7 @@ function work(p) {
         above[2] = String(top[2]); above[1] = "9";
         carries[0] = String(t + 10);
         const now = `${hundreds(top[2])}, nine tens, and ${ones(t + 10)}`;
-        say = `Ones first: ${word(t)} minus ${word(b)}. We cannot take ${word(b)} from ${word(t)}, and there are no tens to trade. So we trade one hundred for ten tens, and then one ten for ten ones. Now we have ${now}. ${Word(t + 10)} minus ${word(b)} is ${word(t + 10 - b)}.`;
+        say = `Ones first: ${word(t)} minus ${word(b)}. We cannot, and there are no tens, so we trade a hundred for ten tens, then a ten: ${word(t + 10)} minus ${word(b)} is ${word(t + 10 - b)}.`;
         lead = `Ones first: ${word(t)} minus ${word(b)}. Can we? No. No tens to trade, so trade a hundred for ten tens, then a ten for ten ones: ${now}. ${Word(t + 10)} minus ${word(b)} is ${word(t + 10 - b)}.`;
       }
       cols.push({ i, say, lead, carries: carries.slice(), above: { ...above } });
@@ -86,8 +84,9 @@ function work(p) {
 }
 
 // The whole working, for a model or a correction.
+// The working, column by column, for a correction (fixWork gives the answer).
 function script(p) {
-  return `${work(p).map((c) => c.say).join(" ")} The answer is ${word(p.ans)}.`;
+  return work(p).map((c) => c.say).join(" ");
 }
 
 // The working said with the child, the last column left for the child to finish.
@@ -132,9 +131,10 @@ function modelSteps(p, o = {}) {
 
 // A column problem the child works on the whiteboard.
 function colTest(p, o = {}) {
-  const ask = o.ask || `${spoken(p)} ${o.full ? "Work it in columns, ones first. " : ""}What is the answer?`;
+  // The problem is on the screen; a long one is not read out as well.
   const three = widthOf(p.rows) > 2 || p.rows.length > 2;
-  return test(pic(p), ask, Word(p.ans) + ".", fix(Word(p.ans) + ".", "What is the answer?", script(p)), {
+  const ask = o.ask || `${three ? "" : spoken(p) + " "}Work it in columns, ones first. What is the answer?`;
+  return test(pic(p), ask, Word(p.ans) + ".", fixWork(Word(p.ans) + ".", "What is the answer?", script(p)), {
     skill: p.op === "+" ? "add" : "subtract",
     item: `col:${p.rows.join(p.op === "+" ? "+" : "-")}`,
     do: WHITEBOARD,
@@ -231,7 +231,7 @@ function checkSteps(r, right, alone) {
   const q = { rows: [shown, b], op: "+", ans: sum };
   const screen = V.colx([a, b], "−", { ans: shown, show: true });
   const ask = `${Word(a)} minus ${word(b)}. The answer written is ${word(shown)}. Check it: add ${word(shown)} and ${word(b)}. What do you get?`;
-  const first = test(screen, ask, Word(sum) + ".", fix(Word(sum) + ".", "What do you get?", script(q)), { skill: "subtract", item: `check:${a}-${b}=${shown}`, do: WHITEBOARD, secs: 30 });
+  const first = test(screen, ask, Word(sum) + ".", fixWork(Word(sum) + ".", "What do you get?", script(q)), { skill: "subtract", item: `check:${a}-${b}=${shown}`, do: WHITEBOARD, secs: 30 });
   if (alone) return [first];
   const why = right
     ? `${Word(shown)} plus ${word(b)} is ${word(a)}, the number we started with. The answer checks.`
@@ -721,7 +721,7 @@ function storyOf(r, id) {
       print: `${s.body.print} ${s.ask.print}`, say: `${s.body.say} ${s.ask.say}`, ask: s.ask.say, ans: p.ans,
       reason, brief: briefOf(p),
       plan: `${short}We ${add ? "add" : "subtract"}. ${spoken(p)}`,
-      why: `${reason} ${script(p)}`,
+      why: `${reason} ${briefOf(p)}`,
       key: `story:${id === "extra" ? "extra" : "one"}:${a}${p.op === "+" ? "+" : "-"}${b}`,
     };
   }
@@ -740,7 +740,7 @@ function storyOf(r, id) {
     const reason = `${more ? name : other} ${verb ? verb.past.split(" ")[0] : "has"} more, so ${word(big)} is the big number. How many ${more ? "more" : "fewer"} is a small number. It is missing, so we subtract.`;
     return {
       print: `${s1.print} ${s2.print} ${ask.print}`, say: `${s1.say} ${s2.say} ${ask.say}`, ask: ask.say, ans: p.ans,
-      reason, brief: briefOf(p), plan: `We subtract. ${spoken(p)}`, why: `${reason} ${script(p)}`,
+      reason, brief: briefOf(p), plan: `We subtract. ${spoken(p)}`, why: `${reason} ${briefOf(p)}`,
       beside: [V.col2(V.tape([{ len: big, label: String(big) }]), V.tape([{ len: small, label: String(small) }, { len: p.ans, label: "?" }], { unknown: 1 }))],
       key: `story:cmp:${big}-${small}`,
     };
@@ -779,10 +779,10 @@ function storyOf(r, id) {
     reason = `${short} The start is the big number. It is missing, so we add.`;
   }
   return {
-    print: `${body.print} ${ask.print}`, say: `${body.say} ${ask.say}`, test: `${body.say} ${ask.say} The letter ${L} stands for the number we do not know. What number is ${L}?`, ask: `What number is ${L}?`, ans,
+    print: `${body.print} ${ask.print}`, say: `${body.say} ${ask.say}`, test: `The letter ${L} stands for the number we do not know. What number is ${L}?`, ask: `What number is ${L}?`, ans,
     reason, brief: `${briefOf(work)} ${L} is ${word(ans)}.`,
     plan: `${short} We ${work.op === "+" ? "add" : "subtract"}. ${spoken(work)}`,
-    why: `${reason} ${script(work)} ${L} is ${word(ans)}.`,
+    why: `${reason} ${briefOf(work)} ${L} is ${word(ans)}.`,
     beside: [eq], keep: true,
     key: `story:letter:${eq.parts.join("")}`,
   };
@@ -790,8 +790,10 @@ function storyOf(r, id) {
 function storyScreen(s, withBeside) {
   return [prose(linesOf(s.print)), ...(withBeside && s.beside ? s.beside : [])];
 }
+// The story is on the screen: the child reads it, works it, and answers.
+// The script says only the question, so the panel stays short.
 function storyTest(s) {
-  return test(storyScreen(s, s.keep), s.test || s.say, Word(s.ans) + ".", fix(Word(s.ans) + ".", s.ask, s.why), {
+  return test(storyScreen(s, s.keep), `Read the problem to yourself, then work it. ${s.test || s.ask}`, Word(s.ans) + ".", fixWork(Word(s.ans) + ".", s.ask, s.why), {
     skill: "story", item: s.key, ...(s.two ? { do: WHITEBOARD, secs: 50 } : { secs: 25 }),
   });
 }
