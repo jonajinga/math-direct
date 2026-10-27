@@ -1,0 +1,40 @@
+Title: Why the Bear Has a Short Tail
+Author: Norwegian folk tale, retold
+Year: 2026
+Source: retold from the Norwegian folk tale "Why the Bear Has a Short Tail", which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Two readings, one tale.
+
+# The Fox and the Fish
+
+Long ago the bear had a long and bushy tail. He was very proud of it and liked to show it off. This is the story of how he lost it.
+
+One cold winter day a fox was trotting home. He carried a string of fat fish over his shoulder. He had stolen them from a farmer's sled. Along came the bear, sniffing the cold air. The bear asked, "Those are fine fish, where did you get them?" The fox did not want to say that he had stolen them. So he thought fast and made up a story. "I caught them in the lake," said the fox. "It is easy, if you know the trick." "Tell me the trick," said the bear, licking his lips.
+
+"Go to the lake and find a hole in the ice," said the fox. "Put your tail down through the hole and sit very still. The fish will come and bite your tail. It will sting a little, but that means they are biting. The longer you sit, the more fish you will catch. When you have enough, give one great pull. Then up they will all come at once." The bear thanked the fox and hurried off to the lake.
+
+V: bushy = thick and full, like a brush
+V: sled = a flat cart that slides over snow
+V: trotting = to run along with short quick steps
+Q: What did the fox tell the bear to put through the hole in the ice? | He told the bear to put his tail through the hole. | literal
+Q: Why did the fox make up a story about the fish? | He did not want the bear to know he had stolen them. | inference
+Q: What does bushy mean? | Bushy means thick and full, like a brush. | vocabulary
+Q: What is this reading mostly about? | A fox tricks a proud bear into fishing with his tail. | idea
+
+# Stuck in the Ice
+
+The bear found a hole in the ice and sat down beside it. He put his long tail down through the hole into the water. The water was so cold that it made him gasp. But he sat very still, just as the fox had said. "The fish will come soon," he told himself.
+
+The bear sat for an hour, and then for another hour. The wind blew, and snow fell on his nose. His tail began to sting, and then it went numb. "The fish must be biting now," said the bear happily. He sat on, waiting for more and more fish. All the while, the ice was freezing hard around his tail.
+
+At last the bear could not stand the cold any longer. "Now for my fish," he said, and he gave one great pull. But his tail was frozen fast in the ice. He pulled again, harder than before, and something snapped. The bear tumbled forward onto the snow. When he looked back, most of his tail was gone. Only a short stump was left behind.
+
+Far away, the fox laughed until his sides hurt. The bear never caught a single fish that day. And he never trusted a fox again. That is why, to this day, the bear has a short tail.
+
+V: gasp = to take a quick sharp breath
+V: numb = not able to feel anything
+V: stump = the short part left when something breaks off
+Q: How long did the bear sit by the hole in the ice? | He sat for an hour, and then for another hour. | literal
+Q: Why did the bear's tail snap off when he pulled? | The ice had frozen hard around his tail while he sat. | inference
+Q: What does numb mean? | Numb means not able to feel anything at all. | vocabulary
+Q: What does the story teach? | Think carefully before you believe someone who may be tricking you. | idea

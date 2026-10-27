@@ -1,0 +1,116 @@
+Title: Aesop's Fables, Book Three
+Author: Aesop, retold
+Year: 2026
+Source: retold from the fables of Aesop, which are in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Five fables, one to a reading.
+
+# The Fox and the Crow
+
+A crow discovered a fine piece of cheese on a windowsill. She picked it up in her beak and flew away. She landed on a high branch to enjoy her meal in peace.
+
+A hungry fox came trotting by and noticed the crow above him. He saw the cheese too, and he wanted it badly. But the branch was far too high for him to reach. So the clever fox sat down and began to plan a trick.
+
+"Good morning, beautiful bird," called the fox in a sweet voice. "Your black feathers shine like the night sky. Your eyes are brighter than any jewel I have ever seen."
+
+The crow puffed out her chest and looked down with pride. The fox continued talking in his smooth and gentle way.
+
+"I am sure your voice is as lovely as your feathers," he said. "If I could hear one song, I would call you queen of all birds."
+
+The crow could not resist such wonderful praise. She opened her beak wide and let out a loud caw. Down fell the cheese, straight into the waiting mouth of the fox.
+
+"Thank you," said the fox as he trotted off. "Next time, do not trust a stranger who flatters you."
+
+V: flatter = to praise someone too much to get something
+V: resist = to hold back from doing something
+V: jewel = a very fine and costly stone
+Q: Where did the crow find the cheese? | She found it on a windowsill and flew to a branch. | literal
+Q: Why did the fox say such kind things to the crow? | He wanted her to open her beak and drop the cheese. | inference
+Q: What does flatter mean? | To praise someone too much to get something from them. | vocabulary
+Q: What does the story teach? | Do not trust someone who praises you to get something. | idea
+
+# The Milkmaid and Her Pail
+
+A young milkmaid was walking to market with a pail of milk. She balanced the pail on her head and walked with care. As she walked along, she began to daydream about the money.
+
+"I will sell this milk for an excellent price," she said. "Then I will buy some eggs from the farmer down the road. The eggs will hatch into chickens, and I will raise them all. When they are grown, I will sell them at the market."
+
+She smiled as she imagined the coins in her hand. "With that money I will buy a beautiful new dress," she went on. "I will wear it to the dance in the village. All the young men will want to dance with me. But I will toss my head and walk right past them."
+
+At that very moment, she tossed her head to show how. The pail slipped off and crashed onto the stony road. The milk ran away across the stones in little white streams. Her eggs, her chickens, and her dress were gone with it.
+
+The milkmaid stood and stared at the empty pail in dismay. Then she walked home slowly to tell her mother the news. Her mother only sighed and said, "Never count your chickens before they hatch."
+
+V: pail = a bucket with a handle for carrying things
+V: daydream = to think happy thoughts instead of paying attention
+V: dismay = a feeling of shock and sadness
+Q: What was the milkmaid carrying on her head? | She was carrying a pail of milk to the market. | literal
+Q: Why did the pail fall off her head? | She tossed her head while dreaming and forgot about the pail. | inference
+Q: What does daydream mean? | To think happy thoughts instead of paying attention. | vocabulary
+Q: What lesson does the story teach? | Do not count on things that have not happened yet. | idea
+
+# The Bundle of Sticks
+
+An old farmer had four sons who quarreled all day long. They argued about the chores, the food, and even the weather. The farmer grew weary of their fighting and decided on a plan.
+
+One morning he gathered the sons together in the yard. He held out a thick bundle of sticks tied with string. "Whoever can break this bundle in two will get a prize," he said.
+
+The oldest son grabbed the bundle and bent it with all his strength. He pushed and pulled, but the bundle would not break. The second son tried next, and then the third. The youngest son even jumped on it with both feet. The bundle of sticks stayed whole.
+
+Then the farmer untied the string and handed each son a single stick. "Now try again," he said with a smile. Each son snapped his stick with one easy twist.
+
+"Together you are as strong as this bundle," said the farmer. "Nobody can break you when you stand as one. But if you quarrel and split apart, you are easy to snap."
+
+The sons looked at the broken sticks and felt ashamed. From that day on, they worked side by side in peace.
+
+V: quarrel = to argue in an angry way
+V: bundle = a group of things tied together
+V: ashamed = feeling bad about something you have done
+Q: What did the farmer hold out to his sons? | He held out a thick bundle of sticks tied with string. | literal
+Q: Why could the sons break one stick but not the bundle? | One stick is weak alone, but many sticks together are strong. | inference
+Q: What does quarrel mean? | To argue with someone in an angry way. | vocabulary
+Q: What does the story teach? | People who stick together are much stronger than people who fight. | idea
+
+# The Dog in the Manger
+
+A dog was searching for a comfortable place to take a nap. He wandered into a barn and discovered a manger full of hay. The hay was soft and dry, so he climbed in and curled up.
+
+Soon the ox came in from the field, exhausted and hungry. He had been pulling a heavy plow since early morning. He walked wearily to the manger and lowered his head to eat.
+
+The dog woke with a start and scrambled to his feet. He growled and snapped at the ox with sharp teeth. "Go away, this is my bed now," he barked.
+
+The ox stepped back and stared at him in surprise. "But I have worked hard all day," said the ox. "I need that hay for my supper tonight. You cannot eat hay yourself, so why not let me have it?"
+
+The dog only growled louder and showed his teeth again. He could not eat the hay himself. Still, he refused to let the ox have a single bite.
+
+The poor ox went to bed hungry that night. The farmer heard about it later and shook his head at the dog. "Some creatures are selfish," he said. "They keep what they cannot use from those who need it."
+
+V: manger = a long box that holds food for farm animals
+V: exhausted = very, very tired
+V: selfish = caring only about yourself
+Q: Where did the dog take his nap? | He curled up in a manger full of soft hay. | literal
+Q: Why was the ox so surprised by the dog? | The dog could not eat hay, yet he would not share it. | inference
+Q: What does selfish mean? | Caring only about yourself and not about other people. | vocabulary
+Q: What does the story teach? | Do not keep things from others when you cannot use them. | idea
+
+# The Lion and the Boar
+
+It was the hottest day of the whole summer. The sun beat down and the grass turned brown and dry. Every animal in the land was thirsty and searching for water.
+
+A lion and a wild boar reached a small spring at the same moment. Only a thin trickle of water ran out from between the rocks. "I was here first," roared the lion. "No, I was," grunted the boar, and he lowered his tusks.
+
+Neither one would give way, so they began a furious fight. They pushed and shoved and rolled in the dust. The lion was strong, but the boar was stubborn and tough. Soon both of them were panting and covered in scratches.
+
+Finally they stopped to catch their breath. High above them, the lion noticed some dark shapes in the sky. Vultures were circling slowly overhead and watching the fight below.
+
+"Look up," said the lion quietly. "Those birds are waiting for one of us to fall. If we keep fighting, they will have a feast."
+
+The boar looked up at the vultures and shivered. "Then let us share the spring instead," he said. So the two of them drank side by side in peace. Even enemies can become friends when a greater danger is near.
+
+V: boar = a wild pig with sharp tusks
+V: vulture = a large bird that feeds on animals that have died
+V: stubborn = not willing to give up or change your mind
+Q: Why did the lion and the boar start to fight? | They both reached the small spring at the same moment. | literal
+Q: Why did the boar shiver when he looked up? | He understood the vultures were waiting for him or the lion. | inference
+Q: What does stubborn mean? | Not willing to give up or change your mind. | vocabulary
+Q: What does the story teach? | It is better to share than to fight and lose everything. | idea

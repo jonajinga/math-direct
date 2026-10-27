@@ -1,0 +1,56 @@
+Title: The Gingerbread Man
+Author: Folk tale, retold
+Year: 2026
+Source: retold from the folk tale "The Gingerbread Man", which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Three readings, one tale. The fox eats the gingerbread man at the end, as in the tale.
+
+# Out of the Oven
+
+A little old woman lived with a little old man. They had a small house at the edge of a town. They had no children, and the house was very quiet. One day the old woman wanted to bake something nice. "I will make a gingerbread man," she said.
+
+She mixed flour and sugar and ginger in a bowl. She rolled the dough out flat on the table. Then she cut out the shape of a little man. She gave him two raisins for eyes. She gave him a row of candy buttons down his front. She put him in the oven to bake.
+
+Soon a sweet smell filled the little house. The old woman opened the oven door to look. Out jumped the gingerbread man, as quick as a wink. He ran across the kitchen and out the open door. "Stop, stop," cried the little old woman. "Come back, I want to eat you," she called. But the gingerbread man only laughed and ran on. "Run, run, as fast as you can," he called. "You can't catch me, I'm the gingerbread man."
+
+The little old woman ran after him. The little old man ran after him too. But the gingerbread man ran faster than both of them.
+
+V: ginger = a spice with a warm, sharp taste
+V: dough = a soft mix of flour and water before baking
+V: raisins = small dried grapes
+Q: What did the old woman use for the gingerbread man's eyes? | She gave him two raisins for his eyes. | literal
+Q: Why did the old woman open the oven door? | She smelled the gingerbread and wanted to see if it was done. | inference
+Q: What does dough mean? | Dough means a soft mix of flour and water before baking. | vocabulary
+Q: What is this reading mostly about? | An old woman bakes a gingerbread man who jumps up and runs away. | idea
+
+# Run, Run, as Fast as You Can
+
+The gingerbread man ran down the road. Soon he came to a cow eating grass in a field. "Stop, little gingerbread man," said the cow. "You look good enough to eat." But the gingerbread man did not stop. "I ran away from a little old woman," he said. "I ran away from a little old man. And I can run away from you, I can. Run, run, as fast as you can. You can't catch me, I'm the gingerbread man." The cow ran after him, but she could not catch him.
+
+Next he passed a horse standing by a fence. "Stop, little gingerbread man," said the horse. "I would like to eat you." But the gingerbread man only ran faster. "I ran away from a woman, a man, and a cow," he said. "And I can run away from you, I can." The horse ran after him, but he could not catch him.
+
+The gingerbread man laughed as he ran down the road. Behind him ran the woman, the man, the cow, and the horse. Not one of them could catch him. "Nobody can catch me," he said to himself. He thought he was the fastest thing in the world.
+
+V: field = an open piece of land for grass or crops
+V: fence = a line of posts and rails around a field
+V: passed = to go by something without stopping
+Q: Who did the gingerbread man meet first on the road? | He met a cow eating grass in a field. | literal
+Q: Why did the cow and the horse want the gingerbread man to stop? | They both wanted to eat the gingerbread man. | inference
+Q: What does passed mean? | Passed means to go by something without stopping there. | vocabulary
+Q: What is this reading mostly about? | The gingerbread man runs away from a cow and a horse. | idea
+
+# The Fox and the River
+
+At last the gingerbread man came to a wide river. He could not swim, so he had to stop. The old woman and the others were getting close. A fox was lying in the grass by the water. The fox asked, "Why are you running, little gingerbread man?" "They all want to eat me," said the gingerbread man. "I would never do that," said the fox. "I can carry you across the river if you like."
+
+The gingerbread man looked back at the crowd. Then he hopped onto the tail of the fox. The fox swam out into the river. "The water is getting deep," said the fox. "Hop up onto my back so you stay dry." The gingerbread man hopped onto the fox's back. "The water is deeper here," said the fox. "Hop up onto my nose, and you will be safe." So the gingerbread man hopped onto the fox's nose.
+
+Near the other side, the fox tossed his head. The gingerbread man flew up into the air. Snap went the jaws of the fox. And that was the end of the gingerbread man. The fox licked his lips and smiled a sly smile. "That was the best thing I have eaten all year," he said.
+
+V: crowd = a lot of people together in one place
+V: jaws = the mouth and teeth of an animal
+V: sly = clever in a tricky, hidden way
+Q: Why did the gingerbread man stop at the river? | He could not swim across the wide river. | literal
+Q: Why did the fox ask the gingerbread man to hop onto his nose? | He wanted the gingerbread man close enough to eat him. | inference
+Q: What does sly mean? | Sly means clever in a tricky and hidden way. | vocabulary
+Q: What does the story teach? | Do not trust everyone who says they will help you. | idea

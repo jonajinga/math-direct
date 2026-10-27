@@ -1,0 +1,100 @@
+Title: The Moon
+Author: Teach Direct
+Year: 2026
+Source: written for Teach Direct
+License: dedicated to the public domain (CC0)
+Note: Three readings on what the moon is, why its shape seems to change, and the first people to walk on it.
+
+# Our Nearest Neighbor
+
+The moon is a great ball of gray rock. It travels around the earth, and
+it is our nearest neighbor in space. The moon is about one fourth as
+wide as the earth.
+
+The moon looks bright, but it makes no light of its own. The sun shines
+on it, just as the sun shines on the earth. The moon's rock reflects
+some of that sunlight back to us. That is the light we call moonlight.
+The sun always lights one half of the moon. The other half is dark, as
+it is night there.
+
+The moon is far away, about two hundred forty thousand miles. Light from
+the moon takes more than a second to reach us. A car driving day and
+night at highway speed would take about five months. The moon goes once
+around the earth in about twenty seven days. It also spins around once
+in that same time. So the same side of the moon always faces the earth.
+No one saw the far side until a spacecraft flew around it in 1959.
+
+The moon pulls on the earth, too. Its pull tugs at the seas and makes
+the tides. Twice each day the sea rises up the shore and falls back.
+That rise and fall is mostly the work of the moon.
+
+V: neighbor = a person or thing that is close by
+V: reflect = to bounce light back
+V: tides = the rise and fall of the sea each day
+Q: How long does the moon take to go around the earth? | The moon goes around the earth in about twenty seven days. | literal
+Q: Why do we always see the same side of the moon? | It spins once in the same time it goes around the earth. | inference
+Q: What are tides? | Tides are the rise and fall of the sea each day. | vocabulary
+Q: What is this reading mostly about? | The moon is a rock that circles the earth and reflects sunlight. | idea
+
+# The Changing Moon
+
+The moon seems to change its shape from night to night. Some nights it
+is a thin curve, and some nights a full circle. These shapes are called
+the phases of the moon.
+
+The moon does not really change its shape at all. The sun always lights
+half of it. What changes is how much of that lit half we can see. As the
+moon circles the earth, our view of it changes.
+
+At the new moon, the moon lies between the sun and the earth. Its lit
+side faces away, so we cannot see it. A few nights later a thin crescent
+shows in the evening sky. After about a week, half of the moon's face is
+lit. A week after that, the moon is full. Now the earth lies between the
+sun and the moon. The whole lit side of the moon faces us. Then the moon
+shrinks night by night until it is new again.
+
+One whole round of phases takes about twenty nine and a half days. The
+word month comes from the word moon. Long ago, people counted the months
+by watching the moon.
+
+Many people think the earth's shadow makes the phases, but it does not.
+The earth's shadow falls on the moon only during an eclipse.
+
+V: phases = the shapes the moon seems to have each month
+V: crescent = a thin curved shape, like a fingernail
+V: eclipse = a time when the earth's shadow covers the moon
+Q: What is the moon called when we cannot see it at all? | It is called the new moon, with its lit side facing away. | literal
+Q: Why can we see more of the moon each night after the new moon? | As the moon moves around the earth, more of its lit half faces us. | inference
+Q: What is a crescent? | A crescent is a thin curved shape, like a fingernail. | vocabulary
+Q: What is this reading mostly about? | The phases happen because we see different parts of the moon's lit half. | idea
+
+# On the Moon
+
+The moon has no air around it. With no air, there is no wind and no
+weather. Sound cannot travel there, so the moon is silent.
+
+The ground is covered in fine gray dust and broken rock. Everywhere
+there are craters, round holes with raised rims. Rocks from space made
+them when they crashed into the moon. On the earth, most space rocks
+burn up in the air. On the moon there is no air to burn them up.
+
+The moon is a place of great heat and great cold. In the day the ground
+is hotter than boiling water. At night it is far colder than any place
+on the earth. The moon's pull is only one sixth as strong as the
+earth's.
+
+On July 20, 1969, two people walked on the moon for the first time. They
+were Neil Armstrong and Buzz Aldrin, from the United States. A third
+man, Michael Collins, circled the moon in their ship. Armstrong stepped
+down first onto the dust. He called it one small step for a man, one
+giant leap for mankind. Their footprints are still there, for no wind
+will ever blow them away. Between 1969 and 1972, twelve people walked on
+the moon.
+
+V: craters = round holes in the ground with raised rims
+V: giant = very large
+V: mankind = all the people in the world
+Q: Who were the first two people to walk on the moon? | Neil Armstrong and Buzz Aldrin walked on the moon in 1969. | literal
+Q: Why does the moon have so many more craters than the earth? | The moon has no air to burn up rocks from space. | inference
+Q: What does mankind mean? | Mankind means all the people in the world. | vocabulary
+Q: What is this reading mostly about? | The moon is a dusty, airless place, and people have walked on it. | idea

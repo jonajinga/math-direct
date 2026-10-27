@@ -1,0 +1,36 @@
+Title: The Princess and the Pea
+Author: Hans Christian Andersen, retold
+Year: 2026
+Source: retold from the tale "The Princess and the Pea" by Hans Christian Andersen, which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Two readings, one tale.
+
+# A Knock at the Gate
+
+Once there was a prince who wanted to marry a princess. But she had to be a real princess, through and through. He traveled all over the world to find one. He met many princesses, but something was always wrong. Some were proud, and some were unkind to their servants. He could never be sure that any of them was real. At last he came home again, feeling very sad.
+
+One evening a terrible storm blew over the castle. Thunder crashed, and the rain came down in sheets. In the middle of the storm there came a knock at the gate. The old king himself went down to open it. A young woman stood outside in the pouring rain. Water ran from her hair and dripped from her clothes. Her shoes were full of water, and she was shivering. "I am a princess, and I need a place to sleep," she said. The king looked at her and raised his eyebrows. She did not look like a princess at all. But he was a kind man, so he let her in.
+
+V: servants = people who work in someone's house
+V: castle = a big stone home for a king and queen
+V: shivering = shaking because of the cold
+Q: What was the weather like when the young woman knocked? | There was a terrible storm with thunder and heavy rain. | literal
+Q: Why did the king raise his eyebrows at the young woman? | She was wet and messy and did not look like a princess. | inference
+Q: What does shivering mean? | Shivering means shaking because you are very cold. | vocabulary
+Q: What is this reading mostly about? | A prince looks for a real princess, and one arrives in a storm. | idea
+
+# The Queen's Test
+
+The old queen heard the young woman say she was a princess. "We will soon see about that," the queen said to herself. She went to the guest room and said nothing to anyone. She took all the bedding off the bed. On the bare boards she laid one small green pea. Then she piled twenty mattresses on top of the pea. On top of those she piled twenty soft feather beds. That was where the young woman was to sleep.
+
+In the morning the queen asked how she had slept. "Oh, very badly, I hardly closed my eyes all night," she said. "There was something hard in the bed, and I felt it through everything. I am black and blue all over this morning."
+
+Then everyone knew that she must be a real princess. She had felt one little pea through twenty mattresses and twenty feather beds. Only a real princess could have skin so tender. The prince was overjoyed and asked her to marry him. Now he knew he had found a real princess at last. They put the pea in the royal museum for everyone to see. It may be there to this day, unless someone has taken it. And that is a true story, or so people say.
+
+V: mattresses = thick soft pads that people sleep on
+V: tender = soft and very easy to hurt
+V: museum = a building where special things are kept to see
+Q: What did the queen put under the mattresses? | She put one small green pea on the bare boards. | literal
+Q: Why did the queen not tell anyone about the pea? | She wanted to test the young woman without her knowing. | inference
+Q: What does tender mean? | Tender means soft and very easy to hurt. | vocabulary
+Q: What is this reading mostly about? | The queen tests the young woman with a pea, and she passes. | idea

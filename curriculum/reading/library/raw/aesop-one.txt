@@ -1,0 +1,110 @@
+Title: Aesop's Fables, Book One
+Author: Aesop, retold
+Year: 2026
+Source: retold from Aesop's fables, which are in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Five fables, one to a reading.
+
+# The Lion and the Mouse
+
+A big lion lay asleep in the warm sun. A little mouse ran right over his nose. The lion woke up and caught the mouse. He held it down under one great paw.
+
+"Please let me go," said the little mouse. "Some day I may be able to help you."
+
+The lion laughed at such a silly idea. How could a tiny mouse help a lion? But he lifted his paw and let her go.
+
+Some days later the lion walked into a trap. A net of ropes fell down over him. He roared and pulled, but could not get free.
+
+The mouse heard the roar and came running. She saw the lion caught in the net. "Hold still, and I will help you," she said.
+
+She began to gnaw at the thick ropes. She chewed one rope, and then she chewed another. Soon the hole was big enough for the lion. He crawled out of the net and was free.
+
+"You laughed at me once," said the mouse. "Even a small friend can be a great help." The lion did not laugh at her again.
+
+V: paw = the foot of an animal with claws
+V: trap = a thing made to catch an animal
+V: gnaw = to chew on something hard, a little at a time
+Q: What did the mouse do to the ropes? | She gnawed at the ropes until the lion could crawl out. | literal
+Q: Why did the lion laugh at the mouse? | He did not think a tiny mouse could ever help a lion. | inference
+Q: What does gnaw mean? | To chew on something hard, a little at a time. | vocabulary
+Q: What does the story teach? | Even a small friend can be a great help to you. | idea
+
+# The Tortoise and the Hare
+
+A hare loved to brag about his speed. "Nobody can beat me in a race," he said. A slow tortoise heard him and looked up. "I will race you," said the tortoise. The hare laughed until his sides hurt. But he said yes to the race.
+
+A fox marked the start and the finish. He called out, and the two set off. The hare shot ahead like an arrow. The tortoise crept along one step at a time.
+
+Soon the hare was far ahead of the tortoise. He looked back and could not even see her. "I have time for a nap," he said. He lay down in the cool grass and slept.
+
+The tortoise did not stop and did not rest. She kept on walking, step after slow step. She walked right past the sleeping hare.
+
+At last the hare woke up and stretched. He raced to the finish line at full speed. But the tortoise was already there, waiting for him. "Slow and steady wins the race," said the fox.
+
+V: brag = to talk big about yourself
+V: tortoise = a slow animal with a hard shell on its back
+V: steady = going on at one even pace, without stopping
+Q: What did the hare do in the middle of the race? | He lay down in the cool grass and took a nap. | literal
+Q: Why did the tortoise win the race? | She kept going while the hare stopped to sleep. | inference
+Q: What does brag mean? | To talk big about yourself and the things you can do. | vocabulary
+Q: What does the story teach? | Slow and steady work can beat speed that stops to rest. | idea
+
+# The Boy Who Cried Wolf
+
+A boy kept watch over the village sheep. He sat on the hill all day long. It was quiet, and he felt very bored. He wanted some fun, so he played a trick.
+
+"Wolf, wolf, a wolf is here," he cried. The village people dropped their work and came running. They found no wolf, only a laughing boy. They shook their heads and went back home.
+
+The next day the boy did it again. "Wolf, wolf, come and help me," he cried. Once more the people ran up the hill. Once more they found no wolf at all. They were cross, and they walked home grumbling.
+
+Then one evening a real wolf crept up. It slipped into the flock and chased the sheep. "Wolf, wolf, please come quickly," cried the boy. But this time nobody came to help him. "He is only playing his trick again," they said. The wolf scattered the flock, and the boy wept.
+
+Now the boy knew the cost of a lie. Nobody trusts a liar, even when he tells the truth.
+
+V: village = a small town in the country
+V: bored = tired of having nothing to do
+V: flock = a group of sheep that live together
+Q: What did the boy shout from the hill? | He shouted that a wolf was after the sheep. | literal
+Q: Why did nobody come when the real wolf came? | The people thought the boy was playing his trick again. | inference
+Q: What does flock mean? | A group of sheep that live and move together. | vocabulary
+Q: What does the story teach? | Nobody trusts a liar, even when he tells the truth. | idea
+
+# The Ant and the Grasshopper
+
+All summer long an ant worked in the field. She carried seeds and grain to her nest. She went back and forth in the hot sun. Near her, a grasshopper sat in the shade. He sang and played all day long.
+
+"Come and sing with me," said the grasshopper. "Why do you work on such a fine day?" "I must store food for winter," said the ant. "You should do the same," she told him. The grasshopper laughed and went on with his song. "Winter is a long way off," he said.
+
+The summer ended, and the days grew short. Then the snow came and covered the field. The grasshopper had no food and no warm home. He was cold and hungry, and he shook.
+
+He went to the ant's door and knocked. "Please share a little of your food," he begged. The ant looked at him and shook her head. "You sang all summer while I worked," she said.
+
+The ant sighed, then she opened the door wide. "Come in and eat, but remember this," she said. "Next summer, work as well as sing," she said. The grasshopper never forgot that long, cold winter.
+
+V: grain = the seeds of plants like wheat and corn
+V: store = to put away to use later
+V: shade = a cool spot out of the sun
+Q: What did the ant carry to her nest all summer? | She carried seeds and grain to eat in the winter. | literal
+Q: Why was the grasshopper hungry when winter came? | He sang all summer and stored no food for winter. | inference
+Q: What does store mean? | To put something away so you can use it later. | vocabulary
+Q: What does the story teach? | Get ready for hard times while the good times last. | idea
+
+# The Fox and the Grapes
+
+A fox walked through the woods one hot day. He was hot, and he was very thirsty. He saw a vine growing up a tall tree. On the vine hung a bunch of ripe grapes. They were purple and fat and full of juice. "Those are just what I need," said the fox.
+
+He jumped up as high as he could. His nose did not even touch the lowest grape. He backed up and took a running start. He jumped again, but he missed again. A third time he jumped and fell down.
+
+The fox sat and looked up at the grapes. They hung there, sweet and out of reach. He tried once more and missed once more. Now he was hot and tired and cross.
+
+At last he turned and walked away. He held his nose high in the air. "I did not want those grapes anyway," he said. "They look sour to me," he said.
+
+People often scorn what they cannot have.
+
+V: vine = a plant with a long stem that climbs
+V: ripe = grown and ready to eat
+V: scorn = to look down on something as not worth having
+Q: What did the fox do when he saw the grapes? | He jumped for them again and again but could not reach. | literal
+Q: Did the fox really think the grapes were sour? | No, he said that because he could not reach them. | inference
+Q: What does ripe mean? | Fully grown and ready to be picked and eaten. | vocabulary
+Q: What does the story teach? | People often scorn the things that they cannot have. | idea

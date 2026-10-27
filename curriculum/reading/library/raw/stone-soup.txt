@@ -1,0 +1,54 @@
+Title: Stone Soup
+Author: European folk tale, retold
+Year: 2026
+Source: retold from the European folk tale "Stone Soup", which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Three readings, one tale.
+
+# The Hungry Traveler
+
+A traveler walked down a long road late one afternoon. He had walked all day, and his feet were sore. His bag was empty, and his stomach was empty too. At last he came to a small village among the hills. "Surely someone here will share a little food," he thought.
+
+He knocked on the first door he came to. A woman opened it just a crack and looked out. The traveler asked, "Could you spare a bite to eat?" "We have nothing to spare," said the woman, and she shut the door. He knocked on the next door, and the next. Every time he heard the same thing. "We have no food to give, and times are hard," they said.
+
+The traveler sat down on the edge of the village well. He knew that the people were not really so poor. He had seen smoke from their chimneys and hens in their yards. They were only afraid to share what they had. The traveler thought for a while, and then he smiled. He picked up a smooth round stone from the road. "This will do very well," he said to himself. "I will make some stone soup," he said in a loud voice. "Does anyone have a big pot I could borrow?"
+
+V: traveler = a person on a long journey from place to place
+V: spare = to give away something you can do without
+V: village = a small town in the country
+Q: What did the people say when the traveler asked for food? | They said they had no food to give and shut their doors. | literal
+Q: How did the traveler know the villagers were not really poor? | He saw smoke from their chimneys and hens in their yards. | inference
+Q: What does spare mean? | Spare means to give away something that you can do without. | vocabulary
+Q: What is this reading mostly about? | A hungry traveler is turned away by a village and makes a plan. | idea
+
+# The Pot Begins to Boil
+
+The people of the village had never heard of stone soup. One by one they came out of their houses to look. A boy brought a big iron pot from his mother's kitchen. The traveler set it over a fire in the village square. He filled the pot with water and dropped in the stone. Then he stirred the water slowly with a long stick.
+
+"Stone soup is a fine dish," he said. "But it is even better with a little salt and pepper." An old man hurried home and came back with salt and pepper. The traveler shook them in and tasted the water. "Very good, but now it needs a few carrots," he said. A girl ran home and came back with a bunch of carrots. She dropped them into the pot one by one.
+
+"Once I made this soup with onions and potatoes," he said. "That was a soup fit for a king." Two women looked at each other and hurried away. Soon they were back with onions and a sack of potatoes. A farmer brought some meat he had been saving. The smell from the pot grew richer and richer. Everyone in the village stood close and sniffed the air.
+
+V: square = an open place in the middle of a town
+V: stirred = to mix something around with a spoon or stick
+V: sack = a large bag made of cloth
+Q: What did the traveler drop into the pot of water first? | He dropped a smooth round stone into the water first. | literal
+Q: Why did the people keep bringing food for the soup? | They each wanted to help make the soup taste its best. | inference
+Q: What does stirred mean? | Stirred means to mix something around with a spoon or stick. | vocabulary
+Q: What is this reading mostly about? | The villagers add more and more food to the traveler's stone soup. | idea
+
+# A Feast for Everyone
+
+At last the traveler tasted the soup and nodded. "It is ready, so bring your bowls and spoons," he said. The people ran home and came back with bowls and bread. Someone brought a table, and someone else brought a jug of milk. Soon the whole village sat down to a feast in the square.
+
+The soup was thick and hot and full of good things. The people ate and talked and laughed late into the night. "To think it all came from a stone," said the old man. "What a wonderful soup," said the woman from the first house. She had turned the traveler away only a few hours before. Now she gave him the best bed in her house for the night.
+
+In the morning the traveler got ready to leave. The people begged him to leave them the magic stone. He laughed and handed it to the boy with the pot. "Take good care of it," he said. "But remember, the stone does not make the soup. The soup was made by all of you, sharing together." The traveler waved and walked off down the road. The people of the village never forgot that lesson. When times were hard, they shared what they had, and nobody went hungry.
+
+V: feast = a big meal with lots of food for many people
+V: jug = a tall container for pouring milk or water
+V: begged = to ask for something again and again
+Q: What did the traveler give the boy before he left? | He gave the boy the stone and told him to care for it. | literal
+Q: Why did the woman from the first house give the traveler a bed? | She was sorry she had turned him away and wanted to be kind. | inference
+Q: What does begged mean? | Begged means to ask for something again and again. | vocabulary
+Q: What does the story teach? | When everyone shares a little, there is plenty for all. | idea

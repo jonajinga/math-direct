@@ -1,0 +1,110 @@
+Title: The Bremen Town Musicians
+Author: Brothers Grimm, retold
+Year: 2026
+Source: retold from "The Bremen Town Musicians" by the Brothers Grimm, which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Four readings. The robbers are frightened away, and nobody is hurt.
+
+# The Donkey Sets Out
+
+A farmer once owned a donkey who had served him faithfully for many years. The donkey had carried sacks of grain to the mill every day. But now he was old, and his legs had grown weak and unsteady. The farmer began to wonder if he should keep feeding him.
+
+The donkey noticed the farmer's cold looks and grew anxious. "I will not wait to see what happens," he said to himself. "I have a fine loud voice. I will go to the city of Bremen and become a musician."
+
+So he set off down the road at dawn. He had not gone far when he found a dog lying by the ditch. The dog was panting heavily as if he had run a long way.
+
+The donkey asked, "Why are you so out of breath, old friend?"
+
+"I am old and cannot hunt as I used to," said the dog. "My master wanted to be rid of me, so I ran away. Now I do not know how I will earn my bread."
+
+"Come with me to Bremen," said the donkey. "I will play the lute, and you can beat the drum. We will make our living as town musicians."
+
+The dog liked the idea, so they continued along the road together.
+
+V: musician = a person who plays music
+V: lute = an old kind of guitar with a round back
+V: anxious = worried and a little afraid
+Q: What had the donkey carried to the mill every day? | He had carried heavy sacks of grain to the mill. | literal
+Q: Why did the donkey decide to leave the farm? | He feared the farmer would stop feeding him now he was old. | inference
+Q: What is a musician? | A person who plays music for other people to hear. | vocabulary
+Q: What is this reading mostly about? | An old donkey leaves home and meets a dog on the road. | idea
+
+# Two More Join the Band
+
+Before long they came upon a cat sitting miserably in the road. Her whiskers drooped, and she looked as gloomy as three days of rain.
+
+The donkey asked, "What is the matter, old whiskers?"
+
+"My teeth are worn down, and I cannot catch mice anymore," said the cat. "I would rather sit by the fire and purr. My mistress said she had no use for a lazy cat. So I left, but I do not know where to go."
+
+"Come to Bremen with us," said the donkey. "You sing at night, so you can be a musician too." The cat thought this was an excellent plan and joined them.
+
+Soon the three of them passed a farmyard gate. A rooster sat on top of it, crowing with all his might.
+
+"Your crowing goes right through my head," said the donkey. "Why do you make such a noise?"
+
+"Guests are coming on Sunday," said the rooster. "The cook plans to put me in the soup. So I am crowing while I still can."
+
+"Nonsense, come away with us instead," said the donkey. "You have a strong voice, and we need a singer. Anything is better than the soup pot."
+
+The rooster flapped down from the gate immediately. And so the four musicians travelled on toward Bremen together.
+
+V: gloomy = sad and without hope
+V: mistress = a woman who owns an animal
+V: nonsense = silly talk that makes no sense
+Q: Why could the cat no longer catch mice? | Her teeth were worn down from being so old. | literal
+Q: Why was the rooster crowing with all his might? | He thought it might be his last chance to crow. | inference
+Q: What does gloomy mean? | Feeling sad and low, as if nothing could go right. | vocabulary
+Q: What is this reading mostly about? | A cat and a rooster join the donkey and the dog. | idea
+
+# The House in the Forest
+
+Bremen was too far to reach in a single day. When evening came, the four friends stopped in a forest. The donkey and the dog lay down under a big tree. The cat curled up in the branches, and the rooster flew to the top.
+
+Before he settled down, the rooster looked around in every direction. Far off he spotted a small light glowing through the trees.
+
+"There must be a house over there," he called down. "I can see a light in a window."
+
+"Then let us go and look," said the donkey. "This is a poor place to spend the night." The dog agreed, for he was hungry and dreaming of a bone.
+
+They walked toward the light until they reached a little house. The donkey, being tallest, crept up and peeped in the window.
+
+The rooster asked, "What do you see, Grey Horse?"
+
+"I see a table covered with good things to eat," said the donkey. "There are roast meats, bread, cakes, and jugs of cider. And a band of robbers is sitting around it, enjoying every bite."
+
+"That would just suit us," sighed the rooster.
+
+The four animals put their heads together and made a plan. They would find a way to drive the robbers out.
+
+V: robber = a person who takes things that are not theirs
+V: cider = a drink made from apples
+V: peep = to look quickly and quietly at something
+Q: What did the donkey see through the window? | He saw robbers eating a feast at a table. | literal
+Q: Why did the rooster say the feast would suit them? | The friends were hungry and wanted that food for themselves. | inference
+Q: What is a robber? | A person who takes things that belong to other people. | vocabulary
+Q: What is this reading mostly about? | The friends find a house in the forest full of robbers. | idea
+
+# The Robbers Run Away
+
+The donkey stood with his front feet on the windowsill. The dog climbed onto his back, then the cat, then the rooster on top. At a signal, they all began to make their music.
+
+The donkey brayed, the dog barked, the cat yowled, and the rooster crowed. Then they tumbled through the window into the room with a crash. The robbers leaped up in terror at the dreadful noise. Out they rushed into the forest as fast as they could.
+
+The four friends sat down and ate until they were full. Then each found a bed that suited him and fell asleep.
+
+After midnight, the captain sent one robber back to investigate. He crept in and saw the cat's glowing eyes. He thought they were coals and bent to light a candle.
+
+The cat sprang up, hissing and spitting at him. The man stumbled back and tripped over the barking dog. He ran past the donkey, who stamped and brayed. From the beam the rooster screamed, "Cock a doodle doo."
+
+The robber raced back to his friends, shaking all over. "There is a witch in that house who hissed at me," he gasped. "A giant stamped at me, and a voice on the roof shouted."
+
+The robbers never dared go near the house again. The four musicians liked it so well that they remained there forever.
+
+V: terror = very great fear
+V: dreadful = very bad or frightening
+V: investigate = to look carefully to find out what happened
+Q: Where did the robbers run when they heard the noise? | They rushed out into the forest as fast as they could. | literal
+Q: Why did the robber think there was a witch in the house? | The cat hissed and spat at him in the dark. | inference
+Q: What does dreadful mean? | Very bad or frightening, so that it scares you. | vocabulary
+Q: What is the main idea of this reading? | By working together, the four friends win a home of their own. | idea

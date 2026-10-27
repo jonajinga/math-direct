@@ -1,0 +1,84 @@
+Title: The Emperor's New Clothes
+Author: Hans Christian Andersen, retold
+Year: 2026
+Source: retold from "The Emperor's New Clothes" by Hans Christian Andersen, which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Four readings.
+
+# The Emperor Who Loved Clothes
+
+Many years ago there lived an emperor who cared for nothing but new clothes. He spent all his money on them and all his time admiring them. He did not care about his soldiers or about riding in the park. He only wanted to show off his latest outfit. He had a different coat for every hour of the day. When people asked for him, they were told he was in his dressing room.
+
+The city where he lived was busy, and strangers arrived every day. One day two swindlers came to town. They said they were weavers who could make the most wonderful cloth. Not only were its colors and patterns beautiful. The cloth had a magic power as well. It was invisible to anyone who was foolish or unfit for his job.
+
+"Those would be splendid clothes," thought the emperor. "If I wore them, I could tell which men are unfit for their jobs. I could tell the clever from the foolish at a glance." So he paid the two swindlers a large sum of money. He told them to begin their work at once.
+
+V: emperor = a ruler who is greater than a king
+V: swindler = a person who cheats others out of their money
+V: invisible = not able to be seen
+Q: What did the emperor spend all his money on? | He spent all his money on new clothes for himself. | literal
+Q: Why did the emperor want the magic cloth so badly? | He thought it would show him which of his men were foolish. | inference
+Q: What is a swindler? | A person who cheats other people out of their money. | vocabulary
+Q: What is this reading mostly about? | A vain emperor pays two tricksters for magic cloth that does not exist. | idea
+
+# The Empty Looms
+
+The swindlers set up two looms and pretended to weave. But there was nothing on the looms at all. They asked for the finest silk and the purest gold thread. All of it went straight into their own bags.
+
+After a few days the emperor grew curious about the cloth. But he felt a little uneasy about going himself. What if he could not see it? So he sent his honest old minister to look instead. "He is clever, and nobody is better at his job," the emperor thought.
+
+The old minister went into the room where the swindlers sat weaving. He opened his eyes very wide. "Mercy on us, I cannot see a thing," he thought. But he did not say so out loud.
+
+The swindlers begged him to come closer and admire the pattern. They pointed at the empty looms and described the colors. The poor minister stared and stared, but there was nothing to see. He wondered, "Can I be foolish, or unfit for my job? I must never let anyone find out."
+
+"It is charming, quite charming," he said at last. "Such a lovely pattern, and such rich colors." The swindlers smiled and asked for more silk and gold. The minister reported to the emperor that the cloth was beyond compare.
+
+V: loom = a frame for weaving thread into cloth
+V: minister = an important helper of a ruler
+V: uneasy = a little worried
+Q: What did the swindlers do with the silk and gold thread? | They put all of it into their own bags. | literal
+Q: Why did the minister say the cloth was charming? | He was afraid people would think he was foolish or unfit. | inference
+Q: What does uneasy mean? | A little worried that something may go wrong. | vocabulary
+Q: What is this reading mostly about? | The minister sees nothing but pretends the cloth is beautiful. | idea
+
+# The Emperor Sees for Himself
+
+Soon the emperor sent another trusted official to see how the work went. The same thing happened to him. He looked and looked, but he saw only empty looms. "I am not foolish," he told himself. "So it must be my job that I am unfit for. It would never do to let anyone know." So he praised the cloth as highly as the minister had.
+
+The whole city was talking about the magnificent cloth. At last the emperor decided to see it for himself. He took a crowd of his finest gentlemen along with him.
+
+The swindlers were weaving away with all their might. There was not a thread on the looms. The two officials said, "Is it not magnificent, Your Majesty? See the pattern and the colors."
+
+The emperor thought, "What is this? I cannot see anything at all. Am I a fool, or am I unfit to be emperor?"
+
+"Oh, it is very pretty," he said out loud. "It has my highest approval, and I am very pleased." All of his gentlemen stared too, and they saw no more than he did. But they all cried out, "Beautiful, beautiful," along with the emperor. They told him to wear the new clothes in the grand procession. The emperor gave the swindlers a medal and the title of Royal Weavers.
+
+V: official = a person with an important job for the ruler
+V: magnificent = very grand and beautiful
+V: procession = a line of people walking along for a special event
+Q: What did the emperor give the swindlers? | He gave them a medal and the title of Royal Weavers. | literal
+Q: Why did the gentlemen cry out that the cloth was beautiful? | None of them wanted to seem foolish in front of the others. | inference
+Q: What does magnificent mean? | Very grand and beautiful, so fine that it amazes you. | vocabulary
+Q: What is this reading mostly about? | The emperor sees nothing but pretends he loves the cloth. | idea
+
+# The Procession
+
+The night before the procession, the swindlers sat up with sixteen candles burning. They cut the air with great scissors and sewed with needles without thread. At last they announced, "The emperor's new clothes are ready."
+
+The emperor came with his gentlemen, and the swindlers held up their arms. "Here are the trousers, and here is the coat," they said. "You will feel as if you had nothing on, and that is their beauty."
+
+The emperor took off his clothes, and the swindlers pretended to dress him. He turned this way and that in front of the mirror. "How well they suit me," he said.
+
+So the emperor walked in the procession under his fine canopy. Everyone in the streets said how beautiful the new clothes were. Nobody would admit that they saw nothing, for fear of seeming foolish.
+
+"But he has nothing on," said a little child. "Dear me, listen to the child," said his father. Then the people whispered what the child had said to one another. "He has nothing on," they all cried at last.
+
+The emperor shivered, for he knew they were right. But he thought, "I must go through with the procession now." So he walked on prouder than ever. And his servants walked behind him, holding up a train that was not there.
+
+V: canopy = a cloth roof held up on poles
+V: admit = to say that something is true
+V: train = the long part of a robe that drags behind
+Q: Who said that the emperor had nothing on? | A little child in the crowd said it first. | literal
+Q: Why did the emperor keep walking after he knew the truth? | He was too proud to stop and admit he had been fooled. | inference
+Q: What is a canopy? | A cloth roof held up on poles over someone. | vocabulary
+Q: What does the story teach? | People pretend to see what others see because they fear looking foolish. | idea

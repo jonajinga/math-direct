@@ -1,0 +1,112 @@
+Title: The Ugly Duckling
+Author: Hans Christian Andersen, retold
+Year: 2026
+Source: retold from "The Ugly Duckling" by Hans Christian Andersen, which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Five readings.
+
+# The Big Egg
+
+It was summer in the country, and the fields were golden with wheat. Down by the river, a mother duck sat on her nest in the reeds. She had been sitting for a long time, and she was growing impatient.
+
+At last the eggs began to crack, one after another. Out came the ducklings, peeping and looking around at the big green world. "How large the world is," they said.
+
+"The world is much larger than this," said their mother. "It stretches far past the garden, all the way to the farmer's field."
+
+But one egg still lay in the nest, bigger than all the rest. It showed no sign of cracking at all. The mother duck sighed and settled down to wait a little longer.
+
+An old duck came waddling by to visit her. "That looks like a turkey egg to me," she said. "I was fooled that way once myself. Leave it alone and go teach the others to swim."
+
+"I have waited this long," said the mother duck. "I can wait a little more."
+
+Finally the big egg cracked and out tumbled the last baby. He was large and grey and terribly clumsy. "He does not look like the others," said the mother duck. "But he is mine, and I will see how he swims."
+
+V: reeds = tall grass that grows beside water
+V: clumsy = moving badly, often tripping or bumping into things
+V: impatient = tired of waiting
+Q: What did the old duck think was in the big egg? | She thought it was a turkey egg, not a duck egg. | literal
+Q: Why did the mother duck keep sitting on the big egg? | She felt the egg was hers and would not give up. | inference
+Q: What does clumsy mean? | Moving badly, often tripping or bumping into things. | vocabulary
+Q: What is this reading mostly about? | A mother duck hatches her eggs, and the last one is different. | idea
+
+# Nobody Wants Him
+
+The next day the mother duck led her family down to the water. Splash went the ducklings, one after the other. The big grey one swam as beautifully as any of them. "He is my own child after all," said his mother proudly.
+
+Then she took them to the farmyard to introduce them to the other birds. The ducks there stared rudely at the grey duckling. "What an ugly creature," they quacked. One duck ran up and nipped him on the neck. "Leave him alone," cried the mother. "He is doing no harm to anyone."
+
+But nothing she said made any difference. The ducks pecked at him, and the hens pushed him around. Even the girl who fed the birds kicked at him with her foot.
+
+Day by day the teasing grew worse. His brothers and sisters began to call him names too. "We wish you would just go away," they said. At last even his mother grew tired of standing up for him.
+
+The miserable grey duckling could bear it no longer. One evening he slipped through the hedge and escaped. The small birds in the bushes flew up in fright as he passed. "That is because I am so ugly," he thought sadly. He ran on until he reached a wide and lonely marsh.
+
+V: farmyard = the open ground beside a farmhouse and its barns
+V: marsh = low wet land with soft ground and tall grass
+V: introduce = to bring someone to meet other people
+Q: What happened when the duckling met the other ducks in the farmyard? | They called him ugly and one nipped him on the neck. | literal
+Q: Why did the duckling think the small birds flew away from him? | He believed they were scared because he was so ugly. | inference
+Q: What is a marsh? | Low wet land with soft ground and tall grass. | vocabulary
+Q: What is this reading mostly about? | The grey duckling is treated badly and runs away from home. | idea
+
+# The Old Woman's Cottage
+
+The wild ducks were not unkind, but they were not friendly either. "You are very ugly, but that is no matter to us," they said. Then hunters came with their dogs, and the marsh filled with terrible noise. A huge dog splashed right past the duckling and did not touch him. "I am so ugly that even the dog will not bite me," he sighed.
+
+When everything was quiet again, he hurried away across the fields. By nightfall he arrived at a tumbledown cottage. An old woman lived there with her cat and her hen. The cat could arch his back and purr. The hen could lay good eggs every day.
+
+She let the duckling stay, hoping he might lay eggs too. But the cat and the hen considered themselves very grand. The cat asked, "Can you purr or arch your back?" The hen asked, "Can you lay a good egg?"
+
+"No, but I love to float and dive in the water," said the duckling.
+
+"What a foolish idea," said the hen. "Nobody here wants to get wet. You should learn to purr or lay eggs like us."
+
+The duckling felt lonely and miserable in the little cottage. He longed for the open water and the wide sky. So he thanked the old woman and went out into the world again.
+
+V: cottage = a small simple house in the country
+V: tumbledown = old and falling to pieces
+V: grand = very important, or thinking you are
+Q: Who lived in the cottage with the old woman? | A cat who could purr and a hen who laid eggs. | literal
+Q: Why did the duckling leave the cottage? | He was lonely and missed the water and the open sky. | inference
+Q: What does tumbledown mean? | Old and falling to pieces, like a broken house. | vocabulary
+Q: What is this reading mostly about? | The duckling finds a home but does not fit in there. | idea
+
+# The Long Winter
+
+Autumn came, and the leaves turned yellow and brown. The wind whirled them about, and the sky grew heavy with clouds. The duckling swam alone on a lake, shivering in the cold.
+
+One evening a flock of large white birds rose from the reeds. They had long graceful necks and wide shining wings. They gave a strange cry and flew off toward warmer lands. The duckling watched them until they were only specks in the sky. But he felt he had never loved anything so much.
+
+Then winter came, and it was bitterly cold. The duckling had to swim in circles to keep the water from freezing. Each night the hole grew smaller and smaller. At last he grew so tired that the ice closed around him.
+
+Early next morning a farmer walked by and saw him. He broke the ice with his boot and carried the duckling home. The farmer's children wanted to play with him, but he was afraid. He flapped into the milk pan and then into the butter tub. The farmer's wife chased him with the tongs, and he fled out the door.
+
+He lay in the snow all that night. The rest of the winter was long and hard, too sad to tell. But the duckling lived through it, and at last the sun grew warm again.
+
+V: graceful = moving in a smooth and lovely way
+V: flock = a group of birds together
+V: tongs = a tool with two arms for picking things up
+Q: Who found the duckling frozen in the ice? | A farmer broke the ice and carried him home. | literal
+Q: Why did the duckling fly into the milk pan and the butter tub? | He was frightened of the children and tried to get away. | inference
+Q: What does graceful mean? | Moving in a smooth and lovely way, like a dancer. | vocabulary
+Q: What is this reading mostly about? | The duckling sees the white birds and survives a hard winter. | idea
+
+# The Swan
+
+Spring came at last, and the larks sang over the fields. The duckling spread his wings and found they were strong and wide. He flew over orchards full of blossom until he reached a beautiful garden.
+
+A stream wound through the garden, and on it floated three white swans. The duckling knew them at once, and a strange sadness filled him. "I will fly to those royal birds," he thought. "They may drive me away for being so ugly. But that would be better than being pecked by ducks and chased by hens."
+
+He flew down and swam toward the swans with his head bowed. But what did he see in the clear water? He saw his own reflection, and it was not a clumsy grey bird. It was a swan, white and graceful, with a long curving neck.
+
+The great swans swam gracefully around him and stroked him with their beaks. Some children came running into the garden with bread for the birds. "There is a new one," they cried. "The new one is the most beautiful of all."
+
+The young swan felt embarrassed and hid his head under his wing. Now, at last, he knew what happiness meant. It makes no difference where you are born. What matters is what you grow up to be.
+
+V: reflection = the picture of yourself you see in water
+V: embarrassed = feeling shy and foolish in front of others
+V: royal = belonging to a king or queen
+Q: What did the duckling see when he looked into the water? | He saw that he was a beautiful white swan. | literal
+Q: Why did the duckling bow his head as he swam toward the swans? | He expected them to drive him away for being ugly. | inference
+Q: What is a reflection? | The picture of yourself that you see in water. | vocabulary
+Q: What is the lesson of the story? | Hard times pass, and you may become more than others think. | idea

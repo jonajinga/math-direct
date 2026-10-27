@@ -1,0 +1,42 @@
+Title: The Three Billy Goats Gruff
+Author: Norwegian folk tale, retold
+Year: 2026
+Source: retold from the Norwegian folk tale "The Three Billy Goats Gruff", which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Two readings. The troll is knocked into the river and swims away.
+
+# The Troll Under the Bridge
+
+Three billy goats lived on a rocky hillside. People called them the three Billy Goats Gruff. One was small, one was bigger, and one was huge.
+
+The grass on their hill was short and dry. Across the river the grass grew thick and green. The goats longed to cross over and eat it.
+
+The only way across was a wooden bridge. Under the bridge lived a big ugly troll. He had eyes as big as plates. His nose was as long as a rake. He said he would eat anyone who crossed.
+
+The little goat went first across the bridge. Trip, trap, trip, trap, went his small hooves. The troll roared, "Who is that tripping over my bridge?" "Only me, the little Billy Goat Gruff," said the goat. "I want to get fat on the hill," he said. "Now I will gobble you up," roared the troll. "Oh no, I am much too small," said the goat. "Wait for my brother, who is much bigger," he begged. "Well, be off with you then," said the troll. And the little goat trotted over the bridge.
+
+V: troll = an ugly monster from old tales
+V: hooves = the hard feet of goats, horses, and cows
+V: gobble = to eat up fast, in big bites
+Q: Where did the troll live? | He lived under the wooden bridge that crossed the river. | literal
+Q: Why did the little goat tell the troll to wait for his brother? | He wanted the troll to let him go across the bridge. | inference
+Q: What does gobble mean? | To eat something up very fast, in big bites. | vocabulary
+Q: What is this reading mostly about? | The little goat gets past the troll by being clever. | idea
+
+# The Big Billy Goat Gruff
+
+Soon the middle goat came to the bridge. Trip, trap, trip, trap, went his hooves. The troll roared, "Who is that tripping over my bridge?" "Only me, the middle Billy Goat Gruff," said the goat. "I want to get fat on the hill," he said. "Now I will gobble you up," roared the troll. "Oh no, wait for my big brother," said the goat. The troll grumbled, but he let him pass.
+
+Then the big Billy Goat Gruff came along. Trip, trap, trip, trap, went his great heavy hooves. The troll roared, "Who is that tramping over my bridge?" "It is I, the big Billy Goat Gruff," he said. "Now I will gobble you up," roared the troll. "Come along, then," said the big goat. "My two sharp horns are ready for you," he said.
+
+The big goat lowered his head and charged. He butted the troll and tossed him high. The troll fell into the river with a splash. He came up spluttering and swam away. He was never seen near that bridge again.
+
+The big goat walked over to join his brothers. The three goats ate sweet grass all summer. They grew so fat they could hardly walk home.
+
+V: tramp = to walk with heavy, loud steps
+V: butt = to hit with the head or horns
+V: splutter = to cough and spit out water
+Q: What did the big goat do to the troll? | He butted him with his horns and tossed him into the river. | literal
+Q: Why did the troll let the middle goat pass? | He wanted to wait for the bigger, fatter goat to eat. | inference
+Q: What does butt mean? | To hit something hard with the head or the horns. | vocabulary
+Q: What does the story teach? | A greedy bully who waits for more may end with nothing. | idea

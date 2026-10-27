@@ -1,0 +1,106 @@
+Title: Aesop's Fables, Book Two
+Author: Aesop, retold
+Year: 2026
+Source: retold from Aesop's fables, which are in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Five fables, one to a reading.
+
+# The Crow and the Pitcher
+
+A thirsty crow flew over a dry field in summer. She had looked for water all day long. At last she saw a tall pitcher by a wall. She landed beside it and peered inside. There was water at the bottom, cool and clear.
+
+The crow pushed her beak into the pitcher. But the neck was narrow and the water was low. Stretch as she might, she could not reach it. She pushed at the pitcher, but it would not tip.
+
+The crow sat down and thought hard. Then she saw some small stones on the ground. She picked up a stone and dropped it in. The water rose, just a little bit.
+
+She fetched another stone, and then another. Stone by stone, the water crept up the pitcher. At last it reached the top of the neck. The crow dipped her beak and drank her fill.
+
+She was not strong enough to tip the pitcher. But a little thinking did what strength could not. Where there is a will, there is a way.
+
+V: pitcher = a tall jug for holding water
+V: beak = the hard mouth of a bird
+V: narrow = thin, with little room from side to side
+Q: What did the crow drop into the pitcher? | She dropped small stones into the pitcher, one at a time. | literal
+Q: Why did the water rise when the stones went in? | Each stone took up room and pushed the water higher. | inference
+Q: What does narrow mean? | Thin, with only a little room from side to side. | vocabulary
+Q: What does the story teach? | Careful thinking, bit by bit, can solve a hard problem. | idea
+
+# The Dog and His Reflection
+
+A dog found a fine big bone one morning. He held it tight in his teeth and trotted home. On the way he came to a little bridge. The bridge crossed a stream of clear, still water.
+
+The dog looked down as he walked across. He saw another dog looking up at him. That dog had a bone in his mouth too. It looked even bigger than his own bone.
+
+The dog did not know it was his reflection. He thought it was a real dog in the water. "I want that bone as well," he said to himself. He growled and snapped at the dog below.
+
+The moment he opened his mouth, his bone fell out. It splashed into the stream and sank out of sight. The other dog's bone was gone at the same time. Only ripples were left on the water.
+
+The dog stared at the empty stream. Then he walked home with nothing at all. He had been greedy, and it cost him his bone. Greed for more can lose you what you have.
+
+V: reflection = a picture of a thing seen in water or glass
+V: stream = a small river
+V: greedy = wanting more than you need
+Q: What happened when the dog opened his mouth? | His bone fell out, splashed into the stream, and sank. | literal
+Q: Whose bone did the dog see in the water? | It was his own bone, shown in the still water. | inference
+Q: What does greedy mean? | Wanting more than you need, even when you have enough. | vocabulary
+Q: What does the story teach? | Being greedy for more can lose you what you have. | idea
+
+# The Wind and the Sun
+
+The Wind and the Sun had an argument one day. Each one said that he was the stronger. "I can tear roofs off houses," boasted the Wind. "I can make the whole earth warm," said the Sun. They argued until a traveler came walking down the road. He wore a long coat pulled tight around him.
+
+"Here is a test," said the Sun. "Whoever makes that man take off his coat wins." The Wind agreed, and he took the first turn.
+
+He blew at the man with all his might. The trees bent and the dust flew up in clouds. But the man only held his coat more tightly. The harder the Wind blew, the tighter he held it. At last the Wind gave up, worn out.
+
+Then the Sun came out from behind a cloud. He shone down, soft and warm, on the road. The man loosened his coat and wiped his face. Soon he grew so warm that he took it off. He sat down in the shade to rest.
+
+The Sun had won without any noise or force. Gentle warmth can do what rough force cannot.
+
+V: argument = a fight with words over who is right
+V: boast = to talk big about what you can do
+V: traveler = a person going on a long trip
+Q: What did the man do when the Wind blew hard? | He held his coat more tightly around himself. | literal
+Q: Why did the man take off his coat for the Sun? | The Sun made him so warm that he did not need it. | inference
+Q: What does boast mean? | To talk big about yourself and what you can do. | vocabulary
+Q: What does the story teach? | Gentle kindness often works better than rough force does. | idea
+
+# The Town Mouse and the Country Mouse
+
+A country mouse lived in a hole under a hedge. One day her cousin came to visit from the town. The country mouse set out her very best food. There were seeds, roots, and a few dry peas.
+
+The town mouse nibbled a seed and made a face. She asked, "How can you live on such poor food?" "Come to town and eat like a queen," she said. The country mouse packed up and went with her cousin.
+
+The house in town was grand and warm. On the table lay cake, cheese, and sweet jam. The country mouse had never seen such a feast. She was just about to taste the cake.
+
+Then a door banged, and a huge cat ran in. The two mice fled into a crack in the wall. They waited, shaking, until the cat went away. They crept out, but then a dog began to bark.
+
+The country mouse thanked her cousin and picked up her bag. "I would rather eat plain food in peace," she said. And she went home to her hole under the hedge.
+
+V: hedge = a row of bushes that grow close together
+V: feast = a big, fine meal with lots of food
+V: grand = very big and fine
+Q: What food did the country mouse set out for her cousin? | She set out seeds, roots, and a few dry peas. | literal
+Q: Why did the country mouse go back home? | She would rather eat plain food than live in fear. | inference
+Q: What does feast mean? | A big, fine meal with lots of good food. | vocabulary
+Q: What does the story teach? | A plain life in peace is better than riches in fear. | idea
+
+# The Goose That Laid the Golden Eggs
+
+A farmer and his wife owned one grey goose. One morning the farmer found an egg in her nest. It was heavy, and it shone like the sun. The egg was made of solid gold.
+
+The next day the goose laid another golden egg. And the next day she laid one more. Every morning there was a new egg of gold. The farmer sold the eggs and bought a bigger farm.
+
+But one egg a day was not enough for him. "She must be full of gold inside," he said. "Why should we wait for one egg a day?" His wife begged him to leave the goose alone.
+
+But the farmer would not listen to her. He grabbed the goose and shook her hard. No gold fell out, only a few grey feathers. The goose honked and flapped out of his arms. She flew over the hedge and out of sight. He called and called, but she never came back.
+
+Now there were no more golden eggs at all. He wanted it all, and so he lost it all. Greed can lose you the good thing you have.
+
+V: solid = hard all the way through
+V: beg = to ask for something with all your heart
+V: greed = wanting much more than you need
+Q: What did the farmer find in the goose's nest each morning? | He found a heavy egg made of solid gold. | literal
+Q: Why did the farmer shake the goose? | He wanted all the gold at once instead of waiting. | inference
+Q: What does greed mean? | Wanting much more than you need or already have. | vocabulary
+Q: What does the story teach? | Wanting everything at once can lose what you already have. | idea

@@ -1,0 +1,98 @@
+Title: How Bread Is Made
+Author: Teach Direct
+Year: 2026
+Source: written for Teach Direct
+License: dedicated to the public domain (CC0)
+Note: Three readings on wheat and flour, on dough and the oven, and on the breads of the world.
+
+# From Field to Flour
+
+Most of the bread we eat begins in a field of wheat. Wheat is a kind of
+grass, and farmers plant it by the acre. In spring the young wheat is
+green and soft, like a lawn. By summer the stalks stand tall and turn a
+golden brown. At the top of each stalk is a head full of grains. Each
+grain is a seed, and inside it is a store of starchy food.
+
+The grain is ready when it is hard and dry. Then it is time for the
+harvest to begin. Long ago, people cut the wheat by hand with a curved
+blade. They beat the heads with sticks to knock the grains loose. Today
+a machine called a combine harvester does all of this at once. It cuts
+the stalks, shakes out the grains, and blows away the husks.
+
+The grains go to a mill to be ground into flour. Old mills crushed the
+grain between two heavy round stones. A water wheel or a windmill turned
+the heavy top stone. Modern mills grind the grain between steel rollers
+instead. Whole wheat flour keeps every part of the grain, so it is
+brown. White flour has the brown outer coat sifted out. One acre of
+wheat can grow enough flour for thousands of loaves.
+
+V: harvest = the gathering of crops when they are ripe
+V: combine = a big farm machine that cuts and cleans grain
+V: mill = a place where grain is ground into flour
+Q: What does a combine do with the wheat? | It cuts the stalks, shakes out the grains, and blows away the husks. | literal
+Q: Why did the harvest take much longer long ago? | People cut and beat the wheat by hand, without a machine. | inference
+Q: What is a mill? | A mill is a place where grain is ground into flour. | vocabulary
+Q: What is this reading mostly about? | Wheat grows in a field, is harvested, and is ground into flour. | idea
+
+# Dough, Yeast, and the Oven
+
+A simple loaf of bread needs only four things. They are flour, water,
+salt, and yeast. The baker mixes them into a soft, sticky dough. Then
+the baker kneads the dough, pushing and folding it again and again.
+Kneading makes the dough smooth and stretchy, so it can hold air.
+
+Yeast is the secret of a light and airy loaf. It is a living thing, so
+tiny that one cannot be seen. In warm water the yeast wakes up and
+starts to feed. It eats the sugar in the flour and gives off a gas. The
+gas forms thousands of tiny bubbles all through the dough. The dough
+swells until it is twice its size. This is called rising, and it takes
+an hour or two. The holes in a slice of bread are where the bubbles
+were.
+
+Salt does more than add flavor to the bread. It slows the yeast down so
+the dough does not rise too fast.
+
+At last the baker shapes the dough and lets it rise once more. Then the
+loaf goes into a hot oven, about four hundred degrees. The heat makes
+the bubbles swell even bigger. Then it sets the dough firm around them.
+The outside browns into a crust, and the kitchen fills with the smell.
+
+V: knead = to push and fold dough again and again
+V: yeast = a tiny living thing that makes dough rise
+V: crust = the hard brown outside of a loaf
+Q: What four things does a simple loaf need? | A simple loaf needs flour, water, salt, and yeast. | literal
+Q: Why does a slice of bread have holes in it? | The holes are where bubbles of gas from the yeast were. | inference
+Q: What does knead mean? | To knead means to push and fold dough again and again. | vocabulary
+Q: What is this reading mostly about? | Yeast makes dough rise, and the oven bakes it into bread. | idea
+
+# Bread Around the World
+
+People in almost every land make bread, but not all bread looks alike.
+Much of the bread in the world is flat. In Mexico, cooks pat corn dough
+into thin round tortillas. In India, a flat wheat bread called chapati
+puffs up on a hot pan. In Ethiopia, injera is a soft, spongy bread as
+big as a tray. It is made from a tiny grain called teff and tastes a
+little sour.
+
+Other breads are tall loaves that rise with yeast. France is known for
+the baguette, a long thin loaf with a crisp crust. In Germany and
+Russia, many loaves are dark and made of rye.
+
+Not all bread is made from wheat. In the American South, cornbread is
+baked from ground corn. In southern India, cooks grind rice and lentils
+into a batter. They steam it into soft white cakes called idli.
+
+People have made bread for a very long time. Scientists found crumbs of
+flat bread in a fire pit in Jordan. The crumbs were fourteen thousand
+years old, older than farming itself. The ancient Egyptians baked loaves
+with yeast more than four thousand years ago. Grain keeps well and is
+cheap, and bread fills an empty stomach. The word companion once meant a
+person you share bread with.
+
+V: tortillas = thin flat round breads made from corn or wheat
+V: rye = a grain like wheat that makes dark bread
+V: ancient = from a very long time ago
+Q: What do cooks in Mexico make from corn dough? | They pat corn dough into thin round tortillas on a hot plate. | literal
+Q: Why did people make bread before they had farms? | They gathered wild grain and ground it to make flat bread. | inference
+Q: What does ancient mean? | Ancient means from a very long time ago. | vocabulary
+Q: What is this reading mostly about? | People everywhere make many kinds of bread, and they have for ages. | idea

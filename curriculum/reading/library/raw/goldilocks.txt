@@ -1,0 +1,59 @@
+Title: Goldilocks and the Three Bears
+Author: English folk tale, retold
+Year: 2026
+Source: retold from the English folk tale "Goldilocks and the Three Bears", which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Three readings, one tale.
+
+# Three Bowls of Porridge
+
+Three bears lived in a little house in the woods. There was a great big father bear. There was a middle sized mother bear. And there was a little baby bear.
+
+One morning the mother bear made porridge for breakfast. She filled three bowls and set them on the table. The porridge was far too hot to eat. "Let us take a walk while it cools," said the father bear. So the three bears went out and left the door open.
+
+Just then a little girl came walking through the woods. Her name was Goldilocks, for her hair was gold. She saw the little house and went up to the door. She knocked, but nobody came to let her in. The door was open, so she peeked inside. Nobody was home, so she walked right in.
+
+Goldilocks saw the three bowls of porridge on the table. She was hungry, so she tasted the big bowl. "This porridge is too hot," she said. She tasted the middle sized bowl next. "This porridge is too cold," she said. Then she tasted the small bowl. "This porridge is just right," she said. And she ate it all up.
+
+V: porridge = a hot breakfast made from oats and milk
+V: peeked = to look quickly through a small space
+Q: Why did the bears go out for a walk? | They went out to walk while the porridge cooled. | literal
+Q: Whose porridge did Goldilocks eat all up? | The small bowl of porridge belonged to the baby bear. | inference
+Q: What does peeked mean? | Peeked means to look quickly through a small space. | vocabulary
+Q: What is this reading mostly about? | A little girl walks into the bears' house and eats their porridge. | idea
+
+# Three Chairs
+
+After the porridge, Goldilocks felt like sitting down. She went into the next room and saw three chairs. The big chair was for the father bear. The middle sized chair was for the mother bear. And the small chair was for the baby bear.
+
+Goldilocks climbed into the big chair first. "This chair is too hard," she said. She climbed down and tried the middle sized chair. "This chair is too soft," she said. Then she sat down in the small chair. "This chair is just right," she said with a smile. But Goldilocks was too heavy for the little chair. The seat broke with a crack, and she fell to the floor. She picked herself up and brushed off her dress.
+
+Now Goldilocks felt very tired after her long walk. She went up the stairs to look for a bed. In the bedroom she found three beds in a row. The big bed was for the father bear. The middle sized bed was for the mother bear. And the small bed was for the baby bear. Goldilocks yawned and rubbed her eyes. "I will just lie down for a minute," she said.
+
+V: heavy = weighing a lot
+V: crack = a sharp loud sound when something breaks
+V: yawned = to open the mouth wide when tired
+Q: What happened when Goldilocks sat in the small chair? | The seat broke, and she fell down to the floor. | literal
+Q: Why did the small chair break under Goldilocks? | She was too heavy for a chair made for a baby bear. | inference
+Q: What does yawned mean? | Yawned means to open the mouth wide when tired. | vocabulary
+Q: What is this reading mostly about? | Goldilocks tries the three chairs and then looks for a bed. | idea
+
+# The Bears Come Home
+
+Goldilocks lay down on the great big bed. "This bed is too hard," she said. The middle sized bed was far too soft. Then she lay down on the small bed. It was just right, and soon she was fast asleep.
+
+Before long the three bears came home for breakfast. "Somebody has been tasting my porridge," said the father bear. "Somebody has been tasting my porridge," said the mother bear. "Somebody has been tasting my porridge," said the baby bear. "And they have eaten it all up."
+
+The bears went into the next room. "Somebody has been sitting in my chair," said the father bear. "And somebody has been sitting in mine," said the mother bear. "Somebody has been sitting in my chair," said the baby bear. "And they have broken it to pieces."
+
+Then the bears went up the stairs. "Somebody has been lying in my bed," said the father bear. "And somebody has been lying in mine," said the mother bear. "Somebody is lying in my bed right now," said the baby bear. "And here she is, still fast asleep."
+
+Goldilocks woke up and saw three bears looking at her. She jumped up and ran down the stairs. She ran out the door and all the way home. She never went into the woods alone again.
+
+V: tasting = trying a little bit of food
+V: pieces = the small parts of something broken
+V: lying = resting flat, as on a bed
+Q: Where was Goldilocks when the bears found her? | She was fast asleep in the baby bear's small bed. | literal
+Q: How did the baby bear feel when he saw his broken chair? | He felt sad and upset because his chair was broken. | inference
+Q: What does pieces mean? | Pieces means the small parts of something that has broken. | vocabulary
+Q: What lesson does the story teach? | Do not go into someone's house or use their things without asking. | idea

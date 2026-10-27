@@ -1,0 +1,38 @@
+Title: The Enormous Turnip
+Author: Russian folk tale, retold
+Year: 2026
+Source: retold from the Russian folk tale "The Enormous Turnip", which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Two readings, one tale.
+
+# The Turnip Grows
+
+An old man planted a turnip seed in his garden. "Grow big and strong, little turnip," said the old man. He watered it every morning and pulled the weeds. The turnip began to grow, and it did not stop. It grew as big as a cat. Then it grew as big as a dog. Then it grew as big as a sheep. Soon it was an enormous turnip, the biggest anyone had ever seen.
+
+At last the old man went out to pull it up. He took hold of the leaves and pulled. He pulled and pulled with all his might. But the turnip did not move. "This turnip is stuck fast," said the old man. "I will need some help with this," he said.
+
+He called to the old woman in the house. She came out and took hold of the old man. The old man pulled the turnip. The old woman pulled the old man. They pulled and pulled with all their might. But the turnip still did not move. "We need more help," said the old woman. She called to the little girl who lived with them. The little girl came running as fast as she could.
+
+V: turnip = a round white root that people cook and eat
+V: enormous = very, very big
+V: might = all the strength a person has
+Q: How big did the turnip grow? | It grew to be the biggest turnip anyone had ever seen. | literal
+Q: Why could the old man not pull the turnip up by himself? | The turnip was far too big and heavy for one person. | inference
+Q: What does enormous mean? | Enormous means very, very big, much bigger than usual. | vocabulary
+Q: What is this reading mostly about? | An old man grows a huge turnip and tries to pull it up. | idea
+
+# Everyone Pulls Together
+
+The little girl took hold of the old woman. The old man pulled the turnip. The old woman pulled the old man. The little girl pulled the old woman. They pulled and pulled, but the turnip did not move. "Call the dog," said the little girl.
+
+The dog came and took hold of the little girl's dress. They all pulled together, but still the turnip did not move. So the little girl called the cat from the barn. The cat came and took hold of the dog's tail. They all pulled together, but still the turnip did not move.
+
+A little mouse came out of its hole. The mouse asked, "Can I help too?" "You are small, but come and try," said the cat. The mouse took hold of the cat's tail. The old man pulled the turnip. The old woman pulled the old man. The little girl pulled the old woman. The dog pulled the little girl. The cat pulled the dog, and the mouse pulled the cat. They all pulled together with all their might. Out came the turnip with a great big pop. Everyone fell down in a heap on the grass. That night they cooked the turnip for supper. There was enough for everyone, even the little mouse.
+
+V: barn = a big farm building for animals and hay
+V: heap = a pile of things on top of each other
+V: supper = the last meal of the day
+Q: Who was the last one to help pull the turnip? | The little mouse was the last one to help pull. | literal
+Q: Why did the turnip come out after the mouse helped? | Every bit of help counted, and the mouse's pull was just enough. | inference
+Q: What does heap mean? | A heap is a pile of things on top of each other. | vocabulary
+Q: What does the story teach? | Even the smallest helper matters when everyone works together. | idea

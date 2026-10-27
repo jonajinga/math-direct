@@ -1,0 +1,64 @@
+Title: The Three Little Pigs
+Author: English folk tale, retold
+Year: 2026
+Source: retold from the English folk tale "The Three Little Pigs", which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Three readings. The wolf is not eaten; he is scalded and runs away.
+
+# Three Little Pigs Set Out
+
+An old mother pig had three little pigs. She had very little money and very little food. One spring day she called her three children to her. "You must go and make your own homes now," she said. "Build good strong houses, and watch out for the wolf." The three pigs kissed her and set off.
+
+The first pig met a man with some straw. The pig asked for the straw to build a house. The man gave it to him gladly. The pig built a straw house in one day. It was light and quick, and he was pleased.
+
+The second pig met a man carrying sticks. He asked for the sticks to build a house. The man gave them, and the pig set to work. By evening he had a house of sticks. It was stronger than straw, and he was pleased.
+
+The third pig met a man with a cart of bricks. He asked for the bricks to build a house. Bricks are heavy, and the work was slow and hard. He laid them one by one, day after day. His brothers laughed at him for working so long. But at last he had a strong brick house. It had a thick door and a tall chimney.
+
+V: straw = dry yellow stems of wheat, like grass
+V: bricks = hard blocks of baked clay used for building
+V: chimney = a tall pipe that lets smoke out of a house
+Q: What did the first pig use to build his house? | He built his house out of a load of straw. | literal
+Q: Why did the third pig's house take so long to build? | Bricks are heavy, so he laid them one by one. | inference
+Q: What does chimney mean? | A tall pipe that lets the smoke out of a house. | vocabulary
+Q: What is this reading mostly about? | Three pigs leave home and each one builds a house. | idea
+
+# The Wolf Comes Calling
+
+A hungry wolf lived in the woods near the pigs. One day he smelled the first little pig. He came to the straw house and knocked. "Little pig, little pig, let me come in," he said. The pig peeped out and saw the wolf's sharp teeth. "Not by the hair on my chinny chin chin," said the pig. "Then I will huff and puff and blow your house in."
+
+The wolf took a deep, deep breath. He huffed, and he puffed, and he blew. The straw flew up in the air like dust. The first pig ran as fast as he could. He ran to the stick house and slipped inside.
+
+The wolf followed him, licking his lips. He knocked on the door of the stick house. "Little pigs, little pigs, let me come in," he said. "Not by the hair on our chins," said the two pigs. "Then I will huff and puff and blow your house in."
+
+He huffed, and he puffed, and he puffed, and he huffed. The sticks creaked and cracked and fell apart. The two pigs squeezed out the back and ran. They did not stop until they reached the brick house. Their brother let them in and shut the thick door. Then he pushed the bolt across, and they waited.
+
+V: huff = to blow out air hard
+V: creak = to make a long squeaky sound
+V: bolt = a bar that slides across to lock a door
+Q: What happened to the house of straw? | The wolf blew it away like dust in the wind. | literal
+Q: Why did the two pigs run to the brick house? | They knew the brick house was strong enough to keep the wolf out. | inference
+Q: What does bolt mean? | A bar that slides across a door to lock it. | vocabulary
+Q: What is this reading mostly about? | The wolf blows down the straw house and the stick house. | idea
+
+# The House of Bricks
+
+The wolf came up to the house of bricks. He knocked hard, and he called out to the pigs. "Little pigs, little pigs, let me come in," he said. "Not by the hair on our chins," they said. "Then I will huff and puff and blow your house in."
+
+The wolf huffed, and he puffed, and he blew. The bricks did not move at all. He huffed and puffed until his face turned red. Still the brick house stood, strong and square.
+
+The wolf sat down on the step to think. Then he looked up and saw the chimney. "I will climb down that and catch them," he said.
+
+But the third pig was clever, and he heard him. He set a great pot of water to boil on the fire. Steam rose up the chimney in a hot white cloud.
+
+The wolf slid down the chimney with a rush. He landed with a splash, right in the hot water. He yelped and leaped out faster than he went in. His tail was scalded, and he howled with pain. He shot out the door and ran for the woods. He never came near the three pigs again.
+
+The three pigs lived together in the house of bricks. They were safe and happy ever after.
+
+V: clever = quick to think of good ideas
+V: steam = the hot cloud that rises from boiling water
+V: scald = to burn with very hot water or steam
+Q: What did the third pig put over the fire? | He put a great pot of water on to boil. | literal
+Q: Why did the wolf climb onto the roof? | He wanted to get in through the chimney and catch the pigs. | inference
+Q: What does scald mean? | To burn something with very hot water or hot steam. | vocabulary
+Q: What does the story teach? | Hard work on something strong keeps you safe in the end. | idea

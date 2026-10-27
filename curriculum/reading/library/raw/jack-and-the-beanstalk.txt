@@ -1,0 +1,124 @@
+Title: Jack and the Beanstalk
+Author: English folk tale, retold
+Year: 2026
+Source: retold from "Jack and the Beanstalk" as Joseph Jacobs set it down in English Fairy Tales, which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Five readings. The giant falls from the beanstalk and is not seen again.
+
+# The Magic Beans
+
+Once upon a time there lived a poor widow and her son Jack. They had nothing in the world except a cow named Milky White. Every morning the cow gave milk, and they sold it at the market. But one morning Milky White gave no milk at all.
+
+The widow sighed and asked, "Whatever shall we do now?"
+
+"We must sell the cow and live on the money," said Jack.
+
+"Very well, take her to market and get a good price," said his mother.
+
+So Jack set off cheerfully with Milky White on a rope. He had not gone far when he met a peculiar old man. The man said, "Good morning, Jack, and where are you off to?"
+
+"I am going to market to sell our cow," said Jack.
+
+"You look like the proper sort of fellow to sell cows," said the man. "I wonder if you know how many beans make five."
+
+"Two in each hand and one in your mouth," said Jack sharply.
+
+"Right you are," said the man. "And here are the very beans, from my own pocket. Give me your cow, and I will give you these beans. Plant them tonight, and by morning they will grow right up to the sky."
+
+Jack thought that was a wonderful bargain indeed. He handed over Milky White and hurried home with the beans.
+
+V: widow = a woman whose husband has died
+V: bargain = a deal that seems to give you a lot
+V: peculiar = strange or unusual
+Q: Why did Jack take Milky White to the market? | The cow gave no more milk, so they had to sell her. | literal
+Q: Why did the old man say Jack was the proper fellow to sell cows? | He was flattering Jack so that Jack would trade the cow. | inference
+Q: What is a bargain? | A deal that seems to give you a lot for little. | vocabulary
+Q: What is this reading mostly about? | Jack trades the family cow for a handful of magic beans. | idea
+
+# Up the Beanstalk
+
+His mother said, "Back already, Jack, and how much did you get?"
+
+"You will never guess," said Jack, and he held out the beans. "They are magic beans, and they will grow up to the sky."
+
+She cried, "You gave away my cow for a handful of beans?" She threw the beans out of the window in a furious rage. Then she sent Jack to bed without any supper.
+
+Jack woke early the next morning and noticed that his room was strangely dim. He went to the window and could hardly believe his eyes. The beans had sprouted overnight into a gigantic beanstalk. Its thick green stem rose up and up until it vanished in the clouds.
+
+So Jack climbed out of the window and began to climb. He climbed and climbed until his arms ached and his legs trembled. At last he came out above the clouds onto a long white road.
+
+He followed the road until he arrived at a great tall house. On the doorstep stood a great tall woman. "Good morning, madam," said Jack politely. "Could you be so kind as to give me some breakfast?"
+
+The woman said, "It is breakfast you want, is it? It is breakfast you will be if you do not move off. My husband is a giant, and he likes nothing better than boys on toast."
+
+V: sprout = to begin to grow from a seed
+V: vanish = to disappear suddenly
+V: tremble = to shake because you are tired or afraid
+Q: What did Jack's mother do with the beans? | She threw them out of the window in a rage. | literal
+Q: Why was Jack's room dim when he woke up? | The beanstalk had grown outside and blocked the light from his window. | inference
+Q: What does tremble mean? | To shake a little because you are tired or afraid. | vocabulary
+Q: What is this reading mostly about? | Jack climbs the beanstalk and finds a giant's house above the clouds. | idea
+
+# The Giant's House
+
+Jack pleaded so hard that the giant's wife finally took pity on him. She led him into the kitchen and gave him bread and milk. He had barely finished when the entire house began to tremble. Thump, thump, thump, came the sound of heavy footsteps.
+
+"Quick, it is my husband," said the woman. "Hide in the cupboard and do not make a sound."
+
+In came the giant, who was absolutely enormous. He sat down at the table with a terrible scowl. Then he sniffed the air suspiciously and roared. "Fee fi fo fum, I smell a boy, and I am hungry."
+
+"Nonsense, dear, you smell the sheep I am roasting," said his wife. "Sit down and eat your breakfast."
+
+The giant finished eating, and then he demanded his bags of gold. He counted the gold coins at the table until his head began to nod. Soon he was snoring so loudly that the dishes rattled.
+
+Jack crept silently out of the cupboard on tiptoe. He took one bag of gold under his arm and ran for the door. He raced along the white road to the beanstalk and climbed down. He poured the gold into his mother's lap. "Now you see I was right about the beans," he said.
+
+V: enormous = huge, much bigger than usual
+V: scowl = an angry look on someone's face
+V: suspiciously = as if you think something is wrong
+Q: Where did Jack hide when the giant came in? | He hid in the cupboard and kept very still. | literal
+Q: Why did Jack wait until the giant was snoring? | He could take the gold safely while the giant was asleep. | inference
+Q: What is a scowl? | An angry look that someone makes with their face. | vocabulary
+Q: What is this reading mostly about? | Jack hides from the giant and escapes with a bag of gold. | idea
+
+# The Hen and the Harp
+
+Jack and his mother lived comfortably on the gold for a long while. But at last it was empty, and Jack decided to climb again.
+
+Up the beanstalk he went, along the road, and up to the great house. Once more the giant's wife gave him breakfast, though she was nervous. Once more the giant came thumping in, sniffing the air. This time Jack hid behind a tall copper kettle.
+
+When the giant had eaten, he called for his hen. "Lay," he said, and the hen laid an egg of solid gold. The giant admired the egg until he dozed off, snoring like thunder.
+
+Jack snatched up the hen and ran for the door. Jack reached the beanstalk and climbed down with the hen under his arm. Every day after that, the hen laid a golden egg for them.
+
+But Jack was still not content with his fortune. He climbed the beanstalk a third time. He did not knock, for the giant's wife would know him now. Instead he slipped inside quietly and hid in the woodbox.
+
+This time the giant called for his golden harp. "Sing," he said, and the harp sang so sweetly that the giant fell asleep. Jack crept out and seized the harp. But as he ran, the harp called out, "Master, master." The giant woke with a tremendous roar and thundered after him.
+
+V: content = happy with what you have
+V: fortune = a great amount of money or luck
+V: seize = to grab something quickly and hold it tight
+Q: What did the giant's hen do when he said "Lay"? | The hen laid an egg made of solid gold. | literal
+Q: Why did Jack not knock at the door the third time? | The giant's wife would recognize him and might not let him in. | inference
+Q: What does content mean? | Happy with what you have, wanting nothing more. | vocabulary
+Q: What is this reading mostly about? | Jack takes the hen and then the harp, and the giant wakes. | idea
+
+# The Fall of the Giant
+
+Jack ran as fast as his legs could carry him. The giant came pounding after him, shaking the road at every step. But the giant was heavy and slow, and Jack was quick. Jack reached the beanstalk first and swung himself onto it.
+
+He climbed down with the harp clutched tight against his chest. Halfway down he looked up and saw the giant above him. The great beanstalk swayed and creaked under the giant's weight.
+
+"Mother, mother," shouted Jack as he reached the ground. "Bring me the axe, and be quick." His mother came running with the axe in her hands. She gave a scream when she saw the giant's boots coming through the clouds.
+
+Jack took the axe and chopped at the beanstalk with all his might. The giant felt the stalk shake and stopped to see what was the matter. Jack chopped again, and the beanstalk began to topple. Then the giant lost his hold and fell. He tumbled far away over the distant hills and was never seen again.
+
+Jack showed his mother the golden harp. They sold the hen's golden eggs and became very rich. The golden harp sang for them every evening after supper. Jack married a great princess, and they lived happily ever after.
+
+V: clutch = to hold something very tightly
+V: topple = to fall over from being pushed or cut
+V: axe = a sharp tool for chopping wood
+Q: What did Jack ask his mother to bring him? | He asked her to bring the axe as quickly as she could. | literal
+Q: Why did Jack reach the beanstalk before the giant? | The giant was heavy and slow, while Jack was quick. | inference
+Q: What does topple mean? | To fall over after being pushed or cut. | vocabulary
+Q: What is this reading mostly about? | Jack chops down the beanstalk and the giant falls away forever. | idea

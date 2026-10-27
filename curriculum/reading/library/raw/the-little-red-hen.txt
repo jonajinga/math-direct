@@ -1,0 +1,44 @@
+Title: The Little Red Hen
+Author: Folk tale, retold
+Year: 2026
+Source: retold from the folk tale "The Little Red Hen", which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Two readings.
+
+# A Grain of Wheat
+
+A little red hen lived on a farm. A dog, a cat, and a duck lived there too. The hen worked hard all day long. The dog slept all day in the warm sun. The cat lay on the fence and did nothing. The duck swam in circles on the pond.
+
+One day the hen found a grain of wheat. She asked, "Who will help me plant this wheat?" "Not I," said the dog, and he yawned. "Not I," said the cat, and she stretched. "Not I," said the duck, and she swam away. "Then I will plant it myself," said the hen. So she dug a hole and planted it herself.
+
+The wheat grew tall and turned to gold. She asked, "Who will help me cut the wheat?" "Not I," said the dog, the cat, and the duck. "Then I will cut it myself," said the hen. So she cut it all down herself.
+
+Now the wheat had to go to the mill. She asked, "Who will help me carry it to the mill?" "Not I," said the dog, the cat, and the duck. "Then I will carry it myself," said the hen. She filled a sack and dragged it down the road.
+
+V: grain = a seed of a plant like wheat
+V: wheat = a plant whose seeds are made into flour
+V: mill = a place where grain is ground into flour
+Q: What did the little red hen find? | She found a grain of wheat on the farm. | literal
+Q: Why did the hen do all the work herself? | The dog, the cat, and the duck would not help her. | inference
+Q: What does mill mean? | A place where grain is ground up into flour. | vocabulary
+Q: What is this reading mostly about? | A hen grows wheat by herself because no one will help. | idea
+
+# The Loaf of Bread
+
+The hen came home with a sack of flour. She asked, "Who will help me bake the bread?" "Not I," said the dog, and he rolled over. "Not I," said the cat, and she licked her paw. "Not I," said the duck, and she shook her tail. "Then I will bake it myself," said the hen.
+
+She mixed the flour with water and salt. She kneaded the dough until it was smooth and soft. She made a loaf and put it in the oven. Soon a warm, sweet smell filled the farmyard.
+
+The dog woke up and sniffed the air. The cat jumped down from the fence. The duck waddled up from the pond.
+
+The hen took the loaf out of the oven. It was golden brown, with a crisp crust. She asked, "Now, who will help me eat this bread?" "I will," said the dog, wagging his tail. "I will," said the cat and the duck.
+
+"Oh no, you will not," said the little red hen. "You did not help me plant the wheat," she said. "You did not help me cut it or carry it." "And you did not help me bake it," she went on. "So I will eat it all myself," said the hen. And she ate it all up, every last crumb.
+
+V: knead = to press and fold dough with your hands
+V: dough = the soft mix of flour and water before baking
+V: crust = the hard outside of a loaf of bread
+Q: Who wanted to help the hen eat the bread? | The dog, the cat, and the duck all wanted to eat it. | literal
+Q: Why would the hen not share her bread? | The others had not helped her with any of the work. | inference
+Q: What does knead mean? | To press and fold dough with your hands until smooth. | vocabulary
+Q: What does the story teach? | If you want to share the reward, help with the work. | idea

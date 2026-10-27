@@ -1,0 +1,40 @@
+Title: Henny Penny
+Author: English folk tale, retold
+Year: 2026
+Source: retold from the English folk tale "Henny Penny", which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Two readings, one tale. In this telling the animals reach the king, learn that an acorn fell, and the fox gets nothing.
+
+# The Sky Is Falling
+
+Henny Penny was a little brown hen with bright eyes. One day she was picking up corn in the yard. Something fell out of the tree and hit her on the head. "Oh my, the sky is falling," said Henny Penny. "I must go along the road and tell the king."
+
+Soon she met Cocky Locky, the rooster. He asked, "Where are you going, Henny Penny?" "I am going to tell the king that the sky is falling," she said. Cocky Locky asked if he could come along too. "Of course you may," said Henny Penny with a nod. So the two of them went along the road together.
+
+Next they met Ducky Lucky by the pond. Ducky Lucky asked, "Where are you two going?" "The sky is falling," said Henny Penny. "We are going to tell the king," said Cocky Locky. Ducky Lucky asked to come too, and they said yes. So the three of them went along the road together.
+
+Then they met Goosey Loosey and Turkey Lurkey. The two of them asked, "Where are you all going?" "The sky is falling," said Henny Penny. "We are going to tell the king," said Ducky Lucky. They asked to come too, and Henny Penny said yes. So the five of them went along the road together.
+
+V: hen = a female chicken
+V: rooster = a male chicken that crows in the morning
+V: yard = the open ground beside a house
+Q: Who was the first animal Henny Penny met on the road? | She met Cocky Locky the rooster first on the road. | literal
+Q: Why did Henny Penny think the sky was falling? | Something hit her head, and she did not stop to look. | inference
+Q: What does rooster mean? | A rooster is a male chicken that crows in the morning. | vocabulary
+Q: What is this reading mostly about? | Henny Penny and her friends set off to tell the king some news. | idea
+
+# What the King Said
+
+Before long the five friends met Foxy Loxy. The fox asked, "Where are you all going?" "The sky is falling," said Henny Penny. "We are going to tell the king," said the others. "The king's house is a long way off," said the fox. "I know a short cut through my den," he said. "Follow me, and we will be there in no time."
+
+Henny Penny looked at the fox. She looked at his sharp teeth and his sly smile. "No thank you, we will keep to the road," said Henny Penny. The others nodded and stayed close to Henny Penny. At last the fox gave up and went home hungry.
+
+The five friends walked on until they came to the king's house. The king came out to see what they wanted. "The sky is falling," said Henny Penny. "A piece of it fell and hit me on the head." The king looked at her head and smiled. "This is not a piece of the sky," he said. He picked something small and brown out of her feathers. "It is only an acorn," said the king. "It fell from the oak tree in your yard." Henny Penny looked at the acorn and felt very silly. The five friends laughed and went home for supper.
+
+V: sly = clever in a tricky, hidden way
+V: den = the home of a wild animal, often a hole
+V: acorn = the small nut that grows on an oak tree
+Q: What did the king find in Henny Penny's feathers? | He found a small brown acorn from the oak tree. | literal
+Q: Why did Henny Penny say no to the fox? | She saw his sharp teeth and did not trust him. | inference
+Q: What does den mean? | A den is the home of a wild animal, often a hole. | vocabulary
+Q: What lesson does the story teach? | Find out what really happened before you spread the news. | idea

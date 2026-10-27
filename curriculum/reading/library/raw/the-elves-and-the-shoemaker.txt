@@ -1,0 +1,68 @@
+Title: The Elves and the Shoemaker
+Author: Brothers Grimm, retold
+Year: 2026
+Source: retold from "The Elves" by the Brothers Grimm, which is in the public domain
+License: public domain (the story); this retelling is dedicated to the public domain (CC0)
+Note: Three readings.
+
+# The Last Piece of Leather
+
+There was once a shoemaker who was honest and worked hard. But bad luck followed him, and he grew poorer each year. At last he had only enough leather for one pair of shoes.
+
+That evening he cut out the leather with great care. He laid the pieces on his workbench, ready to sew in the morning. Then he said his prayers and went up to bed.
+
+In the morning he came down to begin his work. There on the bench stood a pair of finished shoes. The shoemaker picked them up and turned them over in wonder. Every stitch was small and neat, and not one was out of place. He had never seen such fine work in all his life.
+
+Soon a customer came in and tried the shoes on. They fit so well that he paid double the usual price. With that money the shoemaker bought leather for two more pairs.
+
+Again he cut out the pieces at night and left them on the bench. Again he woke to find the shoes already made. This went on day after day, and his shop began to fill with customers. The shoemaker and his wife were no longer poor.
+
+V: leather = animal skin made into a strong material
+V: customer = a person who buys something from a shop
+V: stitch = one loop of thread made with a needle
+Q: What did the shoemaker find on his bench in the morning? | He found a pair of finished shoes with neat stitches. | literal
+Q: How do you know the shoes were very well made? | The customer paid double the price because they fit so well. | inference
+Q: What is a customer? | A person who comes into a shop to buy something. | vocabulary
+Q: What is this reading mostly about? | A poor shoemaker finds shoes made for him in the night. | idea
+
+# The Little Helpers
+
+One evening, close to Christmas, the shoemaker turned to his wife. "I would like to know who has been helping us," he said. "Let us stay up tonight and watch."
+
+His wife agreed, so they lit a candle and hid behind the coats. They waited quietly in the dark for a long time. Just as the clock struck midnight, the door creaked open.
+
+In ran two tiny elves, no taller than a shoe. They wore no clothes at all, and their feet were bare. They climbed onto the bench and picked up the leather. Their little fingers flew as they stitched and hammered and polished. The shoemaker could hardly believe how fast they worked.
+
+Before the first light of dawn, every shoe was finished. The elves lined them up neatly in a row. Then they hopped down from the bench and ran out the door.
+
+The shoemaker and his wife crept out from their hiding place. The wife whispered, "Did you see their poor little bare feet? They must be so cold with nothing to wear. Those little elves have made us rich, and we have given them nothing. I think it is time we did something kind for them."
+
+V: midnight = twelve at night, when one day becomes the next
+V: polish = to rub something until it shines
+V: dawn = the first light of the morning
+Q: What time did the door creak open? | The door opened just as the clock struck midnight. | literal
+Q: Why did the shoemaker and his wife hide behind the coats? | They wanted to see who was helping without being noticed. | inference
+Q: What does polish mean? | To rub something until it is smooth and shiny. | vocabulary
+Q: What is this reading mostly about? | The shoemaker and his wife discover two tiny elves at work. | idea
+
+# A Gift for the Elves
+
+The next morning the wife got out her sewing basket. "I will make them each a little shirt and a coat," she said. "And a pair of trousers and a tiny woolly hat."
+
+"Then I will make them each a pair of little shoes," said the shoemaker.
+
+They worked busily on the gifts all day long. The wife sewed and knitted while the shoemaker cut and stitched. By evening the tiny clothes and shoes were ready. They laid them out on the bench where the leather usually went. Then they hid behind the coats once more and waited.
+
+At midnight the elves ran in as before. They stopped short when they saw the little clothes. For a moment they stood perfectly still and stared in amazement. Then they giggled and clapped and pulled everything on. They danced around the bench in their new shoes and laughed.
+
+"Now we are handsome little men," they sang. "Why should we stay and work when we are dressed so well?" They skipped out the door and were never seen again.
+
+The shoemaker did his own work from then on. He never forgot the elves who had helped him. He and his wife lived in comfort for the rest of their days.
+
+V: trousers = a piece of clothing that covers the legs
+V: handsome = nice to look at
+V: comfort = a life with enough of everything you need
+Q: What did the wife make for the elves? | She made each elf a shirt, a coat, trousers, and a hat. | literal
+Q: Why did the elves never come back? | Once they had clothes, they felt no need to keep working. | inference
+Q: What does handsome mean? | Nice to look at, as a man or boy can be. | vocabulary
+Q: What is the lesson of the story? | When someone helps you, find a way to thank them. | idea
